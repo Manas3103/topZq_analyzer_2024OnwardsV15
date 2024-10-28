@@ -45,7 +45,7 @@ void BaseAnalyser::defineCuts()
 	std::cout<< "-------------------------------------------------------------------" << std::endl;
 
 	//MinimalSelection to filter events
-	addCuts("nMuon > 0 + nElectron == 1 && nJet>0", "0");
+	addCuts("3 > nMuon > 0 && 3 > nElectron > 0  && nJet>2", "0");//first change``
 	//addCuts("NgoodMuons>=2","00");
     //addCuts("ncleanjetspass>0","00");
 	//addCuts(setHLT(),"1"); //HLT cut buy checking HLT names in the root file
@@ -65,7 +65,7 @@ void BaseAnalyser::selectElectrons()
     }
    
     _rlm = _rlm.Define("goodElectronsID", ElectronID(2)); //without pt-eta cuts
-	_rlm = _rlm.Define("goodElectrons", "goodElectronsID && Electron_pt>35.0 && abs(Electron_eta)<2.1 && Electron_pfRelIso03_all<0.15");
+	_rlm = _rlm.Define("goodElectrons", "goodElectronsID && Electron_pt>25.0 && abs(Electron_eta)<2.1 && Electron_pfRelIso03_all<0.15");//here i made the change
     _rlm = _rlm.Define("goodElectrons_pt", "Electron_pt[goodElectrons]")
                 .Define("goodElectrons_eta", "Electron_eta[goodElectrons]")
                 .Define("goodElectrons_phi", "Electron_phi[goodElectrons]")
@@ -93,7 +93,7 @@ void BaseAnalyser::selectMuons()
     }
 
     _rlm = _rlm.Define("goodMuonsID", MuonID(2)); //loose muons
-    _rlm = _rlm.Define("goodMuons","goodMuonsID && Muon_pt > 30 && abs(Muon_eta) < 2.4 && Muon_miniPFRelIso_all < 0.40");
+    _rlm = _rlm.Define("goodMuons","goodMuonsID && Muon_pt > 30 && abs(Muon_eta) < 2.4 && Muon_miniPFRelIso_all < 0.40");//here i made the change
     _rlm = _rlm.Define("goodMuons_pt", "Muon_pt[goodMuons]") 
                 .Define("goodMuons_eta", "Muon_eta[goodMuons]")
                 .Define("goodMuons_phi", "Muon_phi[goodMuons]")
@@ -106,7 +106,14 @@ void BaseAnalyser::selectMuons()
     //generate muon 4vector from selected good Muons
     //-------------------------------------------------------
     _rlm = _rlm.Define("goodMuons_4vecs", ::generate_4vec, {"goodMuons_pt", "goodMuons_eta", "goodMuons_phi", "goodMuons_mass"});
-   
+    _rlm = _rlm.Define("goodMuons_energy", [](const std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>& muon_4vecs) {
+    std::vector<double> energies;
+    for (const auto& vec : muon_4vecs) {
+        energies.push_back(vec.E());  // E() gives the energy in PtEtaPhiM4D Lorentz vector
+    }
+    return energies;
+}, {"goodMuons_4vecs"});
+
 
 }
 //=================================Select Jets=================================================//
@@ -316,13 +323,16 @@ void BaseAnalyser::defineMoreVars()
     //electron
     addVartoStore("nElectron");
     addVartoStore("Electron_charge");
+    addVartoStore("Electron_pt");
     addVartoStore("NgoodElectrons");
 
     //muon
     addVartoStore("nMuon");
     addVartoStore("Muon_charge");
     addVartoStore("Muon_mass");
+    addVartoStore("goodMuons_pt");
     addVartoStore("NgoodMuons");
+    addVartoStore("goodMuons_energy");
 
     //jet
     addVartoStore("nJet");
@@ -386,7 +396,9 @@ void BaseAnalyser::defineMoreVars()
     addVartoStore("muon_SF_id_systup");
     addVartoStore("muon_SF_id_systdown");
     //addVartoStore("muonISO_SF");
+    std::cout << "hello" << std::endl;
     addVartoStore("muon_SF_iso_sf");
+    std::cout << "this is the bug" << std::endl;
     }
 
 //    addVartoStore("evWeight");   
@@ -421,7 +433,7 @@ void BaseAnalyser::bookHists()
     
     add1DHist( {"hNgoodElectrons", "NumberofGoodElectrons", 5, 0.0, 5.0}, "NgoodElectrons", "evWeight", "");
     
-    add1DHist( {"hNgoodMuons", "# of good Muons ", 5, 0.0, 5.0}, "NgoodMuons", "evWeight", "");
+    add1DHist( {"hNgoodMuons", "# of good Muons ", 5, 0.0, 5.0}, "NgoodMuons", "evWeight", "");//i made the change 
     
     // add1DHist( {"hgood_jetpt_with weight", "Good Jet pt with weight " , 100, 0, 1000} , "goodJets_pt", "evWeight", "");
     // add1DHist( {"hgood_jetpt_NOWeight", "Good Jet pt no weihght " , 100, 0, 1000} , "goodJets_pt", "one", "");
