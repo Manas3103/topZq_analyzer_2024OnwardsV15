@@ -1022,6 +1022,7 @@ void NanoAODAnalyzerrdframe::run(bool saveAll, string outtreename)
 	for (auto arnt : rntends)
 	{
 		string nodename = arnt->getIndex();
+		cout <<" nodename" <<endl;
 		string outname = _outfilename;
 		if (rntends.size() > 1)
 			outname.replace(outname.find(".root"), 5, "_" + nodename + ".root");
@@ -1043,8 +1044,36 @@ void NanoAODAnalyzerrdframe::run(bool saveAll, string outtreename)
 				cout << bname << endl;
 			        cout << "-----branch stored" << endl;
 			}
+                        cout << "before snapshot" <<endl;       
 
-			arnode->Snapshot(outtreename, outname, _varstostorepertree[nodename]);
+//start of my function
+                        // Print available columns in the RDataFrame
+/*                        auto columns = arnode->GetColumnNames();
+                        std::cout << "Available columns in arnode: " << std::endl;
+                        for (const auto& col : columns) {
+                            std::cout << col << std::endl;
+                         }         
+
+                        // Check if each branch in _varstostorepertree exists in arnode
+                        std::cout << "Branches to store:" << std::endl;
+                        for (const auto& var : _varstostorepertree[nodename]) {
+                              if (std::find(columns.begin(), columns.end(), var) == columns.end()) {
+                              std::cerr << "Error: Branch " << var << " not found in arnode!" << std::endl;
+                                } else {
+                              std::cout << "Branch " << var << " found." << std::endl;
+                                }
+                         }                        
+//till this i have added the function
+*/
+		  	arnode->Snapshot(outtreename, outname, _varstostorepertree[nodename]);
+		        cout << "after snapshot" <<endl;
+ /*                 //this is manual code by manas
+		         try {
+                            arnode->Snapshot(outtreename, outname, _varstostorepertree[nodename]);
+                        } catch (const std::exception &e) {
+                             std::cerr << "Runtime error in Snapshot: " << e.what() << std::endl;
+                        }
+*/		  //ends the manual code here	
 		}
 		std::cout << "-------------------------------------------------------------------" << std::endl;
 		cout << "Creating output root file :  " << endl;
@@ -1071,10 +1100,10 @@ void NanoAODAnalyzerrdframe::run(bool saveAll, string outtreename)
 				h.second.GetPtr()->Write();
 			}
 		}
-		/*TH1F* hPDFWeights = new TH1F("LHEPdfWeightSum", "LHEPdfWeightSum", 103, 0, 1);
-		for (size_t i=0; i<PDFWeights.size(); i++){
-			hPDFWeights->SetBinContent(i+1, PDFWeights[i]);
-		}*/
+		//TH1F* hPDFWeights = new TH1F("LHEPdfWeightSum", "LHEPdfWeightSum", 103, 0, 1);
+		//for (size_t i=0; i<PDFWeights.size(); i++){
+		//	hPDFWeights->SetBinContent(i+1, PDFWeights[i]);
+	//	}
 		_outrootfile->Write(0, TObject::kOverwrite);
 		_outrootfile->Close();
 	}

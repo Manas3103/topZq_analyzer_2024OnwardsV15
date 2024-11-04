@@ -22,7 +22,19 @@ BaseAnalyser::BaseAnalyser(TTree *t, std::string outfilename)
                     "HLT_PFHT330PT30_QuadPFJet_75_60_45_40_TriplePFBTagDeepCSV_4p5",
                     "HLT_PFJet550","HLT_PFHT400_FivePFJet_100_100_60_30_30_DoublePFBTagDeepCSV_4p5",
                     "HLT_PFHT400_FivePFJet_120_120_60_30_30_DoublePFBTagDeepCSV_4p5"};
-	HLT2017Names= {"HLT_IsoMu24","HLT_Ele32_WPTight_Gsf"};
+//	HLT2017Names= {"HLT_IsoMu24","HLT_Ele32_WPTight_Gsf"};
+        HLT2017Names= {"HLT_IsoMu24", "HLT_IsoMu24_eta2p1", "HLT_IsoMu27", "HLT_Mu50", "HLT_OldMu100", "HLT_TkMu100",
+	               "HLT_Ele32_WPTight_Gsf", "HLT_Ele35_WPTight_Gsf", "HLT_Ele115_CaloIdVT_GsfTrkIdT", "HLT_Photon200",
+                       "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL", "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ", "HLT_Mu37_TkMu27", "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8", "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8",
+		       "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ", "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ", "HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ", "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL", "HLT_Mu27_Ele37_CaloIdL_MW", "HLT_Mu37_Ele27_CaloIdL_MW",
+		       "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL", "HLT_DoubleEle33_CaloIdL_MW",
+		       "HLT_TripleMu_10_5_5_DZ", "HLT_TripleMu_5_3_3_Mass3p8to60_DZ", "HLT_TripleMu_12_10_5",
+		       "HLT_DiMu9_Ele9_CaloIdL_TrackIdL_DZ",
+		       "HLT_Mu8_DiEle12_CaloIdL_TrackIdL",
+                       "HLT_Ele16_Ele12_Ele8_CaloIdL_TrackIdL"
+	
+	};
+
     HLT2016Names= {"Name1","Name2"};
 }
 
@@ -45,10 +57,12 @@ void BaseAnalyser::defineCuts()
 	std::cout<< "-------------------------------------------------------------------" << std::endl;
 
 	//MinimalSelection to filter events
-	addCuts("3 > nMuon > 0 && 3 > nElectron > 0  && nJet>2", "0");//first change``
+//	addCuts("3 > nMuon > 0 && 3 > nElectron > 0  && nJet>2", "0");//first change``
+        addCuts("nMuon + nElectron == 3  && nJet>2", "0");
+
 	//addCuts("NgoodMuons>=2","00");
     //addCuts("ncleanjetspass>0","00");
-	//addCuts(setHLT(),"1"); //HLT cut buy checking HLT names in the root file
+	addCuts(setHLT(),"0"); //HLT cut buy checking HLT names in the root file
 
 }
 //===============================Find Good Electrons===========================================//
@@ -65,8 +79,10 @@ void BaseAnalyser::selectElectrons()
     }
    
     _rlm = _rlm.Define("goodElectronsID", ElectronID(2)); //without pt-eta cuts
-	_rlm = _rlm.Define("goodElectrons", "goodElectronsID && Electron_pt>25.0 && abs(Electron_eta)<2.1 && Electron_pfRelIso03_all<0.15");//here i made the change
-    _rlm = _rlm.Define("goodElectrons_pt", "Electron_pt[goodElectrons]")
+	_rlm = _rlm.Define("goodElectrons", "goodElectronsID && Electron_pt>25.0  && abs(Electron_eta)<2.1 && Electron_pfRelIso03_all<0.15");//here i made the change
+      //  _rlm = _rlm.Define("goodElectrons", "Electron_pt>25.0");//here i made the change
+
+    	_rlm = _rlm.Define("goodElectrons_pt", "Electron_pt[goodElectrons]")
                 .Define("goodElectrons_eta", "Electron_eta[goodElectrons]")
                 .Define("goodElectrons_phi", "Electron_phi[goodElectrons]")
                 .Define("goodElectrons_mass", "Electron_mass[goodElectrons]")
@@ -82,6 +98,7 @@ void BaseAnalyser::selectElectrons()
 //===============================Find Good Muons===============================================//
 //: Define Good Muons in rdata frame
 //=============================================================================================//
+/*
 void BaseAnalyser::selectMuons()
 {
 
@@ -94,6 +111,7 @@ void BaseAnalyser::selectMuons()
 
     _rlm = _rlm.Define("goodMuonsID", MuonID(2)); //loose muons
     _rlm = _rlm.Define("goodMuons","goodMuonsID && Muon_pt > 30 && abs(Muon_eta) < 2.4 && Muon_miniPFRelIso_all < 0.40");//here i made the change
+   // _rlm = _rlm.Define("goodMuons"," Muon_pt > 10 && abs(Muon_eta) < 2.4 && Muon_miniPFRelIso_all < 0.40");//here i made the change
     _rlm = _rlm.Define("goodMuons_pt", "Muon_pt[goodMuons]") 
                 .Define("goodMuons_eta", "Muon_eta[goodMuons]")
                 .Define("goodMuons_phi", "Muon_phi[goodMuons]")
@@ -116,6 +134,122 @@ void BaseAnalyser::selectMuons()
 
 
 }
+*/
+
+/*
+void BaseAnalyser::selectMuons()
+{
+    cout << "select good muons" << endl;
+    if (debug) {
+        std::cout << "================================//=================================" << std::endl;
+        std::cout << "Line : " << __LINE__ << " Function : " << __FUNCTION__ << std::endl;
+        std::cout << "================================//=================================" << std::endl;
+    }
+
+    // Define good muons based on ID and additional criteria
+    _rlm = _rlm.Define("goodMuonsID", MuonID(2)); // loose muons
+    _rlm = _rlm.Define("goodMuons", "goodMuonsID && Muon_pt > 30 && abs(Muon_eta) < 2.4 && Muon_miniPFRelIso_all < 0.40");
+
+    // Define additional variables for good muons
+    _rlm = _rlm.Define("goodMuons_pt", "Muon_pt[goodMuons]")
+                .Define("goodMuons_eta", "Muon_eta[goodMuons]")
+                .Define("goodMuons_phi", "Muon_phi[goodMuons]")
+                .Define("goodMuons_mass", "Muon_mass[goodMuons]")
+                .Define("goodMuons_charge", "Muon_charge[goodMuons]")
+                .Define("goodMuons_idx", ::good_idx, {"goodMuons"})
+                .Define("NgoodMuons", "int(goodMuons_pt.size())");
+
+    //-------------------------------------------------------
+    // Define trailing muons with pt > 10
+    //-------------------------------------------------------
+    _rlm = _rlm.Define("trailingMuons", "Muon_pt > 10 && abs(Muon_eta) < 2.4 && Muon_miniPFRelIso_all < 0.40");
+
+    // Define additional variables for trailing muons
+    _rlm = _rlm.Define("trailingMuons_pt", "Muon_pt[trailingMuons]")
+                .Define("trailingMuons_eta", "Muon_eta[trailingMuons]")
+                .Define("trailingMuons_phi", "Muon_phi[trailingMuons]")
+                .Define("trailingMuons_mass", "Muon_mass[trailingMuons]")
+                .Define("trailingMuons_charge", "Muon_charge[trailingMuons]")
+                .Define("trailingMuons_idx", ::good_idx, {"trailingMuons"})
+                .Define("NtrailingMuons", "int(trailingMuons_pt.size())");
+
+    //-------------------------------------------------------
+    // Generate muon 4-vector from selected good muons
+    //-------------------------------------------------------
+    _rlm = _rlm.Define("goodMuons_4vecs", ::generate_4vec, {"goodMuons_pt", "goodMuons_eta", "goodMuons_phi", "goodMuons_mass"});
+    _rlm = _rlm.Define("goodMuons_energy", [](const std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>& muon_4vecs) {
+        std::vector<double> energies;
+        for (const auto& vec : muon_4vecs) {
+            energies.push_back(vec.E());  // E() gives the energy in PtEtaPhiM4D Lorentz vector
+        }
+        return energies;
+    }, {"goodMuons_4vecs"});
+}
+*/
+
+void BaseAnalyser::selectMuons()
+{
+    cout << "select good muons" << endl;
+    if (debug) {
+        std::cout << "================================//=================================" << std::endl;
+        std::cout << "Line : " << __LINE__ << " Function : " << __FUNCTION__ << std::endl;
+        std::cout << "================================//=================================" << std::endl;
+    }
+
+    // Define good muons based on ID and additional criteria
+    _rlm = _rlm.Define("goodMuonsID", MuonID(2)); // loose muons
+    _rlm = _rlm.Define("goodMuons", "goodMuonsID && Muon_pt > 30 && abs(Muon_eta) < 2.4 && Muon_miniPFRelIso_all < 0.40");
+
+    // Define additional variables for good muons
+    _rlm = _rlm.Define("goodMuons_pt", "Muon_pt[goodMuons]")
+                .Define("goodMuons_eta", "Muon_eta[goodMuons]")
+                .Define("goodMuons_phi", "Muon_phi[goodMuons]")
+                .Define("goodMuons_mass", "Muon_mass[goodMuons]")
+                .Define("goodMuons_charge", "Muon_charge[goodMuons]")
+                .Define("goodMuons_idx", ::good_idx, {"goodMuons"})
+                .Define("NgoodMuons", "int(goodMuons_pt.size())");
+
+    //-------------------------------------------------------
+    // Define trailing muons with pt > 10
+    //-------------------------------------------------------
+    _rlm = _rlm.Define("trailingMuons", "Muon_pt > 10 && abs(Muon_eta) < 2.4 && Muon_miniPFRelIso_all < 0.40");
+
+    // Define additional variables for trailing muons
+    _rlm = _rlm.Define("trailingMuons_pt", "Muon_pt[trailingMuons]")
+                .Define("trailingMuons_eta", "Muon_eta[trailingMuons]")
+                .Define("trailingMuons_phi", "Muon_phi[trailingMuons]")
+                .Define("trailingMuons_mass", "Muon_mass[trailingMuons]")
+                .Define("trailingMuons_charge", "Muon_charge[trailingMuons]")
+                .Define("trailingMuons_idx", ::good_idx, {"trailingMuons"})
+                .Define("NtrailingMuons", "int(trailingMuons_pt.size())");
+
+    //-------------------------------------------------------
+    // Generate muon 4-vector from selected good muons
+    //-------------------------------------------------------
+    _rlm = _rlm.Define("goodMuons_4vecs", ::generate_4vec, {"goodMuons_pt", "goodMuons_eta", "goodMuons_phi", "goodMuons_mass"});
+
+    // Generate muon 4-vector for trailing muons
+    _rlm = _rlm.Define("trailingMuons_4vecs", ::generate_4vec, {"trailingMuons_pt", "trailingMuons_eta", "trailingMuons_phi", "trailingMuons_mass"});
+
+    // Define energy for good muons
+    _rlm = _rlm.Define("goodMuons_energy", [](const std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>& muon_4vecs) {
+        std::vector<double> energies;
+        for (const auto& vec : muon_4vecs) {
+            energies.push_back(vec.E());  // E() gives the energy in PtEtaPhiM4D Lorentz vector
+        }
+        return energies;
+    }, {"goodMuons_4vecs"});
+
+    // Define energy for trailing muons
+    _rlm = _rlm.Define("trailingMuons_energy", [](const std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>& muon_4vecs) {
+        std::vector<double> energies;
+        for (const auto& vec : muon_4vecs) {
+            energies.push_back(vec.E());  // E() gives the energy in PtEtaPhiM4D Lorentz vector
+        }
+        return energies;
+    }, {"trailingMuons_4vecs"});
+}
+
 //=================================Select Jets=================================================//
 //check the twiki page :    https://twiki.cern.ch/twiki/bin/view/CMS/JetID
 //to find jetId working points for the purpose of  your analysis.
@@ -301,13 +435,13 @@ void BaseAnalyser::defineMoreVars()
         std::cout<< "================================//=================================" << std::endl;
     }
 
-    addVar({"good_muon1pt", "goodMuons_pt[0]", ""});
+    //addVar({"good_muon1pt", "goodMuons_pt[0]", ""});
 
     //selected jet candidates
-    addVar({"good_jet1pt", "(goodJets_pt.size()>0) ? goodJets_pt[0] : -1", ""});
-    addVar({"Selected_jet1pt", "(Selected_jetpt.size()>0) ? Selected_jetpt[0] : -1", ""});
-    addVar({"good_jet1eta", "goodJets_eta[0]", ""});
-    addVar({"good_jet1mass", "goodJets_mass[0]", ""});
+   // addVar({"good_jet1pt", "(goodJets_pt.size()>0) ? goodJets_pt[0] : -1", ""});
+    //addVar({"Selected_jet1pt", "(Selected_jetpt.size()>0) ? Selected_jetpt[0] : -1", ""});
+    //addVar({"good_jet1eta", "goodJets_eta[0]", ""});
+    //addVar({"good_jet1mass", "goodJets_mass[0]", ""});
 
     //================================Store variables in tree=======================================//
     // define variables that you want to store
@@ -330,10 +464,12 @@ void BaseAnalyser::defineMoreVars()
     addVartoStore("nMuon");
     addVartoStore("Muon_charge");
     addVartoStore("Muon_mass");
+    addVartoStore("Muon_pt");
     addVartoStore("goodMuons_pt");
     addVartoStore("NgoodMuons");
     addVartoStore("goodMuons_energy");
-
+    addVartoStore("trailingMuons");
+    addVartoStore("trailingMuons_pt");
     //jet
     addVartoStore("nJet");
     addVartoStore("Jet_pt");
@@ -431,9 +567,9 @@ void BaseAnalyser::bookHists()
     // add1DHist( {"hnevents", "Number of Events", 2, -0.5, 1.5}, "one", "evWeight", "");
     // add1DHist( {"hnevents_no_weight", "Number of Events w/o", 2, -0.5, 1.5}, "one", "one", "");
     
-    add1DHist( {"hNgoodElectrons", "NumberofGoodElectrons", 5, 0.0, 5.0}, "NgoodElectrons", "evWeight", "");
+  //  add1DHist( {"hNgoodElectrons", "NumberofGoodElectrons", 5, 0.0, 5.0}, "NgoodElectrons", "evWeight", "");
     
-    add1DHist( {"hNgoodMuons", "# of good Muons ", 5, 0.0, 5.0}, "NgoodMuons", "evWeight", "");//i made the change 
+   // add1DHist( {"hNgoodMuons", "# of good Muons ", 5, 0.0, 5.0}, "NgoodMuons", "evWeight", "");//i made the change 
     
     // add1DHist( {"hgood_jetpt_with weight", "Good Jet pt with weight " , 100, 0, 1000} , "goodJets_pt", "evWeight", "");
     // add1DHist( {"hgood_jetpt_NOWeight", "Good Jet pt no weihght " , 100, 0, 1000} , "goodJets_pt", "one", "");
