@@ -68,7 +68,7 @@ void BaseAnalyser::defineCuts()
 //===============================Find Good Electrons===========================================//
 //: Define Good Electrons in rdata frame
 //=============================================================================================//
-
+/*
 void BaseAnalyser::selectElectrons()
 {
     cout << "select good electrons" << endl;
@@ -79,7 +79,7 @@ void BaseAnalyser::selectElectrons()
     }
    
     _rlm = _rlm.Define("goodElectronsID", ElectronID(2)); //without pt-eta cuts
-	_rlm = _rlm.Define("goodElectrons", "goodElectronsID && Electron_pt>25.0  && abs(Electron_eta)<2.1 && Electron_pfRelIso03_all<0.15");//here i made the change
+	_rlm = _rlm.Define("goodElectrons", "goodElectronsID && Electron_pt>30.0  && abs(Electron_eta)<2.1 && Electron_pfRelIso03_all<0.15");//here i made the change
       //  _rlm = _rlm.Define("goodElectrons", "Electron_pt>25.0");//here i made the change
 
     	_rlm = _rlm.Define("goodElectrons_pt", "Electron_pt[goodElectrons]")
@@ -94,7 +94,78 @@ void BaseAnalyser::selectElectrons()
     //-------------------------------------------------------
     _rlm = _rlm.Define("goodElectron_4Vecs", ::generate_4vec, {"goodElectrons_pt", "goodElectrons_eta", "goodElectrons_phi", "goodElectrons_mass"});
 
+}*/
+// ##=========THIS IS THE NEW FUNCITON WITH THE NEW BRANCH=========##
+// ==================================================================
+// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+void BaseAnalyser::selectElectrons()
+{
+    cout << "select good electrons" << endl;
+    if (debug){
+        std::cout << "================================//=================================" << std::endl;
+        std::cout << "Line : " << __LINE__ << " Function : " << __FUNCTION__ << std::endl;
+        std::cout << "================================//=================================" << std::endl;
+    }
+
+    // Define good electrons based on ID and additional criteria
+    _rlm = _rlm.Define("goodElectronsID", ElectronID(2)); // ID level 2
+    _rlm = _rlm.Define("goodElectrons", "goodElectronsID && Electron_pt > 25.0 && abs(Electron_eta) < 2.1 && Electron_pfRelIso03_all < 0.15");
+
+    // Define additional variables for good electrons
+    _rlm = _rlm.Define("goodElectrons_pt", "Electron_pt[goodElectrons]")
+                .Define("goodElectrons_eta", "Electron_eta[goodElectrons]")
+                .Define("goodElectrons_phi", "Electron_phi[goodElectrons]")
+                .Define("goodElectrons_mass", "Electron_mass[goodElectrons]")
+                .Define("goodElectrons_idx", ::good_idx, {"goodElectrons"})
+                .Define("NgoodElectrons", "int(goodElectrons_pt.size())");
+
+    //-------------------------------------------------------
+    // Define trailing electrons with ElectronID(2)
+    //-------------------------------------------------------
+    _rlm = _rlm.Define("trailingElectronsID", ElectronID(2)); // ID level 2 for trailing electrons
+    _rlm = _rlm.Define("trailingElectrons", "trailingElectronsID && Electron_pt > 20 && abs(Electron_eta) < 2.5 && Electron_pfRelIso03_all < 0.20");
+
+    // Define additional variables for trailing electrons
+    _rlm = _rlm.Define("trailingElectrons_pt", "Electron_pt[trailingElectrons]")
+                .Define("trailingElectrons_eta", "Electron_eta[trailingElectrons]")
+                .Define("trailingElectrons_phi", "Electron_phi[trailingElectrons]")
+                .Define("trailingElectrons_mass", "Electron_mass[trailingElectrons]")
+                .Define("trailingElectrons_charge", "Electron_charge[trailingElectrons]")
+                .Define("trailingElectrons_idx", ::good_idx, {"trailingElectrons"})
+                .Define("NtrailingElectrons", "int(trailingElectrons_pt.size())");
+
+    //-------------------------------------------------------
+    // Generate electron 4-vector from selected good electrons
+    //-------------------------------------------------------
+    _rlm = _rlm.Define("goodElectron_4Vecs", ::generate_4vec, {"goodElectrons_pt", "goodElectrons_eta", "goodElectrons_phi", "goodElectrons_mass"});
+
+    // Generate electron 4-vector for trailing electrons
+    _rlm = _rlm.Define("trailingElectrons_4Vecs", ::generate_4vec, {"trailingElectrons_pt", "trailingElectrons_eta", "trailingElectrons_phi", "trailingElectrons_mass"});
+
+    // Define energy for good electrons
+    _rlm = _rlm.Define("goodElectrons_energy", [](const std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>& electron_4vecs) {
+        std::vector<double> energies;
+        for (const auto& vec : electron_4vecs) {
+            energies.push_back(vec.E());  // E() gives the energy in PtEtaPhiM4D Lorentz vector
+        }
+        return energies;
+    }, {"goodElectron_4Vecs"});
+
+    // Define energy for trailing electrons
+    _rlm = _rlm.Define("trailingElectrons_energy", [](const std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>& electron_4vecs) {
+        std::vector<double> energies;
+        for (const auto& vec : electron_4vecs) {
+            energies.push_back(vec.E());  // E() gives the energy in PtEtaPhiM4D Lorentz vector
+        }
+        return energies;
+    }, {"trailingElectrons_4Vecs"});
 }
+
+
+
+
+
+
 //===============================Find Good Muons===============================================//
 //: Define Good Muons in rdata frame
 //=============================================================================================//
@@ -110,7 +181,7 @@ void BaseAnalyser::selectMuons()
     }
 
     _rlm = _rlm.Define("goodMuonsID", MuonID(2)); //loose muons
-    _rlm = _rlm.Define("goodMuons","goodMuonsID && Muon_pt > 30 && abs(Muon_eta) < 2.4 && Muon_miniPFRelIso_all < 0.40");//here i made the change
+    _rlm = _rlm.Define("goodMuons","goodMuonsID && Muon_pt > 10 && abs(Muon_eta) < 2.4 && Muon_miniPFRelIso_all < 0.40");//here i made the change
    // _rlm = _rlm.Define("goodMuons"," Muon_pt > 10 && abs(Muon_eta) < 2.4 && Muon_miniPFRelIso_all < 0.40");//here i made the change
     _rlm = _rlm.Define("goodMuons_pt", "Muon_pt[goodMuons]") 
                 .Define("goodMuons_eta", "Muon_eta[goodMuons]")
@@ -135,57 +206,10 @@ void BaseAnalyser::selectMuons()
 
 }
 */
+// ##=========THIS IS THE NEW FUNCITON WITH THE NEW BRANCH=========##
+// ==================================================================
+// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-/*
-void BaseAnalyser::selectMuons()
-{
-    cout << "select good muons" << endl;
-    if (debug) {
-        std::cout << "================================//=================================" << std::endl;
-        std::cout << "Line : " << __LINE__ << " Function : " << __FUNCTION__ << std::endl;
-        std::cout << "================================//=================================" << std::endl;
-    }
-
-    // Define good muons based on ID and additional criteria
-    _rlm = _rlm.Define("goodMuonsID", MuonID(2)); // loose muons
-    _rlm = _rlm.Define("goodMuons", "goodMuonsID && Muon_pt > 30 && abs(Muon_eta) < 2.4 && Muon_miniPFRelIso_all < 0.40");
-
-    // Define additional variables for good muons
-    _rlm = _rlm.Define("goodMuons_pt", "Muon_pt[goodMuons]")
-                .Define("goodMuons_eta", "Muon_eta[goodMuons]")
-                .Define("goodMuons_phi", "Muon_phi[goodMuons]")
-                .Define("goodMuons_mass", "Muon_mass[goodMuons]")
-                .Define("goodMuons_charge", "Muon_charge[goodMuons]")
-                .Define("goodMuons_idx", ::good_idx, {"goodMuons"})
-                .Define("NgoodMuons", "int(goodMuons_pt.size())");
-
-    //-------------------------------------------------------
-    // Define trailing muons with pt > 10
-    //-------------------------------------------------------
-    _rlm = _rlm.Define("trailingMuons", "Muon_pt > 10 && abs(Muon_eta) < 2.4 && Muon_miniPFRelIso_all < 0.40");
-
-    // Define additional variables for trailing muons
-    _rlm = _rlm.Define("trailingMuons_pt", "Muon_pt[trailingMuons]")
-                .Define("trailingMuons_eta", "Muon_eta[trailingMuons]")
-                .Define("trailingMuons_phi", "Muon_phi[trailingMuons]")
-                .Define("trailingMuons_mass", "Muon_mass[trailingMuons]")
-                .Define("trailingMuons_charge", "Muon_charge[trailingMuons]")
-                .Define("trailingMuons_idx", ::good_idx, {"trailingMuons"})
-                .Define("NtrailingMuons", "int(trailingMuons_pt.size())");
-
-    //-------------------------------------------------------
-    // Generate muon 4-vector from selected good muons
-    //-------------------------------------------------------
-    _rlm = _rlm.Define("goodMuons_4vecs", ::generate_4vec, {"goodMuons_pt", "goodMuons_eta", "goodMuons_phi", "goodMuons_mass"});
-    _rlm = _rlm.Define("goodMuons_energy", [](const std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>& muon_4vecs) {
-        std::vector<double> energies;
-        for (const auto& vec : muon_4vecs) {
-            energies.push_back(vec.E());  // E() gives the energy in PtEtaPhiM4D Lorentz vector
-        }
-        return energies;
-    }, {"goodMuons_4vecs"});
-}
-*/
 
 void BaseAnalyser::selectMuons()
 {
@@ -212,7 +236,8 @@ void BaseAnalyser::selectMuons()
     //-------------------------------------------------------
     // Define trailing muons with pt > 10
     //-------------------------------------------------------
-    _rlm = _rlm.Define("trailingMuons", "Muon_pt > 10 && abs(Muon_eta) < 2.4 && Muon_miniPFRelIso_all < 0.40");
+    _rlm = _rlm.Define("trailingMuonID", MuonID(2)); // loose muons
+    _rlm = _rlm.Define("trailingMuons", "trailingMuonID &&  Muon_pt > 10 && abs(Muon_eta) < 2.4 && Muon_miniPFRelIso_all < 0.40");
 
     // Define additional variables for trailing muons
     _rlm = _rlm.Define("trailingMuons_pt", "Muon_pt[trailingMuons]")
@@ -343,7 +368,7 @@ void BaseAnalyser::removeOverlaps()
     //==============================Clean Jets==============================================//
     //Use clean jets/bjets for object selections
     //=====================================================================================//
-
+/*
     _rlm = _rlm.Define("muonjetoverlap", checkoverlap, {"goodJets_4vecs","goodMuons_4vecs"});
 	_rlm =	_rlm.Define("Selected_jetpt", "goodJets_pt[muonjetoverlap]")
 		.Define("Selected_jeteta", "goodJets_eta[muonjetoverlap]")
@@ -369,6 +394,36 @@ void BaseAnalyser::removeOverlaps()
 			.Define("Selected_bjethadflav", "Selected_jethadflav[btagcuts2]") 
 			.Define("cleanbjet4vecs", ::generate_4vec, {"Selected_bjetpt", "Selected_bjeteta", "Selected_bjetphi", "Selected_bjetmass"});           
 
+*/
+
+
+//-----------CHECKING THE OVERLAPS WITH THE TRAILING MUON----------#######////
+
+    _rlm = _rlm.Define("muonjetoverlap", checkoverlap, {"goodJets_4vecs","trailingMuons_4vecs"});
+        _rlm =  _rlm.Define("Selected_jetpt", "goodJets_pt[muonjetoverlap]")
+                .Define("Selected_jeteta", "goodJets_eta[muonjetoverlap]")
+                .Define("Selected_jetphi", "goodJets_phi[muonjetoverlap]")
+                .Define("Selected_jetmass", "goodJets_mass[muonjetoverlap]")
+
+                .Define("Selected_jetbtag", "goodJets_deepjetbtag[muonjetoverlap]") //
+                .Define("Selected_jethadflav", "goodJets_hadflav[muonjetoverlap]")
+                .Define("ncleanjetspass", "int(Selected_jetpt.size())")
+                .Define("cleanjet4vecs", ::generate_4vec, {"Selected_jetpt", "Selected_jeteta", "Selected_jetphi", "Selected_jetmass"})
+                .Define("Selected_jetHT", "Sum(Selected_jetpt)");
+
+     //==============================Clean b-Jets==============================================// 
+         //--> after remove overlap: use requested btaggedJets for btag-weight SFs && weight_generator. 
+         //=====================================================================================//
+        _rlm = _rlm.Define("btagcuts2", "Selected_jetbtag>0.3040") //medium wp -->as an example. 
+                        .Define("Selected_bjetpt", "Selected_jetpt[btagcuts2]")
+                        .Define("Selected_bjeteta", "Selected_jeteta[btagcuts2]")
+                        .Define("Selected_bjetphi", "Selected_jetphi[btagcuts2]")
+                        .Define("Selected_bjetmass", "Selected_jetmass[btagcuts2]")
+                        .Define("ncleanbjetspass", "int(Selected_bjetpt.size())")
+                        .Define("Selected_bjetHT", "Sum(Selected_bjetpt)")
+                        .Define("Selected_bjethadflav", "Selected_jethadflav[btagcuts2]")
+                        .Define("cleanbjet4vecs", ::generate_4vec, {"Selected_bjetpt", "Selected_bjeteta", "Selected_bjetphi", "Selected_bjetmass"});
+
 }
 
 void BaseAnalyser::calculateEvWeight(){
@@ -384,10 +439,21 @@ void BaseAnalyser::calculateEvWeight(){
 
   _rlm = calculateBTagSF(_rlm, Jets_vars_names, 0.3040,output_btag_column_name);
 
+// #####------------ THIS IS THE CORRECTION THAT NEED TO IMPLEMENTED LATER--------######## 
+  
   //Scale Factors for Muon HLT, RECO, ID and ISO
   std::vector<std::string> Muon_vars_names = {"goodMuons_eta", "goodMuons_pt"};
   std::string output_mu_column_name = "muon_SF_";
   _rlm = calculateMuSF(_rlm, Muon_vars_names, output_mu_column_name);
+
+/*
+//for the trailing muon need to be removed after check 
+    //Scale Factors for Muon HLT, RECO, ID and ISO
+  std::vector<std::string> Muon_vars_names = {"trailingMuons_eta", "trailingMuons_pt"};
+  std::string output_mu_column_name = "muon_SF_";
+  _rlm = calculateMuSF(_rlm, Muon_vars_names, output_mu_column_name);
+*/
+
 
   //Scale Factors for Electron RECO and ID
   std::vector<std::string> Electron_vars_names = {"goodElectrons_eta", "goodElectrons_pt"};
@@ -405,6 +471,170 @@ void BaseAnalyser::calculateEvWeight(){
   _rlm = _rlm.Define("evWeight", " pugenWeight * prefiring_SF_central * muon_SF_central * ele_SF_central"); 
 
 }
+
+/*
+// *****==================Z Boson Mass==========================*****
+/z boson mass with 2/3 muons
+
+
+void BaseAnalyser::calculateZBosonMass() {
+    constexpr double Z_BOSON_MASS = 91.1876;
+    constexpr double MASS_WINDOW = 15.0;
+
+    cout << "Calculating effective mass of muon pairs within Z boson mass window" << endl;
+    if (debug) {
+        std::cout << "================================//=================================" << std::endl;
+        std::cout << "Line : " << __LINE__ << " Function : " << __FUNCTION__ << std::endl;
+        std::cout << "================================//=================================" << std::endl;
+    }
+
+    // Filter events with exactly two or three trailing muons
+    _rlm = _rlm.Filter("NtrailingMuons == 2 || NtrailingMuons == 3", "Events with two or three trailing muons");
+
+    // Calculate the invariant mass for Z boson candidates
+    _rlm = _rlm.Define("zboson_m", [Z_BOSON_MASS, MASS_WINDOW](const std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>& muons_4vec,
+                                                               const ROOT::VecOps::RVec<int>& trailingMuons_charge) {
+        double closest_mass = -1.0;
+
+        if (muons_4vec.size() == 2) {
+            // Case 1: Exactly two muons
+            if (trailingMuons_charge[0] != trailingMuons_charge[1]) {  // Check OSSF condition
+                double effective_mass = (muons_4vec[0] + muons_4vec[1]).M();
+                if (std::abs(effective_mass - Z_BOSON_MASS) <= MASS_WINDOW) {
+                    closest_mass = effective_mass;
+                }
+            }
+        } else if (muons_4vec.size() == 3) {
+            // Case 2: Exactly three muons
+            std::vector<double> masses;
+
+            // Check all possible OSSF pairs (0-1, 0-2, 1-2)
+            if (trailingMuons_charge[0] != trailingMuons_charge[1]) {
+                masses.push_back((muons_4vec[0] + muons_4vec[1]).M());
+            }
+            if (trailingMuons_charge[0] != trailingMuons_charge[2]) {
+                masses.push_back((muons_4vec[0] + muons_4vec[2]).M());
+            }
+            if (trailingMuons_charge[1] != trailingMuons_charge[2]) {
+                masses.push_back((muons_4vec[1] + muons_4vec[2]).M());
+            }
+
+            // Filter masses within the Z boson window and find the closest
+            double min_diff = MASS_WINDOW;
+            for (double mass : masses) {
+                double diff = std::abs(mass - Z_BOSON_MASS);
+                if (diff <= MASS_WINDOW && diff < min_diff) {
+                    min_diff = diff;
+                    closest_mass = mass;
+                }
+            }
+        }
+
+        return closest_mass;
+    }, {"trailingMuons_4vecs", "trailingMuons_charge"});
+
+    // Filter events where zboson_m has a valid mass
+    _rlm = _rlm.Filter("zboson_m > 0", "Events within Z boson mass window");
+}
+
+*/
+/*
+
+void BaseAnalyser::calculateZBosonMass() {
+    constexpr double Z_BOSON_MASS = 91.1876;
+    constexpr double MASS_WINDOW = 15.0;
+
+    cout << "Calculating effective mass of muon and electron pairs within Z boson mass window" << endl;
+    if (debug) {
+        std::cout << "================================//=================================" << std::endl;
+        std::cout << "Line : " << __LINE__ << " Function : " << __FUNCTION__ << std::endl;
+        std::cout << "================================//=================================" << std::endl;
+    }
+
+    // Filter events with exactly 2 or 3 trailing muons and exactly 2 or 3 trailing electrons
+    _rlm = _rlm.Filter("NtrailingMuons == 2 || NtrailingElectrons == 2 || NtrailingMuons == 3 || NtrailingElectrons == 3",
+                       "Events with exactly 2 or 3 trailing muons and electrons");
+
+    // Define zboson_m based on trailing muons and electrons
+    _rlm = _rlm.Define("zboson_m", [Z_BOSON_MASS, MASS_WINDOW](const std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>& trailingMuons_4vecs,
+                                                               const ROOT::VecOps::RVec<int>& trailingMuons_charge,
+                                                               const std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>& trailingElectrons_4Vecs,
+                                                               const ROOT::VecOps::RVec<int>& trailingElectrons_charge) {
+        // Collect OSSF pairs and their invariant masses
+        std::vector<double> ossf_masses;
+
+        // Case 1: 2 trailing muons and 2 trailing electrons
+        if (trailingMuons_4vecs.size() == 2 || trailingElectrons_4Vecs.size() == 2) {
+            if (trailingMuons_charge[0] != trailingMuons_charge[1]) {
+                ossf_masses.push_back((trailingMuons_4vecs[0] + trailingMuons_4vecs[1]).M());
+            }
+            if (trailingElectrons_charge[0] != trailingElectrons_charge[1]) {
+                ossf_masses.push_back((trailingElectrons_4Vecs[0] + trailingElectrons_4Vecs[1]).M());
+            }
+        }
+
+        // Case 2: 3 trailing muons and 3 trailing electrons
+        if (trailingMuons_4vecs.size() == 3 || trailingElectrons_4Vecs.size() == 3) {
+            // Check all possible OSSF pairs for muons
+            if (trailingMuons_charge[0] != trailingMuons_charge[1]) {
+                ossf_masses.push_back((trailingMuons_4vecs[0] + trailingMuons_4vecs[1]).M());
+            }
+            if (trailingMuons_charge[0] != trailingMuons_charge[2]) {
+                ossf_masses.push_back((trailingMuons_4vecs[0] + trailingMuons_4vecs[2]).M());
+            }
+            if (trailingMuons_charge[1] != trailingMuons_charge[2]) {
+                ossf_masses.push_back((trailingMuons_4vecs[1] + trailingMuons_4vecs[2]).M());
+            }
+
+            // Check all possible OSSF pairs for electrons
+            if (trailingElectrons_charge[0] != trailingElectrons_charge[1]) {
+                ossf_masses.push_back((trailingElectrons_4Vecs[0] + trailingElectrons_4Vecs[1]).M());
+            }
+            if (trailingElectrons_charge[0] != trailingElectrons_charge[2]) {
+                ossf_masses.push_back((trailingElectrons_4Vecs[0] + trailingElectrons_4Vecs[2]).M());
+            }
+            if (trailingElectrons_charge[1] != trailingElectrons_charge[2]) {
+                ossf_masses.push_back((trailingElectrons_4Vecs[1] + trailingElectrons_4Vecs[2]).M());
+            }
+        }
+
+        // Find the mass closest to the Z boson mass within the window
+        double closest_mass = -1.0;
+        double min_diff = MASS_WINDOW;
+
+        for (const auto& mass : ossf_masses) {
+            double diff = std::abs(mass - Z_BOSON_MASS);
+            if (diff <= MASS_WINDOW && diff < min_diff) {
+                min_diff = diff;
+                closest_mass = mass;
+            }
+        }
+
+        return closest_mass;
+    }, {"trailingMuons_4vecs", "trailingMuons_charge", "trailingElectrons_4Vecs", "trailingElectrons_charge"});
+
+    // Filter to keep only events with valid Z boson masses within the mass window
+    _rlm = _rlm.Filter("zboson_m > 0", "Events with invariant mass close to Z boson mass");
+}
+*/
+void BaseAnalyser::defineTwoElectronEvent() {
+    cout << "Defining branch for events with exactly two trailing electrons" << endl;
+
+    if (debug) {
+        std::cout << "================================//=================================" << std::endl;
+        std::cout << "Line : " << __LINE__ << " Function : " << __FUNCTION__ << std::endl;
+        std::cout << "================================//=================================" << std::endl;
+    }
+
+    // Filter events with exactly two trailing electrons
+    _rlm = _rlm.Filter("NtrailingElectrons == 2", "Events with exactly two trailing electrons");
+
+    // Define a branch to indicate events with exactly two electrons
+    _rlm = _rlm.Define("two_electron_event", []() {
+        return true;  // Since the filter already ensures two electrons, we mark these events as true
+    });
+}
+
 //MET
 
 void BaseAnalyser::selectMET()
@@ -458,7 +688,8 @@ void BaseAnalyser::defineMoreVars()
     addVartoStore("nElectron");
     addVartoStore("Electron_charge");
     addVartoStore("Electron_pt");
-    addVartoStore("NgoodElectrons");
+    addVartoStore("NtrailingElectrons");
+    addVartoStore("trailingElectrons_pt");
 
     //muon
     addVartoStore("nMuon");
@@ -466,9 +697,9 @@ void BaseAnalyser::defineMoreVars()
     addVartoStore("Muon_mass");
     addVartoStore("Muon_pt");
     addVartoStore("goodMuons_pt");
-    addVartoStore("NgoodMuons");
-    addVartoStore("goodMuons_energy");
-    addVartoStore("trailingMuons");
+    addVartoStore("NtrailingMuons");
+    //addVartoStore("goodMuons_energy");
+    //addVartoStore("trailingMuons");
     addVartoStore("trailingMuons_pt");
     //jet
     addVartoStore("nJet");
@@ -489,6 +720,11 @@ void BaseAnalyser::defineMoreVars()
     addVartoStore("Jet_pt_relerror");
     addVartoStore("MET_pt_corr");
     addVartoStore("MET_pt");
+
+    //z boson mass
+    //addVartoStore("zboson_m");
+    //addVartoStore("is_ossf_pair");
+    addVartoStore("two_electron_event");
 
     if(!_isData){
       //case1 btag correction- fixed wp	
@@ -532,9 +768,7 @@ void BaseAnalyser::defineMoreVars()
     addVartoStore("muon_SF_id_systup");
     addVartoStore("muon_SF_id_systdown");
     //addVartoStore("muonISO_SF");
-    std::cout << "hello" << std::endl;
     addVartoStore("muon_SF_iso_sf");
-    std::cout << "this is the bug" << std::endl;
     }
 
 //    addVartoStore("evWeight");   
@@ -617,6 +851,9 @@ void BaseAnalyser::setupObjects()
 	selectMuons();
 	selectJets();
 	removeOverlaps();
+	//calculateZBosonMass();
+	//identifyOSSFElectronPair();
+	defineTwoElectronEvent();
 	if(!_isData){
 	  this->calculateEvWeight(); // PU, genweight and BTV and Mu and Ele
 	}

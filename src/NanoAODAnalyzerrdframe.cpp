@@ -1045,35 +1045,8 @@ void NanoAODAnalyzerrdframe::run(bool saveAll, string outtreename)
 			        cout << "-----branch stored" << endl;
 			}
                         cout << "before snapshot" <<endl;       
-
-//start of my function
-                        // Print available columns in the RDataFrame
-/*                        auto columns = arnode->GetColumnNames();
-                        std::cout << "Available columns in arnode: " << std::endl;
-                        for (const auto& col : columns) {
-                            std::cout << col << std::endl;
-                         }         
-
-                        // Check if each branch in _varstostorepertree exists in arnode
-                        std::cout << "Branches to store:" << std::endl;
-                        for (const auto& var : _varstostorepertree[nodename]) {
-                              if (std::find(columns.begin(), columns.end(), var) == columns.end()) {
-                              std::cerr << "Error: Branch " << var << " not found in arnode!" << std::endl;
-                                } else {
-                              std::cout << "Branch " << var << " found." << std::endl;
-                                }
-                         }                        
-//till this i have added the function
-*/
 		  	arnode->Snapshot(outtreename, outname, _varstostorepertree[nodename]);
-		        cout << "after snapshot" <<endl;
- /*                 //this is manual code by manas
-		         try {
-                            arnode->Snapshot(outtreename, outname, _varstostorepertree[nodename]);
-                        } catch (const std::exception &e) {
-                             std::cerr << "Runtime error in Snapshot: " << e.what() << std::endl;
-                        }
-*/		  //ends the manual code here	
+		        cout << "after snapshot" <<endl;	
 		}
 		std::cout << "-------------------------------------------------------------------" << std::endl;
 		cout << "Creating output root file :  " << endl;
