@@ -45,10 +45,10 @@ config = {
         # Muon Correction 
         'muon_roch_fname': 'data/MUO/2017_UL/RoccoR2017UL.txt', 
         'muon_fname': 'data/MUO/2017_UL/muon_Z.json.gz', 
-        'muonHLTtype': 'NUM_IsoMu27_DEN_CutBasedIdTight_and_PFIsoTight',
-        'muonRECOtype': 'NUM_TrackerMuons_DEN_genTracks',
-        'muonIDtype': 'NUM_MediumID_DEN_TrackerMuons',
-        'muonISOtype': 'NUM_TightRelIso_DEN_MediumID',
+        'muon_HLT_type': 'NUM_IsoMu27_DEN_CutBasedIdTight_and_PFIsoTight',#'HLT UL scale factor',
+        'muon_RECO_type': 'NUM_TrackerMuons_DEN_genTracks',#'RECO UL scale factor',
+        'muon_ID_type': 'NUM_MediumID_DEN_TrackerMuons',#'ID UL scale factor',
+        'muon_ISO_type': 'NUM_TightRelIso_DEN_MediumID',#'ISO UL scale factor',
         #'muontype': 'NUM_TightRelIso_DEN_MediumID',#'Medium ISO UL scale factor',
 
         # Electron Correction 
@@ -76,8 +76,8 @@ procflags = {
         'split': 1,
 
         ###### if False, one output file per input file, if True then one output file for everything ######
-       # 'allinone': False,
-        'allinone': True,
+        'allinone': False,
+        # 'allinone': True,
 
         ###### if True then skip existing analyzed files ######
         'skipold': True,
@@ -106,17 +106,11 @@ procflags = {
 # output directory where your output should go
 # dump of stderr/stdout to file
 
-"""
+
 nanoaod_inputdir_outputdir_pairs = [
-        ['/uscms/home/msahoo/nobackup/Project_tzq/root_files',
-    'output_file/test1Sept.root',
-    'errr.out']
-]
-"""
-nanoaod_inputdir_outputdir_pairs = [
-        [' /tZq_ll_4f_ckm_NLO_TuneCP5_13TeV-amcatnlo-pythia8/RunIISummer20UL17NanoAODv9-106X_mc2017_realistic_v9-v1/NANOAODSIM',
-    'output_file/test1Sept.root',
-    'errr.out']
+    ['/uscms/home/msahoo/nobackup/Project_tzq',
+    '/output_file/test1Sept.root',
+    '/output_file/errr.out']
 ]
 
 """

@@ -21,10 +21,44 @@ import re
 import subprocess
 #import time
 import sys
-
+from importlib import import_module
+from argparse import ArgumentParser
 from multiprocessing import Process
 import cppyy
 import ROOT
+#from XRootD import client
+
+def get_root_file_paths(indir, xrootd_prefix="root://cmsxrootd.fnal.gov/"):
+# def get_root_file_paths(indir, xrootd_prefix="root://xrootd-cms.infn.it/"):
+    """
+    Function to retrieve ROOT file paths using dasgoclient.
+    """
+    # Run dasgoclient command to get the list of files
+    dataset_query = f"file dataset={indir}"
+    command = f"dasgoclient --query='{dataset_query}'"
+    try:
+        output = subprocess.check_output(command, shell=True, text=True)
+    except subprocess.CalledProcessError as e:
+        print(f"Error running dasgoclient: {e.output}")
+        return []
+
+    # Process the output and prepend the xrootd prefix
+    files = output.strip().split('\n')
+    root_files = [xrootd_prefix + f for f in files]
+
+    return root_files
+
+def is_valid_das_path(indir):
+    """
+    Check if the indir is a valid DAS path by querying dasgoclient.
+    """
+    command = f"dasgoclient --query='dataset={indir}'"
+    try:
+        output = subprocess.check_output(command, shell=True, text=True)
+        return bool(output.strip())
+    except subprocess.CalledProcessError:
+        return False
+
 
 
 def function_calling_PostProcessor(outdir, rootfileshere, jobconfmod):
@@ -229,11 +263,33 @@ def Nanoaodprocessor_singledir(indir, outputroot, procflags, config):
     #object clean up, you should skip the corrections step
     #
     skipcorrections = False
+   # skipcorrections = True
     if not skipcorrections:
         print("correction step is on play")
 
-        aproc.setupCorrections(config['goodjson'], config['pileupfname'], config['pileuptag']\
-            , config['btvfname'], config['btvtype'], config['muon_fname'], config['muontype'], config['jercfname'], config['jerctag'], config['jercunctag'])
+       # aproc.setupCorrections(config['goodjson'], config['pileupfname'], config['pileuptag']\
+       #     , config['btvfname'], config['btvtype'], config['muon_fname'],''' config['muontype'],''' config['jercfname'], config['jerctag'], config['jercunctag'])
+        #aproc.setupCorrections(config['goodjson'], config['pileupfname'], config['pileuptag']\
+        #    , config['btvfname'], config['btvtype'], config['muon_fname'],config['jercfname'], config['jerctag'], config['jercunctag'])
+        aproc.setupCorrections(config['goodjson'],
+                config['pileupfname'],
+                config['pileuptag'],
+                config['btvfname'],
+                config['btvtype'], 
+                config['muon_roch_fname'],
+                config['muon_fname'],
+                config['muonHLTtype'],
+                config['muonRECOtype'],
+                config['muonIDtype'],
+                config['muonISOtype'],
+                config['electron_fname'],
+                config['electron_reco_type'],
+                config['electron_id_type'],
+                config['jercfname'],
+                config['jerctag'],
+                config['jercunctag'])
+
+    
     else:
         print("Skipping corrections step")
     #time.sleep(3)

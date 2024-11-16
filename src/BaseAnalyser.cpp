@@ -472,9 +472,9 @@ void BaseAnalyser::calculateEvWeight(){
 
 }
 
-/*
+
 // *****==================Z Boson Mass==========================*****
-/z boson mass with 2/3 muons
+//z boson mass with 2/3 muons
 
 
 void BaseAnalyser::calculateZBosonMass() {
@@ -537,7 +537,7 @@ void BaseAnalyser::calculateZBosonMass() {
     _rlm = _rlm.Filter("zboson_m > 0", "Events within Z boson mass window");
 }
 
-*/
+
 /*
 
 void BaseAnalyser::calculateZBosonMass() {
@@ -722,9 +722,9 @@ void BaseAnalyser::defineMoreVars()
     addVartoStore("MET_pt");
 
     //z boson mass
-    //addVartoStore("zboson_m");
+    addVartoStore("zboson_m");
     //addVartoStore("is_ossf_pair");
-    addVartoStore("two_electron_event");
+   // addVartoStore("two_electron_event");
 
     if(!_isData){
       //case1 btag correction- fixed wp	
@@ -804,7 +804,7 @@ void BaseAnalyser::bookHists()
   //  add1DHist( {"hNgoodElectrons", "NumberofGoodElectrons", 5, 0.0, 5.0}, "NgoodElectrons", "evWeight", "");
     
    // add1DHist( {"hNgoodMuons", "# of good Muons ", 5, 0.0, 5.0}, "NgoodMuons", "evWeight", "");//i made the change 
-    
+    add1DHist( {"zboson_m", "Mass of z boson", 50, 70.0, 110.0}, "zboson_m", "one", "");
     // add1DHist( {"hgood_jetpt_with weight", "Good Jet pt with weight " , 100, 0, 1000} , "goodJets_pt", "evWeight", "");
     // add1DHist( {"hgood_jetpt_NOWeight", "Good Jet pt no weihght " , 100, 0, 1000} , "goodJets_pt", "one", "");
     
@@ -851,9 +851,9 @@ void BaseAnalyser::setupObjects()
 	selectMuons();
 	selectJets();
 	removeOverlaps();
-	//calculateZBosonMass();
+	calculateZBosonMass();
 	//identifyOSSFElectronPair();
-	defineTwoElectronEvent();
+	// defineTwoElectronEvent();
 	if(!_isData){
 	  this->calculateEvWeight(); // PU, genweight and BTV and Mu and Ele
 	}
