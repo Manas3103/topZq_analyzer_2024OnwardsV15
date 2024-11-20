@@ -58,7 +58,7 @@ void BaseAnalyser::defineCuts()
 
 	//MinimalSelection to filter events
 //	addCuts("3 > nMuon > 0 && 3 > nElectron > 0  && nJet>2", "0");//first change``
-        addCuts("nMuon + nElectron == 3  && nJet>2", "0");
+        addCuts("nMuon + nElectron == 3  && nJet>2 && Electron_pt>=10 && Muon_pt>=10", "0");
 
 	//addCuts("NgoodMuons>=2","00");
     //addCuts("ncleanjetspass>0","00");
@@ -123,7 +123,7 @@ void BaseAnalyser::selectElectrons()
     // Define trailing electrons with ElectronID(2)
     //-------------------------------------------------------
     _rlm = _rlm.Define("trailingElectronsID", ElectronID(2)); // ID level 2 for trailing electrons
-    _rlm = _rlm.Define("trailingElectrons", "trailingElectronsID && Electron_pt > 20 && abs(Electron_eta) < 2.5 && Electron_pfRelIso03_all < 0.20");
+    _rlm = _rlm.Define("trailingElectrons", "trailingElectronsID && Electron_pt > 10 && abs(Electron_eta) < 2.5 && Electron_pfRelIso03_all < 0.20");
 
     // Define additional variables for trailing electrons
     _rlm = _rlm.Define("trailingElectrons_pt", "Electron_pt[trailingElectrons]")
@@ -141,8 +141,24 @@ void BaseAnalyser::selectElectrons()
 
     // Generate electron 4-vector for trailing electrons
     _rlm = _rlm.Define("trailingElectrons_4Vecs", ::generate_4vec, {"trailingElectrons_pt", "trailingElectrons_eta", "trailingElectrons_phi", "trailingElectrons_mass"});
+    _rlm = _rlm.Define("trailingElectrons_TL4Vecs", 
+    [](const ROOT::VecOps::RVec<float>& pt,
+       const ROOT::VecOps::RVec<float>& eta,
+       const ROOT::VecOps::RVec<float>& phi,
+       const ROOT::VecOps::RVec<float>& mass) {
+        ROOT::VecOps::RVec<TLorentzVector> vecs;
+        for (size_t i = 0; i < pt.size(); ++i) {
+            double pt_d = static_cast<double>(pt[i]);
+            double eta_d = static_cast<double>(eta[i]);
+            double phi_d = static_cast<double>(phi[i]);
+            double mass_d = static_cast<double>(mass[i]);
+            vecs.emplace_back(::generate_TLorentzVector(pt_d, eta_d, phi_d, mass_d));
+        }
+        return vecs;
+    }, 
+    {"trailingElectrons_pt", "trailingElectrons_eta", "trailingElectrons_phi", "trailingElectrons_mass"});
 
-    // Define energy for good electrons
+   // Define energy for good electrons
     _rlm = _rlm.Define("goodElectrons_energy", [](const std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>& electron_4vecs) {
         std::vector<double> energies;
         for (const auto& vec : electron_4vecs) {
@@ -255,6 +271,23 @@ void BaseAnalyser::selectMuons()
 
     // Generate muon 4-vector for trailing muons
     _rlm = _rlm.Define("trailingMuons_4vecs", ::generate_4vec, {"trailingMuons_pt", "trailingMuons_eta", "trailingMuons_phi", "trailingMuons_mass"});
+    
+    _rlm = _rlm.Define("trailingMuons_TL4Vecs", 
+    [](const ROOT::VecOps::RVec<float>& pt,
+       const ROOT::VecOps::RVec<float>& eta,
+       const ROOT::VecOps::RVec<float>& phi,
+       const ROOT::VecOps::RVec<float>& mass) -> ROOT::VecOps::RVec<TLorentzVector> {
+        ROOT::VecOps::RVec<TLorentzVector> vecs;
+        for (size_t i = 0; i < pt.size(); ++i) {
+            double pt_d = static_cast<double>(pt[i]);
+            double eta_d = static_cast<double>(eta[i]);
+            double phi_d = static_cast<double>(phi[i]);
+            double mass_d = static_cast<double>(mass[i]);
+            vecs.emplace_back(::generate_TLorentzVector(pt_d, eta_d, phi_d, mass_d));
+        }
+        return vecs;
+    }, 
+    {"trailingMuons_pt", "trailingMuons_eta", "trailingMuons_phi", "trailingMuons_mass"});
 
     // Define energy for good muons
     _rlm = _rlm.Define("goodMuons_energy", [](const std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>& muon_4vecs) {
@@ -293,7 +326,7 @@ void BaseAnalyser::selectJets()
 
     _rlm = _rlm.Define("goodJetsID", JetID(6)); //without pt-eta cuts
     //_rlm = _rlm.Define("goodJets", "goodJetsID && Jet_pt>30.0 && abs(Jet_eta)<2.4 ");
-    _rlm = _rlm.Define("goodJets", "Jet_pt>30.0 && abs(Jet_eta)<2.4 ");
+    _rlm = _rlm.Define("goodJets", "Jet_pt>25.0 && abs(Jet_eta)<5 ");
     _rlm = _rlm.Define("goodJets_pt", "Jet_pt[goodJets]")
                 .Define("goodJets_eta", "Jet_eta[goodJets]")
                 .Define("goodJets_phi", "Jet_phi[goodJets]")
@@ -318,8 +351,31 @@ void BaseAnalyser::selectJets()
     
     _rlm = _rlm.Define("Ngood_bjets", "int(good_bjetpt.size())")
       .Define("good_bjet4vecs", ::generate_4vec, {"good_bjetpt", "good_bjeteta", "good_bjetphi", "good_bjetmass"});
-    
+    _rlm = _rlm.Define("good_bjet_TL4Vecs",
+    [](const ROOT::VecOps::RVec<float>& pt,
+       const ROOT::VecOps::RVec<float>& eta,
+       const ROOT::VecOps::RVec<float>& phi,
+       const ROOT::VecOps::RVec<float>& mass) -> ROOT::VecOps::RVec<TLorentzVector> {
+        ROOT::VecOps::RVec<TLorentzVector> vecs;
+        for (size_t i = 0; i < pt.size(); ++i) {
+            double pt_d = static_cast<double>(pt[i]);
+            double eta_d = static_cast<double>(eta[i]);
+            double phi_d = static_cast<double>(phi[i]);
+            double mass_d = static_cast<double>(mass[i]);
+            vecs.emplace_back(pt_d, eta_d, phi_d, mass_d);
+        }
+        return vecs;
+    }, {"good_bjetpt", "good_bjeteta", "good_bjetphi", "good_bjetmass"});
 
+    _rlm = _rlm.Define("is_top_Bjets_event", "NgoodJets == 1 && Ngood_bjets == 1") 
+               .Define("top_Bjet_TL4Vecs",
+        [](const ROOT::VecOps::RVec<TLorentzVector>& bjet_vecs, bool is_top_event) -> TLorentzVector {
+            if (is_top_event && bjet_vecs.size() == 1) {
+                return bjet_vecs[0];
+            }
+            return TLorentzVector(0, 0, 0, 0); // Return an empty TLorentzVector if condition not met
+        }, {"good_bjet_TL4Vecs", "is_top_Bjets_event"});
+    
 
     if(!_isData){
       //For Btagging Efficiency    
@@ -472,167 +528,504 @@ void BaseAnalyser::calculateEvWeight(){
 
 }
 
-
-// *****==================Z Boson Mass==========================*****
-//z boson mass with 2/3 muons
-
-
-void BaseAnalyser::calculateZBosonMass() {
-    constexpr double Z_BOSON_MASS = 91.1876;
-    constexpr double MASS_WINDOW = 15.0;
-
-    cout << "Calculating effective mass of muon pairs within Z boson mass window" << endl;
+// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+// ================================================================================
+// @@@@@@@@@@@@@@@@@@@@ The leptton branch @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+/*
+void BaseAnalyser::mergeTrailingLeptons() {
+    cout << "merge trailing electrons and muons" << endl;
     if (debug) {
         std::cout << "================================//=================================" << std::endl;
         std::cout << "Line : " << __LINE__ << " Function : " << __FUNCTION__ << std::endl;
         std::cout << "================================//=================================" << std::endl;
     }
 
-    // Filter events with exactly two or three trailing muons
-    _rlm = _rlm.Filter("NtrailingMuons == 2 || NtrailingMuons == 3", "Events with two or three trailing muons");
+    //-------------------------------------------------------
+    // Combine trailing muons and electrons 4-vectors
+    //-------------------------------------------------------
+    _rlm = _rlm.Define("trailingLeptons_4vecs", [](const std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>& muons_4vecs,
+                                                   const std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>& electrons_4vecs) {
+        std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>> combined_4vecs;
+        combined_4vecs.insert(combined_4vecs.end(), muons_4vecs.begin(), muons_4vecs.end());
+        combined_4vecs.insert(combined_4vecs.end(), electrons_4vecs.begin(), electrons_4vecs.end());
+        return combined_4vecs;
+    }, {"trailingMuons_4vecs", "trailingElectrons_4Vecs"});
 
-    // Calculate the invariant mass for Z boson candidates
-    _rlm = _rlm.Define("zboson_m", [Z_BOSON_MASS, MASS_WINDOW](const std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>& muons_4vec,
-                                                               const ROOT::VecOps::RVec<int>& trailingMuons_charge) {
-        double closest_mass = -1.0;
+    //-------------------------------------------------------
+    // Combine trailing leptons charge using ROOT::VecOps::Take and ROOT::VecOps::Concatenate
+    //-------------------------------------------------------
+    _rlm = _rlm.Define("trailingLeptons_charge", 
+                   [](const ROOT::VecOps::RVec<int>& trailingElectron_charge, 
+                      const ROOT::VecOps::RVec<int>& trailingMuon_charge) {
+                       return ROOT::VecOps::Concatenate(trailingElectron_charge, trailingMuon_charge);
+                   }, 
+                   {"trailingElectrons_charge", "trailingMuons_charge"});
 
-        if (muons_4vec.size() == 2) {
-            // Case 1: Exactly two muons
-            if (trailingMuons_charge[0] != trailingMuons_charge[1]) {  // Check OSSF condition
-                double effective_mass = (muons_4vec[0] + muons_4vec[1]).M();
-                if (std::abs(effective_mass - Z_BOSON_MASS) <= MASS_WINDOW) {
-                    closest_mass = effective_mass;
-                }
-            }
-        } else if (muons_4vec.size() == 3) {
-            // Case 2: Exactly three muons
-            std::vector<double> masses;
+    //-------------------------------------------------------
+    // Assign flavor to trailing leptons: 1 for muon, 0 for electron
+    //-------------------------------------------------------
+    _rlm = _rlm.Define("trailingLeptons_flavor", [](const ROOT::VecOps::RVec<int>& muon_charge,
+                                                    const ROOT::VecOps::RVec<int>& electron_charge) {
+        std::vector<int> flavor;
+        flavor.insert(flavor.end(), muon_charge.size(), 1);  // 1 for muons
+        flavor.insert(flavor.end(), electron_charge.size(), 0); // 0 for electrons
+        return flavor;
+    }, {"trailingMuons_charge", "trailingElectrons_charge"});
 
-            // Check all possible OSSF pairs (0-1, 0-2, 1-2)
-            if (trailingMuons_charge[0] != trailingMuons_charge[1]) {
-                masses.push_back((muons_4vec[0] + muons_4vec[1]).M());
-            }
-            if (trailingMuons_charge[0] != trailingMuons_charge[2]) {
-                masses.push_back((muons_4vec[0] + muons_4vec[2]).M());
-            }
-            if (trailingMuons_charge[1] != trailingMuons_charge[2]) {
-                masses.push_back((muons_4vec[1] + muons_4vec[2]).M());
-            }
+    //-------------------------------------------------------
+    // Define number of trailing leptons
+    //-------------------------------------------------------
+    _rlm = _rlm.Define("NtrailingLeptons", [](const ROOT::VecOps::RVec<int>& combined_charge) {
+        return int(combined_charge.size());
+    }, {"trailingLeptons_charge"});
+}
+*/
+/*
+void BaseAnalyser::mergeTrailingLeptons() {
+    cout << "merge trailing electrons and muons" << endl;
+    if (debug) {
+        std::cout << "================================//=================================" << std::endl;
+        std::cout << "Line : " << __LINE__ << " Function : " << __FUNCTION__ << std::endl;
+        std::cout << "================================//=================================" << std::endl;
+    }
 
-            // Filter masses within the Z boson window and find the closest
-            double min_diff = MASS_WINDOW;
-            for (double mass : masses) {
-                double diff = std::abs(mass - Z_BOSON_MASS);
-                if (diff <= MASS_WINDOW && diff < min_diff) {
-                    min_diff = diff;
-                    closest_mass = mass;
-                }
-            }
-        }
+    //-------------------------------------------------------
+    // Combine trailing muons and electrons 4-vectors
+    //-------------------------------------------------------
+    _rlm = _rlm.Define("trailingLeptons_4vecs", [](const std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>& muons_4vecs,
+                                                   const std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>& electrons_4vecs) {
+        std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>> combined_4vecs;
+        combined_4vecs.insert(combined_4vecs.end(), muons_4vecs.begin(), muons_4vecs.end());
+        combined_4vecs.insert(combined_4vecs.end(), electrons_4vecs.begin(), electrons_4vecs.end());
+        return combined_4vecs;
+    }, {"trailingMuons_4vecs", "trailingElectrons_4Vecs"});
 
-        return closest_mass;
-    }, {"trailingMuons_4vecs", "trailingMuons_charge"});
+    //-------------------------------------------------------
+    // Combine trailing leptons charge using ROOT::VecOps::Take and ROOT::VecOps::Concatenate
+    //-------------------------------------------------------
+    _rlm = _rlm.Define("trailingLeptons_charge",
+                   [](const ROOT::VecOps::RVec<int>& trailingElectron_charge,
+                      const ROOT::VecOps::RVec<int>& trailingMuon_charge) {
+                       return ROOT::VecOps::Concatenate(trailingElectron_charge, trailingMuon_charge);
+                   },
+                   {"trailingElectrons_charge", "trailingMuons_charge"});
 
-    // Filter events where zboson_m has a valid mass
-    _rlm = _rlm.Filter("zboson_m > 0", "Events within Z boson mass window");
+    //-------------------------------------------------------
+    // Assign flavor to trailing leptons: 1 for muon, 0 for electron
+    //-------------------------------------------------------
+    _rlm = _rlm.Define("trailingLeptons_flavor", [](const ROOT::VecOps::RVec<int>& muon_charge,
+                                                    const ROOT::VecOps::RVec<int>& electron_charge) {
+        std::vector<int> flavor;
+        flavor.insert(flavor.end(), muon_charge.size(), 1);  // 1 for muons
+        flavor.insert(flavor.end(), electron_charge.size(), 0); // 0 for electrons
+        return flavor;
+    }, {"trailingMuons_charge", "trailingElectrons_charge"});
+
+    //-------------------------------------------------------
+    // Define number of trailing leptons
+    //-------------------------------------------------------
+    _rlm = _rlm.Define("NtrailingLeptons", [](const ROOT::VecOps::RVec<int>& combined_charge) {
+        return int(combined_charge.size());
+    }, {"trailingLeptons_charge"});
+
+    //-------------------------------------------------------
+    // Merge trailing muons and electrons into a ROOT::VecOps::RVec<TLorentzVector>
+    //-------------------------------------------------------
+    _rlm = _rlm.Define("trailingLeptons_TLorentzVecs",
+                       [](const ROOT::VecOps::RVec<TLorentzVector>& muons_4vecs,
+                          const ROOT::VecOps::RVec<TLorentzVector>& electrons_4vecs) {
+                           return ROOT::VecOps::Concatenate(muons_4vecs, electrons_4vecs);
+                       },
+                       {"trailingMuons_TL4Vecs", "trailingElectrons_TL4Vecs"});
+}
+*/
+void BaseAnalyser::mergeTrailingLeptons() {
+    cout << "merge trailing electrons and muons" << endl;
+    if (debug) {
+        std::cout << "================================//=================================" << std::endl;
+        std::cout << "Line : " << __LINE__ << " Function : " << __FUNCTION__ << std::endl;
+        std::cout << "================================//=================================" << std::endl;
+    }
+
+    //-------------------------------------------------------
+    // Define number of trailing leptons (sum of electrons and muons)
+    //-------------------------------------------------------
+    _rlm = _rlm.Define("NtrailingLeptons", [](int NtrailingElectrons, int NtrailingMuons) {
+        return NtrailingElectrons + NtrailingMuons;
+    }, {"NtrailingElectrons", "NtrailingMuons"});
+
+/*    //-------------------------------------------------------
+    // Combine trailing muons and electrons 4-vectors
+    //-------------------------------------------------------
+    _rlm = _rlm.Define("trailingLeptons_4vecs", [](const std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>& muons_4vecs,
+                                                   const std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>& electrons_4vecs) {
+        std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>> combined_4vecs;
+        combined_4vecs.insert(combined_4vecs.end(), muons_4vecs.begin(), muons_4vecs.end());
+        combined_4vecs.insert(combined_4vecs.end(), electrons_4vecs.begin(), electrons_4vecs.end());
+        return combined_4vecs;
+    }, {"trailingMuons_4vecs", "trailingElectrons_4Vecs"});
+
+    //-------------------------------------------------------
+    // Define number of trailing 4-vectors in each event
+    //-------------------------------------------------------
+    _rlm = _rlm.Define("NtrailingLepton4vecs", [](const std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>& trailingLeptons_4vecs) {
+        return int(trailingLeptons_4vecs.size());
+    }, {"trailingLeptons_4vecs"});
+
+    //-------------------------------------------------------
+    // Combine trailing leptons charge using ROOT::VecOps::Take and ROOT::VecOps::Concatenate
+    //-------------------------------------------------------
+    _rlm = _rlm.Define("trailingLeptons_charge",
+                   [](const ROOT::VecOps::RVec<int>& trailingElectron_charge,
+                      const ROOT::VecOps::RVec<int>& trailingMuon_charge) {
+                       return ROOT::VecOps::Concatenate(trailingElectron_charge, trailingMuon_charge);
+                   },
+                   {"trailingElectrons_charge", "trailingMuons_charge"});
+
+    //-------------------------------------------------------
+    // Assign flavor to trailing leptons: 1 for muon, 0 for electron
+    //-------------------------------------------------------
+    _rlm = _rlm.Define("trailingLeptons_flavor", [](const ROOT::VecOps::RVec<int>& muon_charge,
+                                                    const ROOT::VecOps::RVec<int>& electron_charge) {
+        std::vector<int> flavor;
+        flavor.insert(flavor.end(), muon_charge.size(), 1);  // 1 for muons
+        flavor.insert(flavor.end(), electron_charge.size(), 0); // 0 for electrons
+        return flavor;
+    }, {"trailingMuons_charge", "trailingElectrons_charge"});
+
+    //-------------------------------------------------------
+    // Merge trailing muons and electrons into a ROOT::VecOps::RVec<TLorentzVector>
+    //-------------------------------------------------------
+    _rlm = _rlm.Define("trailingLeptons_TLorentzVecs",
+                       [](const ROOT::VecOps::RVec<TLorentzVector>& muons_4vecs,
+                          const ROOT::VecOps::RVec<TLorentzVector>& electrons_4vecs) {
+                           return ROOT::VecOps::Concatenate(muons_4vecs, electrons_4vecs);
+                       },
+                       {"trailingMuons_TL4Vecs", "trailingElectrons_TL4Vecs"});
+
+		       */
 }
 
+
+
+// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+// ======================================================================================================
+// ***********************       THE OSSF PAIR         **************************************************
+// ======================================================================================================
 
 /*
 
-void BaseAnalyser::calculateZBosonMass() {
-    constexpr double Z_BOSON_MASS = 91.1876;
-    constexpr double MASS_WINDOW = 15.0;
 
-    cout << "Calculating effective mass of muon and electron pairs within Z boson mass window" << endl;
+void BaseAnalyser::processOSSFPairs() {
+    cout << "Process OSSF Pairs" << endl;
     if (debug) {
         std::cout << "================================//=================================" << std::endl;
         std::cout << "Line : " << __LINE__ << " Function : " << __FUNCTION__ << std::endl;
         std::cout << "================================//=================================" << std::endl;
     }
 
-    // Filter events with exactly 2 or 3 trailing muons and exactly 2 or 3 trailing electrons
-    _rlm = _rlm.Filter("NtrailingMuons == 2 || NtrailingElectrons == 2 || NtrailingMuons == 3 || NtrailingElectrons == 3",
-                       "Events with exactly 2 or 3 trailing muons and electrons");
+    //-------------------------------------------------------
+    // Define OSSF pair selection and invariant mass calculation
+    //-------------------------------------------------------
+    _rlm = _rlm.Define("OSSF_info", [](const std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>& leptons_4vecs,
+                                       const ROOT::VecOps::RVec<int>& leptons_charge,
+                                       const std::vector<int>& leptons_flavor) {
+        const double Z_mass = 91.1876; // Z boson mass
+        const double mass_window = 15.0; // ±15 GeV window
+        std::pair<int, int> ossf_indices = {-1, -1};
+        double closest_mass_diff = std::numeric_limits<double>::max();
+        double ossf_mass = -1.0;
 
-    // Define zboson_m based on trailing muons and electrons
-    _rlm = _rlm.Define("zboson_m", [Z_BOSON_MASS, MASS_WINDOW](const std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>& trailingMuons_4vecs,
-                                                               const ROOT::VecOps::RVec<int>& trailingMuons_charge,
-                                                               const std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>& trailingElectrons_4Vecs,
-                                                               const ROOT::VecOps::RVec<int>& trailingElectrons_charge) {
-        // Collect OSSF pairs and their invariant masses
-        std::vector<double> ossf_masses;
+        // Iterate through all unique lepton pairs
+        for (size_t i = 0; i < leptons_4vecs.size(); ++i) {
+            for (size_t j = i + 1; j < leptons_4vecs.size(); ++j) {
+                // Check if same flavor and opposite charge
+                if (leptons_flavor[i] == leptons_flavor[j] && leptons_charge[i] != leptons_charge[j]) {
+                    // Calculate invariant mass
+                    auto combined_4vec = leptons_4vecs[i] + leptons_4vecs[j];
+                    double mass = combined_4vec.M();
 
-        // Case 1: 2 trailing muons and 2 trailing electrons
-        if (trailingMuons_4vecs.size() == 2 || trailingElectrons_4Vecs.size() == 2) {
-            if (trailingMuons_charge[0] != trailingMuons_charge[1]) {
-                ossf_masses.push_back((trailingMuons_4vecs[0] + trailingMuons_4vecs[1]).M());
-            }
-            if (trailingElectrons_charge[0] != trailingElectrons_charge[1]) {
-                ossf_masses.push_back((trailingElectrons_4Vecs[0] + trailingElectrons_4Vecs[1]).M());
+                    // Check if within mass window and closer to Z boson mass
+                    double mass_diff = std::abs(mass - Z_mass);
+                    if (mass_diff < mass_window && mass_diff < closest_mass_diff) {
+                        closest_mass_diff = mass_diff;
+                        ossf_indices = {int(i), int(j)};
+                        ossf_mass = mass;
+                    }
+                }
             }
         }
 
-        // Case 2: 3 trailing muons and 3 trailing electrons
-        if (trailingMuons_4vecs.size() == 3 || trailingElectrons_4Vecs.size() == 3) {
-            // Check all possible OSSF pairs for muons
-            if (trailingMuons_charge[0] != trailingMuons_charge[1]) {
-                ossf_masses.push_back((trailingMuons_4vecs[0] + trailingMuons_4vecs[1]).M());
-            }
-            if (trailingMuons_charge[0] != trailingMuons_charge[2]) {
-                ossf_masses.push_back((trailingMuons_4vecs[0] + trailingMuons_4vecs[2]).M());
-            }
-            if (trailingMuons_charge[1] != trailingMuons_charge[2]) {
-                ossf_masses.push_back((trailingMuons_4vecs[1] + trailingMuons_4vecs[2]).M());
-            }
+        return std::make_tuple(ossf_indices, ossf_mass);
+    }, {"trailingLeptons_4vecs", "trailingLeptons_charge", "trailingLeptons_flavor"});
 
-            // Check all possible OSSF pairs for electrons
-            if (trailingElectrons_charge[0] != trailingElectrons_charge[1]) {
-                ossf_masses.push_back((trailingElectrons_4Vecs[0] + trailingElectrons_4Vecs[1]).M());
+    //-------------------------------------------------------
+    // Store OSSF pair and trailing lepton information
+    //-------------------------------------------------------
+    _rlm = _rlm.Define("OSSF_4vecs", [](const std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>& leptons_4vecs,
+                                        const std::tuple<std::pair<int, int>, double>& ossf_info) {
+        auto [ossf_indices, _] = ossf_info;
+        if (ossf_indices.first == -1 || ossf_indices.second == -1) {
+            return std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>{};
+        }
+        return std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>{
+            leptons_4vecs[ossf_indices.first], leptons_4vecs[ossf_indices.second]};
+    }, {"trailingLeptons_4vecs", "OSSF_info"});
+
+    _rlm = _rlm.Define("trailingLepton_4vec", [](const std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>& leptons_4vecs,
+                                                 const std::tuple<std::pair<int, int>, double>& ossf_info) {
+        auto [ossf_indices, _] = ossf_info;
+        if (ossf_indices.first == -1 || ossf_indices.second == -1 || leptons_4vecs.size() <= 2) {
+            return ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>{};
+        }
+        for (size_t i = 0; i < leptons_4vecs.size(); ++i) {
+            if (i != ossf_indices.first && i != ossf_indices.second) {
+                return leptons_4vecs[i];
             }
-            if (trailingElectrons_charge[0] != trailingElectrons_charge[2]) {
-                ossf_masses.push_back((trailingElectrons_4Vecs[0] + trailingElectrons_4Vecs[2]).M());
-            }
-            if (trailingElectrons_charge[1] != trailingElectrons_charge[2]) {
-                ossf_masses.push_back((trailingElectrons_4Vecs[1] + trailingElectrons_4Vecs[2]).M());
+        }
+        return ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>{};
+    }, {"trailingLeptons_4vecs", "OSSF_info"});
+
+    //-------------------------------------------------------
+    // Store the invariant mass of the OSSF pair
+    //-------------------------------------------------------
+    _rlm = _rlm.Define("OSSF_mass", [](const std::tuple<std::pair<int, int>, double>& ossf_info) {
+        auto [_, mass] = ossf_info;
+        return mass;
+    }, {"OSSF_info"});
+    _rlm = _rlm.Filter("OSSF_mass > 0", "Events with invariant mass close to Z boson mass");
+}
+
+*/
+/*
+void BaseAnalyser::processOSSFPairs() {
+    cout << "Process OSSF Pairs" << endl;
+    if (debug) {
+        std::cout << "================================//=================================" << std::endl;
+        std::cout << "Line : " << __LINE__ << " Function : " << __FUNCTION__ << std::endl;
+        std::cout << "================================//=================================" << std::endl;
+    }
+
+    //-------------------------------------------------------
+    // Define OSSF pair selection and invariant mass calculation
+    //-------------------------------------------------------
+    _rlm = _rlm.Define("OSSF_info", [](const std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>& leptons_4vecs,
+                                       const ROOT::VecOps::RVec<int>& leptons_charge,
+                                       const std::vector<int>& leptons_flavor) {
+        const double Z_mass = 91.1876; // Z boson mass
+        const double mass_window = 15.0; // ±15 GeV window
+        std::pair<int, int> ossf_indices = {-1, -1};
+        double closest_mass_diff = std::numeric_limits<double>::max();
+        double ossf_mass = -1.0;
+
+        // Iterate through all unique lepton pairs
+        for (size_t i = 0; i < leptons_4vecs.size(); ++i) {
+            for (size_t j = i + 1; j < leptons_4vecs.size(); ++j) {
+                // Check if same flavor and opposite charge
+                if (leptons_flavor[i] == leptons_flavor[j] && leptons_charge[i] != leptons_charge[j]) {
+                    // Calculate invariant mass
+                    auto combined_4vec = leptons_4vecs[i] + leptons_4vecs[j];
+                    double mass = combined_4vec.M();
+
+                    // Check if within mass window and closer to Z boson mass
+                    double mass_diff = std::abs(mass - Z_mass);
+                    if (mass_diff < mass_window && mass_diff < closest_mass_diff) {
+                        closest_mass_diff = mass_diff;
+                        ossf_indices = {int(i), int(j)};
+                        ossf_mass = mass;
+                    }
+                }
             }
         }
 
-        // Find the mass closest to the Z boson mass within the window
-        double closest_mass = -1.0;
-        double min_diff = MASS_WINDOW;
+        return std::make_tuple(ossf_indices, ossf_mass);
+    }, {"trailingLeptons_4vecs", "trailingLeptons_charge", "trailingLeptons_flavor"});
 
-        for (const auto& mass : ossf_masses) {
-            double diff = std::abs(mass - Z_BOSON_MASS);
-            if (diff <= MASS_WINDOW && diff < min_diff) {
-                min_diff = diff;
-                closest_mass = mass;
+    //-------------------------------------------------------
+    // Store OSSF pair and trailing lepton information
+    //-------------------------------------------------------
+    _rlm = _rlm.Define("OSSF_4vecs", [](const std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>& leptons_4vecs,
+                                        const std::tuple<std::pair<int, int>, double>& ossf_info) {
+        auto [ossf_indices, _] = ossf_info;
+        if (ossf_indices.first == -1 || ossf_indices.second == -1) {
+            // No valid OSSF pair found, discard event
+            return std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>{};
+        }
+        // Return the OSSF pair 4-vectors
+        return std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>{
+            leptons_4vecs[ossf_indices.first], leptons_4vecs[ossf_indices.second]};
+    }, {"trailingLeptons_4vecs", "OSSF_info"});
+
+    //-------------------------------------------------------
+    // Store the top lepton 4-vector (remaining lepton not part of OSSF pair)
+    //-------------------------------------------------------
+    _rlm = _rlm.Define("topLepton_4vecs", [](const std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>& leptons_4vecs,
+                                            const std::tuple<std::pair<int, int>, double>& ossf_info) {
+        auto [ossf_indices, _] = ossf_info;
+        std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>> top_leptons;
+
+        if (ossf_indices.first != -1 && ossf_indices.second != -1) {
+            // Only add the remaining lepton to topLepton_4vecs
+            for (size_t i = 0; i < leptons_4vecs.size(); ++i) {
+                if (i != ossf_indices.first && i != ossf_indices.second) {
+                    top_leptons.push_back(leptons_4vecs[i]);
+                    break;  // Only one lepton remains
+                }
             }
         }
 
-        return closest_mass;
-    }, {"trailingMuons_4vecs", "trailingMuons_charge", "trailingElectrons_4Vecs", "trailingElectrons_charge"});
+        // If no valid OSSF pair, the event is discarded (empty vector for topLepton_4vecs)
+        return top_leptons;
+    }, {"trailingLeptons_4vecs", "OSSF_info"});
 
-    // Filter to keep only events with valid Z boson masses within the mass window
-    _rlm = _rlm.Filter("zboson_m > 0", "Events with invariant mass close to Z boson mass");
+    //-------------------------------------------------------
+    // Store the invariant mass of the OSSF pair (filtering negative masses)
+    //-------------------------------------------------------
+    _rlm = _rlm.Define("OSSF_mass", [](const std::tuple<std::pair<int, int>, double>& ossf_info) {
+        auto [_, mass] = ossf_info;
+
+        // Only keep positive values for OSSF mass
+        if (mass > 0) {
+            return mass;
+        } else {
+            return -1.0;  // Mark invalid OSSF mass as -1
+        }
+    }, {"OSSF_info"});
 }
 */
-void BaseAnalyser::defineTwoElectronEvent() {
-    cout << "Defining branch for events with exactly two trailing electrons" << endl;
-
+void BaseAnalyser::processOSSFPairs() {
+    cout << "Process OSSF Pairs" << endl;
     if (debug) {
         std::cout << "================================//=================================" << std::endl;
         std::cout << "Line : " << __LINE__ << " Function : " << __FUNCTION__ << std::endl;
         std::cout << "================================//=================================" << std::endl;
     }
 
-    // Filter events with exactly two trailing electrons
-    _rlm = _rlm.Filter("NtrailingElectrons == 2", "Events with exactly two trailing electrons");
+    //-------------------------------------------------------
+    // Define OSSF pair selection and invariant mass calculation
+    //-------------------------------------------------------
+    _rlm = _rlm.Define("OSSF_info", [](const std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>& leptons_4vecs,
+                                       const ROOT::VecOps::RVec<int>& leptons_charge,
+                                       const std::vector<int>& leptons_flavor) {
+        const double Z_mass = 91.1876; // Z boson mass
+        const double mass_window = 15.0; // ±15 GeV window
+        std::pair<int, int> ossf_indices = {-1, -1};
+        double closest_mass_diff = std::numeric_limits<double>::max();
+        double ossf_mass = -1.0;
 
-    // Define a branch to indicate events with exactly two electrons
-    _rlm = _rlm.Define("two_electron_event", []() {
-        return true;  // Since the filter already ensures two electrons, we mark these events as true
-    });
+        // Iterate through all unique lepton pairs
+        for (size_t i = 0; i < leptons_4vecs.size(); ++i) {
+            for (size_t j = i + 1; j < leptons_4vecs.size(); ++j) {
+                // Check if same flavor and opposite charge
+                if (leptons_flavor[i] == leptons_flavor[j] && leptons_charge[i] != leptons_charge[j]) {
+                    // Calculate invariant mass
+                    auto combined_4vec = leptons_4vecs[i] + leptons_4vecs[j];
+                    double mass = combined_4vec.M();
+
+                    // Check if within mass window and closer to Z boson mass
+                    double mass_diff = std::abs(mass - Z_mass);
+                    if (mass_diff < mass_window && mass_diff < closest_mass_diff) {
+                        closest_mass_diff = mass_diff;
+                        ossf_indices = {int(i), int(j)};
+                        ossf_mass = mass;
+                    }
+                }
+            }
+        }
+
+        return std::make_tuple(ossf_indices, ossf_mass);
+    }, {"trailingLeptons_4vecs", "trailingLeptons_charge", "trailingLeptons_flavor"});
+
+    //-------------------------------------------------------
+    // Store OSSF pair and trailing lepton information
+    //-------------------------------------------------------
+    _rlm = _rlm.Define("OSSF_4vecs", [](const std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>& leptons_4vecs,
+                                        const std::tuple<std::pair<int, int>, double>& ossf_info) {
+        auto [ossf_indices, _] = ossf_info;
+        if (ossf_indices.first == -1 || ossf_indices.second == -1) {
+            // No valid OSSF pair found, discard event
+            return std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>{};
+        }
+        // Return the OSSF pair 4-vectors
+        return std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>{
+            leptons_4vecs[ossf_indices.first], leptons_4vecs[ossf_indices.second]};
+    }, {"trailingLeptons_4vecs", "OSSF_info"});
+
+    //-------------------------------------------------------
+    // Store the top lepton 4-vector (remaining lepton not part of OSSF pair)
+    //-------------------------------------------------------
+    _rlm = _rlm.Define("topLepton_4vecs", [](const std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>& leptons_4vecs,
+                                            const std::tuple<std::pair<int, int>, double>& ossf_info) {
+        auto [ossf_indices, _] = ossf_info;
+        std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>> top_leptons;
+
+        if (ossf_indices.first != -1 && ossf_indices.second != -1) {
+            // Only add the remaining lepton to topLepton_4vecs
+            for (size_t i = 0; i < leptons_4vecs.size(); ++i) {
+                if (i != ossf_indices.first && i != ossf_indices.second) {
+                    top_leptons.push_back(leptons_4vecs[i]);
+                    break;  // Only one lepton remains
+                }
+            }
+        }
+
+        // If no valid OSSF pair, the event is discarded (empty vector for topLepton_4vecs)
+        return top_leptons;
+    }, {"trailingLeptons_4vecs", "OSSF_info"});
+
+    //-------------------------------------------------------
+    // Store the invariant mass of the OSSF pair (filtering negative masses)
+    //-------------------------------------------------------
+    _rlm = _rlm.Define("OSSF_mass", [](const std::tuple<std::pair<int, int>, double>& ossf_info) {
+        auto [_, mass] = ossf_info;
+
+        // Only keep positive values for OSSF mass
+        if (mass > 0) {
+            return mass;
+        } else {
+            return -1.0;  // Mark invalid OSSF mass as -1
+        }
+    }, {"OSSF_info"});
+    _rlm = _rlm.Filter("OSSF_mass>0","mass within window");
+    //-------------------------------------------------------
+    // Store the top lepton TLorentzVector from trailingLeptons_TLorentzVecs (remaining lepton not part of OSSF pair)
+    //-------------------------------------------------------
+    _rlm = _rlm.Define("topLepton_TLorentzVector", [](const ROOT::VecOps::RVec<TLorentzVector>& trailingLeptons_TLorentzVecs,
+                                                     const std::tuple<std::pair<int, int>, double>& ossf_info) {
+        auto [ossf_indices, _] = ossf_info;
+
+        // Only add the remaining lepton
+        if (ossf_indices.first == -1 || ossf_indices.second == -1) {
+            return TLorentzVector{};
+        }
+
+        for (size_t i = 0; i < trailingLeptons_TLorentzVecs.size(); ++i) {
+            if (i != ossf_indices.first && i != ossf_indices.second) {
+                return trailingLeptons_TLorentzVecs[i];
+            }
+        }
+
+        return TLorentzVector{}; // In case no valid lepton is found
+    }, {"trailingLeptons_TLorentzVecs", "OSSF_info"});
+   
+   _rlm = _rlm.Define("ntopLepton", [](const ROOT::VecOps::RVec<TLorentzVector>& trailingLeptons_TLorentzVecs,
+                                    const std::tuple<std::pair<int, int>, double>& ossf_info) {
+    auto [ossf_indices, _] = ossf_info;
+
+    // Count remaining leptons
+    if (ossf_indices.first == -1 || ossf_indices.second == -1) {
+        return 0; // No OSSF pair means no top leptons
+    }
+
+    int count = 0;
+    for (size_t i = 0; i < trailingLeptons_TLorentzVecs.size(); ++i) {
+        if (i != ossf_indices.first && i != ossf_indices.second) {
+            count++;
+        }
+    }
+
+    return count;
+}, {"trailingLeptons_TLorentzVecs", "OSSF_info"}); 
 }
 
 //MET
@@ -655,6 +1048,79 @@ void BaseAnalyser::selectMET()
 
     
 }
+
+void BaseAnalyser::reconstructWboson()
+{
+    if (debug){
+    std::cout<<std::endl;
+    std::cout<< "================================//=================================" << std::endl;
+    std::cout<< "Line : "<< __LINE__ << " Function : " << __FUNCTION__ << std::endl;
+    std::cout<< "================================//=================================" << std::endl;
+    }
+    //-------------------- Reconstruct neutrino ---------------------
+
+    std::cout<<"Reconstructing neutrino from MET"<<std::endl;
+    _rlm = _rlm.Define("nu_pt", "MET_pt")
+               .Define("nu_phi", "MET_phi")
+               .Define("nu_phi_double", "static_cast<double>(nu_phi)")
+
+               .Define("nu_px", "nu_pt*cos(nu_phi)")
+               .Define("nu_py", "nu_pt*sin(nu_phi)");
+   
+    _rlm = _rlm.Define("lambda_reco", ::calculateLambda, {"topLepton_TLorentzVector", "nu_pt", "nu_phi"});
+
+    _rlm = _rlm.Define("delta_reco", ::calculateDelta, {"topLepton_TLorentzVector", "nu_pt", "lambda_reco"})
+               .Define("isRealSolution", "delta_reco > 0 ? 1 : -1");
+
+    _rlm = _rlm.Define("nu_pz", ::calculate_nu_z, {"topLepton_TLorentzVector", "lambda_reco", "delta_reco", "nu_pt", "nu_phi"});
+
+    _rlm = _rlm.Define("nu_energy", ::calculate_nu_energy, {"nu_pt", "nu_phi", "nu_pz"});
+
+    _rlm = _rlm.Define("nu_TL4vec", ::get_neutrino_TL4vec, {"nu_pt", "nu_phi", "nu_pz", "nu_energy"});
+
+
+    // for (const auto &delta_reco: _rlm.Take<float>("delta_reco"))
+    // {
+    //     std::cout << "delta_reco: " << delta_reco << "\n";
+    // }
+
+    //--------------------- Reconstruct W boson ---------------------
+
+    _rlm = _rlm.Define("Wboson_4vec", ::reconstructWboson_TL4vec, {"topLepton_TLorentzVector", "nu_TL4vec"})
+               .Define("w_mass","Wboson_4vec.M()")
+               .Define("w_pt","Wboson_4vec.Pt()");
+
+    // _rlm = _rlm.Define("Wboson_transversMass", "Wboson_4vec.Mt()");
+    _rlm = _rlm.Define("topLepton_phi", "topLepton_TLorentzVector.Phi()");
+
+    _rlm = _rlm.Define("topLepton_pt", "topLepton_TLorentzVector.Pt()");
+
+    // _rlm = _rlm.Define("Wboson_transversMass", "sqrt(pow(topLepton_4vecs.Pt()+nu_pt,2)-pow(nu_pt*cos(nu_phi)+topLepton_4vecs.Px(),2) - pow(nu_pt*sin(nu_phi)+topLepton_4vecs.Py(),2))");
+    _rlm = _rlm.Define("delta_phi_lep_nu", ::calculate_deltaPhi_scalars, {"topLepton_phi", "nu_phi_double"})
+               .Define("Wboson_transversMass", "sqrt(2*topLepton_TLorentzVector.Pt()*nu_pt*(1-cos(delta_phi_lep_nu)))");
+    _rlm = _rlm.Filter("Wboson_transversMass > 0", "Events with invariant mass close to Z boson mass");   
+
+}
+void BaseAnalyser::reconstructTop()
+{
+    if (debug){
+    std::cout<<std::endl;
+    std::cout<< "================================//=================================" << std::endl;
+    std::cout<< "Line : "<< __LINE__ << " Function : " << __FUNCTION__ << std::endl;
+    std::cout<< "================================//=================================" << std::endl;
+    }
+
+//    _rlm = _rlm.Define("bQuark_forReco", "region == 0.0 ? good_bjet_TL4vec : numbLorentzVector")
+    _rlm = _rlm.Define("topQuark_TL4vec", "Wboson_4vec + top_Bjet_TL4Vecs");
+
+    _rlm = _rlm.Define("top_mass", "topQuark_TL4vec.M()")
+	       .Filter("top_mass > 100", "Events with top mass")
+               .Define("top_pt", "topQuark_TL4vec.Pt()");
+
+}
+
+
+
 
 //=============================define variables==================================================//
 void BaseAnalyser::defineMoreVars()
@@ -686,6 +1152,7 @@ void BaseAnalyser::defineMoreVars()
 
     //electron
     addVartoStore("nElectron");
+    addVartoStore("ngoodElectrons");
     addVartoStore("Electron_charge");
     addVartoStore("Electron_pt");
     addVartoStore("NtrailingElectrons");
@@ -721,12 +1188,19 @@ void BaseAnalyser::defineMoreVars()
     addVartoStore("MET_pt_corr");
     addVartoStore("MET_pt");
 
-    //z boson mass
-    addVartoStore("zboson_m");
-    //addVartoStore("is_ossf_pair");
-   // addVartoStore("two_electron_event");
-
-    if(!_isData){
+    //trailing leptons
+   // addVartoStore("trailingLeptons_4vecs");
+   // addVartoStore("trailingLeptons_charge");
+   // addVartoStore("trailingLeptons_flavor");
+    addVartoStore("NtrailingLeptons");
+   //OSSF info
+   // addVartoStore("OSSF_info");
+   // addVartoStore("OSSF_mass");
+   // addVartoStore("ntopLepton");
+ //   addVartoStore("Wboson_transversMass");
+   // addVartoStore("top_mass");
+   
+   if(!_isData){
       //case1 btag correction- fixed wp	
       //case3 shape correction
       //addVartoStore("btagWeight_case3");
@@ -804,7 +1278,7 @@ void BaseAnalyser::bookHists()
   //  add1DHist( {"hNgoodElectrons", "NumberofGoodElectrons", 5, 0.0, 5.0}, "NgoodElectrons", "evWeight", "");
     
    // add1DHist( {"hNgoodMuons", "# of good Muons ", 5, 0.0, 5.0}, "NgoodMuons", "evWeight", "");//i made the change 
-    add1DHist( {"zboson_m", "Mass of z boson", 50, 70.0, 110.0}, "zboson_m", "one", "");
+   // add1DHist( {"zboson_m", "Mass of z boson", 50, 70.0, 110.0}, "zboson_m", "one", "");
     // add1DHist( {"hgood_jetpt_with weight", "Good Jet pt with weight " , 100, 0, 1000} , "goodJets_pt", "evWeight", "");
     // add1DHist( {"hgood_jetpt_NOWeight", "Good Jet pt no weihght " , 100, 0, 1000} , "goodJets_pt", "one", "");
     
@@ -851,7 +1325,11 @@ void BaseAnalyser::setupObjects()
 	selectMuons();
 	selectJets();
 	removeOverlaps();
-	calculateZBosonMass();
+	mergeTrailingLeptons();
+//	processOSSFPairs();
+//	reconstructWboson();
+//	reconstructTop();
+	//calculateZBosonMass();
 	//identifyOSSFElectronPair();
 	// defineTwoElectronEvent();
 	if(!_isData){
