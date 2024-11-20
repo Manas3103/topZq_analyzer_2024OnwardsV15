@@ -339,19 +339,49 @@ void BaseAnalyser::selectJets()
                 .Define("NgoodJets", "int(goodJets_pt.size())")
                 .Define("goodJets_4vecs", ::generate_4vec, {"goodJets_pt", "goodJets_eta", "goodJets_phi", "goodJets_mass"});
 
-	//select b jest within goodjets 
+/*	//select b jest within goodjets 
     _rlm = _rlm.Define("btagcuts", "goodJets_deepjetbtag>0.7") //0.2783 -medium, 0.7 - tight 
       .Define("good_bjetpt", "goodJets_pt[btagcuts]")
+      .Define("good_bjet_leading_pt", "int(good_bjetpt.size()) > 0 ? good_bjetpt[0] : -999.9")
       .Define("good_bjeteta", "goodJets_eta[btagcuts]")
+      .Define("good_bjet_leading_eta", "int(good_bjeteta.size()) > 0 ? good_bjeteta[0] : -999.9")
       .Define("good_bjetphi", "goodJets_phi[btagcuts]")
+      .Define("good_bjet_leading_phi", "int(good_bjetphi.size()) > 0 ? good_bjetphi[0] : -999.9")
       .Define("good_bjetmass", "goodJets_mass[btagcuts]")
+      .Define("good_bjet_leading_mass", "int(good_bjetmass.size()) > 0 ? good_bjetmass[0] : -999.9")
       .Define("good_bjetdeepjet", "goodJets_deepjetbtag[btagcuts]");
-    
+  */
+
+_rlm = _rlm.Define("btagcuts", "goodJets_deepjetbtag > 0.7") // 0.2783 - medium, 0.7 - tight
+      .Define("good_bjetpt", "goodJets_pt[btagcuts]")
+      .Define("good_bjet_leading_pt", "int(good_bjetpt.size()) > 0 ? static_cast<double>(good_bjetpt[0]) : -999.9")
+      .Define("good_bjeteta", "goodJets_eta[btagcuts]")
+      .Define("good_bjet_leading_eta", "int(good_bjeteta.size()) > 0 ? static_cast<double>(good_bjeteta[0]) : -999.9")
+      .Define("good_bjetphi", "goodJets_phi[btagcuts]")
+      .Define("good_bjet_leading_phi", "int(good_bjetphi.size()) > 0 ? static_cast<double>(good_bjetphi[0]) : -999.9")
+      .Define("good_bjetmass", "goodJets_mass[btagcuts]")
+      .Define("good_bjet_leading_mass", "int(good_bjetmass.size()) > 0 ? static_cast<double>(good_bjetmass[0]) : -999.9");
+  
     _rlm = _rlm.Define("good_bjethadflav", "goodJets_hadflav[btagcuts]");
     
-    _rlm = _rlm.Define("Ngood_bjets", "int(good_bjetpt.size())")
-      .Define("good_bjet4vecs", ::generate_4vec, {"good_bjetpt", "good_bjeteta", "good_bjetphi", "good_bjetmass"});
-    _rlm = _rlm.Define("good_bjet_TL4Vecs",
+    _rlm = _rlm.Define("Ngood_bjets", "int(good_bjetpt.size())")   //when remove the comment from the next linw remove the ; of this line 
+      .Define("good_bjet4vecs", ::generate_4vec, {"good_bjetpt", "good_bjeteta", "good_bjetphi", "good_bjetmass"})
+//      .Define("top_Bjet_TL4Vecs", ::generate_TLorentzVector, {"good_bjet_leading_pt","good_bjet_leading_eta","good_bjet_leading_phi","good_bjet_leading_mass"})
+    .Define("top_Bjet_TL4Vecs", [](const ROOT::VecOps::RVec<float>& pts,
+                               const ROOT::VecOps::RVec<float>& etas,
+                               const ROOT::VecOps::RVec<float>& phis,
+                               const ROOT::VecOps::RVec<float>& masses) -> ROOT::VecOps::RVec<TLorentzVector> {
+    ROOT::VecOps::RVec<TLorentzVector> vecs;
+    for (size_t i = 0; i < pts.size(); ++i) {
+        TLorentzVector vec;
+        vec.SetPtEtaPhiM(pts[i], etas[i], phis[i], masses[i]);
+        vecs.emplace_back(vec);
+    }
+    return vecs;
+}, {"good_bjetpt", "good_bjeteta", "good_bjetphi", "good_bjetmass"})
+  
+      .Define("is_top_Bjets_event", "NgoodJets >= 1 && Ngood_bjets >= 1");
+/*    _rlm = _rlm.Define("good_bjet_TL4Vecs",
     [](const ROOT::VecOps::RVec<float>& pt,
        const ROOT::VecOps::RVec<float>& eta,
        const ROOT::VecOps::RVec<float>& phi,
@@ -366,7 +396,8 @@ void BaseAnalyser::selectJets()
         }
         return vecs;
     }, {"good_bjetpt", "good_bjeteta", "good_bjetphi", "good_bjetmass"});
-
+*/
+/*
     _rlm = _rlm.Define("is_top_Bjets_event", "NgoodJets >= 1 && Ngood_bjets >= 1") 
                .Define("top_Bjet_TL4Vecs", 
         [](const ROOT::VecOps::RVec<TLorentzVector>& bjet_vecs, bool is_top_event) -> ROOT::VecOps::RVec<TLorentzVector> {
@@ -379,7 +410,7 @@ void BaseAnalyser::selectJets()
             }
             return bjet_4vecs; // Return an empty vector if the event is not a top event
         }, {"good_bjet_TL4Vecs", "is_top_Bjets_event"}); 
-
+*/
 
 /*	    .Define("top_Bjet_TL4Vecs",
         [](const ROOT::VecOps::RVec<TLorentzVector>& bjet_vecs, bool is_top_event) -> TLorentzVector {
@@ -492,8 +523,8 @@ void BaseAnalyser::removeOverlaps()
                         .Define("Selected_bjetHT", "Sum(Selected_bjetpt)")
                         .Define("Selected_bjethadflav", "Selected_jethadflav[btagcuts2]")
                         .Define("cleanbjet4vecs", ::generate_4vec, {"Selected_bjetpt", "Selected_bjeteta", "Selected_bjetphi", "Selected_bjetmass"});
-/*	         
-    _rlm = _rlm.Define("good_bjet_TL4Vecs",
+	         
+/*    _rlm = _rlm.Define("good_bjet_TL4Vecs",
     [](const ROOT::VecOps::RVec<float>& pt,
        const ROOT::VecOps::RVec<float>& eta,
        const ROOT::VecOps::RVec<float>& phi,
@@ -509,7 +540,7 @@ void BaseAnalyser::removeOverlaps()
         return vecs;
     }, {"Selected_bjetpt", "Selected_bjeteta", "Selected_bjetphi", "Selected_bjetmass"});
 
-            _rlm = _rlm.Define("is_top_Bjets_event", "ncleanjetspass == 1 && ncleanbjetspass == 1") 
+            _rlm = _rlm.Define("is_top_Bjets_event", "ncleanjetspass >= 1 && ncleanbjetspass >= 1") 
                .Define("top_Bjet_TL4Vecs",  
         [](const ROOT::VecOps::RVec<TLorentzVector>& bjet_vecs, bool is_top_event) -> ROOT::VecOps::RVec<TLorentzVector> {
             ROOT::VecOps::RVec<TLorentzVector> bjet_4vecs;
@@ -1200,7 +1231,17 @@ void BaseAnalyser::reconstructTop()
             }
 
             return best_top; // Return the 4-vector of the best top candidate
-        }, {"good_bjet_TL4Vecs", "Wboson_4vec"});
+        }, {"top_Bjet_TL4Vecs", "Wboson_4vec"});
+//    _rlm = _rlm.Define("b_mass","top_Bjet_TL4Vecs.M()");
+/*    _rlm = _rlm.Define("b_mass",
+    [](const ROOT::VecOps::RVec<TLorentzVector>& bjets) {
+        ROOT::VecOps::RVec<double> masses;
+        for (const auto& bjet : bjets) {
+            masses.push_back(bjet.M());
+        }
+        return masses;
+    }, {"top_Bjet_TL4Vecs"});
+*/
 
     //-------------------------------------------------------
     // Calculate the top mass and filter the events based on it
@@ -1208,6 +1249,47 @@ void BaseAnalyser::reconstructTop()
     _rlm = _rlm.Define("top_mass", "topQuark_TL4vec.M()")
                .Filter("top_mass > 0", "Events with top mass")
                .Define("top_pt", "topQuark_TL4vec.Pt()");
+
+/*
+    //top_bjet_data
+    // Define the pt, eta, phi, and mass branches from the Lorentz vectors
+_rlm = _rlm.Define("top_bjetpt",
+    [](const ROOT::VecOps::RVec<TLorentzVector>& bjet_vecs) {
+        ROOT::VecOps::RVec<double> pt_values;
+        for (const auto& bjet : bjet_vecs) {
+            pt_values.push_back(bjet.Pt());
+        }
+        return pt_values;
+    }, {"good_bjet_TL4Vecs"});
+
+_rlm = _rlm.Define("top_bjeteta",
+    [](const ROOT::VecOps::RVec<TLorentzVector>& bjet_vecs) {
+        ROOT::VecOps::RVec<double> eta_values;
+        for (const auto& bjet : bjet_vecs) {
+            eta_values.push_back(bjet.Eta());
+        }
+        return eta_values;
+    }, {"good_bjet_TL4Vecs"});
+
+_rlm = _rlm.Define("top_bjetphi",
+    [](const ROOT::VecOps::RVec<TLorentzVector>& bjet_vecs) {
+        ROOT::VecOps::RVec<double> phi_values;
+        for (const auto& bjet : bjet_vecs) {
+            phi_values.push_back(bjet.Phi());
+        }
+        return phi_values;
+    }, {"good_bjet_TL4Vecs"});
+
+_rlm = _rlm.Define("top_bjetmass",
+    [](const ROOT::VecOps::RVec<TLorentzVector>& bjet_vecs) {
+        ROOT::VecOps::RVec<double> mass_values;
+        for (const auto& bjet : bjet_vecs) {
+            mass_values.push_back(bjet.M());
+        }
+        return mass_values;
+    }, {"good_bjet_TL4Vecs"});
+*/    
+
 }
 
 
@@ -1268,8 +1350,17 @@ void BaseAnalyser::defineMoreVars()
     addVartoStore("Selected_jeteta");
     addVartoStore("Selected_jetbtag");
 
-    
+    addVartoStore("good_bjetpt");
+    addVartoStore("good_bjeteta"); 
+    addVartoStore("good_bjetphi");
+    addVartoStore("good_bjetmass");
     addVartoStore("good_bjetdeepjet");
+
+    addVartoStore("top_bjetpt");
+    addVartoStore("top_bjeteta");
+    addVartoStore("top_bjetphi");
+    addVartoStore("top_bjetmass");
+
     
     //jetmet corr
     addVartoStore("Jet_pt_corr");
@@ -1291,7 +1382,7 @@ void BaseAnalyser::defineMoreVars()
     addVartoStore("ntopLepton");
     addVartoStore("Wboson_transversMass");
     addVartoStore("top_mass");
-//    addVartoStore("b_mass");
+    addVartoStore("b_mass");
    
    if(!_isData){
       //case1 btag correction- fixed wp	
