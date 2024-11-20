@@ -57,8 +57,8 @@ void BaseAnalyser::defineCuts()
 	std::cout<< "-------------------------------------------------------------------" << std::endl;
 
 	//MinimalSelection to filter events
-//	addCuts("3 > nMuon > 0 && 3 > nElectron > 0  && nJet>2", "0");//first change``
-        addCuts("nMuon + nElectron == 3  && nJet>2 && Electron_pt>=10 && Muon_pt>=10", "0");
+	addCuts("4 >= nMuon > 0 && 4 >= nElectron > 0  && nJet>2", "0");//first change``
+//        addCuts("nMuon + nElectron == 3  && nJet>2", "0");
 
 	//addCuts("NgoodMuons>=2","00");
     //addCuts("ncleanjetspass>0","00");
@@ -123,7 +123,7 @@ void BaseAnalyser::selectElectrons()
     // Define trailing electrons with ElectronID(2)
     //-------------------------------------------------------
     _rlm = _rlm.Define("trailingElectronsID", ElectronID(2)); // ID level 2 for trailing electrons
-    _rlm = _rlm.Define("trailingElectrons", "trailingElectronsID && Electron_pt > 10 && abs(Electron_eta) < 2.5 && Electron_pfRelIso03_all < 0.20");
+    _rlm = _rlm.Define("trailingElectrons", "trailingElectronsID && Electron_pt > 10 && abs(Electron_eta) < 2.5 && Electron_pfRelIso03_all < 0.40");
 
     // Define additional variables for trailing electrons
     _rlm = _rlm.Define("trailingElectrons_pt", "Electron_pt[trailingElectrons]")
@@ -340,7 +340,7 @@ void BaseAnalyser::selectJets()
                 .Define("goodJets_4vecs", ::generate_4vec, {"goodJets_pt", "goodJets_eta", "goodJets_phi", "goodJets_mass"});
 
 	//select b jest within goodjets 
-    _rlm = _rlm.Define("btagcuts", "goodJets_deepjetbtag>0.2783") //0.2783 -medium, 0.7 - tight 
+    _rlm = _rlm.Define("btagcuts", "goodJets_deepjetbtag>0.7") //0.2783 -medium, 0.7 - tight 
       .Define("good_bjetpt", "goodJets_pt[btagcuts]")
       .Define("good_bjeteta", "goodJets_eta[btagcuts]")
       .Define("good_bjetphi", "goodJets_phi[btagcuts]")
@@ -367,15 +367,28 @@ void BaseAnalyser::selectJets()
         return vecs;
     }, {"good_bjetpt", "good_bjeteta", "good_bjetphi", "good_bjetmass"});
 
-    _rlm = _rlm.Define("is_top_Bjets_event", "NgoodJets == 1 && Ngood_bjets == 1") 
-               .Define("top_Bjet_TL4Vecs",
+    _rlm = _rlm.Define("is_top_Bjets_event", "NgoodJets >= 1 && Ngood_bjets >= 1") 
+               .Define("top_Bjet_TL4Vecs", 
+        [](const ROOT::VecOps::RVec<TLorentzVector>& bjet_vecs, bool is_top_event) -> ROOT::VecOps::RVec<TLorentzVector> {
+            ROOT::VecOps::RVec<TLorentzVector> bjet_4vecs;
+            if (is_top_event) {
+                // If the event is a top event, return all b-jet 4-vectors
+                for (const auto& bjet : bjet_vecs) {
+                    bjet_4vecs.push_back(bjet);
+                }
+            }
+            return bjet_4vecs; // Return an empty vector if the event is not a top event
+        }, {"good_bjet_TL4Vecs", "is_top_Bjets_event"}); 
+
+
+/*	    .Define("top_Bjet_TL4Vecs",
         [](const ROOT::VecOps::RVec<TLorentzVector>& bjet_vecs, bool is_top_event) -> TLorentzVector {
-            if (is_top_event && bjet_vecs.size() == 1) {
+            if (is_top_event && bjet_vecs.size() >= 1) {
                 return bjet_vecs[0];
             }
             return TLorentzVector(0, 0, 0, 0); // Return an empty TLorentzVector if condition not met
         }, {"good_bjet_TL4Vecs", "is_top_Bjets_event"});
-    
+*/    
 
     if(!_isData){
       //For Btagging Efficiency    
@@ -479,6 +492,36 @@ void BaseAnalyser::removeOverlaps()
                         .Define("Selected_bjetHT", "Sum(Selected_bjetpt)")
                         .Define("Selected_bjethadflav", "Selected_jethadflav[btagcuts2]")
                         .Define("cleanbjet4vecs", ::generate_4vec, {"Selected_bjetpt", "Selected_bjeteta", "Selected_bjetphi", "Selected_bjetmass"});
+/*	         
+    _rlm = _rlm.Define("good_bjet_TL4Vecs",
+    [](const ROOT::VecOps::RVec<float>& pt,
+       const ROOT::VecOps::RVec<float>& eta,
+       const ROOT::VecOps::RVec<float>& phi,
+       const ROOT::VecOps::RVec<float>& mass) -> ROOT::VecOps::RVec<TLorentzVector> {
+        ROOT::VecOps::RVec<TLorentzVector> vecs;
+        for (size_t i = 0; i < pt.size(); ++i) {
+            double pt_d = static_cast<double>(pt[i]);
+            double eta_d = static_cast<double>(eta[i]);
+            double phi_d = static_cast<double>(phi[i]);
+            double mass_d = static_cast<double>(mass[i]);
+            vecs.emplace_back(pt_d, eta_d, phi_d, mass_d);
+        }
+        return vecs;
+    }, {"Selected_bjetpt", "Selected_bjeteta", "Selected_bjetphi", "Selected_bjetmass"});
+
+            _rlm = _rlm.Define("is_top_Bjets_event", "ncleanjetspass == 1 && ncleanbjetspass == 1") 
+               .Define("top_Bjet_TL4Vecs",  
+        [](const ROOT::VecOps::RVec<TLorentzVector>& bjet_vecs, bool is_top_event) -> ROOT::VecOps::RVec<TLorentzVector> {
+            ROOT::VecOps::RVec<TLorentzVector> bjet_4vecs;
+            if (is_top_event) {
+                // If the event is a top event, return all b-jet 4-vectors
+                for (const auto& bjet : bjet_vecs) {
+                    bjet_4vecs.push_back(bjet);
+                }
+            }
+            return bjet_4vecs; // Return an empty vector if the event is not a top event
+        }, {"good_bjet_TL4Vecs", "is_top_Bjets_event"}); 
+*/
 
 }
 
@@ -653,8 +696,11 @@ void BaseAnalyser::mergeTrailingLeptons() {
     _rlm = _rlm.Define("NtrailingLeptons", [](int NtrailingElectrons, int NtrailingMuons) {
         return NtrailingElectrons + NtrailingMuons;
     }, {"NtrailingElectrons", "NtrailingMuons"});
+    _rlm = _rlm.Filter([](int NtrailingLeptons) {
+        return NtrailingLeptons == 3;
+    }, {"NtrailingLeptons"});
 
-/*    //-------------------------------------------------------
+    //-------------------------------------------------------
     // Combine trailing muons and electrons 4-vectors
     //-------------------------------------------------------
     _rlm = _rlm.Define("trailingLeptons_4vecs", [](const std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>& muons_4vecs,
@@ -703,7 +749,7 @@ void BaseAnalyser::mergeTrailingLeptons() {
                        },
                        {"trailingMuons_TL4Vecs", "trailingElectrons_TL4Vecs"});
 
-		       */
+		       
 }
 
 
@@ -1098,9 +1144,10 @@ void BaseAnalyser::reconstructWboson()
     // _rlm = _rlm.Define("Wboson_transversMass", "sqrt(pow(topLepton_4vecs.Pt()+nu_pt,2)-pow(nu_pt*cos(nu_phi)+topLepton_4vecs.Px(),2) - pow(nu_pt*sin(nu_phi)+topLepton_4vecs.Py(),2))");
     _rlm = _rlm.Define("delta_phi_lep_nu", ::calculate_deltaPhi_scalars, {"topLepton_phi", "nu_phi_double"})
                .Define("Wboson_transversMass", "sqrt(2*topLepton_TLorentzVector.Pt()*nu_pt*(1-cos(delta_phi_lep_nu)))");
-    _rlm = _rlm.Filter("Wboson_transversMass > 0", "Events with invariant mass close to Z boson mass");   
+   // _rlm = _rlm.Filter("Wboson_transversMass > 0", "Events with invariant mass close to Z boson mass");   
 
 }
+/*
 void BaseAnalyser::reconstructTop()
 {
     if (debug){
@@ -1111,12 +1158,56 @@ void BaseAnalyser::reconstructTop()
     }
 
 //    _rlm = _rlm.Define("bQuark_forReco", "region == 0.0 ? good_bjet_TL4vec : numbLorentzVector")
+  //   _rlm = _rlm.Define("b_mass","top_Bjet_TL4Vecs.M()");
+
     _rlm = _rlm.Define("topQuark_TL4vec", "Wboson_4vec + top_Bjet_TL4Vecs");
 
     _rlm = _rlm.Define("top_mass", "topQuark_TL4vec.M()")
-	       .Filter("top_mass > 100", "Events with top mass")
+	       .Filter("top_mass > 0", "Events with top mass")
                .Define("top_pt", "topQuark_TL4vec.Pt()");
 
+}
+*/
+
+void BaseAnalyser::reconstructTop()
+{
+    if (debug){
+        std::cout << std::endl;
+        std::cout << "================================//=================================" << std::endl;
+        std::cout << "Line : " << __LINE__ << " Function : " << __FUNCTION__ << std::endl;
+        std::cout << "================================//=================================" << std::endl;
+    }
+
+    //-------------------------------------------------------
+    // Reconstruct the top quark by combining W boson and b-jet 4-vectors
+    //-------------------------------------------------------
+    _rlm = _rlm.Define("topQuark_TL4vec",
+        [](const ROOT::VecOps::RVec<TLorentzVector>& bjet_vecs, const TLorentzVector& w_boson_4vec) -> TLorentzVector {
+            TLorentzVector best_top;
+            double min_mass_diff = std::numeric_limits<double>::max(); // Set an initial large value for min mass difference
+
+            const double top_mass = 172.76; // Mass of top quark in GeV (can be adjusted as needed)
+
+            for (const auto& bjet : bjet_vecs) {
+                TLorentzVector candidate_top = w_boson_4vec + bjet;
+                double mass_diff = std::abs(candidate_top.M() - top_mass); // Calculate mass difference from the top quark mass
+
+                // Update the best_top if this candidate has a smaller mass difference
+                if (mass_diff < min_mass_diff) {
+                    best_top = candidate_top;
+                    min_mass_diff = mass_diff;
+                }
+            }
+
+            return best_top; // Return the 4-vector of the best top candidate
+        }, {"good_bjet_TL4Vecs", "Wboson_4vec"});
+
+    //-------------------------------------------------------
+    // Calculate the top mass and filter the events based on it
+    //-------------------------------------------------------
+    _rlm = _rlm.Define("top_mass", "topQuark_TL4vec.M()")
+               .Filter("top_mass > 0", "Events with top mass")
+               .Define("top_pt", "topQuark_TL4vec.Pt()");
 }
 
 
@@ -1193,12 +1284,14 @@ void BaseAnalyser::defineMoreVars()
    // addVartoStore("trailingLeptons_charge");
    // addVartoStore("trailingLeptons_flavor");
     addVartoStore("NtrailingLeptons");
+    addVartoStore("NtrailingLepton4vecs");
    //OSSF info
-   // addVartoStore("OSSF_info");
-   // addVartoStore("OSSF_mass");
-   // addVartoStore("ntopLepton");
- //   addVartoStore("Wboson_transversMass");
-   // addVartoStore("top_mass");
+    addVartoStore("OSSF_info");
+    addVartoStore("OSSF_mass");
+    addVartoStore("ntopLepton");
+    addVartoStore("Wboson_transversMass");
+    addVartoStore("top_mass");
+//    addVartoStore("b_mass");
    
    if(!_isData){
       //case1 btag correction- fixed wp	
@@ -1326,9 +1419,9 @@ void BaseAnalyser::setupObjects()
 	selectJets();
 	removeOverlaps();
 	mergeTrailingLeptons();
-//	processOSSFPairs();
-//	reconstructWboson();
-//	reconstructTop();
+	processOSSFPairs();
+	reconstructWboson();
+	reconstructTop();
 	//calculateZBosonMass();
 	//identifyOSSFElectronPair();
 	// defineTwoElectronEvent();
