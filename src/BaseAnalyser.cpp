@@ -354,13 +354,13 @@ void BaseAnalyser::selectJets()
 
 _rlm = _rlm.Define("btagcuts", "goodJets_deepjetbtag > 0.7") // 0.2783 - medium, 0.7 - tight
       .Define("good_bjetpt", "goodJets_pt[btagcuts]")
-      .Define("good_bjet_leading_pt", "int(good_bjetpt.size()) > 0 ? static_cast<double>(good_bjetpt[0]) : -999.9")
+//      .Define("good_bjet_leading_pt", "int(good_bjetpt.size()) > 0 ? static_cast<double>(good_bjetpt[0]) : -999.9")
       .Define("good_bjeteta", "goodJets_eta[btagcuts]")
-      .Define("good_bjet_leading_eta", "int(good_bjeteta.size()) > 0 ? static_cast<double>(good_bjeteta[0]) : -999.9")
+//      .Define("good_bjet_leading_eta", "int(good_bjeteta.size()) > 0 ? static_cast<double>(good_bjeteta[0]) : -999.9")
       .Define("good_bjetphi", "goodJets_phi[btagcuts]")
-      .Define("good_bjet_leading_phi", "int(good_bjetphi.size()) > 0 ? static_cast<double>(good_bjetphi[0]) : -999.9")
-      .Define("good_bjetmass", "goodJets_mass[btagcuts]")
-      .Define("good_bjet_leading_mass", "int(good_bjetmass.size()) > 0 ? static_cast<double>(good_bjetmass[0]) : -999.9");
+//      .Define("good_bjet_leading_phi", "int(good_bjetphi.size()) > 0 ? static_cast<double>(good_bjetphi[0]) : -999.9")
+      .Define("good_bjetmass", "goodJets_mass[btagcuts]");
+//      .Define("good_bjet_leading_mass", "int(good_bjetmass.size()) > 0 ? static_cast<double>(good_bjetmass[0]) : -999.9");
   
     _rlm = _rlm.Define("good_bjethadflav", "goodJets_hadflav[btagcuts]");
     
