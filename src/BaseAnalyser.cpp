@@ -57,7 +57,7 @@ void BaseAnalyser::defineCuts()
 	std::cout<< "-------------------------------------------------------------------" << std::endl;
 
 	//MinimalSelection to filter events
-	addCuts("4 >= nMuon > 0 && 4 >= nElectron > 0  && nJet>2", "0");//first change``
+	addCuts("nMuon + nElectron >= 3  && nJet>2", "0");//first change``
 //        addCuts("nMuon + nElectron == 3  && nJet>2", "0");
 
 	//addCuts("NgoodMuons>=2","00");
@@ -68,33 +68,6 @@ void BaseAnalyser::defineCuts()
 //===============================Find Good Electrons===========================================//
 //: Define Good Electrons in rdata frame
 //=============================================================================================//
-/*
-void BaseAnalyser::selectElectrons()
-{
-    cout << "select good electrons" << endl;
-    if (debug){
-    std::cout<< "================================//=================================" << std::endl;
-    std::cout<< "Line : "<< __LINE__ << " Function : " << __FUNCTION__ << std::endl;
-    std::cout<< "================================//=================================" << std::endl;
-    }
-   
-    _rlm = _rlm.Define("goodElectronsID", ElectronID(2)); //without pt-eta cuts
-	_rlm = _rlm.Define("goodElectrons", "goodElectronsID && Electron_pt>30.0  && abs(Electron_eta)<2.1 && Electron_pfRelIso03_all<0.15");//here i made the change
-      //  _rlm = _rlm.Define("goodElectrons", "Electron_pt>25.0");//here i made the change
-
-    	_rlm = _rlm.Define("goodElectrons_pt", "Electron_pt[goodElectrons]")
-                .Define("goodElectrons_eta", "Electron_eta[goodElectrons]")
-                .Define("goodElectrons_phi", "Electron_phi[goodElectrons]")
-                .Define("goodElectrons_mass", "Electron_mass[goodElectrons]")
-                .Define("goodElectrons_idx", ::good_idx, {"goodElectrons"})
-                .Define("NgoodElectrons", "int(goodElectrons_pt.size())");
-
-    //-------------------------------------------------------
-    //generate electron 4vector from selected good Electrons
-    //-------------------------------------------------------
-    _rlm = _rlm.Define("goodElectron_4Vecs", ::generate_4vec, {"goodElectrons_pt", "goodElectrons_eta", "goodElectrons_phi", "goodElectrons_mass"});
-
-}*/
 // ##=========THIS IS THE NEW FUNCITON WITH THE NEW BRANCH=========##
 // ==================================================================
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -102,6 +75,65 @@ void BaseAnalyser::selectElectrons()
 {
     cout << "select good electrons" << endl;
     if (debug){
+        std::cout << "================================//=================================" << std::endl;
+        std::cout << "Line : " << __LINE__ << " Function : " << __FUNCTION__ << std::endl;
+        std::cout << "================================//=================================" << std::endl;
+    }
+
+    // Define good electrons based on ID and additional criteria
+    _rlm = _rlm.Define("goodElectronsID", ElectronID(2)); // ID level 2
+    _rlm = _rlm.Define("goodElectrons", "goodElectronsID && Electron_pt > 25.0 && abs(Electron_eta) < 2.1 && Electron_pfRelIso03_all < 0.15");
+
+    // Define additional variables for good electrons
+    _rlm = _rlm.Define("goodElectrons_pt", "Electron_pt[goodElectrons]")
+                .Define("goodElectrons_eta", "Electron_eta[goodElectrons]")
+                .Define("goodElectrons_phi", "Electron_phi[goodElectrons]")
+                .Define("goodElectrons_mass", "Electron_mass[goodElectrons]")
+                .Define("goodElectrons_idx", ::good_idx, {"goodElectrons"})
+                .Define("NgoodElectrons", "int(goodElectrons_pt.size())");
+
+    //-------------------------------------------------------
+    // Define trailing electrons with ElectronID(2)
+    //-------------------------------------------------------
+    _rlm = _rlm.Define("trailingElectronsID", ElectronID(2)); // ID level 2 for trailing electrons
+    _rlm = _rlm.Define("trailingElectrons", "trailingElectronsID && Electron_pt > 10 && abs(Electron_eta) < 2.5 && Electron_pfRelIso03_all < 0.40");
+
+    // Define additional variables for trailing electrons
+    _rlm = _rlm.Define("trailingElectrons_pt", "Electron_pt[trailingElectrons]")
+                .Define("trailingElectrons_eta", "Electron_eta[trailingElectrons]")
+                .Define("trailingElectrons_phi", "Electron_phi[trailingElectrons]")
+                .Define("trailingElectrons_mass", "Electron_mass[trailingElectrons]")
+                .Define("trailingElectrons_charge", "Electron_charge[trailingElectrons]")
+                .Define("trailingElectrons_idx", ::good_idx, {"trailingElectrons"})
+                .Define("NtrailingElectrons", "int(trailingElectrons_pt.size())");
+
+    //-------------------------------------------------------
+    // Generate electron 4-vector from selected good electrons
+    //-------------------------------------------------------
+    _rlm = _rlm.Define("goodElectron_4Vecs", ::generate_4vec, {"goodElectrons_pt", "goodElectrons_eta", "goodElectrons_phi", "goodElectrons_mass"});
+
+    // Generate electron 4-vector for trailing electrons
+    _rlm = _rlm.Define("trailingElectrons_4Vecs", ::generate_4vec, {"trailingElectrons_pt", "trailingElectrons_eta", "trailingElectrons_phi", "trailingElectrons_mass"});
+    _rlm = _rlm.Define("trailingElectrons_TL4Vecs",
+    [](const ROOT::VecOps::RVec<float>& pt,
+       const ROOT::VecOps::RVec<float>& eta,
+       const ROOT::VecOps::RVec<float>& phi,
+       const ROOT::VecOps::RVec<float>& mass) -> ROOT::VecOps::RVec<TLorentzVector> {
+        ROOT::VecOps::RVec<TLorentzVector> vecs;
+        for (size_t i = 0; i < pt.size(); ++i) {
+            TLorentzVector vec;
+            vec.SetPtEtaPhiM(pt[i], eta[i], phi[i], mass[i]);
+            vecs.emplace_back(vec);
+        }
+        return vecs;
+    },
+    {"trailingElectrons_pt", "trailingElectrons_eta", "trailingElectrons_phi", "trailingElectrons_mass"});
+}
+
+
+
+/*
+
         std::cout << "================================//=================================" << std::endl;
         std::cout << "Line : " << __LINE__ << " Function : " << __FUNCTION__ << std::endl;
         std::cout << "================================//=================================" << std::endl;
@@ -175,7 +207,7 @@ void BaseAnalyser::selectElectrons()
     }, {"trailingElectrons_4Vecs"});
 }
 
-
+*/
 
 
 
@@ -183,43 +215,6 @@ void BaseAnalyser::selectElectrons()
 //===============================Find Good Muons===============================================//
 //: Define Good Muons in rdata frame
 //=============================================================================================//
-/*
-void BaseAnalyser::selectMuons()
-{
-
-    cout << "select good muons" << endl;
-    if (debug){
-        std::cout<< "================================//=================================" << std::endl;
-        std::cout<< "Line : "<< __LINE__ << " Function : " << __FUNCTION__ << std::endl;
-        std::cout<< "================================//=================================" << std::endl;
-    }
-
-    _rlm = _rlm.Define("goodMuonsID", MuonID(2)); //loose muons
-    _rlm = _rlm.Define("goodMuons","goodMuonsID && Muon_pt > 10 && abs(Muon_eta) < 2.4 && Muon_miniPFRelIso_all < 0.40");//here i made the change
-   // _rlm = _rlm.Define("goodMuons"," Muon_pt > 10 && abs(Muon_eta) < 2.4 && Muon_miniPFRelIso_all < 0.40");//here i made the change
-    _rlm = _rlm.Define("goodMuons_pt", "Muon_pt[goodMuons]") 
-                .Define("goodMuons_eta", "Muon_eta[goodMuons]")
-                .Define("goodMuons_phi", "Muon_phi[goodMuons]")
-                .Define("goodMuons_mass", "Muon_mass[goodMuons]")
-                .Define("goodMuons_charge", "Muon_charge[goodMuons]")
-                .Define("goodMuons_idx", ::good_idx, {"goodMuons"})
-                .Define("NgoodMuons", "int(goodMuons_pt.size())");
-
-    //-------------------------------------------------------
-    //generate muon 4vector from selected good Muons
-    //-------------------------------------------------------
-    _rlm = _rlm.Define("goodMuons_4vecs", ::generate_4vec, {"goodMuons_pt", "goodMuons_eta", "goodMuons_phi", "goodMuons_mass"});
-    _rlm = _rlm.Define("goodMuons_energy", [](const std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>& muon_4vecs) {
-    std::vector<double> energies;
-    for (const auto& vec : muon_4vecs) {
-        energies.push_back(vec.E());  // E() gives the energy in PtEtaPhiM4D Lorentz vector
-    }
-    return energies;
-}, {"goodMuons_4vecs"});
-
-
-}
-*/
 // ##=========THIS IS THE NEW FUNCITON WITH THE NEW BRANCH=========##
 // ==================================================================
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -820,27 +815,6 @@ void BaseAnalyser::reconstructWboson()
    // _rlm = _rlm.Filter("Wboson_transversMass > 0", "Events with invariant mass close to Z boson mass");   
 
 }
-/*
-void BaseAnalyser::reconstructTop()
-{
-    if (debug){
-    std::cout<<std::endl;
-    std::cout<< "================================//=================================" << std::endl;
-    std::cout<< "Line : "<< __LINE__ << " Function : " << __FUNCTION__ << std::endl;
-    std::cout<< "================================//=================================" << std::endl;
-    }
-
-//    _rlm = _rlm.Define("bQuark_forReco", "region == 0.0 ? good_bjet_TL4vec : numbLorentzVector")
-  //   _rlm = _rlm.Define("b_mass","top_Bjet_TL4Vecs.M()");
-
-    _rlm = _rlm.Define("topQuark_TL4vec", "Wboson_4vec + top_Bjet_TL4Vecs");
-
-    _rlm = _rlm.Define("top_mass", "topQuark_TL4vec.M()")
-	       .Filter("top_mass > 0", "Events with top mass")
-               .Define("top_pt", "topQuark_TL4vec.Pt()");
-
-}
-*/
 
 void BaseAnalyser::reconstructTop()
 {
@@ -894,45 +868,7 @@ void BaseAnalyser::reconstructTop()
 	       .Define("top_phi", "topQuark_TL4vec.Phi()")
                .Define("top_eta", "topQuark_TL4vec.Eta()");
 
-/*
-    //top_bjet_data
-    // Define the pt, eta, phi, and mass branches from the Lorentz vectors
-_rlm = _rlm.Define("top_bjetpt",
-    [](const ROOT::VecOps::RVec<TLorentzVector>& bjet_vecs) {
-        ROOT::VecOps::RVec<double> pt_values;
-        for (const auto& bjet : bjet_vecs) {
-            pt_values.push_back(bjet.Pt());
-        }
-        return pt_values;
-    }, {"good_bjet_TL4Vecs"});
-
-_rlm = _rlm.Define("top_bjeteta",
-    [](const ROOT::VecOps::RVec<TLorentzVector>& bjet_vecs) {
-        ROOT::VecOps::RVec<double> eta_values;
-        for (const auto& bjet : bjet_vecs) {
-            eta_values.push_back(bjet.Eta());
-        }
-        return eta_values;
-    }, {"good_bjet_TL4Vecs"});
-
-_rlm = _rlm.Define("top_bjetphi",
-    [](const ROOT::VecOps::RVec<TLorentzVector>& bjet_vecs) {
-        ROOT::VecOps::RVec<double> phi_values;
-        for (const auto& bjet : bjet_vecs) {
-            phi_values.push_back(bjet.Phi());
-        }
-        return phi_values;
-    }, {"good_bjet_TL4Vecs"});
-
-_rlm = _rlm.Define("top_bjetmass",
-    [](const ROOT::VecOps::RVec<TLorentzVector>& bjet_vecs) {
-        ROOT::VecOps::RVec<double> mass_values;
-        for (const auto& bjet : bjet_vecs) {
-            mass_values.push_back(bjet.M());
-        }
-        return mass_values;
-    }, {"good_bjet_TL4Vecs"});
-*/    
+   
 
 }
 
