@@ -57,7 +57,8 @@ void BaseAnalyser::defineCuts()
 	std::cout<< "-------------------------------------------------------------------" << std::endl;
 
 	//MinimalSelection to filter events
-	addCuts("4 >= nMuon > 0 && 4 >= nElectron > 0  && nJet>2", "0");//first change``
+	//addCuts("4 >= nMuon > 0 && 4 >= nElectron > 0  && nJet>2", "0");//first change``
+	addCuts("nMuon + nElectron >= 3  && nJet>2 && PV_npvsGood >= 1 ", "0");//first change``
 //        addCuts("nMuon + nElectron == 3  && nJet>2", "0");
 
 	//addCuts("NgoodMuons>=2","00");
