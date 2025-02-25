@@ -13,6 +13,8 @@
 #include "Math/GenVector/Rotation3D.h"
 #include "Math/Math.h"
 #include<cmath>
+#include <vector>      // For std::vector
+#include <algorithm>   // For std::min_element and std::distance
 
 
 // Utility function to generate fourvector objects for thigs that pass selections
@@ -421,7 +423,75 @@ doubles calculateDeltaR_group(FourVectorVec &jets, FourVector &lepton)
 
 	return deltaR;
 }
+///////////////////////////////////////////////////////////////////
+////////////edited by manas for the nearest jet for lepton/////////
+///////////////////////////////////////////////////////////////////
+ROOT::VecOps::RVec<double> findDeltaR_4all(const FourVectorRVec &leptons, FourVectorVec &jets, int nlepton)
+{
+    // Check if both nlepton and njet are greater than 1 before proceeding
+    if (nlepton > 1) {
+        // Declare deltaR to store the result
+        ROOT::VecOps::RVec<double> deltaR;
 
+        for (const auto &lepton : leptons) {
+            // Calculate deltaR for each lepton, which returns a ROOT::VecOps::RVec<double>
+            ROOT::VecOps::RVec<double> deltaR_single_vec = calculateDeltaR_group(jets, const_cast<FourVector&>(lepton));
+
+            // Push all deltaR values from the ROOT::VecOps::RVec to the result
+            for (const double& delta : deltaR_single_vec) {
+                deltaR.push_back(delta);
+            }
+        }
+
+        return deltaR;  // Return the deltaR vector
+    } else {
+        // Return an empty vector or handle the case when the condition is not satisfied
+        return ROOT::VecOps::RVec<double>();  // Empty vector
+    }
+}
+
+
+
+ints findClosestJetsToLeptons(const FourVectorRVec &leptons, 
+                               FourVectorVec &jets, 
+                               const floats &jetsPt,
+                               const floats &jetsEta)
+{
+    // RVec to store the jet IDs corresponding to each lepton
+    ints closestJetIds;
+
+    for (const auto &lepton : leptons) {  // Keep lepton as a const reference
+        // Cast away const qualifier for passing to calculateDeltaR_group
+        doubles deltaR = calculateDeltaR_group(jets, const_cast<FourVector&>(lepton));
+
+        // Initialize variables to track the minimum delta R and corresponding jet ID
+        double minDeltaR = 0.4;  // A large value to begin with
+        int minJetId = -1;
+
+        // Iterate over the jets to find the closest one with valid conditions
+        for (size_t i = 0; i < jets.size(); ++i) {
+            // Check if the jet satisfies the Pt and eta conditions
+            if (jetsPt[i] > 5.0 && jetsEta[i] > -5.0 && jetsEta[i] < 5.0 && deltaR[i] < 0.4) {
+                if (deltaR[i] < minDeltaR) {
+                    minDeltaR = deltaR[i];
+                    minJetId = i;  // Store the ID of the jet with the minimum delta R
+                }
+            }
+        }
+
+        // If a valid jet was found, store its ID
+        if (minJetId != -1) {
+            closestJetIds.push_back(minJetId);
+        }
+    }
+
+    return closestJetIds;
+}
+
+
+//////////////////////////////////////////
+/////////ends here////////////////////////
+//////////////////////////////////////////
 
 TLorentzVector generate_TLorentzVector(double &pt, double &eta, double &phi, double &mass) 
 {

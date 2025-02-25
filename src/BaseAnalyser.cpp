@@ -108,6 +108,25 @@ void BaseAnalyser::selectElectrons()
         std::cout << "================================//=================================" << std::endl;
     }
 
+//////////////////////////Electron enery for the new variable ////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////
+
+    _rlm = _rlm.Define("Electron_4Vecs", ::generate_4vec, {"Electron_pt", "Electron_eta", "Electron_phi", "Electron_mass"});  
+    _rlm = _rlm.Define("Electron_energy", [](const std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>& electron_4vecs) {
+    ROOT::VecOps::RVec<Float_t> energies;
+    for (const auto& vec : electron_4vecs) {
+        energies.push_back(static_cast<Float_t>(vec.E()));  // E() gives the energy in PtEtaPhiM4D Lorentz vector
+    }
+    return energies;
+}, {"Electron_4Vecs"});
+
+///////////////////////////////////////////////////
+///////// NEW VARIABLE FOR THE BDT ////////////////
+///////////////////////////////////////////////////
+
+    _rlm = _rlm.Define("electron_oneOverEminusOneOverP","1.0 / Electron_energy - 1.0 / Electron_pt");
+
+
     // Define good electrons based on ID and additional criteria
     _rlm = _rlm.Define("goodElectronsID", ElectronID(2)); // ID level 2
     _rlm = _rlm.Define("goodElectrons", "goodElectronsID && Electron_pt > 25.0 && abs(Electron_eta) < 2.1 && Electron_pfRelIso03_all < 0.15");
@@ -140,6 +159,67 @@ void BaseAnalyser::selectElectrons()
     //-------------------------------------------------------
     _rlm = _rlm.Define("goodElectron_4Vecs", ::generate_4vec, {"goodElectrons_pt", "goodElectrons_eta", "goodElectrons_phi", "goodElectrons_mass"});
 
+
+
+    // =====================================================================
+    // Baseline Electron Selection
+    // =====================================================================
+    _rlm = _rlm.Define("baselineElectrons", 
+                       "Electron_pt > 7.0 && abs(Electron_eta) < 2.5 && "
+                       "Electron_pfRelIso03_all < 0.40 && abs(Electron_dxy) < 0.05 && "
+                       "abs(Electron_dz) < 0.10 && Electron_lostHits <= 1 && "
+                       "Electron_hoe < 0.10 && Electron_convVeto &&"
+		       "((abs(Electron_eta) < 1.479 && Electron_sieie < 0.011) || " // Barrel cut
+                       "(abs(Electron_eta) >= 1.479 && abs(Electron_eta) < 2.5 && Electron_sieie < 0.030)) &&" // Endcap cut
+		       "Electron_sip3d < 8 && electron_oneOverEminusOneOverP > -0.04"
+		       );
+
+    // Additional variables for baseline electrons
+    _rlm = _rlm.Define("baselineElectrons_pt", "Electron_pt[baselineElectrons]")
+                .Define("baselineElectrons_eta", "Electron_eta[baselineElectrons]")
+                .Define("baselineElectrons_phi", "Electron_phi[baselineElectrons]")
+                .Define("baselineElectrons_mass", "Electron_mass[baselineElectrons]")
+                .Define("baselineElectrons_charge", "Electron_charge[baselineElectrons]")
+                .Define("baselineElectrons_idx", ::good_idx, {"baselineElectrons"})
+		.Define("baselineElectrons_genPartFlav", "Electron_genPartFlav[baselineElectrons]")
+                .Define("NbaselineElectrons", "int(baselineElectrons_pt.size())");
+
+    // Generate 4-vectors for baseline electrons
+    _rlm = _rlm.Define("baselineElectron_4Vecs", ::generate_4vec, {"baselineElectrons_pt", "baselineElectrons_eta", "baselineElectrons_phi", "baselineElectrons_mass"});
+
+    _rlm = _rlm.Define("baselineElectrons_TL4Vecs",
+    [](const ROOT::VecOps::RVec<float>& pt,
+       const ROOT::VecOps::RVec<float>& eta,
+       const ROOT::VecOps::RVec<float>& phi,
+       const ROOT::VecOps::RVec<float>& mass) -> ROOT::VecOps::RVec<TLorentzVector> {
+        ROOT::VecOps::RVec<TLorentzVector> vecs;
+        for (size_t i = 0; i < pt.size(); ++i) {
+            TLorentzVector vec;
+            vec.SetPtEtaPhiM(pt[i], eta[i], phi[i], mass[i]);
+            vecs.emplace_back(vec);
+        }
+        return vecs;
+    },
+    {"baselineElectrons_pt", "baselineElectrons_eta", "baselineElectrons_phi", "baselineElectrons_mass"});
+    _rlm = _rlm.Define("baselineElectrons_isPrompt",
+    [](const ROOT::VecOps::RVec<unsigned char>& genPartFlav) {
+        return ROOT::VecOps::Map(genPartFlav, [](unsigned char flav) {
+            return (flav == 1 || flav == 15 || flav == 22) ? 1 : 0;
+        });
+    },
+    {"baselineElectrons_genPartFlav"});
+
+
+
+/*   _rlm = _rlm.Define("baselineElectrons_isPrompt",
+                   "baselineElectrons_genPartFlav == 1 || "
+                   "baselineElectrons_genPartFlav == 15 || "
+                   "baselineElectrons_genPartFlav == 22 ? 1 : 0");
+*/
+///////////////////////////////////////////////////////////////
+    
+
+
     // Generate electron 4-vector for trailing electrons
     _rlm = _rlm.Define("trailingElectrons_4Vecs", ::generate_4vec, {"trailingElectrons_pt", "trailingElectrons_eta", "trailingElectrons_phi", "trailingElectrons_mass"});
     _rlm = _rlm.Define("trailingElectrons_TL4Vecs",
@@ -156,6 +236,58 @@ void BaseAnalyser::selectElectrons()
         return vecs;
     },
     {"trailingElectrons_pt", "trailingElectrons_eta", "trailingElectrons_phi", "trailingElectrons_mass"});
+///////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////
+/////////////VARIABLE FOR BDT USING BASELINE///////////////////
+///////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////
+    _rlm = _rlm.Define("baselineElectrons_JetNDauCharged" , "Electron_jetNDauCharged[baselineElectrons]")
+               .Define("baselineElectrons_miniPFRelIso_chg" , "Electron_miniPFRelIso_chg[baselineElectrons]")
+	       .Define("baselineElectrons_miniPFRelIso_neutral" , "Electron_miniPFRelIso_all[baselineElectrons]-Electron_miniPFRelIso_chg[baselineElectrons]")
+	       .Define("baselineElectrons_jetPtRelv2" , "Electron_jetPtRelv2[baselineElectrons]")
+	       .Define("baselineElectrons_pfRelIso03_all" , "Electron_pfRelIso03_all[baselineElectrons]")
+	       .Define("baselineElectrons_sip3d" , "Electron_sip3d[baselineElectrons]")
+	       .Define("baselineElectrons_dxy" , "Electron_dxy[baselineElectrons]")
+	       .Define("baselineElectrons_dz" , "Electron_dz[baselineElectrons]")
+	       .Define("baselineElectrons_JetPt_ratio" , "1/(Electron_jetRelIso[baselineElectrons]+1)")
+	       .Define("baselineElectrons_MVAEstimatorRun2Fall17NoIsoV2Values", "Electron_mvaFall17V2noIso[baselineElectrons]");
+
+    _rlm = _rlm.Define("baselineElectrons_JetPtRatio", [](const ROOT::VecOps::RVec<float>& electron_jetRelIso, const ROOT::VecOps::RVec<int>& baselineElectrons) {
+           std::vector<double> jetPtRatios;
+           for (const auto& idx : baselineElectrons) {
+                double ratio = 1.0 / (electron_jetRelIso[idx] + 1);
+                jetPtRatios.push_back(ratio > 1.5 ? 1.5 : ratio);
+           }
+           return jetPtRatios;
+           }, {"Electron_jetRelIso", "baselineElectrons"});
+    _rlm = _rlm.Define("baselineElectron_4Vecs_RVec",
+    [](const std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>& vec) {
+        return ROOT::VecOps::RVec<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>(vec.begin(), vec.end());
+    }, {"baselineElectron_4Vecs"});
+
+
+    _rlm = _rlm.Define("Jet_4Vecs", ::generate_4vec, {"Jet_pt", "Jet_eta", "Jet_phi", "Jet_mass"}); //jet's 4 vector for the further calculations 
+    _rlm = _rlm.Define("Electron_all_deltaR", ::findDeltaR_4all, {"baselineElectron_4Vecs_RVec", "Jet_4Vecs", "NbaselineElectrons"});
+    _rlm = _rlm.Define("Electron_closestJetIds",::findClosestJetsToLeptons,{"baselineElectron_4Vecs_RVec", "Jet_4Vecs", "Jet_pt", "Jet_eta"});
+  /*  _rlm = _rlm.Define("Electron_closestJetIds", 
+    [](const FourVectorRVec &leptons, const FourVectorVec &jets, const floats &jetsPt, const floats &jetsEta) {
+        return findClosestJetsToLeptons(leptons, const_cast<FourVectorVec&>(jets), jetsPt, jetsEta);
+    }, 
+    {"baselineElectron_4Vecs_RVec", "Jet_4Vecs", "Jet_pt", "Jet_eta"});
+*/
+
+
+
+
+
+
+
+///////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////
+////////////ENERGY OF DIFFERENT CATAGORY //////////////////////
+///////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////
+
 
    // Define energy for good electrons
     _rlm = _rlm.Define("goodElectrons_energy", [](const std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>& electron_4vecs) {
@@ -178,49 +310,6 @@ void BaseAnalyser::selectElectrons()
 
 
 
-
-
-
-//===============================Find Good Muons===============================================//
-//: Define Good Muons in rdata frame
-//=============================================================================================//
-/*
-void BaseAnalyser::selectMuons()
-{
-
-    cout << "select good muons" << endl;
-    if (debug){
-        std::cout<< "================================//=================================" << std::endl;
-        std::cout<< "Line : "<< __LINE__ << " Function : " << __FUNCTION__ << std::endl;
-        std::cout<< "================================//=================================" << std::endl;
-    }
-
-    _rlm = _rlm.Define("goodMuonsID", MuonID(2)); //loose muons
-    _rlm = _rlm.Define("goodMuons","goodMuonsID && Muon_pt > 10 && abs(Muon_eta) < 2.4 && Muon_miniPFRelIso_all < 0.40");//here i made the change
-   // _rlm = _rlm.Define("goodMuons"," Muon_pt > 10 && abs(Muon_eta) < 2.4 && Muon_miniPFRelIso_all < 0.40");//here i made the change
-    _rlm = _rlm.Define("goodMuons_pt", "Muon_pt[goodMuons]") 
-                .Define("goodMuons_eta", "Muon_eta[goodMuons]")
-                .Define("goodMuons_phi", "Muon_phi[goodMuons]")
-                .Define("goodMuons_mass", "Muon_mass[goodMuons]")
-                .Define("goodMuons_charge", "Muon_charge[goodMuons]")
-                .Define("goodMuons_idx", ::good_idx, {"goodMuons"})
-                .Define("NgoodMuons", "int(goodMuons_pt.size())");
-
-    //-------------------------------------------------------
-    //generate muon 4vector from selected good Muons
-    //-------------------------------------------------------
-    _rlm = _rlm.Define("goodMuons_4vecs", ::generate_4vec, {"goodMuons_pt", "goodMuons_eta", "goodMuons_phi", "goodMuons_mass"});
-    _rlm = _rlm.Define("goodMuons_energy", [](const std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>& muon_4vecs) {
-    std::vector<double> energies;
-    for (const auto& vec : muon_4vecs) {
-        energies.push_back(vec.E());  // E() gives the energy in PtEtaPhiM4D Lorentz vector
-    }
-    return energies;
-}, {"goodMuons_4vecs"});
-
-
-}
-*/
 // ##=========THIS IS THE NEW FUNCITON WITH THE NEW BRANCH=========##
 // ==================================================================
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -234,6 +323,8 @@ void BaseAnalyser::selectMuons()
         std::cout << "Line : " << __LINE__ << " Function : " << __FUNCTION__ << std::endl;
         std::cout << "================================//=================================" << std::endl;
     }
+
+
 
     // Define good muons based on ID and additional criteria
     _rlm = _rlm.Define("goodMuonsID", MuonID(2)); // loose muons
@@ -263,6 +354,55 @@ void BaseAnalyser::selectMuons()
                 .Define("trailingMuons_idx", ::good_idx, {"trailingMuons"})
                 .Define("NtrailingMuons", "int(trailingMuons_pt.size())");
 
+
+    // ====================================================================
+    // Baseline Muon Selection
+    // // =====================================================================
+    _rlm = _rlm.Define("baselineMuons",
+		       "Muon_pt > 5.0 && abs(Muon_eta) < 2.4 && "
+	       	       "Muon_pfRelIso04_all < 0.4 && abs(Muon_dxy) < 0.05 && "
+		       "abs(Muon_dz) < 0.10 && Muon_sip3d < 8.0 && "
+		       "Muon_mediumId");
+
+	// Additional variables for baseline muons
+    _rlm = _rlm.Define("baselineMuons_pt", "Muon_pt[baselineMuons]")
+	       .Define("baselineMuons_eta", "Muon_eta[baselineMuons]")
+	       .Define("baselineMuons_phi", "Muon_phi[baselineMuons]")
+	       .Define("baselineMuons_mass", "Muon_mass[baselineMuons]")
+	       .Define("baselineMuons_charge", "Muon_charge[baselineMuons]")
+               .Define("baselineMuons_idx", ::good_idx, {"baselineMuons"})
+	       .Define("baselineMuons_genPartFlav" ,"Muon_genPartFlav[baselineMuons]")
+	       .Define("NbaselineMuons", "int(baselineMuons_pt.size())");
+         
+	    // Generate 4-vectors for baseline muons
+    _rlm = _rlm.Define("baselineMuon_4Vecs", ::generate_4vec, {"baselineMuons_pt", "baselineMuons_eta", "baselineMuons_phi", "baselineMuons_mass"});
+    
+    _rlm = _rlm.Define("baselineMuons_TL4Vecs",
+    [](const ROOT::VecOps::RVec<float>& pts,
+       const ROOT::VecOps::RVec<float>& etas,
+       const ROOT::VecOps::RVec<float>& phis,
+       const ROOT::VecOps::RVec<float>& masses) -> ROOT::VecOps::RVec<TLorentzVector> {
+        ROOT::VecOps::RVec<TLorentzVector> vecs;
+        for (size_t i = 0; i < pts.size(); ++i) {
+            TLorentzVector vec;
+            vec.SetPtEtaPhiM(pts[i], etas[i], phis[i], masses[i]);
+            vecs.emplace_back(vec);
+        }
+        return vecs;
+    },
+    {"baselineMuons_pt", "baselineMuons_eta", "baselineMuons_phi", "baselineMuons_mass"});
+    _rlm = _rlm.Define("baselineMuons_isPrompt",
+    [](const ROOT::VecOps::RVec<unsigned char>& genPartFlav) {
+        return ROOT::VecOps::Map(genPartFlav, [](unsigned char flav) {
+            return (flav == 1 || flav == 15) ? 1 : 0;
+        });
+    },
+    {"baselineMuons_genPartFlav"});
+  
+/*   _rlm = _rlm.Define("baselineMuons_isPrompt",
+                   "(baselineMuons_genPartFlav == 1 || "
+                   "baselineMuons_genPartFlav == 15) ? 1 : 0");*/
+
     //-------------------------------------------------------
     // Generate muon 4-vector from selected good muons
     //-------------------------------------------------------
@@ -285,6 +425,35 @@ void BaseAnalyser::selectMuons()
         return vecs;
     },
     {"trailingMuons_pt", "trailingMuons_eta", "trailingMuons_phi", "trailingMuons_mass"});
+    //////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////
+    //////                     BDT TRAINING VARIABLES FOR MVA LEPTON               ///////
+    //////////////////////////////////////////////////////////////////////////////////////
+    _rlm = _rlm.Define("baselineMuons_JetNDauCharged" , "Muon_jetNDauCharged[baselineMuons]")
+            .Define("baselineMuons_miniPFRelIso_chg" , "Muon_miniPFRelIso_chg[baselineMuons]")
+            .Define("baselineMuons_miniPFRelIso_neutral" , "Muon_miniPFRelIso_all[baselineMuons]-Muon_miniPFRelIso_chg[baselineMuons]")
+            .Define("baselineMuons_jetPtRelv2" , "Muon_jetPtRelv2[baselineMuons]")
+            .Define("baselineMuons_pfRelIso04_all" , "Muon_pfRelIso04_all[baselineMuons]")
+            .Define("baselineMuons_sip3d" , "Muon_sip3d[baselineMuons]")
+            .Define("baselineMuons_dxy" , "Muon_dxy[baselineMuons]")
+            .Define("baselineMuons_dz" , "Muon_dz[baselineMuons]")
+            .Define("baselineMuons_JetPt_ratio" , "1/(Muon_jetRelIso[baselineMuons]+1)")
+            .Define("baselineMuons_segmentCompatibility", "Muon_segmentComp[baselineMuons]");
+
+    _rlm = _rlm.Define("baselineMuons_JetPtRatio", [](const ROOT::VecOps::RVec<float>& muon_jetRelIso, const ROOT::VecOps::RVec<int>& baselineMuons) {
+          std::vector<double> jetPtRatios;
+          for (const auto& idx : baselineMuons) {
+               double ratio = 1.0 / (muon_jetRelIso[idx] + 1);
+               jetPtRatios.push_back(ratio > 1.5 ? 1.5 : ratio);
+          }
+          return jetPtRatios;
+          }, {"Muon_jetRelIso", "baselineMuons"});
+
+    _rlm = _rlm.Define("baselineMuon_4Vecs_RVec",
+    [](const std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>& vec) {
+        return ROOT::VecOps::RVec<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>(vec.begin(), vec.end());
+    }, {"baselineMuon_4Vecs"});
+
 }
 
 //=================================Select Jets=================================================//
@@ -305,7 +474,7 @@ void BaseAnalyser::selectJets()
 
     _rlm = _rlm.Define("goodJetsID", JetID(6)); //without pt-eta cuts
     //_rlm = _rlm.Define("goodJets", "goodJetsID && Jet_pt>30.0 && abs(Jet_eta)<2.4 ");
-    _rlm = _rlm.Define("goodJets", "Jet_pt>25.0 && abs(Jet_eta)<5 ");
+    _rlm = _rlm.Define("goodJets", "goodJetsID && Jet_pt>25.0 && abs(Jet_eta)<5 ");
     _rlm = _rlm.Define("goodJets_pt", "Jet_pt[goodJets]")
                 .Define("goodJets_eta", "Jet_eta[goodJets]")
                 .Define("goodJets_phi", "Jet_phi[goodJets]")
@@ -364,21 +533,21 @@ _rlm = _rlm.Define("btagcuts", "goodJets_deepjetbtag > 0.7") // 0.2783 - medium,
     if(!_isData){
       //For Btagging Efficiency    
       _rlm = _rlm.Define("btagpass_bcflav_goodJets", "goodJets_deepjetbtag>0.2783 && goodJets_hadflav!=0") //0.2783 -medium, 0.7 - tight 
-	.Define("goodJets_btagpass_bcflav_pt", "goodJets_pt[btagpass_bcflav_goodJets]")
-	.Define("goodJets_btagpass_bcflav_eta", "goodJets_eta[btagpass_bcflav_goodJets]");
+		 .Define("goodJets_btagpass_bcflav_pt", "goodJets_pt[btagpass_bcflav_goodJets]")
+		 .Define("goodJets_btagpass_bcflav_eta", "goodJets_eta[btagpass_bcflav_goodJets]");
       
       _rlm = _rlm.Define("all_bcflav_goodJets", "goodJets_hadflav!=0") //0.2783 -medium, 0.7 - tight 
-	.Define("goodJets_all_bcflav_pt", "goodJets_pt[all_bcflav_goodJets]")
-	.Define("goodJets_all_bcflav_eta", "goodJets_eta[all_bcflav_goodJets]");
+		 .Define("goodJets_all_bcflav_pt", "goodJets_pt[all_bcflav_goodJets]")
+		 .Define("goodJets_all_bcflav_eta", "goodJets_eta[all_bcflav_goodJets]");
       
       
       _rlm = _rlm.Define("btagpass_lflav_goodJets", "goodJets_deepjetbtag>0.2783 && goodJets_hadflav==0") //0.2783 -medium, 0.7 - tight 
-	.Define("goodJets_btagpass_lflav_pt", "goodJets_pt[btagpass_lflav_goodJets]")
-	.Define("goodJets_btagpass_lflav_eta", "goodJets_eta[btagpass_lflav_goodJets]");
+		 .Define("goodJets_btagpass_lflav_pt", "goodJets_pt[btagpass_lflav_goodJets]")
+		 .Define("goodJets_btagpass_lflav_eta", "goodJets_eta[btagpass_lflav_goodJets]");
       
       _rlm = _rlm.Define("all_lflav_goodJets", "goodJets_hadflav==0") //0.2783 -medium, 0.7 - tight 
-	.Define("goodJets_all_lflav_pt", "goodJets_pt[all_lflav_goodJets]")
-	.Define("goodJets_all_lflav_eta", "goodJets_eta[all_lflav_goodJets]");
+		 .Define("goodJets_all_lflav_pt", "goodJets_pt[all_lflav_goodJets]")
+		 .Define("goodJets_all_lflav_eta", "goodJets_eta[all_lflav_goodJets]");
     }
 }
 //=================================Overlap function=================================================//
@@ -515,7 +684,111 @@ void BaseAnalyser::calculateEvWeight(){
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // ================================================================================
 // @@@@@@@@@@@@@@@@@@@@ The leptton branch @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+void BaseAnalyser::mergeLeptons() {
+    cout << "merge electrons and muons" << endl;
+    if (debug) {
+        std::cout << "================================//=================================" << std::endl;
+        std::cout << "Line : " << __LINE__ << " Function : " << __FUNCTION__ << std::endl;
+        std::cout << "================================//=================================" << std::endl;
+    }
 
+    //-------------------------------------------------------
+    // Define total number of leptons (sum of electrons and muons)
+    //-------------------------------------------------------
+    _rlm = _rlm.Define("totalLeptonCount", [](int electronCount, int muonCount) {
+        return electronCount + muonCount;
+    }, {"NbaselineElectrons", "NbaselineMuons"});
+
+    //-------------------------------------------------------
+    // Combine muon and electron 4-vectors
+    //-------------------------------------------------------
+    _rlm = _rlm.Define("combinedLepton4Vecs", [](const std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>& muonVectors,
+                                                 const std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>& electronVectors) {
+        std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>> mergedVectors;
+        mergedVectors.insert(mergedVectors.end(), muonVectors.begin(), muonVectors.end());
+        mergedVectors.insert(mergedVectors.end(), electronVectors.begin(), electronVectors.end());
+        return mergedVectors;
+    }, {"baselineMuon_4Vecs", "baselineElectron_4Vecs"});
+
+    //-------------------------------------------------------
+    // Compute mass of 3-lepton system
+    //-------------------------------------------------------
+    _rlm = _rlm.Define("mass_of_3lepton", [](const std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>& combined4Vecs) {
+        if (combined4Vecs.size() == 3) {
+            auto total4Vec = combined4Vecs[0] + combined4Vecs[1] + combined4Vecs[2];
+            return total4Vec.M();
+        }
+        return -1.0; // Default value for events without exactly 3 leptons
+    }, {"combinedLepton4Vecs"});
+
+
+    //-------------------------------------------------------
+    // Combine lepton pt, eta, phi properties
+    //-------------------------------------------------------
+    _rlm = _rlm.Define("combinedLeptonPt", [](const ROOT::VecOps::RVec<float>& muonPt,
+                                              const ROOT::VecOps::RVec<float>& electronPt) {
+        return ROOT::VecOps::Concatenate(muonPt, electronPt);
+    }, {"baselineMuons_pt", "baselineElectrons_pt"});
+
+    _rlm = _rlm.Define("combinedLeptonEta", [](const ROOT::VecOps::RVec<float>& muonEta,
+                                               const ROOT::VecOps::RVec<float>& electronEta) {
+        return ROOT::VecOps::Concatenate(muonEta, electronEta);
+    }, {"baselineMuons_eta", "baselineElectrons_eta"});
+
+    _rlm = _rlm.Define("combinedLeptonPhi", [](const ROOT::VecOps::RVec<float>& muonPhi,
+                                               const ROOT::VecOps::RVec<float>& electronPhi) {
+        return ROOT::VecOps::Concatenate(muonPhi, electronPhi);
+    }, {"baselineMuons_phi", "baselineElectrons_phi"});
+
+    _rlm = _rlm.Define("combinedLepton_isPrompt", [](const ROOT::VecOps::RVec<int>& muonIsPrompt,
+                                                     const ROOT::VecOps::RVec<int>& electronIsPrompt) {
+        return ROOT::VecOps::Concatenate(muonIsPrompt, electronIsPrompt);
+    },
+    {"baselineMuons_isPrompt", "baselineElectrons_isPrompt"});
+
+    //-------------------------------------------------------
+    // Define the number of combined 4-vectors in each event
+    //-------------------------------------------------------
+    _rlm = _rlm.Define("numCombinedLepton4Vecs", [](const std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>& combined4Vecs) {
+        return int(combined4Vecs.size());
+    }, {"combinedLepton4Vecs"});
+
+    //-------------------------------------------------------
+    // Combine lepton charges
+    //-------------------------------------------------------
+    _rlm = _rlm.Define("combinedLeptonCharge",
+                       [](const ROOT::VecOps::RVec<int>& electronCharges,
+                          const ROOT::VecOps::RVec<int>& muonCharges) {
+                           return ROOT::VecOps::Concatenate(electronCharges, muonCharges);
+                       },
+                       {"baselineElectrons_charge", "baselineMuons_charge"});
+
+    //-------------------------------------------------------
+    // Assign flavor to leptons: 1 for muon, 0 for electron
+    //-------------------------------------------------------
+    _rlm = _rlm.Define("combinedLeptonFlavor", [](const ROOT::VecOps::RVec<int>& muonCharges,
+                                                  const ROOT::VecOps::RVec<int>& electronCharges) {
+        std::vector<int> flavor;
+        flavor.insert(flavor.end(), muonCharges.size(), 1);  // 1 for muons
+        flavor.insert(flavor.end(), electronCharges.size(), 0); // 0 for electrons
+        return flavor;
+    }, {"baselineMuons_charge", "baselineElectrons_charge"});
+
+    //-------------------------------------------------------
+    // Merge muons and electrons into a ROOT::VecOps::RVec<TLorentzVector>
+    //-------------------------------------------------------
+    _rlm = _rlm.Define("combinedLeptonTLorentzVecs",
+                       [](const ROOT::VecOps::RVec<TLorentzVector>& muonTLVectors,
+                          const ROOT::VecOps::RVec<TLorentzVector>& electronTLVectors) {
+                           return ROOT::VecOps::Concatenate(muonTLVectors, electronTLVectors);
+                       },
+                       {"baselineMuons_TL4Vecs", "baselineElectrons_TL4Vecs"});
+}
+
+
+        /////////////////////////////////////////////
+////////currently used but shifting to the upper one//////////////
+       /////////////////////////////////////////////
 
 void BaseAnalyser::mergeTrailingLeptons() {
     cout << "merge trailing electrons and muons" << endl;
@@ -528,12 +801,19 @@ void BaseAnalyser::mergeTrailingLeptons() {
     //-------------------------------------------------------
     // Define number of trailing leptons (sum of electrons and muons)
     //-------------------------------------------------------
-    _rlm = _rlm.Define("NtrailingLeptons", [](int NtrailingElectrons, int NtrailingMuons) {
+    _rlm = _rlm.Define("N_trailingLeptons", [](int NtrailingElectrons, int NtrailingMuons) {
         return NtrailingElectrons + NtrailingMuons;
     }, {"NtrailingElectrons", "NtrailingMuons"});
-    _rlm = _rlm.Filter([](int NtrailingLeptons) {
-        return NtrailingLeptons == 3;
-    }, {"NtrailingLeptons"});
+
+    // Define variables only for events with exactly 3 trailing leptons
+    _rlm = _rlm.Define("NtrailingLeptons", [](int N_trailingLeptons) {
+    	return (N_trailingLeptons == 3) ? N_trailingLeptons : -1; // Mark invalid events with -1
+    }, {"N_trailingLeptons"});
+
+    // Optionally, define other columns conditioned on having 3 trailing leptons
+    _rlm = _rlm.Define("ValidEvent", [](int N_trailingLeptons) {
+	return (N_trailingLeptons == 3); // Boolean column for valid events
+    }, {"N_trailingLeptons"});
 
     //-------------------------------------------------------
     // Combine trailing muons and electrons 4-vectors
@@ -592,7 +872,168 @@ void BaseAnalyser::mergeTrailingLeptons() {
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // ======================================================================================================
 // ***********************       THE OSSF PAIR         **************************************************
-// ======================================================================================================
+// ====================================================================================================== 
+
+void BaseAnalyser::search_for_OSSFPairs() {
+    cout << "Search OSSF Pairs" << endl;
+    if (debug) {
+        std::cout << "================================//=================================" << std::endl;
+        std::cout << "Line : " << __LINE__ << " Function : " << __FUNCTION__ << std::endl;
+        std::cout << "================================//=================================" << std::endl;
+    }
+
+    //-------------------------------------------------------
+    // Define OSSF pair count calculation
+    //-------------------------------------------------------
+   _rlm = _rlm.Define("OSSF_pair_count", [](const std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>& leptons_4vecs,
+                                         const ROOT::VecOps::RVec<int>& leptons_charge,
+                                         const std::vector<int>& leptons_flavor) {
+    int ossf_count = 0;
+
+    // Separate leptons by charge
+    std::vector<size_t> positive_indices, negative_indices;
+
+    for (size_t i = 0; i < leptons_4vecs.size(); ++i) {
+        if (leptons_charge[i] > 0) {
+            positive_indices.push_back(i);
+        } else {
+            negative_indices.push_back(i);
+        }
+    }
+
+    // Count valid OSSF pairs
+    for (int flavor = 0; flavor <= 1; ++flavor) {  // 0: electrons, 1: muons
+        std::vector<size_t> pos_list, neg_list;
+
+        for (size_t idx : positive_indices) {
+            if (leptons_flavor[idx] == flavor) pos_list.push_back(idx);
+        }
+
+        for (size_t idx : negative_indices) {
+            if (leptons_flavor[idx] == flavor) neg_list.push_back(idx);
+        }
+
+        // Count all possible OSSF pairs
+        ossf_count += pos_list.size() * neg_list.size();
+    }
+
+    return ossf_count;
+}, {"combinedLepton4Vecs", "combinedLeptonCharge", "combinedLeptonFlavor"});
+  
+/////////this branch will helpul for |mz-m(l,l,l)|>window calculation////////
+
+   _rlm = _rlm.Define("mZ_compatible_3l", [](double m3l) {
+    constexpr double mZ = 91.1876; // Z boson mass in GeV
+    constexpr double window = 15.0; // ±15 GeV window
+
+    if (m3l == -1.0) {
+        return -1; // Exclude events where mass_of_3lepton is invalid
+    }
+    return (std::abs(m3l - mZ) <= window) ? 1 : 0;    ////is 1 if compatible else 0
+    }, {"mass_of_3lepton"});
+    
+
+    _rlm = _rlm.Define("OSSF_selection_with_topLep", [](const std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>& leptons_4vecs,
+                                       const ROOT::VecOps::RVec<int>& leptons_charge,
+                                       const std::vector<int>& leptons_flavor) {
+    const double Z_mass = 91.1876; // Z boson mass
+    const double mass_window = 15.0;
+    const double lower_mass_threshold = 35.0;
+
+    std::pair<int, int> best_z_pair = {-1, -1};
+    std::pair<int, int> lower_mass_pair = {-1, -1};
+    int top_lepton_idx = -1;
+
+    double best_z_mass = -1.0;
+    double best_lower_mass = -1.0;
+    double best_z_mass_diff = std::numeric_limits<double>::max();
+    double best_lower_mass_diff = std::numeric_limits<double>::max();
+
+    // Iterate through all unique lepton pairs
+    for (size_t i = 0; i < leptons_4vecs.size(); ++i) {
+        for (size_t j = i + 1; j < leptons_4vecs.size(); ++j) {
+            if (leptons_flavor[i] == leptons_flavor[j] && leptons_charge[i] != leptons_charge[j]) {
+                auto combined_4vec = leptons_4vecs[i] + leptons_4vecs[j];
+                double mass = combined_4vec.M();
+                double mass_diff = std::abs(mass - Z_mass);
+
+                // Z-compatible case: |M_Z - M_OSSF| <= 15 GeV
+                if (mass_diff <= mass_window && mass_diff < best_z_mass_diff) {
+                    best_z_mass_diff = mass_diff;
+                    best_z_pair = {int(i), int(j)};
+                    best_z_mass = mass;
+                }
+
+                // Lower-mass case: 35 < M < M_Z && |M_Z - M| > 15
+                if (mass > lower_mass_threshold && mass < Z_mass && mass_diff > mass_window && mass_diff < best_lower_mass_diff) {
+                    best_lower_mass_diff = mass_diff;
+                    lower_mass_pair = {int(i), int(j)};
+                    best_lower_mass = mass;
+                }
+            }
+        }
+    }
+
+    // Find top lepton if we have exactly 3 leptons
+    if (leptons_4vecs.size() == 3 && best_z_pair.first != -1) {
+        for (int i = 0; i < 3; ++i) {
+            if (i != best_z_pair.first && i != best_z_pair.second) {
+                top_lepton_idx = i;
+                break;
+            }
+        }
+    }
+
+    return std::make_tuple(best_z_pair, best_z_mass, lower_mass_pair, best_lower_mass, top_lepton_idx);
+}, {"combinedLepton4Vecs", "combinedLeptonCharge", "combinedLeptonFlavor"});
+
+// Extract OSSF Z-compatible pair 4-vectors
+_rlm = _rlm.Define("OSSF_ZPair_4vecs", [](const std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>& leptons_4vecs,
+                                         const std::tuple<std::pair<int, int>, double, std::pair<int, int>, double, int>& ossf_info) {
+    auto [best_z_pair, _, __, ___, ____] = ossf_info;
+    if (best_z_pair.first == -1 || best_z_pair.second == -1) {
+        return std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>{};
+    }
+    return std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>{
+        leptons_4vecs[best_z_pair.first], leptons_4vecs[best_z_pair.second]};
+}, {"combinedLepton4Vecs", "OSSF_selection_with_topLep"});
+
+// Extract OSSF lower-mass pair 4-vectors
+_rlm = _rlm.Define("OSSF_LowerMassPair_4vecs", [](const std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>& leptons_4vecs,
+                                                 const std::tuple<std::pair<int, int>, double, std::pair<int, int>, double, int>& ossf_info) {
+    auto [__, ___, lower_mass_pair, _, ____] = ossf_info;
+    if (lower_mass_pair.first == -1 || lower_mass_pair.second == -1) {
+        return std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>{};
+    }
+    return std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>{
+        leptons_4vecs[lower_mass_pair.first], leptons_4vecs[lower_mass_pair.second]};
+}, {"combinedLepton4Vecs", "OSSF_selection_with_topLep"});
+
+// Extract OSSF pair masses
+_rlm = _rlm.Define("OSSF_ZPair_mass", [](const std::tuple<std::pair<int, int>, double, std::pair<int, int>, double, int>& ossf_info) {
+    auto [_, best_z_mass, __, ___, ____] = ossf_info;
+    return best_z_mass > 0 ? best_z_mass : -1.0;
+}, {"OSSF_selection_with_topLep"});
+
+_rlm = _rlm.Define("OSSF_LowerMassPair_mass", [](const std::tuple<std::pair<int, int>, double, std::pair<int, int>, double, int>& ossf_info) {
+    auto [__, ___, _, best_lower_mass, ____] = ossf_info;
+    return best_lower_mass > 0 ? best_lower_mass : -1.0;
+}, {"OSSF_selection_with_topLep"});
+
+// Extract top lepton 4-vector
+_rlm = _rlm.Define("TopLepton_4vec", [](const std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>& leptons_4vecs,
+                                       const std::tuple<std::pair<int, int>, double, std::pair<int, int>, double, int>& ossf_info) {
+    auto [_, __, ___, ____, top_lepton_idx] = ossf_info;
+    if (top_lepton_idx == -1) {
+        return ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>{};
+    }
+    return leptons_4vecs[top_lepton_idx];
+}, {"combinedLepton4Vecs", "OSSF_selection_with_topLep"});
+
+// Filters for valid events
+_rlm = _rlm.Filter("OSSF_ZPair_mass > 0 || OSSF_LowerMassPair_mass > 0", "Events with valid OSSF pairs");
+
+}
 
 void BaseAnalyser::processOSSFPairs() {
     cout << "Process OSSF Pairs" << endl;
@@ -693,7 +1134,7 @@ _rlm = _rlm
     //-------------------------------------------------------
     // Store the invariant mass of the OSSF pair (filtering negative masses)
     //-------------------------------------------------------
-    _rlm = _rlm.Define("OSSF_mass", [](const std::tuple<std::pair<int, int>, double>& ossf_info) {
+    _rlm = _rlm.Define("OSSF_mass_all", [](const std::tuple<std::pair<int, int>, double>& ossf_info) {
         auto [_, mass] = ossf_info;
 
         // Only keep positive values for OSSF mass
@@ -703,7 +1144,10 @@ _rlm = _rlm
             return -1.0;  // Mark invalid OSSF mass as -1
         }
     }, {"OSSF_info"});
-    _rlm = _rlm.Filter("OSSF_mass>0","mass within window");
+//    _rlm = _rlm.Filter("OSSF_mass>0","mass within window");
+    _rlm =_rlm.Define("OSSF_mass", [](double OSSF_mass_all) {
+		    return OSSF_mass_all > 0;
+	},{"OSSF_mass_all"});
     //-------------------------------------------------------
     // Store the top lepton TLorentzVector from trailingLeptons_TLorentzVecs (remaining lepton not part of OSSF pair)
     //-------------------------------------------------------
@@ -889,9 +1333,12 @@ void BaseAnalyser::reconstructTop()
     //-------------------------------------------------------
     // Calculate the top mass and filter the events based on it
     //-------------------------------------------------------
-    _rlm = _rlm.Define("top_mass", "topQuark_TL4vec.M()")
-               .Filter("top_mass > 0", "Events with top mass")
-               .Define("top_pt", "topQuark_TL4vec.Pt()")
+    _rlm = _rlm.Define("top_mass_all", "topQuark_TL4vec.M()");
+              // .Filter("top_mass > 0", "Events with top mass")
+    _rlm = _rlm.Define("top_mass", [](double top_mass_all) {
+			       return top_mass_all >0;
+			     }, {"top_mass_all"});
+    _rlm = _rlm.Define("top_pt", "topQuark_TL4vec.Pt()")
 	       .Define("top_phi", "topQuark_TL4vec.Phi()")
                .Define("top_eta", "topQuark_TL4vec.Eta()");
 
@@ -977,6 +1424,26 @@ void BaseAnalyser::defineMoreVars()
     addVartoStore("trailingElectrons_pt");
     addVartoStore("trailingElectrons_eta");
     addVartoStore("trailingElectrons_phi");
+    ////BDT VARIABLES FOR ELECTRONS///////////
+    addVartoStore("baselineElectrons_isPrompt");
+    addVartoStore("baselineElectrons_pt");
+    addVartoStore("baselineElectrons_eta");
+    addVartoStore("baselineElectrons_phi");
+    addVartoStore("NbaselineElectrons");
+    addVartoStore("baselineElectrons_JetNDauCharged");
+    addVartoStore("baselineElectrons_miniPFRelIso_chg");
+    addVartoStore("baselineElectrons_miniPFRelIso_neutral");
+    addVartoStore("baselineElectrons_jetPtRelv2");
+    addVartoStore("baselineElectrons_JetPtRatio");
+    addVartoStore("baselineElectrons_pfRelIso03_all");
+    addVartoStore("baselineElectrons_sip3d");
+    addVartoStore("baselineElectrons_dxy");
+    addVartoStore("baselineElectrons_dz");
+    addVartoStore("baselineElectrons_JetPt_ratio");
+    addVartoStore("baselineElectrons_MVAEstimatorRun2Fall17NoIsoV2Values");
+    addVartoStore("Electron_closestJetIds");
+    addVartoStore("Electron_all_deltaR");
+
 
     //muon
     addVartoStore("nMuon");
@@ -988,6 +1455,27 @@ void BaseAnalyser::defineMoreVars()
     addVartoStore("trailingMuons_pt");
     addVartoStore("trailingMuons_eta");
     addVartoStore("trailingMuons_phi");
+    ////BDT VARIABLES FOR MUONS///////////
+    addVartoStore("baselineMuons_isPrompt");
+    addVartoStore("NbaselineMuons");
+    addVartoStore("baselineMuons_pt");
+    addVartoStore("baselineMuons_eta");
+    addVartoStore("baselineMuons_phi");
+    addVartoStore("baselineMuons_JetNDauCharged");
+    addVartoStore("baselineMuons_miniPFRelIso_chg");
+    addVartoStore("baselineMuons_miniPFRelIso_neutral");
+    addVartoStore("baselineMuons_jetPtRelv2");
+    addVartoStore("baselineMuons_pfRelIso04_all");
+    addVartoStore("baselineMuons_sip3d");
+    addVartoStore("baselineMuons_dxy");
+    addVartoStore("baselineMuons_dz");
+    //addVartoStore("baselineMuons_JetPt_ratio");
+    addVartoStore("baselineMuons_segmentCompatibility");
+    addVartoStore("baselineMuons_JetPtRatio");
+   // addVartoStore("baselineMuon_4Vecs_RVec");
+
+ 
+    
 
     //jet
     addVartoStore("nJet");
@@ -1019,12 +1507,43 @@ void BaseAnalyser::defineMoreVars()
     addVartoStore("MET_pt");
 
     //trailing leptons
+   // addVartoStore("totalLeptonCount");
+    addVartoStore("N_trailingLeptons");
+  //  addVartoStore("mass_of_3lepton");
+    addVartoStore("NtrailingLeptons");
    // addVartoStore("trailingLeptons_4vecs");
    // addVartoStore("trailingLeptons_charge");
    // addVartoStore("trailingLeptons_flavor");
-    addVartoStore("NtrailingLeptons");
     addVartoStore("NtrailingLepton4vecs");
+    addVartoStore("ValidEvent");
+
+//new funciton variable for merged lepton
+    addVartoStore("totalLeptonCount");
+   // addVartoStore("combinedLepton4Vecs");
+    addVartoStore("mass_of_3lepton");
+    addVartoStore("combinedLeptonPt");
+    addVartoStore("combinedLeptonEta");
+    addVartoStore("combinedLeptonPhi");
+    addVartoStore("combinedLepton_isPrompt");
+    addVartoStore("numCombinedLepton4Vecs");
+    addVartoStore("combinedLeptonCharge");
+    addVartoStore("combinedLeptonFlavor");
+   // addVartoStore("combinedLeptonTLorentzVecs");
+
+
+
+
    //OSSF info
+    addVartoStore("OSSF_pair_count");
+    addVartoStore("mZ_compatible_3l");
+    addVartoStore("OSSF_selection_with_topLep");
+    addVartoStore("OSSF_ZPair_mass");
+    addVartoStore("OSSF_LowerMassPair_mass");
+
+
+
+
+
     addVartoStore("OSSF_info");
     addVartoStore("OSSF_mass");
     addVartoStore("OSSF_pt");
@@ -1169,7 +1688,9 @@ void BaseAnalyser::setupObjects()
 	selectMuons();
 	selectJets();
 	removeOverlaps();
+	mergeLeptons();
 	mergeTrailingLeptons();
+	search_for_OSSFPairs();
 	processOSSFPairs();
 	reconstructWboson();
 	reconstructTop();

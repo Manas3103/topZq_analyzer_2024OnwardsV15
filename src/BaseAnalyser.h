@@ -27,7 +27,9 @@ class BaseAnalyser: public NanoAODAnalyzerrdframe
 		void selectMuons();
 		void selectJets();
 		void calculateEvWeight();
+		void mergeLeptons();
 		void mergeTrailingLeptons();
+		void search_for_OSSFPairs();
 		void processOSSFPairs();
 		void reconstructWboson();
 		void reconstructTop();

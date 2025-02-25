@@ -86,10 +86,13 @@ void PrintVector(floats myvector);
 floats w_reconstruction (FourVectorVec &jets);
 floats compute_DR (FourVectorVec &muons, ints goodMuons_charge);
 float calculate_MT( FourVectorVec &muons, float met, float metphi);
-
+ints findNearestJetsForLeptons(const FourVectorRVec& jets, const FourVectorRVec& leptons);
 FourVectorVec addVecFourVec(FourVector &A, FourVector &B, FourVector &C); // 
 FourVector generate_single_4vec(double &pt, double &eta, double &phi, double &mass);
 doubles calculateDeltaR_group(FourVectorVec &jets, FourVector &lepton);
+//int findMinDeltaRJet(const FourVectorRVec& jets, const FourVector& lepton);
+ROOT::VecOps::RVec<double> findDeltaR_4all(const FourVectorRVec &leptons, FourVectorVec &jets, int nlepton);
+ints findClosestJetsToLeptons(const FourVectorRVec &leptons, FourVectorVec &jets,const floats &jetsPt,const floats &jetsEta);
 TLorentzVector generate_TLorentzVector(double &pt, double &eta, double &phi, double &mass) ;
 
 //floats btvcorrection(std::unique_ptr<correction::CorrectionSet> &cset, std::string name, std::string syst, floats &pts, floats &etas, ints &hadflav, floats &btags);
