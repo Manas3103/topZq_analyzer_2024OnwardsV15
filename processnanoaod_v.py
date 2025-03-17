@@ -23,7 +23,7 @@ def get_root_file_paths(indir, xrootd_prefix="root://cmsxrootd.fnal.gov/"):
     except subprocess.CalledProcessError as e:
         print(f"Error running dasgoclient: {e.output}")
         return []
-    
+   
     files = output.strip().split('\n')
     root_files = [xrootd_prefix + f for f in files]
     return root_files
@@ -131,7 +131,7 @@ class Nanoaodprocessor:
                     start_idx = int(i * nfileperjob)
                     end_idx = int((i + 1) * nfileperjob) if i < njobs - 1 else None
                     filesforjob = rootfileshere[start_idx:end_idx]
-                    p = Process(target=function_calling_PostProcessor, 
+                    p = Process(target=function_calling_PostProcessor,
                               args=(outputdirectory, filesforjob, self.jobconfmod))
                     p.start()
                     ap.append(p)
@@ -249,7 +249,6 @@ if __name__ == '__main__':
     from importlib import import_module
     from argparse import ArgumentParser
 
-    #parser = ArgumentParser(usage="%prog inputDir outputDir jobconfmod")
     parser = ArgumentParser(usage="%(prog)s inputDir outputDir jobconfmod")
     parser.add_argument("indir")
     parser.add_argument("outdir")

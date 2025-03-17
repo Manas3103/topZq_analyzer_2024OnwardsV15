@@ -1,0 +1,4 @@
+/DoubleEG/Run2017D-UL2017_MiniAODv2_NanoAODv9-v1/NANOAOD DoubleEG2017Dv9.root DoubleEG2017Dv9.out
+/DoubleEG/Run2017F-UL2017_MiniAODv2_NanoAODv9-v1/NANOAOD DoubleEG2017Fv9.root DoubleEG2017Fv9.out
+/MuonEG/Run2017D-UL2017_MiniAODv2_NanoAODv9-v1/NANOAOD MuonEG2017Dv9.root MuonEG2017Dv9.out
+/SingleMuon/Run2017D-UL2017_MiniAODv2_NanoAODv9-v1/NANOAOD SingleMuon2017Dv9.root SingleMuon2017Dv9.out

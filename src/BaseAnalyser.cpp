@@ -181,7 +181,6 @@ void BaseAnalyser::selectElectrons()
                 .Define("baselineElectrons_mass", "Electron_mass[baselineElectrons]")
                 .Define("baselineElectrons_charge", "Electron_charge[baselineElectrons]")
                 .Define("baselineElectrons_idx", ::good_idx, {"baselineElectrons"})
-		.Define("baselineElectrons_genPartFlav", "Electron_genPartFlav[baselineElectrons]")
                 .Define("NbaselineElectrons", "int(baselineElectrons_pt.size())");
 
     // Generate 4-vectors for baseline electrons
@@ -201,6 +200,8 @@ void BaseAnalyser::selectElectrons()
         return vecs;
     },
     {"baselineElectrons_pt", "baselineElectrons_eta", "baselineElectrons_phi", "baselineElectrons_mass"});
+    if (!_isData){
+    _rlm = _rlm.Define("baselineElectrons_genPartFlav", "Electron_genPartFlav[baselineElectrons]");
     _rlm = _rlm.Define("baselineElectrons_isPrompt",
     [](const ROOT::VecOps::RVec<unsigned char>& genPartFlav) {
         return ROOT::VecOps::Map(genPartFlav, [](unsigned char flav) {
@@ -208,14 +209,12 @@ void BaseAnalyser::selectElectrons()
         });
     },
     {"baselineElectrons_genPartFlav"});
+    
+    // Define tight and fakable electrons based on MVA score
+    _rlm = _rlm.Define("tight_baselineElectrons", "Electron_mvaFall17V2noIso[baselineElectrons] > 0.4")
+               .Define("fakable_baselineElectrons", "Electron_mvaFall17V2noIso[baselineElectrons] <= 0.4");
+    }
 
-
-
-/*   _rlm = _rlm.Define("baselineElectrons_isPrompt",
-                   "baselineElectrons_genPartFlav == 1 || "
-                   "baselineElectrons_genPartFlav == 15 || "
-                   "baselineElectrons_genPartFlav == 22 ? 1 : 0");
-*/
 ///////////////////////////////////////////////////////////////
     
 
@@ -250,6 +249,7 @@ void BaseAnalyser::selectElectrons()
 	       .Define("baselineElectrons_dxy" , "Electron_dxy[baselineElectrons]")
 	       .Define("baselineElectrons_dz" , "Electron_dz[baselineElectrons]")
 	       .Define("baselineElectrons_JetPt_ratio" , "1/(Electron_jetRelIso[baselineElectrons]+1)")
+	       .Define("baselineElectrons_closest_jetIdx" , "Electron_jetIdx[baselineElectrons]")
 	       .Define("baselineElectrons_MVAEstimatorRun2Fall17NoIsoV2Values", "Electron_mvaFall17V2noIso[baselineElectrons]");
 
     _rlm = _rlm.Define("baselineElectrons_JetPtRatio", [](const ROOT::VecOps::RVec<float>& electron_jetRelIso, const ROOT::VecOps::RVec<int>& baselineElectrons) {
@@ -266,28 +266,12 @@ void BaseAnalyser::selectElectrons()
     }, {"baselineElectron_4Vecs"});
 
 
-    _rlm = _rlm.Define("Jet_4Vecs", ::generate_4vec, {"Jet_pt", "Jet_eta", "Jet_phi", "Jet_mass"}); //jet's 4 vector for the further calculations 
-    _rlm = _rlm.Define("Electron_all_deltaR", ::findDeltaR_4all, {"baselineElectron_4Vecs_RVec", "Jet_4Vecs", "NbaselineElectrons"});
-    _rlm = _rlm.Define("Electron_closestJetIds",::findClosestJetsToLeptons,{"baselineElectron_4Vecs_RVec", "Jet_4Vecs", "Jet_pt", "Jet_eta"});
-  /*  _rlm = _rlm.Define("Electron_closestJetIds", 
-    [](const FourVectorRVec &leptons, const FourVectorVec &jets, const floats &jetsPt, const floats &jetsEta) {
-        return findClosestJetsToLeptons(leptons, const_cast<FourVectorVec&>(jets), jetsPt, jetsEta);
-    }, 
-    {"baselineElectron_4Vecs_RVec", "Jet_4Vecs", "Jet_pt", "Jet_eta"});
-*/
-
-
-
-
-
-
-
 ///////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////
 ////////////ENERGY OF DIFFERENT CATAGORY //////////////////////
 ///////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////
-
+/*
 
    // Define energy for good electrons
     _rlm = _rlm.Define("goodElectrons_energy", [](const std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>& electron_4vecs) {
@@ -306,6 +290,8 @@ void BaseAnalyser::selectElectrons()
         }
         return energies;
     }, {"trailingElectrons_4Vecs"});
+*/
+
 }
 
 
@@ -371,7 +357,6 @@ void BaseAnalyser::selectMuons()
 	       .Define("baselineMuons_mass", "Muon_mass[baselineMuons]")
 	       .Define("baselineMuons_charge", "Muon_charge[baselineMuons]")
                .Define("baselineMuons_idx", ::good_idx, {"baselineMuons"})
-	       .Define("baselineMuons_genPartFlav" ,"Muon_genPartFlav[baselineMuons]")
 	       .Define("NbaselineMuons", "int(baselineMuons_pt.size())");
          
 	    // Generate 4-vectors for baseline muons
@@ -391,6 +376,9 @@ void BaseAnalyser::selectMuons()
         return vecs;
     },
     {"baselineMuons_pt", "baselineMuons_eta", "baselineMuons_phi", "baselineMuons_mass"});
+    
+    if (!_isData){
+    _rlm = _rlm.Define("baselineMuons_genPartFlav" ,"Muon_genPartFlav[baselineMuons]");
     _rlm = _rlm.Define("baselineMuons_isPrompt",
     [](const ROOT::VecOps::RVec<unsigned char>& genPartFlav) {
         return ROOT::VecOps::Map(genPartFlav, [](unsigned char flav) {
@@ -398,10 +386,7 @@ void BaseAnalyser::selectMuons()
         });
     },
     {"baselineMuons_genPartFlav"});
-  
-/*   _rlm = _rlm.Define("baselineMuons_isPrompt",
-                   "(baselineMuons_genPartFlav == 1 || "
-                   "baselineMuons_genPartFlav == 15) ? 1 : 0");*/
+    }
 
     //-------------------------------------------------------
     // Generate muon 4-vector from selected good muons
@@ -425,6 +410,9 @@ void BaseAnalyser::selectMuons()
         return vecs;
     },
     {"trailingMuons_pt", "trailingMuons_eta", "trailingMuons_phi", "trailingMuons_mass"});
+
+
+
     //////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////
     //////                     BDT TRAINING VARIABLES FOR MVA LEPTON               ///////
@@ -480,7 +468,9 @@ void BaseAnalyser::selectJets()
                 .Define("goodJets_phi", "Jet_phi[goodJets]")
                 .Define("goodJets_mass", "Jet_mass[goodJets]")
                 .Define("goodJets_idx", ::good_idx, {"goodJets"});
-				_rlm = _rlm.Define("goodJets_hadflav", "Jet_hadronFlavour[goodJets]");
+    if (!_isData){
+       _rlm = _rlm.Define("goodJets_hadflav", "Jet_hadronFlavour[goodJets]");
+    }
     //goot jets deep-b tag          
 	_rlm = _rlm.Define("goodJets_jetdeepbtag", "Jet_btagDeepB[goodJets]")
                 .Define("goodJets_deepjetbtag", "Jet_btagDeepFlavB[goodJets]") 
@@ -509,9 +499,9 @@ _rlm = _rlm.Define("btagcuts", "goodJets_deepjetbtag > 0.7") // 0.2783 - medium,
 //      .Define("good_bjet_leading_phi", "int(good_bjetphi.size()) > 0 ? static_cast<double>(good_bjetphi[0]) : -999.9")
       .Define("good_bjetmass", "goodJets_mass[btagcuts]");
 //      .Define("good_bjet_leading_mass", "int(good_bjetmass.size()) > 0 ? static_cast<double>(good_bjetmass[0]) : -999.9");
-  
+    if (!_isData){  
     _rlm = _rlm.Define("good_bjethadflav", "goodJets_hadflav[btagcuts]");
-    
+    }
     _rlm = _rlm.Define("Ngood_bjets", "int(good_bjetpt.size())")   //when remove the comment from the next linw remove the ; of this line 
       .Define("good_bjet4vecs", ::generate_4vec, {"good_bjetpt", "good_bjeteta", "good_bjetphi", "good_bjetmass"})
     .Define("top_Bjet_TL4Vecs", [](const ROOT::VecOps::RVec<float>& pts,
@@ -613,13 +603,13 @@ void BaseAnalyser::removeOverlaps()
                 .Define("Selected_jeteta", "goodJets_eta[muonjetoverlap]")
                 .Define("Selected_jetphi", "goodJets_phi[muonjetoverlap]")
                 .Define("Selected_jetmass", "goodJets_mass[muonjetoverlap]")
-
-                .Define("Selected_jetbtag", "goodJets_deepjetbtag[muonjetoverlap]") //
-                .Define("Selected_jethadflav", "goodJets_hadflav[muonjetoverlap]")
+                .Define("Selected_jetbtag", "goodJets_deepjetbtag[muonjetoverlap]") 
                 .Define("ncleanjetspass", "int(Selected_jetpt.size())")
                 .Define("cleanjet4vecs", ::generate_4vec, {"Selected_jetpt", "Selected_jeteta", "Selected_jetphi", "Selected_jetmass"})
                 .Define("Selected_jetHT", "Sum(Selected_jetpt)");
-
+	if (!_isData){
+        _rlm = _rlm.Define("Selected_jethadflav", "goodJets_hadflav[muonjetoverlap]");
+	}
      //==============================Clean b-Jets==============================================// 
          //--> after remove overlap: use requested btaggedJets for btag-weight SFs && weight_generator. 
          //=====================================================================================//
@@ -630,8 +620,10 @@ void BaseAnalyser::removeOverlaps()
                         .Define("Selected_bjetmass", "Selected_jetmass[btagcuts2]")
                         .Define("ncleanbjetspass", "int(Selected_bjetpt.size())")
                         .Define("Selected_bjetHT", "Sum(Selected_bjetpt)")
-                        .Define("Selected_bjethadflav", "Selected_jethadflav[btagcuts2]")
                         .Define("cleanbjet4vecs", ::generate_4vec, {"Selected_bjetpt", "Selected_bjeteta", "Selected_bjetphi", "Selected_bjetmass"});
+        if (!_isData){
+        _rlm = _rlm.Define("Selected_bjethadflav", "Selected_jethadflav[btagcuts2]");
+        }
 
 }
 
@@ -739,13 +731,15 @@ void BaseAnalyser::mergeLeptons() {
                                                const ROOT::VecOps::RVec<float>& electronPhi) {
         return ROOT::VecOps::Concatenate(muonPhi, electronPhi);
     }, {"baselineMuons_phi", "baselineElectrons_phi"});
+    
+    if(!_isData){
 
     _rlm = _rlm.Define("combinedLepton_isPrompt", [](const ROOT::VecOps::RVec<int>& muonIsPrompt,
                                                      const ROOT::VecOps::RVec<int>& electronIsPrompt) {
         return ROOT::VecOps::Concatenate(muonIsPrompt, electronIsPrompt);
     },
     {"baselineMuons_isPrompt", "baselineElectrons_isPrompt"});
-
+    }
     //-------------------------------------------------------
     // Define the number of combined 4-vectors in each event
     //-------------------------------------------------------
@@ -919,7 +913,39 @@ void BaseAnalyser::search_for_OSSFPairs() {
 
     return ossf_count;
 }, {"combinedLepton4Vecs", "combinedLeptonCharge", "combinedLeptonFlavor"});
-  
+
+
+         /////////////ALL OSSFPAIR MASS //////////////////// 
+	 //                                               //
+	 ///////////////////////////////////////////////////
+
+
+    _rlm = _rlm.Define("OSSF_all_pairs_masses", [](const std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>& leptons_4vecs,
+                                               const ROOT::VecOps::RVec<int>& leptons_charge,
+                                               const std::vector<int>& leptons_flavor) {
+          ROOT::VecOps::RVec<double> ossf_masses;  // Vector to store OSSF pair masses
+
+    for (size_t i = 0; i < leptons_4vecs.size(); ++i) {
+        for (size_t j = i + 1; j < leptons_4vecs.size(); ++j) {  // Ensure unique pairs
+            if (leptons_flavor[i] == leptons_flavor[j] && leptons_charge[i] != leptons_charge[j]) {
+                auto combined_4vec = leptons_4vecs[i] + leptons_4vecs[j];
+                ossf_masses.push_back(combined_4vec.M());
+            }
+        }
+    }
+
+         return ossf_masses;
+    }, {"combinedLepton4Vecs", "combinedLeptonCharge", "combinedLeptonFlavor"});
+ 
+
+
+
+
+
+
+
+
+
 /////////this branch will helpul for |mz-m(l,l,l)|>window calculation////////
 
    _rlm = _rlm.Define("mZ_compatible_3l", [](double m3l) {
@@ -965,7 +991,8 @@ void BaseAnalyser::search_for_OSSFPairs() {
                 }
 
                 // Lower-mass case: 35 < M < M_Z && |M_Z - M| > 15
-                if (mass > lower_mass_threshold && mass < Z_mass && mass_diff > mass_window && mass_diff < best_lower_mass_diff) {
+                if ((mass > lower_mass_threshold && mass < Z_mass && mass_diff > mass_window && mass_diff < best_lower_mass_diff) ||
+		    (mass > Z_mass + mass_window && mass_diff < best_lower_mass_diff))	{
                     best_lower_mass_diff = mass_diff;
                     lower_mass_pair = {int(i), int(j)};
                     best_lower_mass = mass;
@@ -985,53 +1012,65 @@ void BaseAnalyser::search_for_OSSFPairs() {
     }
 
     return std::make_tuple(best_z_pair, best_z_mass, lower_mass_pair, best_lower_mass, top_lepton_idx);
-}, {"combinedLepton4Vecs", "combinedLeptonCharge", "combinedLeptonFlavor"});
+    }, {"combinedLepton4Vecs", "combinedLeptonCharge", "combinedLeptonFlavor"});
 
-// Extract OSSF Z-compatible pair 4-vectors
-_rlm = _rlm.Define("OSSF_ZPair_4vecs", [](const std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>& leptons_4vecs,
-                                         const std::tuple<std::pair<int, int>, double, std::pair<int, int>, double, int>& ossf_info) {
-    auto [best_z_pair, _, __, ___, ____] = ossf_info;
-    if (best_z_pair.first == -1 || best_z_pair.second == -1) {
-        return std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>{};
-    }
-    return std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>{
-        leptons_4vecs[best_z_pair.first], leptons_4vecs[best_z_pair.second]};
-}, {"combinedLepton4Vecs", "OSSF_selection_with_topLep"});
+	// Extract OSSF Z-compatible pair 4-vectors
+	_rlm = _rlm.Define("OSSF_ZPair_4vecs", [](const std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>& leptons_4vecs,
+						 const std::tuple<std::pair<int, int>, double, std::pair<int, int>, double, int>& ossf_info) {
+	    auto [best_z_pair, _, __, ___, ____] = ossf_info;
+	    if (best_z_pair.first == -1 || best_z_pair.second == -1) {
+		return std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>{};
+	    }
+	    return std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>{
+	    leptons_4vecs[best_z_pair.first], leptons_4vecs[best_z_pair.second]};
+	    }, {"combinedLepton4Vecs", "OSSF_selection_with_topLep"});
+        
 
-// Extract OSSF lower-mass pair 4-vectors
-_rlm = _rlm.Define("OSSF_LowerMassPair_4vecs", [](const std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>& leptons_4vecs,
-                                                 const std::tuple<std::pair<int, int>, double, std::pair<int, int>, double, int>& ossf_info) {
-    auto [__, ___, lower_mass_pair, _, ____] = ossf_info;
-    if (lower_mass_pair.first == -1 || lower_mass_pair.second == -1) {
-        return std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>{};
-    }
-    return std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>{
-        leptons_4vecs[lower_mass_pair.first], leptons_4vecs[lower_mass_pair.second]};
-}, {"combinedLepton4Vecs", "OSSF_selection_with_topLep"});
 
-// Extract OSSF pair masses
-_rlm = _rlm.Define("OSSF_ZPair_mass", [](const std::tuple<std::pair<int, int>, double, std::pair<int, int>, double, int>& ossf_info) {
-    auto [_, best_z_mass, __, ___, ____] = ossf_info;
-    return best_z_mass > 0 ? best_z_mass : -1.0;
-}, {"OSSF_selection_with_topLep"});
+	// Extract OSSF lower-mass pair 4-vectors
+	_rlm = _rlm.Define("OSSF_LowerMassPair_4vecs", [](const std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>& leptons_4vecs,
+							 const std::tuple<std::pair<int, int>, double, std::pair<int, int>, double, int>& ossf_info) {
+	    auto [__, ___, lower_mass_pair, _, ____] = ossf_info;
+	    if (lower_mass_pair.first == -1 || lower_mass_pair.second == -1) {
+		return std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>{};
+	    }
+	    return std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>{
+		leptons_4vecs[lower_mass_pair.first], leptons_4vecs[lower_mass_pair.second]};
+	}, {"combinedLepton4Vecs", "OSSF_selection_with_topLep"});
 
-_rlm = _rlm.Define("OSSF_LowerMassPair_mass", [](const std::tuple<std::pair<int, int>, double, std::pair<int, int>, double, int>& ossf_info) {
-    auto [__, ___, _, best_lower_mass, ____] = ossf_info;
-    return best_lower_mass > 0 ? best_lower_mass : -1.0;
-}, {"OSSF_selection_with_topLep"});
 
-// Extract top lepton 4-vector
-_rlm = _rlm.Define("TopLepton_4vec", [](const std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>& leptons_4vecs,
-                                       const std::tuple<std::pair<int, int>, double, std::pair<int, int>, double, int>& ossf_info) {
-    auto [_, __, ___, ____, top_lepton_idx] = ossf_info;
-    if (top_lepton_idx == -1) {
-        return ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>{};
-    }
-    return leptons_4vecs[top_lepton_idx];
-}, {"combinedLepton4Vecs", "OSSF_selection_with_topLep"});
 
-// Filters for valid events
-_rlm = _rlm.Filter("OSSF_ZPair_mass > 0 || OSSF_LowerMassPair_mass > 0", "Events with valid OSSF pairs");
+	// Extract OSSF pair masses
+	_rlm = _rlm.Define("OSSF_ZPair_mass", [](const std::tuple<std::pair<int, int>, double, std::pair<int, int>, double, int>& ossf_info) {
+	    auto [_, best_z_mass, __, ___, ____] = ossf_info;
+	    return best_z_mass > 0 ? best_z_mass : -1.0;
+	}, {"OSSF_selection_with_topLep"});
+  
+
+
+	_rlm = _rlm.Define("OSSF_LowerMassPair_mass", [](const std::tuple<std::pair<int, int>, double, std::pair<int, int>, double, int>& ossf_info) {
+	    auto [__, ___, _, best_lower_mass, ____] = ossf_info;
+	    return best_lower_mass > 0 ? best_lower_mass : -1.0;
+	}, {"OSSF_selection_with_topLep"});
+
+
+
+        // Extract top lepton 4-vector
+	_rlm = _rlm.Define("TopLepton_4vec", [](const std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>& leptons_4vecs,
+					       const std::tuple<std::pair<int, int>, double, std::pair<int, int>, double, int>& ossf_info) {
+	    auto [_, __, ___, ____, top_lepton_idx] = ossf_info;
+	    if (top_lepton_idx == -1) {
+		return ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>{};
+	    }
+	    return leptons_4vecs[top_lepton_idx];
+	}, {"combinedLepton4Vecs", "OSSF_selection_with_topLep"});
+        
+
+       _rlm = _rlm.Define("TopLepton_TL4vec", [](const ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>& lepton_4vec) -> TLorentzVector {
+              TLorentzVector tl4vec;
+        tl4vec.SetPtEtaPhiM(lepton_4vec.Pt(), lepton_4vec.Eta(), lepton_4vec.Phi(), lepton_4vec.M());
+        return tl4vec;
+    }, {"TopLepton_4vec"});
 
 }
 
@@ -1209,7 +1248,7 @@ void BaseAnalyser::selectMET()
 
     
 }
-
+/*
 void BaseAnalyser::reconstructWboson()
 {
     if (debug){
@@ -1265,6 +1304,51 @@ void BaseAnalyser::reconstructWboson()
    // _rlm = _rlm.Filter("Wboson_transversMass > 0", "Events with invariant mass close to Z boson mass");   
 
 }
+*/
+
+void BaseAnalyser::reconstructWboson()
+{
+    if (debug) {
+        std::cout << std::endl;
+        std::cout << "================================//=================================" << std::endl;
+        std::cout << "Line : " << __LINE__ << " Function : " << __FUNCTION__ << std::endl;
+        std::cout << "================================//=================================" << std::endl;
+    }
+
+    //-------------------- Reconstruct neutrino ---------------------
+    std::cout << "Reconstructing neutrino from MET" << std::endl;
+    _rlm = _rlm.Define("nu_pt", "MET_pt")
+               .Define("nu_phi", "MET_phi")
+               .Define("nu_phi_double", "static_cast<double>(nu_phi)")
+               .Define("nu_px", "nu_pt * cos(nu_phi)")
+               .Define("nu_py", "nu_pt * sin(nu_phi)");
+
+    _rlm = _rlm.Define("lambda_reco", ::calculateLambda, {"TopLepton_TL4vec", "nu_pt", "nu_phi"});
+
+    _rlm = _rlm.Define("delta_reco", ::calculateDelta, {"TopLepton_TL4vec", "nu_pt", "lambda_reco"})
+               .Define("isRealSolution", "delta_reco > 0 ? 1 : -1");
+
+    _rlm = _rlm.Define("nu_pz", ::calculate_nu_z, {"TopLepton_TL4vec", "lambda_reco", "delta_reco", "nu_pt", "nu_phi"});
+
+    _rlm = _rlm.Define("nu_energy", ::calculate_nu_energy, {"nu_pt", "nu_phi", "nu_pz"});
+
+    _rlm = _rlm.Define("nu_TL4vec", ::get_neutrino_TL4vec, {"nu_pt", "nu_phi", "nu_pz", "nu_energy"});
+
+    //--------------------- Reconstruct W boson ---------------------
+    _rlm = _rlm.Define("Wboson_4vec", ::reconstructWboson_TL4vec, {"TopLepton_TL4vec", "nu_TL4vec"})
+               .Define("w_mass", "Wboson_4vec.M()")
+               .Define("w_eta", "Wboson_4vec.Eta()")
+               .Define("w_phi", "Wboson_4vec.Phi()")
+               .Define("w_pt", "Wboson_4vec.Pt()");
+
+    // Calculate transverse mass of the W boson
+    _rlm = _rlm.Define("topLepton_phi", "TopLepton_TL4vec.Phi()")
+               .Define("topLepton_eta", "TopLepton_TL4vec.Eta()")
+               .Define("topLepton_pt", "TopLepton_TL4vec.Pt()")
+               .Define("delta_phi_lep_nu", ::calculate_deltaPhi_scalars, {"topLepton_phi", "nu_phi_double"})
+               .Define("Wboson_transversMass", "sqrt(2 * TopLepton_TL4vec.Pt() * nu_pt * (1 - cos(delta_phi_lep_nu)))");
+}
+
 /*
 void BaseAnalyser::reconstructTop()
 {
@@ -1286,7 +1370,7 @@ void BaseAnalyser::reconstructTop()
 
 }
 */
-
+/*
 void BaseAnalyser::reconstructTop()
 {
     if (debug){
@@ -1319,16 +1403,7 @@ void BaseAnalyser::reconstructTop()
 
             return best_top; // Return the 4-vector of the best top candidate
         }, {"top_Bjet_TL4Vecs", "Wboson_4vec"});
-//    _rlm = _rlm.Define("b_mass","top_Bjet_TL4Vecs.M()");
-/*    _rlm = _rlm.Define("b_mass",
-    [](const ROOT::VecOps::RVec<TLorentzVector>& bjets) {
-        ROOT::VecOps::RVec<double> masses;
-        for (const auto& bjet : bjets) {
-            masses.push_back(bjet.M());
-        }
-        return masses;
-    }, {"top_Bjet_TL4Vecs"});
-*/
+
 
     //-------------------------------------------------------
     // Calculate the top mass and filter the events based on it
@@ -1342,50 +1417,49 @@ void BaseAnalyser::reconstructTop()
 	       .Define("top_phi", "topQuark_TL4vec.Phi()")
                .Define("top_eta", "topQuark_TL4vec.Eta()");
 
-/*
-    //top_bjet_data
-    // Define the pt, eta, phi, and mass branches from the Lorentz vectors
-_rlm = _rlm.Define("top_bjetpt",
-    [](const ROOT::VecOps::RVec<TLorentzVector>& bjet_vecs) {
-        ROOT::VecOps::RVec<double> pt_values;
-        for (const auto& bjet : bjet_vecs) {
-            pt_values.push_back(bjet.Pt());
-        }
-        return pt_values;
-    }, {"good_bjet_TL4Vecs"});
-
-_rlm = _rlm.Define("top_bjeteta",
-    [](const ROOT::VecOps::RVec<TLorentzVector>& bjet_vecs) {
-        ROOT::VecOps::RVec<double> eta_values;
-        for (const auto& bjet : bjet_vecs) {
-            eta_values.push_back(bjet.Eta());
-        }
-        return eta_values;
-    }, {"good_bjet_TL4Vecs"});
-
-_rlm = _rlm.Define("top_bjetphi",
-    [](const ROOT::VecOps::RVec<TLorentzVector>& bjet_vecs) {
-        ROOT::VecOps::RVec<double> phi_values;
-        for (const auto& bjet : bjet_vecs) {
-            phi_values.push_back(bjet.Phi());
-        }
-        return phi_values;
-    }, {"good_bjet_TL4Vecs"});
-
-_rlm = _rlm.Define("top_bjetmass",
-    [](const ROOT::VecOps::RVec<TLorentzVector>& bjet_vecs) {
-        ROOT::VecOps::RVec<double> mass_values;
-        for (const auto& bjet : bjet_vecs) {
-            mass_values.push_back(bjet.M());
-        }
-        return mass_values;
-    }, {"good_bjet_TL4Vecs"});
-*/    
-
 }
+*/
+void BaseAnalyser::reconstructTop()
+{
+    if (debug) {
+        std::cout << std::endl;
+        std::cout << "================================//=================================" << std::endl;
+        std::cout << "Line : " << __LINE__ << " Function : " << __FUNCTION__ << std::endl;
+        std::cout << "================================//=================================" << std::endl;
+    }
 
+    //-------------------------------------------------------
+    // Reconstruct the top quark by combining W boson and b-jet 4-vectors
+    //-------------------------------------------------------
+    _rlm = _rlm.Define("topQuark_TL4vec",
+        [](const ROOT::VecOps::RVec<TLorentzVector>& bjet_vecs, const TLorentzVector& w_boson_4vec) -> TLorentzVector {
+            TLorentzVector best_top;
+            double min_mass_diff = std::numeric_limits<double>::max(); // Set an initial large value for min mass difference
 
+            const double top_mass = 172.76; // Mass of top quark in GeV (can be adjusted as needed)
 
+            for (const auto& bjet : bjet_vecs) {
+                TLorentzVector candidate_top = w_boson_4vec + bjet;
+                double mass_diff = std::abs(candidate_top.M() - top_mass); // Calculate mass difference from the top quark mass
+
+                // Update the best_top if this candidate has a smaller mass difference
+                if (mass_diff < min_mass_diff) {
+                    best_top = candidate_top;
+                    min_mass_diff = mass_diff;
+                }
+            }
+
+            return best_top; // Return the 4-vector of the best top candidate
+        }, {"top_Bjet_TL4Vecs", "Wboson_4vec"});
+
+    //-------------------------------------------------------
+    // Calculate the top mass and filter the events based on it
+    //-------------------------------------------------------
+    _rlm = _rlm.Define("top_mass", "topQuark_TL4vec.M()")
+               .Define("top_pt", "topQuark_TL4vec.Pt()")
+               .Define("top_phi", "topQuark_TL4vec.Phi()")
+               .Define("top_eta", "topQuark_TL4vec.Eta()");
+}
 
 //=============================define variables==================================================//
 void BaseAnalyser::defineMoreVars()
@@ -1425,7 +1499,10 @@ void BaseAnalyser::defineMoreVars()
     addVartoStore("trailingElectrons_eta");
     addVartoStore("trailingElectrons_phi");
     ////BDT VARIABLES FOR ELECTRONS///////////
-    addVartoStore("baselineElectrons_isPrompt");
+    addVartoStore("fakable_baselineElectrons");  // based on the the baselineElectrons_MVAEstimatorRun2Fall17NoIsoV2Values greater than 0.4
+    addVartoStore("tight_baselineElectrons");
+    addVartoStore("baselineElectrons_isPrompt");  // this is decided using genPartFlav
+
     addVartoStore("baselineElectrons_pt");
     addVartoStore("baselineElectrons_eta");
     addVartoStore("baselineElectrons_phi");
@@ -1441,8 +1518,8 @@ void BaseAnalyser::defineMoreVars()
     addVartoStore("baselineElectrons_dz");
     addVartoStore("baselineElectrons_JetPt_ratio");
     addVartoStore("baselineElectrons_MVAEstimatorRun2Fall17NoIsoV2Values");
-    addVartoStore("Electron_closestJetIds");
-    addVartoStore("Electron_all_deltaR");
+  //  addVartoStore("Electron_closestJetIds");
+  //  addVartoStore("Electron_all_deltaR");
 
 
     //muon
@@ -1473,6 +1550,8 @@ void BaseAnalyser::defineMoreVars()
     addVartoStore("baselineMuons_segmentCompatibility");
     addVartoStore("baselineMuons_JetPtRatio");
    // addVartoStore("baselineMuon_4Vecs_RVec");
+    addVartoStore("fakable_baselineElectrons");
+    addVartoStore("tight_baselineElectrons");
 
  
     
@@ -1537,6 +1616,7 @@ void BaseAnalyser::defineMoreVars()
     addVartoStore("OSSF_pair_count");
     addVartoStore("mZ_compatible_3l");
     addVartoStore("OSSF_selection_with_topLep");
+    addVartoStore("OSSF_all_pairs_masses");
     addVartoStore("OSSF_ZPair_mass");
     addVartoStore("OSSF_LowerMassPair_mass");
 
@@ -1584,7 +1664,8 @@ void BaseAnalyser::defineMoreVars()
     addVartoStore("goodJets_all_lflav_pt");
     addVartoStore("goodJets_all_lflav_eta");
 
-      
+    addVartoStore("genWeight");
+    addVartoStore("genEventSumw");      
     //"evWeight", " pugenWeight * btag_SF_bcflav_central * btag_SF_lflav_central * muon_SF_central * ele_SF_central"
     //case1 btag correction- fixed wp	
 //    addVartoStore("btag_SF_bcflav_central");
