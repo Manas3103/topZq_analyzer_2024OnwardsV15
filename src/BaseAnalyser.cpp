@@ -669,8 +669,8 @@ void BaseAnalyser::calculateEvWeight(){
   _rlm = applyPrefiringWeight(_rlm);
   //Total event Weight:
   //_rlm = _rlm.Define("evWeight", " pugenWeight * prefiring_SF_central * btag_SF_bcflav_central * btag_SF_lflav_central * muon_SF_central * ele_SF_central"); 
-  _rlm = _rlm.Define("evWeight", " pugenWeight * prefiring_SF_central * muon_SF_central * ele_SF_central"); 
-
+//  _rlm = _rlm.Define("evWeight", " pugenWeight * prefiring_SF_central * muon_SF_central * ele_SF_central"); 
+  _rlm = _rlm.Define("evWeight", " pugenWeight * prefiring_SF_central "); 
 }
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

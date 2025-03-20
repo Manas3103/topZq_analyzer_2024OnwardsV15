@@ -107,6 +107,28 @@ procflags = {
 # dump of stderr/stdout to file
 
 
+
+
+
+nanoaod_inputdir_outputdir_pairs = [
+    ['/SingleMuon/Run2017D-UL2017_MiniAODv2_NanoAODv9-v1/NANOAOD',
+     'SingleMuon2017Dv9.root',
+     'SingleMuon2017Dv9.out'],
+
+    ['/DoubleEG/Run2017D-UL2017_MiniAODv2_NanoAODv9-v1/NANOAOD',
+     'DoubleEG2017Dv9.root',
+     'DoubleEG2017Dv9.out'],
+
+    ['/MuonEG/Run2017D-UL2017_MiniAODv2_NanoAODv9-v1/NANOAOD',
+     'MuonEG2017Dv9.root',
+     'MuonEG2017Dv9.out']
+]
+
+
+
+
+
+"""
 nanoaod_inputdir_outputdir_pairs = [
     ['/ST_tW_antitop_5f_inclusiveDecays_TuneCP5_PSweights_13TeV-powheg-pythia8/RunIIFall17NanoAODv7-PU2017_12Apr2018_Nano02Apr2020_102X_mc2017_realistic_v8-v1/NANOAODSIM',
      'output_file/ST_tW_antitop_5f_inclusiveDecays.root',
@@ -129,14 +151,6 @@ nanoaod_inputdir_outputdir_pairs = [
      'ZZZ_err.out']
 ]
 
-
-
-
-
-
-
-
-
 """
 
 
@@ -146,6 +160,36 @@ nanoaod_inputdir_outputdir_pairs = [
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+"""
 nanoaod_inputdir_outputdir_pairs = [
 
     # ['/eos/lyoeos.in2p3.fr/grid/cms/store/mc/RunIISummer20UL17NanoAODv9/ST_t-channel_top_4f_InclusiveDecays_TuneCP5_13TeV-powheg-madspin-pythia8/NANOAODSIM/106X_mc2017_realistic_v9-v1/30000/2D19CD0F-4A29-4D43-8414-82BDCCA04783.root', 'test.root', 'outputTest.out'],
