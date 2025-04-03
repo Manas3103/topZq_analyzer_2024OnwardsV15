@@ -39,6 +39,9 @@ void create_normalized_histogram(const std::string& filename,
     // Branch ranges definition
     std::map<std::string, std::tuple<double, double, int>> branch_ranges = {
         {"top_mass", {5, 700,50}},
+	{"nJet", {0, 40,40}},
+	{"nElectron", {0, 20,20}},
+	{"nMuon", {5, 20,20}},
         {"Wboson_transversMass", {5, 300, 35}},
         {"OSSF_ZPair_mass", {70, 130, 35}},
         {"mass_of_3lepton", {5, 500, 50}},

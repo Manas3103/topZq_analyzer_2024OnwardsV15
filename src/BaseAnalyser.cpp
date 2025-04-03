@@ -38,6 +38,7 @@ BaseAnalyser::BaseAnalyser(TTree *t, std::string outfilename)
     HLT2016Names= {"Name1","Name2"};
 }
 
+
 // Define your cuts here
 void BaseAnalyser::defineCuts()
 {
@@ -49,53 +50,25 @@ void BaseAnalyser::defineCuts()
 	auto Nentry = _rlm.Count();
 	// This is how you can express a range of the first 100 entries
 	//_rlm = _rlm.Range(0, 100000);
-    auto Nentry_100 = _rlm.Count();
+        auto Nentry_100 = _rlm.Count();
 	std::cout<< "-------------------------------------------------------------------" << std::endl;
-    cout << "Usage of ranges:\n"
+        cout << "Usage of ranges:\n"
         << " - All entries: " << *Nentry << endl;
-		//<< " - Entries from 0 to 100: " << *Nentry_100 << endl;
+		//<< " - Entries from 0 to 100: " << *Nentr
 	std::cout<< "-------------------------------------------------------------------" << std::endl;
 
 	//MinimalSelection to filter events
-	//addCuts("4 >= nMuon > 0 && 4 >= nElectron > 0  && nJet>2", "0");//first change``
-	addCuts("nMuon + nElectron >= 3  && nJet>2 && PV_npvsGood >= 1 ", "0");//first change``
-//        addCuts("nMuon + nElectron == 3  && nJet>2", "0");
+	addCuts("nMuon + nElectron >= 3  && nJet>2 && PV_npvsGood >= 1 ", "0");//first change
+	addCuts("Flag_goodVertices && Flag_globalSuperTightHalo2016Filter && Flag_HBHENoiseFilter && Flag_HBHENoiseIsoFilter && Flag_EcalDeadCellTriggerPrimitiveFilter && Flag_BadPFMuonFilter && Flag_ecalBadCalibFilter", "0");
 
 	//addCuts("NgoodMuons>=2","00");
-    //addCuts("ncleanjetspass>0","00");
+        //addCuts("ncleanjetspass>0","00");
 	addCuts(setHLT(),"0"); //HLT cut buy checking HLT names in the root file
-
+       // addCuts("LHE_HT < 70", "0");  // Only for DrellYan 50
 }
-//===============================Find Good Electrons===========================================//
-//: Define Good Electrons in rdata frame
-//=============================================================================================//
-/*
-void BaseAnalyser::selectElectrons()
-{
-    cout << "select good electrons" << endl;
-    if (debug){
-    std::cout<< "================================//=================================" << std::endl;
-    std::cout<< "Line : "<< __LINE__ << " Function : " << __FUNCTION__ << std::endl;
-    std::cout<< "================================//=================================" << std::endl;
-    }
-   
-    _rlm = _rlm.Define("goodElectronsID", ElectronID(2)); //without pt-eta cuts
-	_rlm = _rlm.Define("goodElectrons", "goodElectronsID && Electron_pt>30.0  && abs(Electron_eta)<2.1 && Electron_pfRelIso03_all<0.15");//here i made the change
-      //  _rlm = _rlm.Define("goodElectrons", "Electron_pt>25.0");//here i made the change
 
-    	_rlm = _rlm.Define("goodElectrons_pt", "Electron_pt[goodElectrons]")
-                .Define("goodElectrons_eta", "Electron_eta[goodElectrons]")
-                .Define("goodElectrons_phi", "Electron_phi[goodElectrons]")
-                .Define("goodElectrons_mass", "Electron_mass[goodElectrons]")
-                .Define("goodElectrons_idx", ::good_idx, {"goodElectrons"})
-                .Define("NgoodElectrons", "int(goodElectrons_pt.size())");
 
-    //-------------------------------------------------------
-    //generate electron 4vector from selected good Electrons
-    //-------------------------------------------------------
-    _rlm = _rlm.Define("goodElectron_4Vecs", ::generate_4vec, {"goodElectrons_pt", "goodElectrons_eta", "goodElectrons_phi", "goodElectrons_mass"});
 
-}*/
 // ##=========THIS IS THE NEW FUNCITON WITH THE NEW BRANCH=========##
 // ==================================================================
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -165,7 +138,7 @@ void BaseAnalyser::selectElectrons()
     // Baseline Electron Selection
     // =====================================================================
     _rlm = _rlm.Define("baselineElectrons", 
-                       "Electron_pt > 7.0 && abs(Electron_eta) < 2.5 && "
+                       "Electron_pt > 10.0 && abs(Electron_eta) < 2.5 && "
                        "Electron_pfRelIso03_all < 0.40 && abs(Electron_dxy) < 0.05 && "
                        "abs(Electron_dz) < 0.10 && Electron_lostHits <= 1 && "
                        "Electron_hoe < 0.10 && Electron_convVeto &&"
@@ -209,11 +182,11 @@ void BaseAnalyser::selectElectrons()
         });
     },
     {"baselineElectrons_genPartFlav"});
-    
+    }
     // Define tight and fakable electrons based on MVA score
     _rlm = _rlm.Define("tight_baselineElectrons", "Electron_mvaFall17V2noIso[baselineElectrons] > 0.4")
                .Define("fakable_baselineElectrons", "Electron_mvaFall17V2noIso[baselineElectrons] <= 0.4");
-    }
+    
 
 ///////////////////////////////////////////////////////////////
     
@@ -345,7 +318,7 @@ void BaseAnalyser::selectMuons()
     // Baseline Muon Selection
     // // =====================================================================
     _rlm = _rlm.Define("baselineMuons",
-		       "Muon_pt > 5.0 && abs(Muon_eta) < 2.4 && "
+		       "Muon_pt > 10.0 && abs(Muon_eta) < 2.4 && "
 	       	       "Muon_pfRelIso04_all < 0.4 && abs(Muon_dxy) < 0.05 && "
 		       "abs(Muon_dz) < 0.10 && Muon_sip3d < 8.0 && "
 		       "Muon_mediumId");
@@ -387,6 +360,10 @@ void BaseAnalyser::selectMuons()
     },
     {"baselineMuons_genPartFlav"});
     }
+    _rlm = _rlm.Define("tight_baselineMuons", "Muon_segmentComp[baselineMuons] > 0.5")
+               .Define("fakable_baselineMuons", "Muon_segmentComp[baselineMuons] <= 0.5");
+
+    
 
     //-------------------------------------------------------
     // Generate muon 4-vector from selected good muons
@@ -461,8 +438,9 @@ void BaseAnalyser::selectJets()
     }
 
     _rlm = _rlm.Define("goodJetsID", JetID(6)); //without pt-eta cuts
+    _rlm = _rlm.Define("withPuId" , "(Jet_puId==7 && Jet_pt < 50.0)||(Jet_pt >50.0)");
     //_rlm = _rlm.Define("goodJets", "goodJetsID && Jet_pt>30.0 && abs(Jet_eta)<2.4 ");
-    _rlm = _rlm.Define("goodJets", "goodJetsID && Jet_pt>25.0 && abs(Jet_eta)<5 ");
+    _rlm = _rlm.Define("goodJets", "goodJetsID && withPuId && ((abs(Jet_eta) > 2.65 && abs(Jet_eta) < 3.139 && Jet_pt > 50.0) || (Jet_pt > 25.0 && abs(Jet_eta) < 5 && abs(Jet_eta)>3.139) || (Jet_pt > 25.0 && abs(Jet_eta) < 2.65 && abs(Jet_eta)>0))");
     _rlm = _rlm.Define("goodJets_pt", "Jet_pt[goodJets]")
                 .Define("goodJets_eta", "Jet_eta[goodJets]")
                 .Define("goodJets_phi", "Jet_phi[goodJets]")
@@ -490,21 +468,23 @@ void BaseAnalyser::selectJets()
       .Define("good_bjetdeepjet", "goodJets_deepjetbtag[btagcuts]");
   */
 
-_rlm = _rlm.Define("btagcuts", "goodJets_deepjetbtag > 0.7") // 0.2783 - medium, 0.7 - tight
-      .Define("good_bjetpt", "goodJets_pt[btagcuts]")
-//      .Define("good_bjet_leading_pt", "int(good_bjetpt.size()) > 0 ? static_cast<double>(good_bjetpt[0]) : -999.9")
-      .Define("good_bjeteta", "goodJets_eta[btagcuts]")
-//      .Define("good_bjet_leading_eta", "int(good_bjeteta.size()) > 0 ? static_cast<double>(good_bjeteta[0]) : -999.9")
-      .Define("good_bjetphi", "goodJets_phi[btagcuts]")
-//      .Define("good_bjet_leading_phi", "int(good_bjetphi.size()) > 0 ? static_cast<double>(good_bjetphi[0]) : -999.9")
-      .Define("good_bjetmass", "goodJets_mass[btagcuts]");
-//      .Define("good_bjet_leading_mass", "int(good_bjetmass.size()) > 0 ? static_cast<double>(good_bjetmass[0]) : -999.9");
+    _rlm = _rlm.Define("btagcuts", "goodJets_deepjetbtag > 0.7") // 0.2783 - medium, 0.7 - tight
+               .Define("good_bjetpt", "goodJets_pt[btagcuts]")
+//             .Define("good_bjet_leading_pt", "int(good_bjetpt.size()) > 0 ? static_cast<double>(good_bjetpt[0]) : -999.9")
+               .Define("good_bjeteta", "goodJets_eta[btagcuts]")
+//             .Define("good_bjet_leading_eta", "int(good_bjeteta.size()) > 0 ? static_cast<double>(good_bjeteta[0]) : -999.9")
+               .Define("good_bjetphi", "goodJets_phi[btagcuts]")
+//             .Define("good_bjet_leading_phi", "int(good_bjetphi.size()) > 0 ? static_cast<double>(good_bjetphi[0]) : -999.9")
+               .Define("good_bjetmass", "goodJets_mass[btagcuts]");
+//             .Define("good_bjet_leading_mass", "int(good_bjetmass.size()) > 0 ? static_cast<double>(good_bjetmass[0]) : -999.9");
+
+ 
     if (!_isData){  
     _rlm = _rlm.Define("good_bjethadflav", "goodJets_hadflav[btagcuts]");
     }
     _rlm = _rlm.Define("Ngood_bjets", "int(good_bjetpt.size())")   //when remove the comment from the next linw remove the ; of this line 
-      .Define("good_bjet4vecs", ::generate_4vec, {"good_bjetpt", "good_bjeteta", "good_bjetphi", "good_bjetmass"})
-    .Define("top_Bjet_TL4Vecs", [](const ROOT::VecOps::RVec<float>& pts,
+               .Define("good_bjet4vecs", ::generate_4vec, {"good_bjetpt", "good_bjeteta", "good_bjetphi", "good_bjetmass"})
+               .Define("top_Bjet_TL4Vecs", [](const ROOT::VecOps::RVec<float>& pts,
                                const ROOT::VecOps::RVec<float>& etas,
                                const ROOT::VecOps::RVec<float>& phis,
                                const ROOT::VecOps::RVec<float>& masses) -> ROOT::VecOps::RVec<TLorentzVector> {
@@ -515,7 +495,7 @@ _rlm = _rlm.Define("btagcuts", "goodJets_deepjetbtag > 0.7") // 0.2783 - medium,
         vecs.emplace_back(vec);
     }
     return vecs;
-}, {"good_bjetpt", "good_bjeteta", "good_bjetphi", "good_bjetmass"})
+    }, {"good_bjetpt", "good_bjeteta", "good_bjetphi", "good_bjetmass"})
   
       .Define("is_top_Bjets_event", "NgoodJets >= 1 && Ngood_bjets >= 1");
 
@@ -676,6 +656,9 @@ void BaseAnalyser::calculateEvWeight(){
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // ================================================================================
 // @@@@@@@@@@@@@@@@@@@@ The leptton branch @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+
+
 void BaseAnalyser::mergeLeptons() {
     cout << "merge electrons and muons" << endl;
     if (debug) {
@@ -732,14 +715,22 @@ void BaseAnalyser::mergeLeptons() {
         return ROOT::VecOps::Concatenate(muonPhi, electronPhi);
     }, {"baselineMuons_phi", "baselineElectrons_phi"});
     
-    if(!_isData){
+    
 
     _rlm = _rlm.Define("combinedLepton_isPrompt", [](const ROOT::VecOps::RVec<int>& muonIsPrompt,
                                                      const ROOT::VecOps::RVec<int>& electronIsPrompt) {
         return ROOT::VecOps::Concatenate(muonIsPrompt, electronIsPrompt);
     },
-    {"baselineMuons_isPrompt", "baselineElectrons_isPrompt"});
-    }
+    {"tight_baselineElectrons", "tight_baselineMuons"});
+
+    _rlm = _rlm.Define("allTightLeptons",
+    [](const ROOT::VecOps::RVec<int>& combinedLepton_isPrompt) {
+        // Return true if ALL elements are 1 (prompt)
+        return ROOT::VecOps::All(combinedLepton_isPrompt == 1);
+    },
+    {"combinedLepton_isPrompt"}
+    );
+    
     //-------------------------------------------------------
     // Define the number of combined 4-vectors in each event
     //-------------------------------------------------------
@@ -777,6 +768,42 @@ void BaseAnalyser::mergeLeptons() {
                            return ROOT::VecOps::Concatenate(muonTLVectors, electronTLVectors);
                        },
                        {"baselineMuons_TL4Vecs", "baselineElectrons_TL4Vecs"});
+    _rlm = _rlm.Define("passLeptonSelection", [](const ROOT::VecOps::RVec<float>& combinedLeptonPt) {
+            int count_gt10 = 0;
+            int count_gt15 = 0;
+            bool has_gt25 = false;
+
+            for (auto pt : combinedLeptonPt) {
+                if (pt > 10) count_gt10++;
+                if (pt > 15) count_gt15++;
+                if (pt > 25) has_gt25 = true;
+            }
+
+            // Check all conditions:
+            // 1. All leptons > 10 (count_gt10 == size of the collection)
+            // 2. At least 2 leptons > 15
+            // 3. At least 1 lepton > 25
+            return (count_gt10 == combinedLeptonPt.size()) &&
+                   (count_gt15 >= 2) &&
+                   has_gt25;
+            }, {"combinedLeptonPt"});
+
+    _rlm = _rlm.Define("good_Lepton_cut", "totalLeptonCount >=3 && passLeptonSelection");
+    _rlm = _rlm.Define("passGoodLeptonCut", "good_Lepton_cut")
+           .Define("final_combinedLeptonPt", "combinedLeptonPt[passGoodLeptonCut]")
+           .Define("final_combinedLeptonEta", "combinedLeptonEta[passGoodLeptonCut]")
+           .Define("final_combinedLeptonPhi", "combinedLeptonPhi[passGoodLeptonCut]")
+           .Define("final_combinedLepton_isPrompt", "combinedLepton_isPrompt[passGoodLeptonCut]")
+           .Define("final_combinedLeptonCharge", "combinedLeptonCharge[passGoodLeptonCut]")
+           .Define("final_combinedLeptonFlavor", "combinedLeptonFlavor[passGoodLeptonCut]");
+
+               
+
+
+
+
+
+
 }
 
 
@@ -912,7 +939,7 @@ void BaseAnalyser::search_for_OSSFPairs() {
     }
 
     return ossf_count;
-}, {"combinedLepton4Vecs", "combinedLeptonCharge", "combinedLeptonFlavor"});
+    }, {"combinedLepton4Vecs", "combinedLeptonCharge", "combinedLeptonFlavor"});
 
 
          /////////////ALL OSSFPAIR MASS //////////////////// 
@@ -958,7 +985,11 @@ void BaseAnalyser::search_for_OSSFPairs() {
     return (std::abs(m3l - mZ) <= window) ? 1 : 0;    ////is 1 if compatible else 0
     }, {"mass_of_3lepton"});
     
-
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+//-----------------------OSSF PAIT WITH TOP LEPTON---------------------------//
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
     _rlm = _rlm.Define("OSSF_selection_with_topLep", [](const std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>& leptons_4vecs,
                                        const ROOT::VecOps::RVec<int>& leptons_charge,
                                        const std::vector<int>& leptons_flavor) {
@@ -1239,7 +1270,7 @@ void BaseAnalyser::selectMET()
     }
 
     _rlm = _rlm.Define("goodMET_sumET","MET_sumEt>800")
-                .Define("goodMET_pt","MET_pt>5");
+                .Define("goodMET_pt","MET_pt>20");
                 //.Define("goodMET_eta","MET_eta[goodMET]")
                 //.Define("goodMET_phi","MET_phi[goodMET]")
                 //.Define("NgoodMET","int(goodMET_pt.size())");
@@ -1460,6 +1491,58 @@ void BaseAnalyser::reconstructTop()
                .Define("top_phi", "topQuark_TL4vec.Phi()")
                .Define("top_eta", "topQuark_TL4vec.Eta()");
 }
+///////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////
+///////////// SIGNAL REGION AND CONTROL REGION ////////////////
+///////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////
+
+void BaseAnalyser::defineSignalRegion()
+{
+    cout << "Defining Signal Region" << endl;
+    if (debug) {
+        std::cout << "================================//=================================" << std::endl;
+        std::cout << "Line : " << __LINE__ << " Function : " << __FUNCTION__ << std::endl;
+        std::cout << "================================//=================================" << std::endl;
+    }
+
+    // Define signal region selection
+
+    _rlm = _rlm.Define("passLeptonSelection_1", [](const ROOT::VecOps::RVec<float>& combinedLeptonPt) {
+	    int count_gt10 = 0;
+	    int count_gt15 = 0;
+	    bool has_gt25 = false;
+	    
+	    for (auto pt : combinedLeptonPt) {
+		if (pt > 10) count_gt10++;
+		if (pt > 15) count_gt15++;
+		if (pt > 25) has_gt25 = true;
+	    }
+	    
+	    // Check all conditions:
+	    // 1. All leptons > 10 (count_gt10 == size of the collection)
+	    // 2. At least 2 leptons > 15
+	    // 3. At least 1 lepton > 25
+	    return (count_gt10 == combinedLeptonPt.size()) && 
+		   (count_gt15 >= 2) && 
+		   has_gt25;
+            }, {"combinedLeptonPt"});
+
+    _rlm = _rlm.Define("signalRegion", "totalLeptonCount == 3 && allTightLeptons && passLeptonSelection_1 &&" 
+                                    " OSSF_ZPair_mass > 0 && NgoodJets > 2 && Ngood_bjets > 1");
+    _rlm = _rlm.Define("signalRegion_top", "signalRegion && top_mass >0")
+               .Define("signalRegion_top_mass", "signalRegion ? top_mass : std::numeric_limits<double>::quiet_NaN()");
+    // Define additional variables for selected events in signal region
+    _rlm = _rlm.Define("signalRegion_all_top", "signalRegion ? top_mass : std::numeric_limits<double>::quiet_NaN()");
+/*                .Define("signalRegionLeptonPt", "combinedLeptonPt[signalRegion]")
+                .Define("signalRegionOSSF_ZPair_masses", "OSSF_ZPair_masses[signalRegion]")
+                .Define("signalRegionNgoodJets", "ngoodJets[signalRegion]")
+  		.Define("signalRegionNgoodBjets", "nGOODBjets[signalRegion]");
+*/		
+}
+
+
+
 
 //=============================define variables==================================================//
 void BaseAnalyser::defineMoreVars()
@@ -1485,12 +1568,13 @@ void BaseAnalyser::defineMoreVars()
     addVartoStore("luminosityBlock");
     addVartoStore("event");
     addVartoStore("evWeight");
-
+    addVartoStore("LHE_HT");
     //addVartoStore("genWeight");
     //addVartoStore("genEventSumw");
 
     //electron
     addVartoStore("nElectron");
+    addVartoStore("baselineElectrons_idx");
     //addVartoStore("ngoodElectrons");
     addVartoStore("Electron_charge");
     addVartoStore("Electron_pt");
@@ -1564,7 +1648,7 @@ void BaseAnalyser::defineMoreVars()
     addVartoStore("Selected_jetpt");
     addVartoStore("Selected_jeteta");
     addVartoStore("Selected_jetbtag");
-
+    addVartoStore("Ngood_bjets");
     addVartoStore("good_bjetpt");
     addVartoStore("good_bjeteta"); 
     addVartoStore("good_bjetphi");
@@ -1604,6 +1688,7 @@ void BaseAnalyser::defineMoreVars()
     addVartoStore("combinedLeptonEta");
     addVartoStore("combinedLeptonPhi");
     addVartoStore("combinedLepton_isPrompt");
+    addVartoStore("allTightLeptons");
     addVartoStore("numCombinedLepton4Vecs");
     addVartoStore("combinedLeptonCharge");
     addVartoStore("combinedLeptonFlavor");
@@ -1638,6 +1723,8 @@ void BaseAnalyser::defineMoreVars()
     addVartoStore("w_eta");
     addVartoStore("w_phi");
     addVartoStore("top_mass");
+    addVartoStore("signalRegion_top_mass");
+    addVartoStore("signalRegion_all_top");
     addVartoStore("top_pt");
     addVartoStore("top_eta");
     addVartoStore("top_phi");
@@ -1775,6 +1862,7 @@ void BaseAnalyser::setupObjects()
 	processOSSFPairs();
 	reconstructWboson();
 	reconstructTop();
+	defineSignalRegion();
 	//calculateZBosonMass();
 	//identifyOSSFElectronPair();
 	// defineTwoElectronEvent();

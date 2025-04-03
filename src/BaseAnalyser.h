@@ -33,6 +33,7 @@ class BaseAnalyser: public NanoAODAnalyzerrdframe
 		void processOSSFPairs();
 		void reconstructWboson();
 		void reconstructTop();
+		void defineSignalRegion();
 		void calculateZBosonMass();
 		void identifyOSSFElectronPair();
 		void defineTwoElectronEvent();
