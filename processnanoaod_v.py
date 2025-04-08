@@ -159,6 +159,27 @@ def Nanoaodprocessor_singledir(indir, outputroot, procflags, config):
     if is_das_path:
         print(f"COLLECT root files from DAS dataset:\n{indir}\n")
         rootfilestoprocess = get_root_file_paths(indir)
+
+   # >>> ADDED: Handle remote EOS path with XRootD
+    elif indir.startswith("/store/user/msahoo/"):
+        print(f"COLLECT root files from remote EOS path:\n{indir}\n")
+        xrootd_prefix = "root://cmsxrootd.fnal.gov/"
+        eos_full_path = xrootd_prefix + indir
+
+        eos_ls_cmd = f'xrdfs cmsxrootd.fnal.gov ls -R {indir}'
+        eos_files = os.popen(eos_ls_cmd).read().splitlines()
+
+        counter = 0
+        for fname in eos_files:
+            if fname.endswith(".root"):
+                counter += 1
+                fullpath = xrootd_prefix + fname
+                if counter <= procflags['nrootfiles'] and procflags['nrootfiles'] != 0:
+                    rootfilestoprocess.append(fullpath)
+                elif procflags['nrootfiles'] == 0:
+                    rootfilestoprocess.append(fullpath)
+    # <<< END ADDED
+
     else:
         print(f"COLLECT root files in:\n{indir}\n")
         fullnamelist = []

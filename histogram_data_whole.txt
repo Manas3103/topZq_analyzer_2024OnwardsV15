@@ -33,7 +33,7 @@
 /store/user/msahoo/output_of_job/TTTo2L2Nu.root 87310.00 369200950.055176
 /store/user/msahoo/output_of_job/TTToSemiLeptonic.root 364360.00 1879554607.728577
 /store/user/msahoo/output_of_job/DYJetsToLL_M-10to50.root 18610000.00 7928852.0
-/store/user/msahoo/output_of_job/DYJetsToLL_M-50.root 6225420.00 7601805.0
+/store/user/msahoo/output_of_job/DYJetsToLL_M-50_wo_70_cut.root 6225420.00 7601805.0
 /store/user/msahoo/output_of_job/DYJetsToLL_M-50_HT-70to100.root 208977.00 3287713.0
 /store/user/msahoo/output_of_job/DYJetsToLL_M-50_HT-100to200.root 181302.00 3916771.0
 /store/user/msahoo/output_of_job/DYJetsToLL_M-50_HT-200to400.root 50417.70 1777636.0

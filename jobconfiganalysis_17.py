@@ -109,7 +109,7 @@ procflags = {
 
 
 
-
+"""
 nanoaod_inputdir_outputdir_pairs = [
     ['/SingleMuon/Run2017D-UL2017_MiniAODv2_NanoAODv9-v1/NANOAOD',
      'SingleMuon2017Dv9.root',
@@ -123,7 +123,13 @@ nanoaod_inputdir_outputdir_pairs = [
      'MuonEG2017Dv9.root',
      'MuonEG2017Dv9.out']
 ]
+"""
+nanoaod_inputdir_outputdir_pairs = [
+    ['/store/user/msahoo/2017/Era_b',
+     'Era_b_all.root',
+     'Era_b_all.out']
 
+]
 
 
 

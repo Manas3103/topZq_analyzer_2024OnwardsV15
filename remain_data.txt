@@ -1,1 +1,5 @@
 /store/user/msahoo/2017/Era_b Era_b_all.root Era_b_all.out
+/store/user/msahoo/2017/Era_c Era_c_all.root Era_c_all.out
+/store/user/msahoo/2017/Era_d Era_d_all.root Era_d_all.out
+/store/user/msahoo/2017/Era_e Era_e_all.root Era_e_all.out
+/store/user/msahoo/2017/Era_f Era_f_all.root Era_f_all.out

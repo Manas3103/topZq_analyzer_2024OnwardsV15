@@ -39,9 +39,9 @@ void create_normalized_histogram(const std::string& filename,
     // Branch ranges definition
     std::map<std::string, std::tuple<double, double, int>> branch_ranges = {
         {"top_mass", {5, 700,50}},
-	{"nJet", {0, 40,40}},
-	{"nElectron", {0, 20,20}},
-	{"nMuon", {5, 20,20}},
+	{"nJet", {2, 10,8}},
+	{"nElectron", {0, 8, 8}},
+	{"nMuon", {0, 6,6}},
         {"Wboson_transversMass", {5, 300, 35}},
         {"OSSF_ZPair_mass", {70, 130, 35}},
         {"mass_of_3lepton", {5, 500, 50}},
@@ -49,7 +49,7 @@ void create_normalized_histogram(const std::string& filename,
         {"baselineMuons_pt", {0, 600, 50}},
         {"NbaselineElectrons", {0, 5, 5}},
         {"NbaselineMuons", {0, 5, 5}},
-        {"NgoodJets", {0, 16, 16}},
+        {"NgoodJets", {2, 10, 8}},
         {"goodJets_pt", {0, 1000, 70}},
         {"good_bJetpt", {0, 1000, 70}},
         {"totalLeptonCount", {0, 5, 5}},
@@ -103,6 +103,7 @@ void create_normalized_histogram(const std::string& filename,
     Float_t float_buffer = 0.0;
     Int_t int_buffer = 0;
     Double_t double_buffer = 0.0;
+    UInt_t uint_buffer = 0;
     std::vector<float>* vector_float_buffer = nullptr;
 
     // Loop over the branches and create histograms
@@ -146,6 +147,8 @@ void create_normalized_histogram(const std::string& filename,
                 tree->SetBranchAddress(branchName.c_str(), &double_buffer);
             } else if (isVector && typeNameStr.find("float") != std::string::npos) {
                 tree->SetBranchAddress(branchName.c_str(), &vector_float_buffer);
+	    } else if (strcmp(typeName, "UInt_t") == 0) {
+                tree->SetBranchAddress(branchName.c_str(), &uint_buffer); // Define `UInt_t uint_buffer;` somewhere
             } else {
                 std::cout << "Info: Skipping branch " << branchName << " with type " << typeName << std::endl;
                 delete hist;
@@ -167,6 +170,8 @@ void create_normalized_histogram(const std::string& filename,
                     hist->Fill(static_cast<float>(int_buffer), total_weight);
                 } else if (strcmp(typeName, "Double_t") == 0) {
                     hist->Fill(static_cast<float>(double_buffer), total_weight);
+		} else if (strcmp(typeName, "UInt_t") == 0) {
+                    hist->Fill(static_cast<float>(uint_buffer), total_weight);
                 } else if (isVector && vector_float_buffer != nullptr) {
                     // Fill histogram with each element of the vector
                     for (const auto& value : *vector_float_buffer) {

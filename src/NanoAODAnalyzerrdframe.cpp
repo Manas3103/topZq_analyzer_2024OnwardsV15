@@ -1142,6 +1142,7 @@ void NanoAODAnalyzerrdframe::setParams(int year, string runtype, int datatype)
 			cout << "input file is MC" <<endl;
 		}
 	}
+	std::cout << "Before crash!!" <<std::endl;
 	TObjArray *allbranches = _atree->GetListOfBranches();
 	for (int i =0; i<allbranches->GetSize(); i++)
 	{

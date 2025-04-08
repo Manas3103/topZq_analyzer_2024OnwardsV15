@@ -23,7 +23,7 @@ int main(void) {
 //	c1.Add("root://xrootd-cms.infn.it//store/user/msahoo/2017/Era_b/Data_DoubleEG_b_2017_skim_10of10.root"); //data
 	//c1.Add("testinputdata/MC/2017/ttJets-2017MC-A258F579-5EC0-D840-95D7-4327595FC3DE.root"); // MC
 	c1.Add("/uscms/home/msahoo/nobackup/Project_tzq/708B7CC3-30A4-FA47-B6ED-3CCC018F5AE5.root"); // MC
-	BaseAnalyser nanoaodrdf(&c1, "Trial_2017.root");
+	BaseAnalyser nanoaodrdf(&c1, "top_tzq.root");
 	nanoaodrdf.setParams(2017, "UL", -1);
 	// nanoaodrdf.setHLT();
 

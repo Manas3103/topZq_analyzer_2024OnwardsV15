@@ -14,5 +14,5 @@ request_cpus=1
 request_memory=5 GB
 request_disk= 10 GB
 
-queue filename, crossection, sum_genweight from histogram_data_whole.txt
+queue filename, crossection, sum_genweight from histogram_data.txt
 
