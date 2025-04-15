@@ -15,8 +15,6 @@ request_cpus=1
 request_memory=8 GB
 request_disk= 50 GB
 
-notify_user = manasaranjan.sahoo@niser.ac.in
-notification = Complete
 
 
-queue input_dir, output_file, stderr_file from sample_simulation.txt
+queue input_dir, output_file, stderr_file from Drellyan_50.txt

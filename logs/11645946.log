@@ -1,0 +1,35 @@
+000 (11645946.000.000) 2025-04-15 03:01:43 Job submitted from host: <131.225.189.251:9618?addrs=131.225.189.251-9618+[2620-6a-0-8421--e8]-9618&alias=lpcschedd4.fnal.gov&noUDP&sock=schedd_1977_a2d3>
+...
+040 (11645946.000.000) 2025-04-15 03:01:48 Started transferring input files
+	Transferring to host: <131.225.189.186:9618?addrs=[2620-6a-0-8421-f0-0-189-186]-9618+131.225.189.186-9618&alias=cmswn2133.fnal.gov&noUDP&sock=slot1_9_1296730_57b4_15515>
+...
+040 (11645946.000.000) 2025-04-15 03:01:54 Finished transferring input files
+...
+001 (11645946.000.000) 2025-04-15 03:01:55 Job executing on host: <131.225.189.186:9618?addrs=[2620-6a-0-8421-f0-0-189-186]-9618+131.225.189.186-9618&alias=cmswn2133.fnal.gov&noUDP&sock=startd_2329_1429>
+	SlotName: slot1_9@cmswn2133.fnal.gov
+	CondorScratchDir = "/storage/local/data1/condor/execute/dir_1925680"
+	Cpus = 1
+	Disk = 52432092
+	GPUs = 0
+	Memory = 8192
+...
+006 (11645946.000.000) 2025-04-15 03:02:04 Image size of job updated: 47
+	47  -  MemoryUsage of job (MB)
+	48240  -  ResidentSetSize of job (KB)
+...
+006 (11645946.000.000) 2025-04-15 03:03:05 Image size of job updated: 613
+	613  -  MemoryUsage of job (MB)
+	627804  -  ResidentSetSize of job (KB)
+...
+006 (11645946.000.000) 2025-04-15 03:04:05 Image size of job updated: 969
+	969  -  MemoryUsage of job (MB)
+	992948  -  ResidentSetSize of job (KB)
+...
+006 (11645946.000.000) 2025-04-15 03:05:06 Image size of job updated: 981
+	981  -  MemoryUsage of job (MB)
+	1005556  -  ResidentSetSize of job (KB)
+...
+006 (11645946.000.000) 2025-04-15 03:10:09 Image size of job updated: 982
+	982  -  MemoryUsage of job (MB)
+	1005652  -  ResidentSetSize of job (KB)
+...

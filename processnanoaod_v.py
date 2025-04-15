@@ -65,7 +65,8 @@ class Nanoaodprocessor:
 
         # Check if input is a DAS path or local directory
         self.is_das_path = is_valid_das_path(self.indir)
-        if not self.is_das_path and not os.path.exists(self.indir):
+        self.is_eos_path = self.indir.startswith("/store/user/msahoo/")
+        if not (self.is_das_path or self.is_eos_path) and not os.path.exists(self.indir):
             print(f'Path {indir} is neither a valid DAS path nor an existing local directory')
             exit(1)
 

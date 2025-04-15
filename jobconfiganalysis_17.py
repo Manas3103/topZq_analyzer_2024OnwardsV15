@@ -73,10 +73,10 @@ config = {
 procflags = {
         ###### how many jobs? ######
         #'split': 'Max', #only use 'Max' when nrootfiles = 'All'
-        'split': 1,
+        'split': 10,
 
         ###### if False, one output file per input file, if True then one output file for everything ######
-       # 'allinone': False,
+        #'allinone': False,
         'allinone': True,
 
         ###### if True then skip existing analyzed files ######
@@ -91,7 +91,7 @@ procflags = {
         
         ###### How many input files? ######
         #'nrootfiles': 'All',
-        'nrootfiles': 5,
+        'nrootfiles': 50,
 
         ###### Make a copy of the analyzer in the same directory as the analyzed root files ######
         'copyInstance': False,
@@ -109,19 +109,19 @@ procflags = {
 
 
 
-"""
+
 nanoaod_inputdir_outputdir_pairs = [
-    ['/SingleMuon/Run2017D-UL2017_MiniAODv2_NanoAODv9-v1/NANOAOD',
-     'SingleMuon2017Dv9.root',
-     'SingleMuon2017Dv9.out'],
+    ['/SingleMuon/Run2017B-UL2017_MiniAODv2_NanoAODv9-v1/NANOAOD',
+     'SingleMuon2017B_Hv9.root',
+     'SingleMuon2017B_Hv9.out'],
 
-    ['/DoubleEG/Run2017D-UL2017_MiniAODv2_NanoAODv9-v1/NANOAOD',
-     'DoubleEG2017Dv9.root',
-     'DoubleEG2017Dv9.out'],
+    ['/SingleMuon/Run2017C-UL2017_MiniAODv2_NanoAODv9-v1/NANOAOD',
+     'SingleMuon2017C_Hv9.root',
+     'SingleMuon2017C_Hv9.out'],
 
-    ['/MuonEG/Run2017D-UL2017_MiniAODv2_NanoAODv9-v1/NANOAOD',
-     'MuonEG2017Dv9.root',
-     'MuonEG2017Dv9.out']
+    ['/SingleMuon/Run2017F-UL2017_MiniAODv2_NanoAODv9-v1/NANOAOD',
+     'SingleMuon2017F_Hv9.root',
+     'SingleMuon2017F_Hv9.out']
 ]
 """
 nanoaod_inputdir_outputdir_pairs = [
@@ -131,7 +131,7 @@ nanoaod_inputdir_outputdir_pairs = [
 
 ]
 
-
+"""
 
 
 """

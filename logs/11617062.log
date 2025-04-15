@@ -1,0 +1,252 @@
+000 (11617062.000.000) 2025-04-10 01:43:13 Job submitted from host: <131.225.189.251:9618?addrs=131.225.189.251-9618+[2620-6a-0-8421--e8]-9618&alias=lpcschedd4.fnal.gov&noUDP&sock=schedd_1977_a2d3>
+...
+000 (11617062.001.000) 2025-04-10 01:43:13 Job submitted from host: <131.225.189.251:9618?addrs=131.225.189.251-9618+[2620-6a-0-8421--e8]-9618&alias=lpcschedd4.fnal.gov&noUDP&sock=schedd_1977_a2d3>
+...
+000 (11617062.002.000) 2025-04-10 01:43:13 Job submitted from host: <131.225.189.251:9618?addrs=131.225.189.251-9618+[2620-6a-0-8421--e8]-9618&alias=lpcschedd4.fnal.gov&noUDP&sock=schedd_1977_a2d3>
+...
+000 (11617062.003.000) 2025-04-10 01:43:13 Job submitted from host: <131.225.189.251:9618?addrs=131.225.189.251-9618+[2620-6a-0-8421--e8]-9618&alias=lpcschedd4.fnal.gov&noUDP&sock=schedd_1977_a2d3>
+...
+040 (11617062.000.000) 2025-04-10 01:43:28 Started transferring input files
+	Transferring to host: <131.225.188.157:9618?addrs=[2620-6a-0-8421-f0-0-188-157]-9618+131.225.188.157-9618&alias=cmswn2053.fnal.gov&noUDP&sock=slot1_13_479350_305e_9721>
+...
+040 (11617062.001.000) 2025-04-10 01:43:28 Started transferring input files
+	Transferring to host: <131.225.189.35:9618?addrs=[2620-6a-0-8421-f0-0-189-35]-9618+131.225.189.35-9618&alias=cmswn2088.fnal.gov&noUDP&sock=slot1_5_1282423_c44e_3796>
+...
+040 (11617062.003.000) 2025-04-10 01:43:28 Started transferring input files
+	Transferring to host: <131.225.189.46:9618?addrs=[2620-6a-0-8421-f0-0-189-46]-9618+131.225.189.46-9618&alias=cmswn2095.fnal.gov&noUDP&sock=slot1_9_3699_07af_19850>
+...
+040 (11617062.002.000) 2025-04-10 01:43:28 Started transferring input files
+	Transferring to host: <131.225.188.199:9618?addrs=[2620-6a-0-8421-f0-0-188-199]-9618+131.225.188.199-9618&alias=cmswn2064.fnal.gov&noUDP&sock=slot1_6_2603_cc83_18465>
+...
+040 (11617062.000.000) 2025-04-10 01:43:31 Finished transferring input files
+...
+040 (11617062.001.000) 2025-04-10 01:43:32 Finished transferring input files
+...
+001 (11617062.000.000) 2025-04-10 01:43:32 Job executing on host: <131.225.188.157:9618?addrs=[2620-6a-0-8421-f0-0-188-157]-9618+131.225.188.157-9618&alias=cmswn2053.fnal.gov&noUDP&sock=startd_2276_b9a4>
+	SlotName: slot1_13@cmswn2053.fnal.gov
+	CondorScratchDir = "/storage/local/data1/condor/execute/dir_4032067"
+	Cpus = 1
+	Disk = 52430337
+	GPUs = 0
+	Memory = 8192
+...
+001 (11617062.001.000) 2025-04-10 01:43:33 Job executing on host: <131.225.189.35:9618?addrs=[2620-6a-0-8421-f0-0-189-35]-9618+131.225.189.35-9618&alias=cmswn2088.fnal.gov&noUDP&sock=startd_2283_86ce>
+	SlotName: slot1_5@cmswn2088.fnal.gov
+	CondorScratchDir = "/storage/local/data1/condor/execute/dir_565456"
+	Cpus = 1
+	Disk = 52430343
+	GPUs = 0
+	Memory = 8192
+...
+040 (11617062.002.000) 2025-04-10 01:43:34 Finished transferring input files
+...
+001 (11617062.002.000) 2025-04-10 01:43:35 Job executing on host: <131.225.188.199:9618?addrs=[2620-6a-0-8421-f0-0-188-199]-9618+131.225.188.199-9618&alias=cmswn2064.fnal.gov&noUDP&sock=startd_2277_693c>
+	SlotName: slot1_6@cmswn2064.fnal.gov
+	CondorScratchDir = "/storage/local/data1/condor/execute/dir_2676337"
+	Cpus = 1
+	Disk = 52430327
+	GPUs = 0
+	Memory = 8192
+...
+040 (11617062.003.000) 2025-04-10 01:43:37 Finished transferring input files
+...
+001 (11617062.003.000) 2025-04-10 01:43:38 Job executing on host: <131.225.189.46:9618?addrs=[2620-6a-0-8421-f0-0-189-46]-9618+131.225.189.46-9618&alias=cmswn2095.fnal.gov&noUDP&sock=startd_2291_0390>
+	SlotName: slot1_9@cmswn2095.fnal.gov
+	CondorScratchDir = "/storage/local/data1/condor/execute/dir_1358898"
+	Cpus = 1
+	Disk = 52430325
+	GPUs = 0
+	Memory = 8192
+...
+006 (11617062.002.000) 2025-04-10 01:43:44 Image size of job updated: 110
+	110  -  MemoryUsage of job (MB)
+	113544  -  ResidentSetSize of job (KB)
+...
+006 (11617062.003.000) 2025-04-10 01:43:47 Image size of job updated: 103
+	103  -  MemoryUsage of job (MB)
+	105956  -  ResidentSetSize of job (KB)
+...
+006 (11617062.000.000) 2025-04-10 01:44:41 Image size of job updated: 447
+	447  -  MemoryUsage of job (MB)
+	458444  -  ResidentSetSize of job (KB)
+...
+006 (11617062.001.000) 2025-04-10 01:44:41 Image size of job updated: 602
+	602  -  MemoryUsage of job (MB)
+	616560  -  ResidentSetSize of job (KB)
+...
+006 (11617062.002.000) 2025-04-10 01:44:44 Image size of job updated: 604
+	604  -  MemoryUsage of job (MB)
+	619176  -  ResidentSetSize of job (KB)
+...
+006 (11617062.003.000) 2025-04-10 01:44:48 Image size of job updated: 478
+	478  -  MemoryUsage of job (MB)
+	489888  -  ResidentSetSize of job (KB)
+...
+006 (11617062.001.000) 2025-04-10 01:45:42 Image size of job updated: 602
+	602  -  MemoryUsage of job (MB)
+	617164  -  ResidentSetSize of job (KB)
+...
+006 (11617062.003.000) 2025-04-10 01:45:49 Image size of job updated: 478
+	478  -  MemoryUsage of job (MB)
+	490364  -  ResidentSetSize of job (KB)
+...
+006 (11617062.001.000) 2025-04-10 01:47:43 Image size of job updated: 603
+	603  -  MemoryUsage of job (MB)
+	617776  -  ResidentSetSize of job (KB)
+...
+006 (11617062.001.000) 2025-04-10 01:48:43 Image size of job updated: 604
+	604  -  MemoryUsage of job (MB)
+	619040  -  ResidentSetSize of job (KB)
+...
+006 (11617062.001.000) 2025-04-10 01:49:44 Image size of job updated: 605
+	605  -  MemoryUsage of job (MB)
+	619608  -  ResidentSetSize of job (KB)
+...
+006 (11617062.001.000) 2025-04-10 01:50:45 Image size of job updated: 605
+	605  -  MemoryUsage of job (MB)
+	620460  -  ResidentSetSize of job (KB)
+...
+006 (11617062.001.000) 2025-04-10 01:51:45 Image size of job updated: 606
+	606  -  MemoryUsage of job (MB)
+	620756  -  ResidentSetSize of job (KB)
+...
+006 (11617062.001.000) 2025-04-10 02:00:50 Image size of job updated: 812
+	812  -  MemoryUsage of job (MB)
+	832120  -  ResidentSetSize of job (KB)
+...
+006 (11617062.003.000) 2025-04-10 02:00:58 Image size of job updated: 853
+	853  -  MemoryUsage of job (MB)
+	873508  -  ResidentSetSize of job (KB)
+...
+006 (11617062.001.000) 2025-04-10 02:01:51 Image size of job updated: 878
+	878  -  MemoryUsage of job (MB)
+	899232  -  ResidentSetSize of job (KB)
+...
+006 (11617062.003.000) 2025-04-10 02:01:58 Image size of job updated: 870
+	870  -  MemoryUsage of job (MB)
+	891844  -  ResidentSetSize of job (KB)
+...
+006 (11617062.001.000) 2025-04-10 02:02:51 Image size of job updated: 878
+	878  -  MemoryUsage of job (MB)
+	899540  -  ResidentSetSize of job (KB)
+...
+006 (11617062.001.000) 2025-04-10 02:03:40 Image size of job updated: 881
+	881  -  MemoryUsage of job (MB)
+	902476  -  ResidentSetSize of job (KB)
+...
+040 (11617062.001.000) 2025-04-10 02:03:40 Finished transferring output files
+...
+005 (11617062.001.000) 2025-04-10 02:03:41 Job terminated.
+	(1) Normal termination (return value 0)
+		Usr 0 00:13:04, Sys 0 00:00:11  -  Run Remote Usage
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Run Local Usage
+		Usr 0 00:13:04, Sys 0 00:00:11  -  Total Remote Usage
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Total Local Usage
+	0  -  Run Bytes Sent By Job
+	382856992  -  Run Bytes Received By Job
+	0  -  Total Bytes Sent By Job
+	382856992  -  Total Bytes Received By Job
+	Partitionable Resources :     Usage  Request Allocated 
+	   Cpus                 :      0.00        1         1 
+	   Disk (KB)            : 374780    52428800  52430343 
+	   GPUs                 :                            0 
+	   Memory (MB)          :    881        8192      8192 
+	   TimeExecute (s)      :   1207                       
+	   TimeSlotBusy (s)     :   1213                       
+
+	Job terminated of its own accord at 2025-04-10T07:03:40Z with exit-code 0.
+...
+006 (11617062.000.000) 2025-04-10 02:03:50 Image size of job updated: 823
+	823  -  MemoryUsage of job (MB)
+	843168  -  ResidentSetSize of job (KB)
+...
+006 (11617062.003.000) 2025-04-10 02:03:55 Image size of job updated: 880
+	880  -  MemoryUsage of job (MB)
+	902084  -  ResidentSetSize of job (KB)
+...
+040 (11617062.003.000) 2025-04-10 02:03:55 Finished transferring output files
+...
+005 (11617062.003.000) 2025-04-10 02:03:55 Job terminated.
+	(1) Normal termination (return value 0)
+		Usr 0 00:13:54, Sys 0 00:00:17  -  Run Remote Usage
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Run Local Usage
+		Usr 0 00:13:54, Sys 0 00:00:17  -  Total Remote Usage
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Total Local Usage
+	0  -  Run Bytes Sent By Job
+	382858272  -  Run Bytes Received By Job
+	0  -  Total Bytes Sent By Job
+	382858272  -  Total Bytes Received By Job
+	Partitionable Resources :     Usage  Request Allocated 
+	   Cpus                 :      0.00        1         1 
+	   Disk (KB)            : 374785    52428800  52430325 
+	   GPUs                 :                            0 
+	   Memory (MB)          :    880        8192      8192 
+	   TimeExecute (s)      :   1217                       
+	   TimeSlotBusy (s)     :   1227                       
+
+	Job terminated of its own accord at 2025-04-10T07:03:55Z with exit-code 0.
+...
+006 (11617062.000.000) 2025-04-10 02:04:51 Image size of job updated: 823
+	823  -  MemoryUsage of job (MB)
+	843724  -  ResidentSetSize of job (KB)
+...
+006 (11617062.002.000) 2025-04-10 02:04:51 Image size of job updated: 868
+	868  -  MemoryUsage of job (MB)
+	889572  -  ResidentSetSize of job (KB)
+...
+006 (11617062.002.000) 2025-04-10 02:05:52 Image size of job updated: 869
+	869  -  MemoryUsage of job (MB)
+	890476  -  ResidentSetSize of job (KB)
+...
+040 (11617062.000.000) 2025-04-10 02:06:32 Finished transferring output files
+...
+005 (11617062.000.000) 2025-04-10 02:06:32 Job terminated.
+	(1) Normal termination (return value 0)
+		Usr 0 00:14:14, Sys 0 00:00:18  -  Run Remote Usage
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Run Local Usage
+		Usr 0 00:14:14, Sys 0 00:00:18  -  Total Remote Usage
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Total Local Usage
+	0  -  Run Bytes Sent By Job
+	382856928  -  Run Bytes Received By Job
+	0  -  Total Bytes Sent By Job
+	382856928  -  Total Bytes Received By Job
+	Partitionable Resources :     Usage  Request Allocated 
+	   Cpus                 :      0.00        1         1 
+	   Disk (KB)            : 374784    52428800  52430337 
+	   GPUs                 :                            0 
+	   Memory (MB)          :    823        8192      8192 
+	   TimeExecute (s)      :   1380                       
+	   TimeSlotBusy (s)     :   1385                       
+
+	Job terminated of its own accord at 2025-04-10T07:06:32Z with exit-code 0.
+...
+006 (11617062.002.000) 2025-04-10 02:06:53 Image size of job updated: 870
+	870  -  MemoryUsage of job (MB)
+	891532  -  ResidentSetSize of job (KB)
+...
+006 (11617062.002.000) 2025-04-10 02:08:55 Image size of job updated: 885
+	885  -  MemoryUsage of job (MB)
+	906352  -  ResidentSetSize of job (KB)
+...
+040 (11617062.002.000) 2025-04-10 02:16:41 Finished transferring output files
+...
+005 (11617062.002.000) 2025-04-10 02:16:41 Job terminated.
+	(1) Normal termination (return value 0)
+		Usr 0 00:23:12, Sys 0 00:01:04  -  Run Remote Usage
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Run Local Usage
+		Usr 0 00:23:12, Sys 0 00:01:04  -  Total Remote Usage
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Total Local Usage
+	0  -  Run Bytes Sent By Job
+	382857792  -  Run Bytes Received By Job
+	0  -  Total Bytes Sent By Job
+	382857792  -  Total Bytes Received By Job
+	Partitionable Resources :     Usage  Request Allocated 
+	   Cpus                 :      0.00        1         1 
+	   Disk (KB)            : 374860    52428800  52430327 
+	   GPUs                 :                            0 
+	   Memory (MB)          :    885        8192      8192 
+	   TimeExecute (s)      :   1985                       
+	   TimeSlotBusy (s)     :   1993                       
+
+	Job terminated of its own accord at 2025-04-10T07:16:40Z with exit-code 0.
+...
