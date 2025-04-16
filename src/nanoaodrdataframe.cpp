@@ -20,9 +20,9 @@ using namespace ROOT;
 int main(void) {
 
 	TChain c1("Events");
-	c1.Add("/eos/uscms/store/user/msahoo/DATA_of_D/Z_to_4L/32548CD9-1385-AA4B-9804-40C9644AA68E.root"); //data
+//	c1.Add("/eos/uscms/store/user/msahoo/DATA_of_D/Z_to_4L/32548CD9-1385-AA4B-9804-40C9644AA68E.root"); //data
 	//c1.Add("testinputdata/MC/2017/ttJets-2017MC-A258F579-5EC0-D840-95D7-4327595FC3DE.root"); // MC
-	//c1.Add("/uscms/home/msahoo/nobackup/Project_tzq/708B7CC3-30A4-FA47-B6ED-3CCC018F5AE5.root"); // MC
+	c1.Add("/uscms/home/msahoo/nobackup/Project_tzq/708B7CC3-30A4-FA47-B6ED-3CCC018F5AE5.root"); // MC
 	BaseAnalyser nanoaodrdf(&c1, "top_tzq.root");
 	nanoaodrdf.setParams(2017, "UL", -1);
 	// nanoaodrdf.setHLT();

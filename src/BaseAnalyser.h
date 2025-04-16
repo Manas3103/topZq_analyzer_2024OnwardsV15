@@ -28,6 +28,7 @@ class BaseAnalyser: public NanoAODAnalyzerrdframe
 		void selectJets();
 		void calculateEvWeight();
 		void mergeLeptons();
+		void DefineGoodLeptonGroups();
 		void mergeTrailingLeptons();
 		void search_for_OSSFPairs();
 		void processOSSFPairs();
