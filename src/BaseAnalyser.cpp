@@ -1112,7 +1112,7 @@ void BaseAnalyser::mergeTrailingLeptons() {
 // ======================================================================================================
 // ***********************       THE OSSF PAIR         **************************************************
 // ====================================================================================================== 
-
+/*
 void BaseAnalyser::search_for_OSSFPairs() {
     cout << "Search OSSF Pairs" << endl;
     if (debug) {
@@ -1321,7 +1321,7 @@ void BaseAnalyser::search_for_OSSFPairs() {
         return tl4vec;
     }, {"TopLepton_4vec"});
 
-}
+}*/
 /*
 void BaseAnalyser::processOSSFPairs() {
     cout << "Process OSSF Pairs" << endl;
@@ -1531,6 +1531,105 @@ void BaseAnalyser::processOSSFPairs() {
 
 
 
+
+    /////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////
+    /////////////////// OSSF for 4 Lepton channel ///////////////////////
+    /////////////////////////////////////////////////////////////////////
+
+    _rlm = _rlm.Define("OSSF4L_info", [](const std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>& lep4vecs,
+                                     const ROOT::VecOps::RVec<int>& charges,
+                                     const std::vector<int>& flavors) {
+       const double Z_mass = 91.1876;
+       const double window = 15.0;
+
+       // Require exactly 4 leptons
+       if (lep4vecs.size() != 4 || charges.size() != 4 || flavors.size() != 4) {
+	   return std::make_tuple(0, std::make_pair(-1, -1), std::make_pair(-1, -1), -1.0, -1.0);
+       }
+
+       // Check if all charges are the same
+       bool same_charge = std::all_of(charges.begin() + 1, charges.end(),
+				      [&](int c) { return c == charges[0]; });
+       if (same_charge) {
+	   return std::make_tuple(0, std::make_pair(-1, -1), std::make_pair(-1, -1), -1.0, -1.0);
+       }
+
+       std::vector<std::pair<int, int>> ossf_pairs;
+       std::vector<double> ossf_masses;
+
+       for (int i = 0; i < 4; ++i) {
+	   for (int j = i + 1; j < 4; ++j) {
+	       if (flavors[i] == flavors[j] && charges[i] != charges[j]) {
+		   ossf_pairs.emplace_back(i, j);
+		   ossf_masses.push_back((lep4vecs[i] + lep4vecs[j]).M());
+	       }
+	   }
+       }
+
+       if (ossf_pairs.empty()) {
+	   return std::make_tuple(0, std::make_pair(-1, -1), std::make_pair(-1, -1), -1.0, -1.0);
+       }
+
+       // Find the best (closest to Z) pair
+       int best_idx = -1;
+       double closest_diff = 1e9;
+       for (size_t i = 0; i < ossf_masses.size(); ++i) {
+	   double diff = std::abs(ossf_masses[i] - Z_mass);
+	   if (diff < closest_diff) {
+	       closest_diff = diff;
+	       best_idx = i;
+	   }
+       }
+
+       if (best_idx == -1 || closest_diff > window) {
+	   return std::make_tuple(0, std::make_pair(-1, -1), std::make_pair(-1, -1), -1.0, -1.0);
+       }
+
+       auto best_pair = ossf_pairs[best_idx];
+       double best_mass = ossf_masses[best_idx];
+
+       // Check for second non-overlapping pair
+       for (size_t i = 0; i < ossf_pairs.size(); ++i) {
+	   if ((int)i == best_idx) continue;
+
+	   auto& p = ossf_pairs[i];
+	   double m = ossf_masses[i];
+	   if (std::abs(m - Z_mass) < window) {
+	       // Ensure no index overlap
+	       if (p.first != best_pair.first && p.first != best_pair.second &&
+		   p.second != best_pair.first && p.second != best_pair.second) {
+		   return std::make_tuple(2, best_pair, p, best_mass, m);  // Category 2
+	       }
+	   }
+       }
+
+       return std::make_tuple(1, best_pair, std::make_pair(-1, -1), best_mass, -1.0);  // Category 1
+
+    }, {"goodLepton4_4Vecs", "goodLepton4_charge", "goodLepton4_flavor"});
+
+
+    _rlm = _rlm.Define("OSSF4L_category", [](const std::tuple<int, std::pair<int, int>, std::pair<int, int>, double, double>& info) {
+       return std::get<0>(info);
+    }, {"OSSF4L_info"});
+
+    // Best Z candidate mass (category 1 or 2)
+    _rlm = _rlm.Define("OSSF4L_bestZ_mass", [](const std::tuple<int, std::pair<int, int>, std::pair<int, int>, double, double>& info) {
+	int cat = std::get<0>(info);
+	double best_mass = std::get<3>(info);
+	return (cat == 1 || cat == 2) ? best_mass : -1.0;
+    }, {"OSSF4L_info"});
+
+    // Second Z candidate mass (only for category 2)
+    _rlm = _rlm.Define("OSSF4L_secondZ_mass", [](const std::tuple<int, std::pair<int, int>, std::pair<int, int>, double, double>& info) {
+	int cat = std::get<0>(info);
+	double second_mass = std::get<4>(info);
+	return (cat == 2) ? second_mass : -1.0;
+    }, {"OSSF4L_info"});
+
+
+
+
 }
 
 
@@ -1546,8 +1645,9 @@ void BaseAnalyser::selectMET()
         std::cout<< "================================//=================================" << std::endl;
     }
 
-    _rlm = _rlm.Define("goodMET_sumET","MET_sumEt>800")
-               .Define("goodMET_pt","MET_pt>20");
+    _rlm = _rlm.Define("goodMET","MET_pt>20");
+              // .Define("goodMET_pt","MET_pt[goodMET]")
+	      // .Define("goodMET_phi", "ROOT::VecOps::RVec<float>{MET_phi}[goodMET]");
                //.Define("goodMET_phi","MET_phi[goodMET]");
                 //.Define("goodMET_phi","MET_phi[goodMET]")
                 //.Define("NgoodMET","int(goodMET_pt.size())");
@@ -1631,30 +1731,30 @@ void BaseAnalyser::reconstructWboson()
                .Define("nu_px", "nu_pt * cos(nu_phi)")
                .Define("nu_py", "nu_pt * sin(nu_phi)");
 
-    _rlm = _rlm.Define("lambda_reco", ::calculateLambda, {"TopLepton_TL4vec", "nu_pt", "nu_phi"});
+    _rlm = _rlm.Define("lambda_reco", ::calculateLambda, {"topLepton_TL4Vec_new", "nu_pt", "nu_phi"});
 
-    _rlm = _rlm.Define("delta_reco", ::calculateDelta, {"TopLepton_TL4vec", "nu_pt", "lambda_reco"})
+    _rlm = _rlm.Define("delta_reco", ::calculateDelta, {"topLepton_TL4Vec_new", "nu_pt", "lambda_reco"})
                .Define("isRealSolution", "delta_reco > 0 ? 1 : -1");
 
-    _rlm = _rlm.Define("nu_pz", ::calculate_nu_z, {"TopLepton_TL4vec", "lambda_reco", "delta_reco", "nu_pt", "nu_phi"});
+    _rlm = _rlm.Define("nu_pz", ::calculate_nu_z, {"topLepton_TL4Vec_new", "lambda_reco", "delta_reco", "nu_pt", "nu_phi"});
 
     _rlm = _rlm.Define("nu_energy", ::calculate_nu_energy, {"nu_pt", "nu_phi", "nu_pz"});
 
     _rlm = _rlm.Define("nu_TL4vec", ::get_neutrino_TL4vec, {"nu_pt", "nu_phi", "nu_pz", "nu_energy"});
 
     //--------------------- Reconstruct W boson ---------------------
-    _rlm = _rlm.Define("Wboson_4vec", ::reconstructWboson_TL4vec, {"TopLepton_TL4vec", "nu_TL4vec"})
+    _rlm = _rlm.Define("Wboson_4vec", ::reconstructWboson_TL4vec, {"topLepton_TL4Vec_new", "nu_TL4vec"})
                .Define("w_mass", "Wboson_4vec.M()")
                .Define("w_eta", "Wboson_4vec.Eta()")
                .Define("w_phi", "Wboson_4vec.Phi()")
                .Define("w_pt", "Wboson_4vec.Pt()");
 
     // Calculate transverse mass of the W boson
-    _rlm = _rlm.Define("topLepton_phi", "TopLepton_TL4vec.Phi()")
-               .Define("topLepton_eta", "TopLepton_TL4vec.Eta()")
-               .Define("topLepton_pt", "TopLepton_TL4vec.Pt()")
+    _rlm = _rlm.Define("topLepton_phi", "topLepton_TL4Vec_new.Phi()")
+               .Define("topLepton_eta", "topLepton_TL4Vec_new.Eta()")
+               .Define("topLepton_pt", "topLepton_TL4Vec_new.Pt()")
                .Define("delta_phi_lep_nu", ::calculate_deltaPhi_scalars, {"topLepton_phi", "nu_phi_double"})
-               .Define("Wboson_transversMass", "sqrt(2 * TopLepton_TL4vec.Pt() * nu_pt * (1 - cos(delta_phi_lep_nu)))");
+               .Define("Wboson_transversMass", "sqrt(2 * topLepton_TL4Vec_new.Pt() * nu_pt * (1 - cos(delta_phi_lep_nu)))");
 }
 
 /*
@@ -1783,39 +1883,6 @@ void BaseAnalyser::defineSignalRegion()
         std::cout << "================================//=================================" << std::endl;
     }
 
-    // Define signal region selection
-
-    _rlm = _rlm.Define("passLeptonSelection_1", [](const ROOT::VecOps::RVec<float>& combinedLeptonPt) {
-	    int count_gt10 = 0;
-	    int count_gt15 = 0;
-	    bool has_gt25 = false;
-	    
-	    for (auto pt : combinedLeptonPt) {
-		if (pt > 10) count_gt10++;
-		if (pt > 15) count_gt15++;
-		if (pt > 25) has_gt25 = true;
-	    }
-	    
-	    // Check all conditions:
-	    // 1. All leptons > 10 (count_gt10 == size of the collection)
-	    // 2. At least 2 leptons > 15
-	    // 3. At least 1 lepton > 25
-	    return (count_gt10 == combinedLeptonPt.size()) && 
-		   (count_gt15 >= 2) && 
-		   has_gt25;
-            }, {"combinedLeptonPt"});
-
-    _rlm = _rlm.Define("signalRegion", "NgoodLepton==3 && allTightLeptons && passLeptonSelection_1 &&" 
-                                    " OSSF_ZPair_mass > 0 && NgoodJets > 2 && Ngood_bjets > 1");
-    _rlm = _rlm.Define("signalRegion_top", "signalRegion && top_mass >0")
-               .Define("signalRegion_top_mass", "signalRegion ? top_mass : std::numeric_limits<double>::quiet_NaN()");
-    // Define additional variables for selected events in signal region
-    _rlm = _rlm.Define("signalRegion_all_top", "signalRegion ? top_mass : std::numeric_limits<double>::quiet_NaN()");
-/*                .Define("signalRegionLeptonPt", "combinedLeptonPt[signalRegion]")
-                .Define("signalRegionOSSF_ZPair_masses", "OSSF_ZPair_masses[signalRegion]")
-                .Define("signalRegionNgoodJets", "ngoodJets[signalRegion]")
-  		.Define("signalRegionNgoodBjets", "nGOODBjets[signalRegion]");
-*/		
 
     _rlm = _rlm.Define("trialRegion", " NgoodLepton==3 && ncleanjetspass >= 2 && ncleanbjetspass >= 1 && All_good_tightLeptons && MET_pt>20")
 	       .Define("trialRegion_lead" , "trialRegion && leadingLepton_pt > 0")
@@ -1844,6 +1911,15 @@ void BaseAnalyser::defineSignalRegion()
                    [](bool cond, float eta) { return cond ? eta : -999.f; },
                    {"trialRegion_trail", "TrailingLepton_eta"});       
     
+    _rlm = _rlm.Define("baseRegion", " NgoodLepton==3 && All_good_tightLeptons && MET_pt>20")
+	       .Define("SignalRegion", "baseRegion && ncleanbjetspass >= 1 && OSSF_category ==1")
+	       .Define("WZ_Region", "baseRegion && ncleanbjetspass == 0 && OSSF_category ==1 && MET_pt > 50")
+	       .Define("X_gamma_Region", "baseRegion && OSSF_category ==2 && nonZ_OSSF_mass > 35 && nonZ_OSSF_mass < 76")
+	       .Define("NP_2_Region", "baseRegion && OSSF_category ==3 && nonZ_OSSF_mass > 35 && ncleanjetspass >= 2 && ncleanjetspass <= 3 && ncleanbjetspass == 1")
+	       .Define("NP_1_Region", "baseRegion && OSSF_category ==0 && ncleanjetspass >= 2 && ncleanjetspass <= 3 && ncleanbjetspass == 1");
+
+
+
 }
 
 
@@ -2061,6 +2137,11 @@ void BaseAnalyser::defineMoreVars()
     addVartoStore("topLepton_phi_new");
     addVartoStore("topLepton_charge");
     addVartoStore("topLepton_flavor");
+    addVartoStore("OSSF4L_category");
+    addVartoStore("OSSF4L_info");               // Tuple: (category, best_pair_idx, second_pair_idx, best_mass, second_mass)
+    addVartoStore("OSSF4L_bestZ_mass");         // First Z candidate mass (cat 1 or 2)
+    addVartoStore("OSSF4L_secondZ_mass");       // Second Z candidate mass (only for cat 2)
+
 
 
 
@@ -2078,8 +2159,8 @@ void BaseAnalyser::defineMoreVars()
     addVartoStore("w_eta");
     addVartoStore("w_phi");
     addVartoStore("top_mass");
-    addVartoStore("signalRegion_top_mass");
-    addVartoStore("signalRegion_all_top");
+   // addVartoStore("signalRegion_top_mass");
+   // addVartoStore("signalRegion_all_top");
     addVartoStore("top_pt");
     addVartoStore("top_eta");
     addVartoStore("top_phi");
@@ -2216,7 +2297,7 @@ void BaseAnalyser::setupObjects()
 	mergeLeptons();
 	DefineGoodLeptonGroups();
 	mergeTrailingLeptons();
-	search_for_OSSFPairs();
+//	search_for_OSSFPairs();
 	processOSSFPairs();
 	reconstructWboson();
 	reconstructTop();
