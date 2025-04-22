@@ -69,6 +69,8 @@ floats weightv(floats &x, float evWeight);
 
 floats sphericity(FourVectorVec &p);
 
+float calculateTopPolarizationAngle(const TLorentzVector& spectatorQuark,const TLorentzVector& lepton,const TLorentzVector& topQuark);
+
 double foxwolframmoment(int l, FourVectorVec &p, int minj=0, int maxj=-1);
 
 float pucorrection(std::unique_ptr<correction::CorrectionSet> &cset, std::string name, std::string syst, float ntruepileup);

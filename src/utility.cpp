@@ -15,7 +15,8 @@
 #include<cmath>
 #include <vector>      // For std::vector
 #include <algorithm>   // For std::min_element and std::distance
-
+#include <TLorentzVector.h>
+#include <TVector3.h>
 
 // Utility function to generate fourvector objects for thigs that pass selections
 
@@ -33,6 +34,33 @@ FourVectorVec generate_4vec(floats &pt, floats &eta, floats &phi, floats &mass)
 
 	return fourvecs;
 }
+
+float calculateTopPolarizationAngle(const TLorentzVector& spectatorQuark,
+                                   const TLorentzVector& lepton,
+                                   const TLorentzVector& topQuark) {
+    
+    // Boost all vectors to top quark rest frame
+    TLorentzVector spectator_topRF = spectatorQuark;
+    TLorentzVector lepton_topRF = lepton;
+    
+    TVector3 topBoost = topQuark.BoostVector();
+    spectator_topRF.Boost(-topBoost);
+    lepton_topRF.Boost(-topBoost);
+
+    // Get 3-momenta in top rest frame
+    TVector3 p_spec = spectator_topRF.Vect();
+    TVector3 p_lep = lepton_topRF.Vect();
+
+    // Calculate cos(theta*)
+    float cosThetaPol = p_spec.Dot(p_lep) / (p_spec.Mag() * p_lep.Mag());
+
+    // Clamp to [-1, 1] to avoid numerical artifacts
+    cosThetaPol = std::max(-1.0f, std::min(1.0f, cosThetaPol));
+
+    return cosThetaPol;
+}
+
+
 
 floats weightv(floats &x, float evWeight)
 {

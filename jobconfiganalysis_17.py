@@ -90,8 +90,8 @@ procflags = {
         'saveallbranches': False,
         
         ###### How many input files? ######
-        #'nrootfiles': 'All',
-        'nrootfiles': 50,
+        #'nrootfiles': 'All',set the bellow to 65 while running for the data and 15 for the simulation 
+        'nrootfiles': 15,
 
         ###### Make a copy of the analyzer in the same directory as the analyzed root files ######
         'copyInstance': False,

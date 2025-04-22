@@ -14,5 +14,5 @@ request_cpus=1
 request_memory=8 GB
 request_disk= 10 GB
 
-queue filename, crossection from time_taking_file.txt
+queue filename, crossection from histogram_data_whole.txt
 
