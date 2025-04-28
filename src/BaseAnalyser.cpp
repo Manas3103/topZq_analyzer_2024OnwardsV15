@@ -655,7 +655,7 @@ void BaseAnalyser::removeOverlaps()
      //==============================Clean b-Jets==============================================// 
          //--> after remove overlap: use requested btaggedJets for btag-weight SFs && weight_generator. 
          //=====================================================================================//
-        _rlm = _rlm.Define("btagcuts2", "Selected_jetbtag>0.7") //medium wp -->as an example. 
+        _rlm = _rlm.Define("btagcuts2", "Selected_jetbtag>0.3040") //medium wp -->as an example. 
                         .Define("Selected_bjetpt", "Selected_jetpt[btagcuts2]")
                         .Define("Selected_bjeteta", "Selected_jeteta[btagcuts2]")
                         .Define("Selected_bjetphi", "Selected_jetphi[btagcuts2]")

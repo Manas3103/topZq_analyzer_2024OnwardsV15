@@ -1,1 +1,2 @@
-/store/user/msahoo/DATA_of_D/DYJetsToLL_M-50_HT-800to1200 DYJetsToLL_M-50_HT-800to1200.root DYJetsToLL_M-50_HT-800to1200.out
+/DYJetsToLL_M-50_HT-600to800_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8/RunIISummer20UL17NanoAODv9-106X_mc2017_realistic_v9-v1/NANOAODSIM DYJetsToLL_M-50_HT-600to800.root DYJetsToLL_M-50_HT-600to800.out
+/store/user/msahoo/2017/Era_c Era_c_all.root Era_c_all.out

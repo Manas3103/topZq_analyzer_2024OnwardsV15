@@ -1,2 +1,2 @@
-/store/user/msahoo/output_of_job/with_whole_sim/TTHH.root 0.76
-/store/user/msahoo/output_of_job/with_whole_sim/DYJetsToLL_M-50_HT-100to200.root 181302.00
+/store/user/msahoo/output_of_job/with_whole_sim/ZTo4L.root 1256.00
+/store/user/msahoo/output_of_job/with_whole_sim/TTTo2L2Nu.root 87310.00
