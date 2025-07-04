@@ -96,8 +96,8 @@ void BaseAnalyser::defineCuts()
 
 	//MinimalSelection to filter events
 //	addCuts("nMuon + nElectron >= 3  && nJet>2 && PV_npvsGood >= 1 && LHE_HT < 70 && LHE_HT > 0", "0");//first change
-//	addCuts("nMuon + nElectron >= 3  && PV_npvsGood >= 1 && LHE_HT < 70", "0");//first change
-	addCuts("nMuon + nElectron >= 3  && PV_npvsGood >= 1 ", "0");//not for drellyan
+//	addCuts("nMuon + nElectron >= 3  && nJet>2 && PV_npvsGood >= 1 && LHE_HT < 70", "0");//first change
+	addCuts("nMuon + nElectron >= 3  && nJet>2 && PV_npvsGood >= 1 ", "0");//not for drellyan
 	addCuts("Flag_goodVertices && Flag_globalSuperTightHalo2016Filter && Flag_HBHENoiseFilter && Flag_HBHENoiseIsoFilter && Flag_EcalDeadCellTriggerPrimitiveFilter && Flag_BadPFMuonFilter && Flag_ecalBadCalibFilter", "00");
 	addCuts(setHLT(),"000");
 
@@ -179,7 +179,7 @@ void BaseAnalyser::selectElectrons()
     // baselineElectrons_isPromptBaseline Electron Selection
     // =====================================================================
     _rlm = _rlm.Define("baselineElectrons", 
-                       "Electron_pt > 10.0 && abs(Electron_eta) < 2.5 && trailingElectronsID &&"
+                       "Electron_pt > 10.0 && abs(Electron_eta) < 2.5 && goodElectronsID &&"
                        "Electron_pfRelIso03_all < 0.40 && abs(Electron_dxy) < 0.05 && "
                        "abs(Electron_dz) < 0.10 && Electron_lostHits <= 1 && "
                        "Electron_hoe < 0.10 && Electron_convVeto &&"
@@ -218,8 +218,8 @@ void BaseAnalyser::selectElectrons()
     
     // Define tight and fakable electrons based on MVA score
     _rlm = _rlm.Define("A_baselineElectrons_mvaTTH", "Electron_mvaTTH[baselineElectrons]");
-    _rlm = _rlm.Define("A_tight_baselineElectrons", "A_baselineElectrons_mvaTTH > 0.8")
-               .Define("A_fakable_baselineElectrons", "A_baselineElectrons_mvaTTH <= 0.8");
+    _rlm = _rlm.Define("A_tight_baselineElectrons", "A_baselineElectrons_mvaTTH > 0.50")
+               .Define("A_fakable_baselineElectrons", "A_baselineElectrons_mvaTTH <= 0.50");
     
 
 ///////////////////////////////////////////////////////////////
@@ -354,7 +354,7 @@ void BaseAnalyser::selectMuons()
     // Baseline Muon Selection
     // // =====================================================================
     _rlm = _rlm.Define("baselineMuons",
-		       "Muon_pt > 10.0 && abs(Muon_eta) < 2.4 && trailingMuonID && "
+		       "Muon_pt > 10.0 && abs(Muon_eta) < 2.4 && goodMuonsID && "
 	       	       "Muon_pfRelIso04_all < 0.4 && abs(Muon_dxy) < 0.05 && "
 		       "abs(Muon_dz) < 0.10 && Muon_sip3d < 8.0 && "
 		       "Muon_mediumId");
@@ -396,8 +396,8 @@ void BaseAnalyser::selectMuons()
     },
     {"baselineMuons_genPartFlav"});
     }*/
-    _rlm = _rlm.Define("tight_baselineMuons", "Muon_mvaTTH[baselineMuons] > 0.8")
-               .Define("fakable_baselineMuons", "Muon_mvaTTH[baselineMuons] <= 0.8");
+    _rlm = _rlm.Define("tight_baselineMuons", "Muon_mvaTTH[baselineMuons] > -0.20")
+               .Define("fakable_baselineMuons", "Muon_mvaTTH[baselineMuons] <= -0.20");
 
     
 

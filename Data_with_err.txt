@@ -1,5 +1,0 @@
-/store/user/msahoo/DATA_of_D/DoubleEG_d DoubleEG2017Dv9.root DoubleEG2017Dv9.out
-/store/user/msahoo/DATA_of_D/MuonEG_d MuonEG2017Dv9.root MuonEG2017Dv9.out
-/store/user/msahoo/DATA_of_D/Single_muon_d SingleMuon2017Dv9.root SingleMuon2017Dv9.out
-/store/user/msahoo/DATA_of_D/DoubleMuon2017D DoubleMuon2017Dv9.root DoubleMuon2017Dv9.out
-/tZq_ll_4f_ckm_NLO_TuneCP5_13TeV-amcatnlo-pythia8/RunIISummer20UL17NanoAODv9-106X_mc2017_realistic_v9-v1/NANOAODSIM tzq_file.root tzq_err.out

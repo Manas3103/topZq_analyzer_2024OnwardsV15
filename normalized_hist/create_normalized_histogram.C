@@ -37,29 +37,7 @@ void create_normalized_histogram(const std::string& filename,
 /*
     // Branch ranges definition
     std::map<std::string, std::tuple<double, double, int>> branch_ranges = {
-        {"top_mass", {5, 700,50}},
-	{"nJet", {2, 10,8}},
-        {"TR_leadingLepton_pt", {0, 250,25}},
-        {"TR_subleadingLepton_pt", {0, 150,20}},
-        {"TR_trailingLepton_pt", {0, 100,20}},
-        {"TR_leadingLepton_eta", {-3, 3,24}},
-        {"TR_subleadingLepton_eta", {-3, 3,24}},
-        {"TR_trailingLepton_eta", {-3, 3,24}},
-	{"nElectron", {0, 8, 8}},
-	{"nMuon", {0, 6,6}},
-        {"Wboson_transversMass", {5, 300, 35}},
-        {"OSSF_ZPair_mass", {70, 130, 35}},
-        {"mass_of_3lepton", {5, 500, 50}},
-        {"baselineElectrons_pt", {0, 600, 50}},
-        {"baselineMuons_pt", {0, 600, 50}},
-        {"NbaselineElectrons", {0, 5, 5}},
-        {"NbaselineMuons", {0, 5, 5}},
-        {"NgoodJets", {2, 10, 8}},
-        {"goodJets_pt", {0, 1000, 70}},
-        {"good_bJetpt", {0, 1000, 70}},
-        {"totalLeptonCount", {0, 5, 5}},
-        {"combinedLeptonPt", {0, 500, 50}}
-
+        {"Bdt_discriminant", {0, 1,10}}
 };*/
 
     // Branch ranges definition
