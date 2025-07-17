@@ -23,18 +23,7 @@ BaseAnalyser::BaseAnalyser(TTree *t, std::string outfilename)
                     "HLT_PFJet550","HLT_PFHT400_FivePFJet_100_100_60_30_30_DoublePFBTagDeepCSV_4p5",
                     "HLT_PFHT400_FivePFJet_120_120_60_30_30_DoublePFBTagDeepCSV_4p5"};
 //	HLT2017Names= {"HLT_IsoMu24","HLT_Ele32_WPTight_Gsf"};
-/*        HLT2017Names= {"HLT_IsoMu24", "HLT_IsoMu24_eta2p1", "HLT_IsoMu27", "HLT_Mu50", "HLT_OldMu100", "HLT_TkMu100",
-	               "HLT_Ele32_WPTight_Gsf", "HLT_Ele35_WPTight_Gsf", "HLT_Ele115_CaloIdVT_GsfTrkIdT", "HLT_Photon200",
-                       "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL", "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ", "HLT_Mu37_TkMu27", "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8", "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8",
-		       "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ", "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ", "HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ", "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL", "HLT_Mu27_Ele37_CaloIdL_MW", "HLT_Mu37_Ele27_CaloIdL_MW",
-		       "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL", "HLT_DoubleEle33_CaloIdL_MW",
-		       "HLT_TripleMu_10_5_5_DZ", "HLT_TripleMu_5_3_3_Mass3p8to60_DZ", "HLT_TripleMu_12_10_5",
-		       "HLT_DiMu9_Ele9_CaloIdL_TrackIdL_DZ",
-		       "HLT_Mu8_DiEle12_CaloIdL_TrackIdL",
-                       "HLT_Ele16_Ele12_Ele8_CaloIdL_TrackIdL"
 	
-	};
-*/
     HLT2017Names = {
 	    "HLT_IsoMu24",
 	    "HLT_IsoMu24_eta2p1",
@@ -95,7 +84,6 @@ void BaseAnalyser::defineCuts()
 	std::cout<< "-------------------------------------------------------------------" << std::endl;
 
 	//MinimalSelection to filter events
-//	addCuts("nMuon + nElectron >= 3  && nJet>2 && PV_npvsGood >= 1 && LHE_HT < 70 && LHE_HT > 0", "0");//first change
 //	addCuts("nMuon + nElectron >= 3  && nJet>2 && PV_npvsGood >= 1 && LHE_HT < 70", "0");//first change
 	addCuts("nMuon + nElectron >= 3  && nJet>2 && PV_npvsGood >= 1 ", "0");//not for drellyan
 	addCuts("Flag_goodVertices && Flag_globalSuperTightHalo2016Filter && Flag_HBHENoiseFilter && Flag_HBHENoiseIsoFilter && Flag_EcalDeadCellTriggerPrimitiveFilter && Flag_BadPFMuonFilter && Flag_ecalBadCalibFilter", "00");
@@ -105,7 +93,6 @@ void BaseAnalyser::defineCuts()
 	//addCuts("NgoodMuons>=2","00");
         //addCuts("ncleanjetspass>0","00");
 	//addCuts(setHLT(),"000"); //HLT cut buy checking HLT names in the root file
-       // addCuts("LHE_HT < 70", "0");  // Only for DrellYan 50
 }
 
 
@@ -122,25 +109,6 @@ void BaseAnalyser::selectElectrons()
         std::cout << "================================//=================================" << std::endl;
     }
 
-//////////////////////////Electron enery for the new variable ////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////
-
-    _rlm = _rlm.Define("Electron_4Vecs", ::generate_4vec, {"Electron_pt", "Electron_eta", "Electron_phi", "Electron_mass"});  
-    _rlm = _rlm.Define("Electron_energy", [](const std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>& electron_4vecs) {
-    ROOT::VecOps::RVec<Float_t> energies;
-    for (const auto& vec : electron_4vecs) {
-        energies.push_back(static_cast<Float_t>(vec.E()));  // E() gives the energy in PtEtaPhiM4D Lorentz vector
-    }
-    return energies;
-}, {"Electron_4Vecs"});
-
-///////////////////////////////////////////////////
-///////// NEW VARIABLE FOR THE BDT ////////////////
-///////////////////////////////////////////////////
-
-    _rlm = _rlm.Define("electron_oneOverEminusOneOverP","1.0 / Electron_energy - 1.0 / Electron_pt");
-
-
     // Define good electrons based on ID and additional criteria
     _rlm = _rlm.Define("goodElectronsID", ElectronID(2)); // ID level 2
     _rlm = _rlm.Define("goodElectrons", "goodElectronsID && Electron_pt > 25.0 && abs(Electron_eta) < 2.1 && Electron_pfRelIso03_all < 0.15");
@@ -153,20 +121,6 @@ void BaseAnalyser::selectElectrons()
                 .Define("goodElectrons_idx", ::good_idx, {"goodElectrons"})
                 .Define("NgoodElectrons", "int(goodElectrons_pt.size())");
 
-    //-------------------------------------------------------
-    // Define trailing electrons with ElectronID(2)
-    //-------------------------------------------------------
-    _rlm = _rlm.Define("trailingElectronsID", ElectronID(4)); // ID level 2 for trailing electrons
-    _rlm = _rlm.Define("trailingElectrons", "trailingElectronsID && Electron_pt > 10 && abs(Electron_eta) < 2.5 && Electron_pfRelIso03_all < 0.40");
-
-    // Define additional variables for trailing electrons
-    _rlm = _rlm.Define("trailingElectrons_pt", "Electron_pt[trailingElectrons]")
-                .Define("trailingElectrons_eta", "Electron_eta[trailingElectrons]")
-                .Define("trailingElectrons_phi", "Electron_phi[trailingElectrons]")
-                .Define("trailingElectrons_mass", "Electron_mass[trailingElectrons]")
-                .Define("trailingElectrons_charge", "Electron_charge[trailingElectrons]")
-                .Define("trailingElectrons_idx", ::good_idx, {"trailingElectrons"})
-                .Define("NtrailingElectrons", "int(trailingElectrons_pt.size())");
 
     //-------------------------------------------------------
     // Generate electron 4-vector from selected good electrons
@@ -178,6 +132,16 @@ void BaseAnalyser::selectElectrons()
     // =====================================================================
     // baselineElectrons_isPromptBaseline Electron Selection
     // =====================================================================
+    _rlm = _rlm.Define("Electron_4Vecs", ::generate_4vec, {"Electron_pt", "Electron_eta", "Electron_phi", "Electron_mass"});
+    _rlm = _rlm.Define("Electron_energy", [](const std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>& electron_4vecs) {
+    ROOT::VecOps::RVec<Float_t> energies;
+    for (const auto& vec : electron_4vecs) {
+        energies.push_back(static_cast<Float_t>(vec.E()));  // E() gives the energy in PtEtaPhiM4D Lorentz vector
+    }
+    return energies;
+    }, {"Electron_4Vecs"});  
+
+    _rlm = _rlm.Define("electron_oneOverEminusOneOverP","1.0 / Electron_energy - 1.0 / Electron_pt");
     _rlm = _rlm.Define("baselineElectrons", 
                        "Electron_pt > 10.0 && abs(Electron_eta) < 2.5 && goodElectronsID &&"
                        "Electron_pfRelIso03_all < 0.40 && abs(Electron_dxy) < 0.05 && "
@@ -221,84 +185,11 @@ void BaseAnalyser::selectElectrons()
     _rlm = _rlm.Define("A_tight_baselineElectrons", "A_baselineElectrons_mvaTTH > 0.50")
                .Define("A_fakable_baselineElectrons", "A_baselineElectrons_mvaTTH <= 0.50");
     
-
-///////////////////////////////////////////////////////////////
-    
-
-
-    // Generate electron 4-vector for trailing electrons
-    _rlm = _rlm.Define("trailingElectrons_4Vecs", ::generate_4vec, {"trailingElectrons_pt", "trailingElectrons_eta", "trailingElectrons_phi", "trailingElectrons_mass"});
-    _rlm = _rlm.Define("trailingElectrons_TL4Vecs",
-    [](const ROOT::VecOps::RVec<float>& pt,
-       const ROOT::VecOps::RVec<float>& eta,
-       const ROOT::VecOps::RVec<float>& phi,
-       const ROOT::VecOps::RVec<float>& mass) -> ROOT::VecOps::RVec<TLorentzVector> {
-        ROOT::VecOps::RVec<TLorentzVector> vecs;
-        for (size_t i = 0; i < pt.size(); ++i) {
-            TLorentzVector vec;
-            vec.SetPtEtaPhiM(pt[i], eta[i], phi[i], mass[i]);
-            vecs.emplace_back(vec);
-        }
-        return vecs;
-    },
-    {"trailingElectrons_pt", "trailingElectrons_eta", "trailingElectrons_phi", "trailingElectrons_mass"});
-
-///////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////
-/////////////VARIABLE FOR BDT USING BASELINE///////////////////
-///////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////
-    _rlm = _rlm.Define("baselineElectrons_MVAEstimatorRun2Fall17NoIsoV2Values", "Electron_mvaFall17V2noIso[baselineElectrons]");
-
-    _rlm = _rlm.Define("baselineElectrons_JetNDauCharged" , "Electron_jetNDauCharged[baselineElectrons]")
-               .Define("baselineElectrons_miniPFRelIso_chg" , "Electron_miniPFRelIso_chg[baselineElectrons]")
-	       .Define("baselineElectrons_miniPFRelIso_neutral" , "Electron_miniPFRelIso_all[baselineElectrons]-Electron_miniPFRelIso_chg[baselineElectrons]")
-	       .Define("baselineElectrons_jetPtRelv2" , "Electron_jetPtRelv2[baselineElectrons]")
-	       .Define("baselineElectrons_pfRelIso03_all" , "Electron_pfRelIso03_all[baselineElectrons]")
-	       .Define("baselineElectrons_sip3d" , "Electron_sip3d[baselineElectrons]")
-	       .Define("baselineElectrons_dxy" , "Electron_dxy[baselineElectrons]")
-	       .Define("baselineElectrons_dz" , "Electron_dz[baselineElectrons]")
-	       .Define("baselineElectrons_JetPt_ratio" , "1/(Electron_jetRelIso[baselineElectrons]+1)")
-	       .Define("baselineElectrons_closest_jetIdx" , "Electron_jetIdx[baselineElectrons]");
-
-    _rlm = _rlm.Define("baselineElectrons_JetPtRatio", [](const ROOT::VecOps::RVec<float>& electron_jetRelIso, const ROOT::VecOps::RVec<int>& baselineElectrons) {
-           std::vector<double> jetPtRatios;
-           for (const auto& idx : baselineElectrons) {
-                double ratio = 1.0 / (electron_jetRelIso[idx] + 1);
-                jetPtRatios.push_back(ratio > 1.5 ? 1.5 : ratio);
-           }
-           return jetPtRatios;
-           }, {"Electron_jetRelIso", "baselineElectrons"});
 /*    _rlm = _rlm.Define("baselineElectron_4Vecs_RVec",
     [](const std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>& vec) {
         return ROOT::VecOps::RVec<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>(vec.begin(), vec.end());
     }, {"baselineElectron_4Vecs"});
-*/
 
-///////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////
-////////////ENERGY OF DIFFERENT CATAGORY //////////////////////
-///////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////
-/*
-
-   // Define energy for good electrons
-    _rlm = _rlm.Define("goodElectrons_energy", [](const std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>& electron_4vecs) {
-        std::vector<double> energies;
-        for (const auto& vec : electron_4vecs) {
-            energies.push_back(vec.E());  // E() gives the energy in PtEtaPhiM4D Lorentz vector
-        }
-        return energies;
-    }, {"goodElectron_4Vecs"});
-
-    // Define energy for trailing electrons
-    _rlm = _rlm.Define("trailingElectrons_energy", [](const std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>& electron_4vecs) {
-        std::vector<double> energies;
-        for (const auto& vec : electron_4vecs) {
-            energies.push_back(vec.E());  // E() gives the energy in PtEtaPhiM4D Lorentz vector
-        }
-        return energies;
-    }, {"trailingElectrons_4Vecs"});
 */
 
 }
@@ -333,22 +224,6 @@ void BaseAnalyser::selectMuons()
                 .Define("goodMuons_charge", "Muon_charge[goodMuons]")
                 .Define("goodMuons_idx", ::good_idx, {"goodMuons"})
                 .Define("NgoodMuons", "int(goodMuons_pt.size())");
-
-    //-------------------------------------------------------
-    // Define trailing muons with pt > 10
-    //-------------------------------------------------------
-    _rlm = _rlm.Define("trailingMuonID", MuonID(4)); // loose muons
-    _rlm = _rlm.Define("trailingMuons", "trailingMuonID &&  Muon_pt > 10 && abs(Muon_eta) < 2.4 && Muon_miniPFRelIso_all < 0.40");
-
-    // Define additional variables for trailing muons
-    _rlm = _rlm.Define("trailingMuons_pt", "Muon_pt[trailingMuons]")
-                .Define("trailingMuons_eta", "Muon_eta[trailingMuons]")
-                .Define("trailingMuons_phi", "Muon_phi[trailingMuons]")
-                .Define("trailingMuons_mass", "Muon_mass[trailingMuons]")
-                .Define("trailingMuons_charge", "Muon_charge[trailingMuons]")
-                .Define("trailingMuons_idx", ::good_idx, {"trailingMuons"})
-                .Define("NtrailingMuons", "int(trailingMuons_pt.size())");
-
 
     // ====================================================================
     // Baseline Muon Selection
@@ -386,16 +261,6 @@ void BaseAnalyser::selectMuons()
     },
     {"baselineMuons_pt", "baselineMuons_eta", "baselineMuons_phi", "baselineMuons_mass"});
     
-   /* if (!_isData){
-    _rlm = _rlm.Define("baselineMuons_genPartFlav" ,"Muon_genPartFlav[baselineMuons]");
-    _rlm = _rlm.Define("baselineMuons_isPrompt",
-    [](const ROOT::VecOps::RVec<unsigned char>& genPartFlav) {
-        return ROOT::VecOps::Map(genPartFlav, [](unsigned char flav) {
-            return (flav == 1 || flav == 15) ? 1 : 0;
-        });
-    },
-    {"baselineMuons_genPartFlav"});
-    }*/
     _rlm = _rlm.Define("tight_baselineMuons", "Muon_mvaTTH[baselineMuons] > -0.20")
                .Define("fakable_baselineMuons", "Muon_mvaTTH[baselineMuons] <= -0.20");
 
@@ -405,56 +270,6 @@ void BaseAnalyser::selectMuons()
     // Generate muon 4-vector from selected good muons
     //-------------------------------------------------------
     _rlm = _rlm.Define("goodMuons_4vecs", ::generate_4vec, {"goodMuons_pt", "goodMuons_eta", "goodMuons_phi", "goodMuons_mass"});
-
-    // Generate muon 4-vector for trailing muons
-    _rlm = _rlm.Define("trailingMuons_4vecs", ::generate_4vec, {"trailingMuons_pt", "trailingMuons_eta", "trailingMuons_phi", "trailingMuons_mass"});
-
-    _rlm = _rlm.Define("trailingMuons_TL4Vecs",
-    [](const ROOT::VecOps::RVec<float>& pts,
-       const ROOT::VecOps::RVec<float>& etas,
-       const ROOT::VecOps::RVec<float>& phis,
-       const ROOT::VecOps::RVec<float>& masses) -> ROOT::VecOps::RVec<TLorentzVector> {
-        ROOT::VecOps::RVec<TLorentzVector> vecs;
-        for (size_t i = 0; i < pts.size(); ++i) {
-            TLorentzVector vec;
-            vec.SetPtEtaPhiM(pts[i], etas[i], phis[i], masses[i]);
-            vecs.emplace_back(vec);
-        }
-        return vecs;
-    },
-    {"trailingMuons_pt", "trailingMuons_eta", "trailingMuons_phi", "trailingMuons_mass"});
-
-
-
-    //////////////////////////////////////////////////////////////////////////////////////
-    //////////////////////////////////////////////////////////////////////////////////////
-    //////                     BDT TRAINING VARIABLES FOR MVA LEPTON               ///////
-    //////////////////////////////////////////////////////////////////////////////////////
-    _rlm = _rlm.Define("baselineMuons_JetNDauCharged" , "Muon_jetNDauCharged[baselineMuons]")
-            .Define("baselineMuons_miniPFRelIso_chg" , "Muon_miniPFRelIso_chg[baselineMuons]")
-            .Define("baselineMuons_miniPFRelIso_neutral" , "Muon_miniPFRelIso_all[baselineMuons]-Muon_miniPFRelIso_chg[baselineMuons]")
-            .Define("baselineMuons_jetPtRelv2" , "Muon_jetPtRelv2[baselineMuons]")
-            .Define("baselineMuons_pfRelIso04_all" , "Muon_pfRelIso04_all[baselineMuons]")
-            .Define("baselineMuons_sip3d" , "Muon_sip3d[baselineMuons]")
-            .Define("baselineMuons_dxy" , "Muon_dxy[baselineMuons]")
-            .Define("baselineMuons_dz" , "Muon_dz[baselineMuons]")
-            .Define("baselineMuons_JetPt_ratio" , "1/(Muon_jetRelIso[baselineMuons]+1)")
-            .Define("baselineMuons_segmentCompatibility", "Muon_segmentComp[baselineMuons]");
-
-    _rlm = _rlm.Define("baselineMuons_JetPtRatio", [](const ROOT::VecOps::RVec<float>& muon_jetRelIso, const ROOT::VecOps::RVec<int>& baselineMuons) {
-          std::vector<double> jetPtRatios;
-          for (const auto& idx : baselineMuons) {
-               double ratio = 1.0 / (muon_jetRelIso[idx] + 1);
-               jetPtRatios.push_back(ratio > 1.5 ? 1.5 : ratio);
-          }
-          return jetPtRatios;
-          }, {"Muon_jetRelIso", "baselineMuons"});
-
-    _rlm = _rlm.Define("baselineMuon_4Vecs_RVec",
-    [](const std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>& vec) {
-        return ROOT::VecOps::RVec<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>(vec.begin(), vec.end());
-    }, {"baselineMuon_4Vecs"});
-
 }
 
 //=================================Select Jets=================================================//
@@ -474,44 +289,32 @@ void BaseAnalyser::selectJets()
     }
 
     _rlm = _rlm.Define("goodJetsID", JetID(6)); //without pt-eta cuts
-    _rlm = _rlm.Define("withPuId" , "(Jet_puId==7 && Jet_pt < 50.0)||(Jet_pt >50.0)");
-    //_rlm = _rlm.Define("goodJets", "goodJetsID && Jet_pt>30.0 && abs(Jet_eta)<2.4 ");
-    _rlm = _rlm.Define("goodJets", "goodJetsID && withPuId && ((abs(Jet_eta) > 2.65 && abs(Jet_eta) < 3.139 && Jet_pt > 50.0) || (Jet_pt > 25.0 && abs(Jet_eta) < 5 && abs(Jet_eta)>3.139) || (Jet_pt > 25.0 && abs(Jet_eta) < 2.65 && abs(Jet_eta)>0))");
+    _rlm = _rlm.Define("goodJets", "goodJetsID && ((abs(Jet_eta) > 2.65 && abs(Jet_eta) < 3.139 && Jet_pt > 50.0) || (Jet_pt > 25.0 && abs(Jet_eta) < 5 && abs(Jet_eta)>3.139) || (Jet_pt > 25.0 && abs(Jet_eta) < 2.65 && abs(Jet_eta)>0))");
     _rlm = _rlm.Define("goodJets_pt", "Jet_pt[goodJets]")
-                .Define("goodJets_eta", "Jet_eta[goodJets]")
-                .Define("goodJets_phi", "Jet_phi[goodJets]")
-                .Define("goodJets_mass", "Jet_mass[goodJets]")
-                .Define("goodJets_idx", ::good_idx, {"goodJets"});
+               .Define("goodJets_eta", "Jet_eta[goodJets]")
+               .Define("goodJets_phi", "Jet_phi[goodJets]")
+               .Define("goodJets_mass", "Jet_mass[goodJets]")
+               .Define("goodJets_idx", ::good_idx, {"goodJets"});
+
     if (!_isData){
        _rlm = _rlm.Define("goodJets_hadflav", "Jet_hadronFlavour[goodJets]");
     }
     //goot jets deep-b tag          
-	_rlm = _rlm.Define("goodJets_jetdeepbtag", "Jet_btagDeepB[goodJets]")
-                .Define("goodJets_deepjetbtag", "Jet_btagDeepFlavB[goodJets]") 
-                .Define("NgoodJets", "int(goodJets_pt.size())")
-                .Define("goodJets_4vecs", ::generate_4vec, {"goodJets_pt", "goodJets_eta", "goodJets_phi", "goodJets_mass"});
+//	_rlm = _rlm.Define("goodJets_jetdeepbtag", "Jet_btagDeepB[goodJets]")
+        _rlm = _rlm.Define("goodJets_deepjetbtag", "Jet_btagDeepFlavB[goodJets]") 
+                   .Define("NgoodJets", "int(goodJets_pt.size())")
+                   .Define("goodJets_4vecs", ::generate_4vec, {"goodJets_pt", "goodJets_eta", "goodJets_phi", "goodJets_mass"});
 
-/*	//select b jest within goodjets 
-    _rlm = _rlm.Define("btagcuts", "goodJets_deepjetbtag>0.7") //0.2783 -medium, 0.7 - tight 
-      .Define("good_bjetpt", "goodJets_pt[btagcuts]")
-      .Define("good_bjet_leading_pt", "int(good_bjetpt.size()) > 0 ? good_bjetpt[0] : -999.9")
-      .Define("good_bjeteta", "goodJets_eta[btagcuts]")
-      .Define("good_bjet_leading_eta", "int(good_bjeteta.size()) > 0 ? good_bjeteta[0] : -999.9")
-      .Define("good_bjetphi", "goodJets_phi[btagcuts]")
-      .Define("good_bjet_leading_phi", "int(good_bjetphi.size()) > 0 ? good_bjetphi[0] : -999.9")
-      .Define("good_bjetmass", "goodJets_mass[btagcuts]")
-      .Define("good_bjet_leading_mass", "int(good_bjetmass.size()) > 0 ? good_bjetmass[0] : -999.9")
-      .Define("good_bjetdeepjet", "goodJets_deepjetbtag[btagcuts]");
-  */
 
     _rlm = _rlm.Define("btagcuts", "goodJets_deepjetbtag > 0.7") // 0.2783 - medium, 0.7 - tight
                .Define("good_bjetpt", "goodJets_pt[btagcuts]")
+	       .Define("good_bjeteta", "goodJets_eta[btagcuts]")
+	       .Define("good_bjetphi", "goodJets_phi[btagcuts]")
+	       .Define("good_bjetmass", "goodJets_mass[btagcuts]");
+
 //             .Define("good_bjet_leading_pt", "int(good_bjetpt.size()) > 0 ? static_cast<double>(good_bjetpt[0]) : -999.9")
-               .Define("good_bjeteta", "goodJets_eta[btagcuts]")
 //             .Define("good_bjet_leading_eta", "int(good_bjeteta.size()) > 0 ? static_cast<double>(good_bjeteta[0]) : -999.9")
-               .Define("good_bjetphi", "goodJets_phi[btagcuts]")
 //             .Define("good_bjet_leading_phi", "int(good_bjetphi.size()) > 0 ? static_cast<double>(good_bjetphi[0]) : -999.9")
-               .Define("good_bjetmass", "goodJets_mass[btagcuts]");
 //             .Define("good_bjet_leading_mass", "int(good_bjetmass.size()) > 0 ? static_cast<double>(good_bjetmass[0]) : -999.9");
 
  
@@ -716,14 +519,6 @@ void BaseAnalyser::calculateEvWeight(){
   std::string output_mu_column_name = "muon_SF_";
   _rlm = calculateMuSF(_rlm, Muon_vars_names, output_mu_column_name);
 
-/*
-//for the trailing muon need to be removed after check 
-    //Scale Factors for Muon HLT, RECO, ID and ISO
-  std::vector<std::string> Muon_vars_names = {"trailingMuons_eta", "trailingMuons_pt"};
-  std::string output_mu_column_name = "muon_SF_";
-  _rlm = calculateMuSF(_rlm, Muon_vars_names, output_mu_column_name);
-*/
-
 
   //Scale Factors for Electron RECO and ID
   std::vector<std::string> Electron_vars_names = {"goodElectrons_eta", "goodElectrons_pt"};
@@ -735,11 +530,11 @@ void BaseAnalyser::calculateEvWeight(){
   //Total event Weight:
 
   //Prefiring Weight for 2016 and 2017
-  _rlm = applyPrefiringWeight(_rlm);
+//  _rlm = applyPrefiringWeight(_rlm);
   //Total event Weight:
   //_rlm = _rlm.Define("evWeight", " pugenWeight * prefiring_SF_central * btag_SF_bcflav_central * btag_SF_lflav_central * muon_SF_central * ele_SF_central"); 
 //  _rlm = _rlm.Define("evWeight", " pugenWeight * prefiring_SF_central * muon_SF_central * ele_SF_central"); 
-  _rlm = _rlm.Define("evWeight", " pugenWeight * prefiring_SF_central "); 
+  _rlm = _rlm.Define("evWeight", " pugenWeight ");  //prefiring_SF_central has been removed 
 }
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -1983,12 +1778,8 @@ void BaseAnalyser::defineMoreVars()
     //addVartoStore("ngoodElectrons");
     addVartoStore("Electron_charge");
     addVartoStore("Electron_pt");
-/*    addVartoStore("NtrailingElectrons");
-    addVartoStore("trailingElectrons_pt");
-    addVartoStore("trailingElectrons_eta");
-    addVartoStore("trailingElectrons_phi");*/
-    ////BDT VARIABLES FOR ELECTRONS///////////
-    addVartoStore("fakable_baselineElectrons");  // based on the the baselineElectrons_MVAEstimatorRun2Fall17NoIsoV2Values greater than 0.4
+   ////BDT VARIABLES FOR ELECTRONS///////////
+//    addVartoStore("fakable_baselineElectrons");  // based on the the baselineElectrons_MVAEstimatorRun2Fall17NoIsoV2Values greater than 0.4
     addVartoStore("tight_baselineElectrons");
     //addVartoStore("baselineElectrons_isPrompt");  // this is decided using genPartFlav
 
@@ -1997,19 +1788,6 @@ void BaseAnalyser::defineMoreVars()
     addVartoStore("baselineElectrons_phi");
     addVartoStore("NbaselineElectrons");
     addVartoStore("baselineElectrons_charge");
-    addVartoStore("baselineElectrons_JetNDauCharged");
-    addVartoStore("baselineElectrons_miniPFRelIso_chg");
-    addVartoStore("baselineElectrons_miniPFRelIso_neutral");
-    addVartoStore("baselineElectrons_jetPtRelv2");
-    addVartoStore("baselineElectrons_JetPtRatio");
-    addVartoStore("baselineElectrons_pfRelIso03_all");
-    addVartoStore("baselineElectrons_sip3d");
-    addVartoStore("baselineElectrons_dxy");
-    addVartoStore("baselineElectrons_dz");
-    addVartoStore("baselineElectrons_JetPt_ratio");
-    addVartoStore("baselineElectrons_MVAEstimatorRun2Fall17NoIsoV2Values");
-  //  addVartoStore("Electron_closestJetIds");
-  //  addVartoStore("Electron_all_deltaR");
 
 
     //muon
@@ -2017,11 +1795,6 @@ void BaseAnalyser::defineMoreVars()
     addVartoStore("Muon_charge");
     addVartoStore("Muon_mass");
     addVartoStore("Muon_pt");
-   // addVartoStore("goodMuons_pt");
-    addVartoStore("NtrailingMuons");
-    addVartoStore("trailingMuons_pt");
-    addVartoStore("trailingMuons_eta");
-    addVartoStore("trailingMuons_phi");
     ////BDT VARIABLES FOR MUONS///////////
     addVartoStore("baselineMuons_isPrompt");
     addVartoStore("NbaselineMuons");
@@ -2029,18 +1802,6 @@ void BaseAnalyser::defineMoreVars()
     addVartoStore("baselineMuons_eta");
     addVartoStore("baselineMuons_phi");
     addVartoStore("baselineMuons_charge");
-    addVartoStore("baselineMuons_JetNDauCharged");
-    addVartoStore("baselineMuons_miniPFRelIso_chg");
-    addVartoStore("baselineMuons_miniPFRelIso_neutral");
-    addVartoStore("baselineMuons_jetPtRelv2");
-    addVartoStore("baselineMuons_pfRelIso04_all");
-    addVartoStore("baselineMuons_sip3d");
-    addVartoStore("baselineMuons_dxy");
-    addVartoStore("baselineMuons_dz");
-    //addVartoStore("baselineMuons_JetPt_ratio");
-    addVartoStore("baselineMuons_segmentCompatibility");
-    addVartoStore("baselineMuons_JetPtRatio");
-   // addVartoStore("baselineMuon_4Vecs_RVec");
     addVartoStore("fakable_baselineMuons");
     addVartoStore("tight_baselineMuons");
 
@@ -2079,7 +1840,6 @@ void BaseAnalyser::defineMoreVars()
 
 //new funciton variable for merged lepton
     addVartoStore("totalLeptonCount");
-   // addVartoStore("combinedLepton4Vecs");
     addVartoStore("mass_of_3lepton");
     addVartoStore("combinedLeptonPt");
     addVartoStore("combinedLeptonEta");
@@ -2377,7 +2137,6 @@ void BaseAnalyser::defineMoreVars()
     addVartoStore("muon_SF_iso_sf");
     }
 
-//    addVartoStore("evWeight");   
     
 }
 void BaseAnalyser::bookHists()

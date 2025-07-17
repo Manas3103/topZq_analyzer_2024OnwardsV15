@@ -253,8 +253,8 @@ void NanoAODAnalyzerrdframe::applyJetMETCorrections() //data
 	{
         //cout << "jetcorrector==" <<_jetCorrector << endl;
 
-		_rlm = _rlm.Define("Jet_pt_corr", appcorrlambdaf, {"Jet_pt", "Jet_eta", "Jet_area", "Jet_rawFactor", "fixedGridRhoFastjetAll"});
-		_rlm = _rlm.Define("Jet_pt_relerror", jecuncertaintylambdaf, {"Jet_pt", "Jet_eta", "Jet_area", "Jet_rawFactor", "fixedGridRhoFastjetAll"});
+		_rlm = _rlm.Define("Jet_pt_corr", appcorrlambdaf, {"Jet_pt", "Jet_eta", "Jet_area", "Jet_rawFactor", "Rho_fixedGridRhoFastjetAll"});
+		_rlm = _rlm.Define("Jet_pt_relerror", jecuncertaintylambdaf, {"Jet_pt", "Jet_eta", "Jet_area", "Jet_rawFactor", "Rho_fixedGridRhoFastjetAll"});
 		_rlm = _rlm.Define("Jet_pt_corr_up", "Jet_pt_corr*(1.0f + Jet_pt_relerror)");
 		_rlm = _rlm.Define("Jet_pt_corr_down", "Jet_pt_corr*(1.0f - Jet_pt_relerror)");
 		_rlm = _rlm.Define("MET_pt_corr", metcorrlambdaf, {"MET_pt", "MET_phi", "Jet_pt", "Jet_pt_corr", "Jet_phi"});
@@ -318,8 +318,20 @@ void NanoAODAnalyzerrdframe::applyMuPtCorrection() //data and MC
 	  }
 	return corrMuPts;
       };
-    _rlm = _rlm.Define("Muon_gen_pt", "GenPart_pt[Muon_genPartIdx]");
-    _rlm = _rlm.Define("Muon_pt_corr", lambdaf_mc, {"Muon_charge", "Muon_pt", "Muon_eta", "Muon_phi", "Muon_genPartIdx", "GenPart_pt", "Muon_nTrackerLayers"});
+    _rlm = _rlm.Define("Muon_genPartIdx_int", [](const ROOT::VecOps::RVec<Short_t>& v) {
+  	   return ROOT::VecOps::RVec<int>(v.begin(), v.end());
+    	   },
+	   {"Muon_genPartIdx"}
+	);
+
+    _rlm = _rlm.Define("Muon_nTrackerLayers_int", [](const ROOT::VecOps::RVec<UChar_t>& v) {
+	   return ROOT::VecOps::RVec<int>(v.begin(), v.end());
+           },
+	   {"Muon_nTrackerLayers"}
+	);
+
+    _rlm = _rlm.Define("Muon_gen_pt", "GenPart_pt[Muon_genPartIdx_int]");
+    _rlm = _rlm.Define("Muon_pt_corr", lambdaf_mc, {"Muon_charge", "Muon_pt", "Muon_eta", "Muon_phi", "Muon_genPartIdx_int", "GenPart_pt", "Muon_nTrackerLayers_int"});
     
   }
 }
