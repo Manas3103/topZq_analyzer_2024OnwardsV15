@@ -1114,7 +1114,10 @@ void NanoAODAnalyzerrdframe::setParams(int year, string runtype, int datatype)
         cout << "Analysing through Run 2017" << endl;
     }else if(_year==2018){
         cout << "Analysing through Run 2018" << endl;
+    }else if(_year==2022){
+        cout << "Analysing through Run 2022" << endl;
     }
+
 
 	if(_runtype.find("UL") != std::string::npos){
         _isUL = true;
@@ -1198,6 +1201,8 @@ std::string NanoAODAnalyzerrdframe::setHLT(std::string str_HLT){
                 HLTGlobalNames=HLT2017Names;
             }else if(_year==2018){
                 HLTGlobalNames=HLT2018Names;
+            }else if(_year==2022){
+                HLTGlobalNames=HLT2022Names;
             }
 
             //loop on HLTs

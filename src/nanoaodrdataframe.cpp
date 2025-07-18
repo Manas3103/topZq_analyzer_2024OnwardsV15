@@ -20,12 +20,11 @@ using namespace ROOT;
 int main(void) {
 
 	TChain c1("Events");
-//	c1.Add("/eos/uscms/store/user/msahoo/DATA_of_D/Z_to_4L/32548CD9-1385-AA4B-9804-40C9644AA68E.root"); //data
-	//c1.Add("testinputdata/MC/2017/ttJets-2017MC-A258F579-5EC0-D840-95D7-4327595FC3DE.root"); // MC
+//	c1.Add("/uscms/home/msahoo/nobackup/Project_tzq/060de505-8c73-4ec2-840a-027846b86e67.root"); //data
 	c1.Add("/uscms/home/msahoo/nobackup/Project_tzq/2022_postEE_tZq.root"); // MC
 	BaseAnalyser nanoaodrdf(&c1, "top_tzq.root");
-	nanoaodrdf.setParams(2017, "UL", -1);
-	// nanoaodrdf.setHLT();
+	nanoaodrdf.setParams(2022, "", -1);
+	//nanoaodrdf.setHLT();
 
 	string goodjsonfname = "data/Cert_294927-306462_13TeV_EOY2017ReReco_Collisions17_JSON.txt";
 	string pileupfname = "data/LUM/2017_UL/puWeights.json";
@@ -51,8 +50,9 @@ int main(void) {
 	string electron_id_type = "Tight";
 
 
+// The below line is commented out because it causes some problem while loading the DATA file and the code unable to load all the entries need to fix that some how
 
-	nanoaodrdf.setupCorrections(goodjsonfname, pileupfname, pileuptag, btvfname, btvtype, muon_roch_fname, muon_fname, muonHLTtype, muonRECOtype, muonIDtype, muonISOtype, electron_fname, electron_reco_type, electron_id_type, jercfname, jerctag, jercunctag);
+//	nanoaodrdf.setupCorrections(goodjsonfname, pileupfname, pileuptag, btvfname, btvtype, muon_roch_fname, muon_fname, muonHLTtype, muonRECOtype, muonIDtype, muonISOtype, electron_fname, electron_reco_type, electron_id_type, jercfname, jerctag, jercunctag);
 
 	nanoaodrdf.setupObjects();
 	nanoaodrdf.setupAnalysis();

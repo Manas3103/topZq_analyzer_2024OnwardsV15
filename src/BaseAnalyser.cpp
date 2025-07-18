@@ -22,7 +22,6 @@ BaseAnalyser::BaseAnalyser(TTree *t, std::string outfilename)
                     "HLT_PFHT330PT30_QuadPFJet_75_60_45_40_TriplePFBTagDeepCSV_4p5",
                     "HLT_PFJet550","HLT_PFHT400_FivePFJet_100_100_60_30_30_DoublePFBTagDeepCSV_4p5",
                     "HLT_PFHT400_FivePFJet_120_120_60_30_30_DoublePFBTagDeepCSV_4p5"};
-//	HLT2017Names= {"HLT_IsoMu24","HLT_Ele32_WPTight_Gsf"};
 	
     HLT2017Names = {
 	    "HLT_IsoMu24",
@@ -62,6 +61,43 @@ BaseAnalyser::BaseAnalyser(TTree *t, std::string outfilename)
     };
 
     HLT2016Names= {"Name1","Name2"};
+
+    HLT2022Names = {
+            "HLT_IsoMu24",
+            "HLT_IsoMu24_eta2p1",
+            "HLT_IsoMu27",
+            "HLT_Mu50",
+            "HLT_Ele27_WPTight_Gsf",
+            "HLT_Ele32_WPTight_Gsf",
+            "HLT_Ele32_WPTight_Gsf_L1DoubleEG",
+            "HLT_Ele35_WPTight_Gsf",
+            "HLT_Ele115_CaloIdVT_GsfTrkIdT",
+            "HLT_Photon200",
+            "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL",
+            "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ",
+            "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8",
+            "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8",
+            "HLT_Mu19_TrkIsoVVL_Mu9_TrkIsoVVL_DZ_Mass3p8",
+            "HLT_Mu37_TkMu27",
+            "HLT_TripleMu_12_10_5",
+            "HLT_TripleMu_10_5_5_DZ",
+            "HLT_TripleMu_5_3_3_Mass3p8to60_DZ",
+            "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL",
+            "HLT_Ele16_Ele12_Ele8_CaloIdL_TrackIdL",
+            "HLT_DoubleEle25_CaloIdL_MW",
+            "HLT_DoubleEle33_CaloIdL_MW",
+            "HLT_DiEle27_WPTightCaloOnly_L1DoubleEG",
+            "HLT_DoublePhoton70",
+            "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL",
+            "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ",
+            "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ",
+            "HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ",
+            "HLT_Mu27_Ele37_CaloIdL_MW",
+            "HLT_Mu37_Ele27_CaloIdL_MW",
+            "HLT_DiMu9_Ele9_CaloIdL_TrackIdL",
+            "HLT_DiMu9_Ele9_CaloIdL_TrackIdL_DZ",
+            "HLT_Mu8_DiEle12_CaloIdL_TrackIdL"
+    };
 }
 
 
@@ -85,7 +121,7 @@ void BaseAnalyser::defineCuts()
 
 	//MinimalSelection to filter events
 //	addCuts("nMuon + nElectron >= 3  && nJet>2 && PV_npvsGood >= 1 && LHE_HT < 70", "0");//first change
-	addCuts("nMuon + nElectron >= 3  && nJet>2 && PV_npvsGood >= 1 ", "0");//not for drellyan
+	addCuts("nMuon + nElectron >= 3  && nJet>0 && PV_npvsGood >= 1 ", "0");//not for drellyan
 	addCuts("Flag_goodVertices && Flag_globalSuperTightHalo2016Filter && Flag_HBHENoiseFilter && Flag_HBHENoiseIsoFilter && Flag_EcalDeadCellTriggerPrimitiveFilter && Flag_BadPFMuonFilter && Flag_ecalBadCalibFilter", "00");
 	addCuts(setHLT(),"000");
 
@@ -2226,12 +2262,15 @@ void BaseAnalyser::setupObjects()
 	reconstructTop();
 	BDT_variables();
 	defineSignalRegion();
+
 	/*calculateZBosonMass();
 	//identifyOSSFElectronPair();
 	// defineTwoElectronEvent();*/
-	if(!_isData){
-	  this->calculateEvWeight(); // PU, genweight and BTV and Mu and Ele
-	}
+
+	//This code is also off due to the problem arising entries of Data files can continue when add the correction files
+//	if(!_isData){
+//	  this->calculateEvWeight(); // PU, genweight and BTV and Mu and Ele
+//	}
 	//selectMET();
 
 }
