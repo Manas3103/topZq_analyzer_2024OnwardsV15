@@ -13,7 +13,7 @@ config = {
         'outtreename': "outputTree",
 
         #data year (2016,2017,2018)
-        'year': 2017,
+        'year': 2022,
 
         # is ReReco or Ultra Legacy
         'runtype': 'UL',
@@ -111,17 +111,10 @@ procflags = {
 
 
 nanoaod_inputdir_outputdir_pairs = [
-    ['/SingleMuon/Run2017B-UL2017_MiniAODv2_NanoAODv9-v1/NANOAOD',
-     'SingleMuon2017B_Hv9.root',
-     'SingleMuon2017B_Hv9.out'],
+    ['/TZQB-Zto2L-4FS_MLL-30_TuneCP5_13p6TeV_amcatnlo-pythia8/Run3Summer22NanoAODv12-130X_mcRun3_2022_realistic_v5-v2/NANOAODSIM',
+     'TOP_tzq_2022.root',
+     'TOP_tzq_2022.out'],
 
-    ['/SingleMuon/Run2017C-UL2017_MiniAODv2_NanoAODv9-v1/NANOAOD',
-     'SingleMuon2017C_Hv9.root',
-     'SingleMuon2017C_Hv9.out'],
-
-    ['/SingleMuon/Run2017F-UL2017_MiniAODv2_NanoAODv9-v1/NANOAOD',
-     'SingleMuon2017F_Hv9.root',
-     'SingleMuon2017F_Hv9.out']
 ]
 """
 nanoaod_inputdir_outputdir_pairs = [
@@ -158,39 +151,4 @@ nanoaod_inputdir_outputdir_pairs = [
 ]
 
 """
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

@@ -1146,7 +1146,10 @@ void NanoAODAnalyzerrdframe::setParams(int year, string runtype, int datatype)
     }if(_datatype==-1){
 		std::cout<< "Default root version :checking out gen branches! "<< std::endl;
         std::cout<< "-------------------------------------------------------------------" << std::endl;
-
+                if (_atree == nullptr) {
+                    std::cerr << "[ERROR] _atree is null! Cannot inspect genWeight branch." << std::endl;
+                    return;
+                }
 		if (_atree->GetBranch("genWeight") == nullptr) {
 			_isData = true;
 			cout << "input file is DATA" <<endl;

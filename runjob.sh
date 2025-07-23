@@ -7,7 +7,7 @@ stderr_file=$3  # Log file
 
 # Configuration variables
 jobconfmod="jobconfiganalysis_17"
-eos_output_dir="/eos/uscms/store/user/msahoo/output_of_job/"
+eos_output_dir="/eos/uscms/store/user/msahoo/test/"
 
 echo "==================== JOB STARTED ===================="
 echo "Running analysis with the following parameters:"

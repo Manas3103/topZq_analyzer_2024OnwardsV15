@@ -17,4 +17,4 @@ request_disk= 50 GB
 
 
 
-queue input_dir, output_file, stderr_file from remain_data.txt
+queue input_dir, output_file, stderr_file from data.txt
