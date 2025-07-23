@@ -23,5 +23,7 @@ processed/
 plot_ratio_150.0/
 *.root
 das/
+logs/*
+nanoaodrdataframe
 
 
