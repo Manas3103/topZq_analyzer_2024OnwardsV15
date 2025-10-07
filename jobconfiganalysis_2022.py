@@ -25,7 +25,7 @@ config = {
         
         # good json file
         # 'goodjson': 'data/Cert_294927-306462_13TeV_EOY2017ReReco_Collisions17_JSON.txt',
-        'goodjson' : 'data/Legacy_RunII/Cert_294927-306462_13TeV_UL2017_Collisions17_GoldenJSON.txt',
+        'goodjson' : 'data/Cert_Collisions2022_355100_362760_Golden.json',
 
         # pileup weight for MC
         'pileupfname': 'data/LUM/2017_UL/puWeights.json',
@@ -112,8 +112,8 @@ procflags = {
 
 nanoaod_inputdir_outputdir_pairs = [
     ['/TZQB-Zto2L-4FS_MLL-30_TuneCP5_13p6TeV_amcatnlo-pythia8/Run3Summer22NanoAODv12-130X_mcRun3_2022_realistic_v5-v2/NANOAODSIM',
-     'TOP_tzq_2022_old.root',
-     'TOP_tzq_2022_old.out'],
+     'TOP_tzq_2022.root',
+     'TOP_tzq_2022.out'],
 
 ]
 """

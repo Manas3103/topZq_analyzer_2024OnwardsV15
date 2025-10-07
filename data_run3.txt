@@ -1,0 +1,7 @@
+/SingleMuon/Run2022C-16Dec2023-v1/NANOAOD  Data_SingleMu_c.root  Data_SingleMu_c.out 
+/Muon/Run2022C-16Dec2023-v1/NANOAOD  Data_Mu_c.root  Data_Mu_c.out 
+/EGamma/Run2022C-16Dec2023-v1/NANOAOD  Data_Ele_c.root  Data_Ele_c.out 
+/DoubleMuon/Run2022C-16Dec2023-v1/NANOAOD Data_DoubleMuon_c.root Data_DoubleMuon_c.out
+/MuonEG/Run2022C-22Sep2023-v1/NANOAOD Data_MuEG_c.root Data_MuEG_c.out
+/EGamma/Run2022D-16Dec2023-v1/NANOAOD  Data_Ele_d.root  Data_Ele_d.out
+/Muon/Run2022D-16Dec2023-v1/NANOAOD  Data_Mu_d.root  Data_Mu_d.out

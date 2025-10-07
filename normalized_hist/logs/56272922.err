@@ -1,0 +1,4 @@
+WARNING: In non-interactive mode release checks e.g. deprecated releases, production architectures are disabled.
+Error in <TNetXNGFile::Open>: [ERROR] Server responded with an error: [3011] No servers are available to read the file.
+
+Error: Unable to open the ROOT file: root://cmsxrootd.fnal.gov//store/user/msahoo/output_of_job/with_whole_sim/TTZZ.root

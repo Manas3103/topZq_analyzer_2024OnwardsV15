@@ -1,0 +1,4 @@
+WARNING: In non-interactive mode release checks e.g. deprecated releases, production architectures are disabled.
+Warning: evWeight branch not found. Using default weight of 1.0
+Warning: Branch OSSF_ZPair_mass not found in the tree.
+free(): invalid pointer

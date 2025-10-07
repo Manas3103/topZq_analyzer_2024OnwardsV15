@@ -1,1 +1,1 @@
-.x create_normalized_histogram.C("root://cmsxrootd.fnal.gov//store/user/msahoo/output_of_job/with_whole_sim/ZTo4L.root",1256.00)
+.x create_normalized_histogram.C("root://cmsxrootd.fnal.gov//store/user/msahoo/test/ttbar_dilepton.root",97448.8)
