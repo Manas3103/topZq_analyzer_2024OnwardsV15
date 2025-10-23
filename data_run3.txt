@@ -1,7 +1,8 @@
-/SingleMuon/Run2022C-16Dec2023-v1/NANOAOD  Data_SingleMu_c.root  Data_SingleMu_c.out 
-/Muon/Run2022C-16Dec2023-v1/NANOAOD  Data_Mu_c.root  Data_Mu_c.out 
-/EGamma/Run2022C-16Dec2023-v1/NANOAOD  Data_Ele_c.root  Data_Ele_c.out 
+/SingleMuon/Run2022C-16Dec2023-v1/NANOAOD  Data_SingleMuon_c.root  Data_SingleMuon_c.out
+/Muon/Run2022C-16Dec2023-v1/NANOAOD  Data_Muon_c.root  Data_Muon_c.out
+/EGamma/Run2022C-16Dec2023-v1/NANOAOD  Data_EGamma_c.root  Data_EGamma_c.out
 /DoubleMuon/Run2022C-16Dec2023-v1/NANOAOD Data_DoubleMuon_c.root Data_DoubleMuon_c.out
-/MuonEG/Run2022C-22Sep2023-v1/NANOAOD Data_MuEG_c.root Data_MuEG_c.out
-/EGamma/Run2022D-16Dec2023-v1/NANOAOD  Data_Ele_d.root  Data_Ele_d.out
-/Muon/Run2022D-16Dec2023-v1/NANOAOD  Data_Mu_d.root  Data_Mu_d.out
+/MuonEG/Run2022C-22Sep2023-v1/NANOAOD Data_MuonEG_c.root Data_MuonEG_c.out
+/EGamma/Run2022D-16Dec2023-v1/NANOAOD  Data_EGamma_d.root  Data_EGamma_d.out
+/Muon/Run2022D-16Dec2023-v1/NANOAOD  Data_Muon_d.root  Data_Muon_d.out
+/MuonEG/Run2022D-22Sep2023-v1/NANOAOD Data_MuonEG_d.root Data_MuonEG_d.out

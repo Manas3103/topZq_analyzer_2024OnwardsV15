@@ -12,7 +12,8 @@
 void create_normalized_histogram(const std::string& filename,
 
                        double cross_section,
-                       double luminosity=5.0104 ,
+                      // double luminosity=2.9700 ,
+		       double luminosity=5.0104 ,
 
                        const std::string& Tree="outputTree") {
     // ROOT file and tree details
@@ -44,6 +45,9 @@ void create_normalized_histogram(const std::string& filename,
     std::map<std::string, std::tuple<double, double, int>> branch_ranges = {
 	// Original variables kept
 	{"top_mass", {5, 700, 50}},
+	{"leadingLepton_pt", {0, 250, 25}},
+        {"subleadingLepton_pt", {0, 150, 20}},
+        {"trailingLepton_pt", {0, 100, 20}},
 	{"TR_leadingLepton_pt", {0, 250, 25}},
 	{"TR_subleadingLepton_pt", {0, 150, 20}},
 	{"TR_trailingLepton_pt", {0, 100, 20}},

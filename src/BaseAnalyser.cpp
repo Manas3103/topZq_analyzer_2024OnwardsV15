@@ -63,8 +63,8 @@ BaseAnalyser::BaseAnalyser(TTree *t, std::string outfilename)
     HLT2016Names= {"Name1","Name2"};
 
     HLT2022Names = {
-            "HLT_IsoMu24",
             "HLT_IsoMu24_eta2p1",
+	    "HLT_IsoMu24",
             "HLT_IsoMu27",
             "HLT_Mu50",
             "HLT_Ele27_WPTight_Gsf",
@@ -218,8 +218,8 @@ void BaseAnalyser::selectElectrons()
     
     // Define tight and fakable electrons based on MVA score
     _rlm = _rlm.Define("A_baselineElectrons_mvaTTH", "Electron_mvaTTH[baselineElectrons]");
-    _rlm = _rlm.Define("A_tight_baselineElectrons", "A_baselineElectrons_mvaTTH > 0.50")
-               .Define("A_fakable_baselineElectrons", "A_baselineElectrons_mvaTTH <= 0.50");
+    _rlm = _rlm.Define("A_tight_baselineElectrons", "A_baselineElectrons_mvaTTH > 0.90")
+               .Define("A_fakable_baselineElectrons", "A_baselineElectrons_mvaTTH <= 0.90");
     
 /*    _rlm = _rlm.Define("baselineElectron_4Vecs_RVec",
     [](const std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>& vec) {
@@ -297,8 +297,8 @@ void BaseAnalyser::selectMuons()
     },
     {"baselineMuons_pt", "baselineMuons_eta", "baselineMuons_phi", "baselineMuons_mass"});
     
-    _rlm = _rlm.Define("tight_baselineMuons", "Muon_mvaTTH[baselineMuons] > -0.20")
-               .Define("fakable_baselineMuons", "Muon_mvaTTH[baselineMuons] <= -0.20");
+    _rlm = _rlm.Define("tight_baselineMuons", "Muon_mvaTTH[baselineMuons] > 0.64")
+               .Define("fakable_baselineMuons", "Muon_mvaTTH[baselineMuons] <= 0.64");
 
     
 
@@ -1888,6 +1888,7 @@ void BaseAnalyser::defineMoreVars()
    // addVartoStore("combinedLeptonTLorentzVecs");
     
     addVartoStore("goodLepton_pt");
+    addVartoStore("All_good_tightLeptons");
     addVartoStore("NgoodLepton");
     addVartoStore("goodLepton_eta");
     addVartoStore("goodLepton_phi");

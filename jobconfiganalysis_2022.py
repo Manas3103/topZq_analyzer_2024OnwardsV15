@@ -91,7 +91,7 @@ procflags = {
         
         ###### How many input files? ######
         #'nrootfiles': 'All',set the bellow to 65 while running for the data and 15 for the simulation 
-        'nrootfiles': 65,
+        'nrootfiles': 200,
 
         ###### Make a copy of the analyzer in the same directory as the analyzed root files ######
         'copyInstance': False,
@@ -116,16 +116,6 @@ nanoaod_inputdir_outputdir_pairs = [
      'TOP_tzq_2022.out'],
 
 ]
-"""
-nanoaod_inputdir_outputdir_pairs = [
-    ['/store/user/msahoo/2017/Era_b',
-     'Era_b_all.root',
-     'Era_b_all.out']
-
-]
-
-"""
-
 
 """
 nanoaod_inputdir_outputdir_pairs = [
