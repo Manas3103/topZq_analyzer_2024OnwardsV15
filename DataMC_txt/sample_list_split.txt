@@ -1,0 +1,8 @@
+batch_EGamma_Run2022C-16Dec2023-v1_NANOAOD_0001.txt Data_Ele_c_new_b0001.root Data_Ele_c_new_b0001.out 3 1
+batch_EGamma_Run2022C-16Dec2023-v1_NANOAOD_0002.txt Data_Ele_c_new_b0002.root Data_Ele_c_new_b0002.out 3 1
+batch_EGamma_Run2022C-16Dec2023-v1_NANOAOD_0003.txt Data_Ele_c_new_b0003.root Data_Ele_c_new_b0003.out 3 1
+batch_EGamma_Run2022C-16Dec2023-v1_NANOAOD_0004.txt Data_Ele_c_new_b0004.root Data_Ele_c_new_b0004.out 3 1
+batch_EGamma_Run2022C-16Dec2023-v1_NANOAOD_0005.txt Data_Ele_c_new_b0005.root Data_Ele_c_new_b0005.out 3 1
+batch_EGamma_Run2022C-16Dec2023-v1_NANOAOD_0006.txt Data_Ele_c_new_b0006.root Data_Ele_c_new_b0006.out 3 1
+batch_EGamma_Run2022C-16Dec2023-v1_NANOAOD_0007.txt Data_Ele_c_new_b0007.root Data_Ele_c_new_b0007.out 3 1
+batch_EGamma_Run2022C-16Dec2023-v1_NANOAOD_0008.txt Data_Ele_c_new_b0008.root Data_Ele_c_new_b0008.out 3 1
