@@ -12,6 +12,14 @@ from multiprocessing import Process
 import cppyy
 import ROOT
 
+def is_filelist(path):
+    """
+    Check if the input path is a text file (list of files) or a ROOT file/directory.
+    Returns True if path looks like a text file containing a file list.
+    """
+    return os.path.isfile(path) and path.endswith(".txt")
+
+
 def get_root_file_paths(indir, xrootd_prefix="root://cmsxrootd.fnal.gov/"):
     """
     Function to retrieve ROOT file paths using dasgoclient.
@@ -157,7 +165,11 @@ def Nanoaodprocessor_singledir(indir, outputroot, procflags, config):
     rootfilestoprocess = []
     is_das_path = is_valid_das_path(indir)
 
-    if is_das_path:
+    if is_filelist(indir):
+        print(f"READ root files from batch list:\n{indir}\n")
+        with open(indir) as f:
+           rootfilestoprocess = [l.strip() for l in f if l.strip() and not l.startswith("#")]
+    elif is_das_path:
         print(f"COLLECT root files from DAS dataset:\n{indir}\n")
         rootfilestoprocess = get_root_file_paths(indir)
 
