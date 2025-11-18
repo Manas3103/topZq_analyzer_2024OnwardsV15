@@ -26,7 +26,7 @@ def ensure_dir(d):
         os.makedirs(d, exist_ok=True)
 
 def main():
-    in_list = "Temp.txt"
+    in_list = "histogram_textFile/Temp.txt"
     out_list = "sample_list_split.txt"
 
     if not os.path.isfile(in_list):

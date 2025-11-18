@@ -1,0 +1,2 @@
+batch_SingleElectron_Run2017B-UL2017_MiniAODv2_NanoAODv9-v1_NANOAOD_0001.txt SingleElectron2017Bv9_b0001.root SingleElectron2017Bv9_b0001.out 1 1
+batch_SingleElectron_Run2017B-UL2017_MiniAODv2_NanoAODv9-v1_NANOAOD_0002.txt SingleElectron2017Bv9_b0002.root SingleElectron2017Bv9_b0002.out 1 1
