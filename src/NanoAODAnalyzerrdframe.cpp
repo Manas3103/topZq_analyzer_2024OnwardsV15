@@ -779,6 +779,36 @@ ROOT::RDF::RNode NanoAODAnalyzerrdframe::calculateEleSF(RNode _rlm, std::vector<
     return _rlm;
 }
 
+
+ROOT::RDF::RNode NanoAODAnalyzerrdframe::applyJetVetoMap(ROOT::RDF::RNode _rlm,
+                                                          const std::string& eta_var,
+                                                          const std::string& phi_var,
+                                                          const std::string& output_var) {
+    std::cout << "Applying Jet veto map..." << std::endl;
+
+    auto is_vetoed_event = [this](const ROOT::VecOps::RVec<float>& etas,
+                                  const ROOT::VecOps::RVec<float>& phis) -> bool {
+        // Get the correction object
+        auto veto_corr = _correction_jetveto->at(_jet_veto_tag);
+        std::string veto_type = "jetvetomap";
+
+        for (size_t i = 0; i < etas.size(); ++i) {
+            double veto_val = veto_corr->evaluate({veto_type, etas[i], phis[i]});
+            if (veto_val != 0) {
+                return true;  // At least one jet in vetoed region
+            }
+        }
+        return false;  // No jet in vetoed region
+    };
+
+    // Define a new column with a single boolean per event
+    return _rlm.Define(output_var, is_vetoed_event, {eta_var, phi_var});
+
+}
+
+
+
+/*
 ROOT::RDF::RNode NanoAODAnalyzerrdframe::applyPrefiringWeight(RNode _rlm, std::string output_var)
 {
   
@@ -791,7 +821,8 @@ ROOT::RDF::RNode NanoAODAnalyzerrdframe::applyPrefiringWeight(RNode _rlm, std::s
     }
     return _rlm;
 }
-
+//FOR RUN 2 
+*/
 
 bool NanoAODAnalyzerrdframe::helper_1DHistCreator(std::string hname, std::string title, const int nbins, const double xlow, const double xhi, std::string rdfvar, std::string evWeight, RNode *anode)
 {
@@ -1108,28 +1139,28 @@ void NanoAODAnalyzerrdframe::setParams(int year, string runtype, int datatype)
 	_datatype=datatype;
 	
 
-	if(_year==2016) {
-        cout << "Analysing through Run 2016" << endl;
-    }else if(_year==2017) {
+	if(_year==2017) {
         cout << "Analysing through Run 2017" << endl;
-    }else if(_year==2018){
-        cout << "Analysing through Run 2018" << endl;
-    }else if(_year==2022){
+    }else if(_year==2022) {
         cout << "Analysing through Run 2022" << endl;
+    }else if(_year==2023){
+        cout << "Analysing through Run 2023" << endl;
+    }else if(_year==2024){
+        cout << "Analysing through Run 2024" << endl;
     }
 
 
-	if(_runtype.find("UL") != std::string::npos){
-        _isUL = true;
-        cout << "Ultra Legacy Selected " << endl;
+	if(_runtype.find("PreEE") != std::string::npos){
+        _isPreEE = true;
+        cout << "PreEE Selected " << endl;
         std::cout<< "-------------------------------------------------------------------" << std::endl;
-    }else if(_runtype.find("ReReco") != std::string::npos){
-        _isReReco = true;
-        cout << " ReReco  Selected!" << endl;
+    }else if(_runtype.find("PostEE") != std::string::npos){
+        _isPostEE = true;
+        cout << " PostEE  Selected!" << endl;
         std::cout<< "-------------------------------------------------------------------" << std::endl;
     }
-    if (!_isUL && !_isReReco){
-        std::cout<< "Default run version : UL or ReReco is not selected! "<< std::endl;
+    if (!_isPreEE && !_isPostEE){
+        std::cout<< "Default run version : PreEE or PostEE is not selected! "<< std::endl;
         std::cout<< "-------------------------------------------------------------------" << std::endl;
     }
 
@@ -1205,6 +1236,10 @@ std::string NanoAODAnalyzerrdframe::setHLT(std::string str_HLT){
             }else if(_year==2018){
                 HLTGlobalNames=HLT2018Names;
             }else if(_year==2022){
+                HLTGlobalNames=HLT2022Names;
+            }else if(_year==2023){
+                HLTGlobalNames=HLT2018Names;
+            }else if(_year==2024){
                 HLTGlobalNames=HLT2022Names;
             }
 

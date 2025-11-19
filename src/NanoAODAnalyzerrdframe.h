@@ -80,6 +80,7 @@ public:
 	ROOT::RDF::RNode calculateMuSF(RNode _rlm, std::vector<std::string> Muon_vars, std::string output_var = "muon_SF_");
 	ROOT::RDF::RNode calculateEleSF(RNode _rlm, std::vector<std::string> Ele_vars, std::string output_var = "ele_SF_");
 	ROOT::RDF::RNode applyPrefiringWeight(RNode _rlm, std::string output_var="prefiring_SF_");
+        ROOT::RDF::RNode applyJetVetoMap(ROOT::RDF::RNode _rlm,const std::string& eta_var,const std::string& phi_var,const std::string& output_var = "vetoed_jets");
 
 	void setupCuts_and_Hists();
 	void drawHists(RNode t);
@@ -92,8 +93,8 @@ public:
 	int _year;
 	string _runtype;
 	int _datatype;
-	bool _isUL =false;
-	bool _isReReco = false;
+	bool _isPreEE =false;
+	bool _isPostEE = false;
 	bool _isData;
 	TTree* _atree;
 	bool debug = true;
@@ -131,7 +132,8 @@ public:
 	string _muon_iso_type;
 	string _electron_reco_type;
 	string _electron_id_type;
-	
+	string _jet_veto_f_name;
+        string _jet_veto_tag;	
 	
 	TFile *_outrootfile;
 	vector<string> _outrootfilenames;
@@ -173,6 +175,10 @@ public:
 	std::unique_ptr<correction::CorrectionSet> _correction_jerc; // json containing all forms of corrections and uncertainties
 	std::shared_ptr<const correction::CompoundCorrection> _jetCorrector; // just the combined L1L2L3 correction
 	std::shared_ptr<const correction::Correction> _jetCorrectionUnc; // for uncertainty corresponding to the jet corrector
+        std::unique_ptr<correction::CorrectionSet>_correction_jetveto; // jet veto map application
+
+
+
 
 	// btag correction
 	std::unique_ptr<correction::CorrectionSet> _correction_btag1;

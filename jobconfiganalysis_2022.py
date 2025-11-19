@@ -12,11 +12,11 @@ config = {
         # tree name of output file(s) it cannot be the same as the input tree name or it'll crash
         'outtreename': "outputTree",
 
-        #data year (2016,2017,2018)
+        #data year (2017,2022,2023,2024)
         'year': 2022,
 
         # is ReReco or Ultra Legacy
-        'runtype': 'UL',
+        'runtype': 'PreEE',
 
         'datatype': -1, # 0=MC ; 1=DATA ; -1=Auto
 
@@ -28,7 +28,7 @@ config = {
         'goodjson' : 'data/Cert_Collisions2022_355100_362760_Golden.json',
 
         # pileup weight for MC
-        'pileupfname': 'data/LUM/2017_UL/puWeights.json',
+        'pileupfname': 'data/LUM/2022_preEE/puWeights.json',
 
         'pileuptag': 'Collisions17_UltraLegacy_goldenJSON',
 
@@ -91,7 +91,7 @@ procflags = {
         
         ###### How many input files? ######
         #'nrootfiles': 'All',set the bellow to 65 while running for the data and 15 for the simulation 
-        'nrootfiles': 2,
+        'nrootfiles': 1000,
 
         ###### Make a copy of the analyzer in the same directory as the analyzed root files ######
         'copyInstance': False,
