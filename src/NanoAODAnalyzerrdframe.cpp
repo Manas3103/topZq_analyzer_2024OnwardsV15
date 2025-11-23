@@ -158,8 +158,7 @@ void NanoAODAnalyzerrdframe::selectFatJets()
 				.Define("Sel_fatjet4vecs", ::generate_4vec, {"Sel_fatjetpt", "Sel_fatjeteta", "Sel_fatjetphi", "Sel_fatjetmass"});
 }
 
-
-void NanoAODAnalyzerrdframe::setupJetMETCorrection(string fname, string jettag) //data
+void NanoAODAnalyzerrdframe::setupJetMETCorrection(string fname, string jettag,string jettagMC) //data
 {
 
     cout << "SETUP JETMET correction" << endl;
@@ -168,7 +167,13 @@ void NanoAODAnalyzerrdframe::setupJetMETCorrection(string fname, string jettag) 
 	assert(_correction_jerc->validate()); //the assert functionality : check if the parameters passed to a function are valid =1:true
 	// correction type(jobconfiganalysis.py)
 	cout<<"JERC JSON file : " << fname<<endl;
-	_jetCorrector = _correction_jerc->compound().at(jettag);//jerctag#JSON (JEC,compound)compoundLevel="L1L2L3Res"
+    if (_isData){
+        _jetCorrector = _correction_jerc->compound().at(jettag);//jerctag#JSON (JEC,compound)compoundLevel="L1L2L3Res"
+    }
+    else {
+        cout<<"JERC JSON file : " << fname<<endl;
+        _jetCorrector = _correction_jerc->compound().at(jettagMC);
+    }
 	cout<< "JET tag in JSON : " << jettag << endl;
 	_jetCorrectionUnc = _correction_jerc->at(_jercunctag);
 	cout<< "JET uncertainity tag in JSON  : " << _jercunctag << endl;
@@ -251,7 +256,7 @@ void NanoAODAnalyzerrdframe::applyJetMETCorrections() //data
 
 	if (_jetCorrector != 0)
 	{
-        //cout << "jetcorrector==" <<_jetCorrector << endl;
+           cout << "jetcorrector==" <<_jetCorrector << endl;
 
 		_rlm = _rlm.Define("Jet_pt_corr", appcorrlambdaf, {"Jet_pt", "Jet_eta", "Jet_area", "Jet_rawFactor", "Rho_fixedGridRhoFastjetAll"});
 		_rlm = _rlm.Define("Jet_pt_relerror", jecuncertaintylambdaf, {"Jet_pt", "Jet_eta", "Jet_area", "Jet_rawFactor", "Rho_fixedGridRhoFastjetAll"});
@@ -338,13 +343,18 @@ void NanoAODAnalyzerrdframe::applyMuPtCorrection() //data and MC
 
 
 
-void NanoAODAnalyzerrdframe::setupCorrections(string goodjsonfname, string pufname, string putag, string btvfname, string btvtype/*, string fname_btagEff, string hname_btagEff_bcflav, string hname_btagEff_lflav*/, string muon_roch_fname, string muon_fname, string muonhlttype, string muonrecotype,string muonidtype,string muonisotype,string electron_fname, string electron_reco_type, string electron_id_type, string jercfname, string jerctag, string jercunctag)
-//In this function the correction is evaluated for each jet, Muon, Electron and MET. The correction depends on the momentum, pseudorapidity, energy, and cone area of the jet, as well as the value of “rho” (the average momentum per area) and number of interactions in the event. The correction is used to scale the momentum of the jet.
+void NanoAODAnalyzerrdframe::setupCorrections(string goodjsonfname, string pufname, string putag, string btvfname, string btvtype, string muon_roch_fname, string muon_fname, string muonhlttype, string muonrecotype,string muonidtype,string muonisotype,string electron_fname, string electron_reco_type, string electron_id_type, string jercfname, string jerctag, string jerctagMC, string jercunctag,string jet_veto_f_name,string jet_veto_tag )
+//In this function the correction is evaluated for each jet, Muon, Electron and MET. The correction depends on the momentum, pseudorapidity, energy, and cone area of the jet, as well as the value of rho(the average momentum per area) and number of interactions in the event. The correction is used to scale the momentum of the jet.
 {
     cout << "set up Corrections!" << endl;
+
 	if (_isData) _jsonOK = readgoodjson(goodjsonfname); // read golden json file
-	std::cout << "Rochester correction files: " << muon_roch_fname << std::endl;
-	_Roch_corr.init(muon_roch_fname);
+          _correction_jetveto = correction::CorrectionSet::from_file(jet_veto_f_name);
+	  cout<< "Jrt veto JSON FILE : " <<  jet_veto_f_name << endl;
+          assert(_correction_jetveto->validate());
+          _jet_veto_tag = jet_veto_tag;
+
+
 	if (!_isData) {
 	  // using correctionlib
 	  //Muon corrections
@@ -402,11 +412,12 @@ void NanoAODAnalyzerrdframe::setupCorrections(string goodjsonfname, string pufna
 	    }
 	}
 	_jerctag = jerctag;
+	_jerctagMC=jerctagMC;
 	_jercunctag = jercunctag;
 	
-	setupJetMETCorrection(jercfname, _jerctag);
+	setupJetMETCorrection(jercfname, _jerctag, _jerctagMC);
 	applyJetMETCorrections();
-	applyMuPtCorrection();
+	//applyMuPtCorrection();
 }
 /*double NanoAODAnalyzerrdframe::getBTaggingEff(double hadflav, double eta, double pt){
   double efficiency = 1.0;
@@ -646,7 +657,8 @@ ROOT::RDF::RNode NanoAODAnalyzerrdframe::calculateMuSF(RNode _rlm, std::vector<s
 
       for (std::size_t i = 0; i < pts.size(); i++) {
 	//std::cout << "Muon abs_eta:" << std::fabs(etas[i]) << " pt: " << pts[i] << std::endl;
-	double w = _correction_muon->at(muon_type)->evaluate({std::to_string(_year)+"_"+_runtype, std::fabs(etas[i]), pts[i], variation}); 
+	//double w = _correction_muon->at(muon_type)->evaluate({std::to_string(_year)+"_"+_runtype, std::fabs(etas[i]), pts[i], variation}); //here the year and the runtype is also being used 
+	double w = _correction_muon->at(muon_type)->evaluate({std::fabs(etas[i]), pts[i], variation});
 	muonHLT_w *= w;
 	//std::cout << "Individual HLT weight (muon " << i << "): " << w << std::endl;
 	//std::cout << "Cumulative HLT weight after muon " << i << ": " << muonHLT_w << std::endl;
@@ -671,13 +683,13 @@ ROOT::RDF::RNode NanoAODAnalyzerrdframe::calculateMuSF(RNode _rlm, std::vector<s
 	}, Muon_vars);
 
 
-      std::string column_name_reco = output_var+"reco_" + variation;
+/*      std::string column_name_reco = output_var+"reco_" + variation;
       _rlm = _rlm.Define(column_name_reco, [this, muon_weightgenerator, variation](const ROOT::VecOps::RVec<float>& etas, const ROOT::VecOps::RVec<float>& pts) {
 	  float weight = muon_weightgenerator(_muon_reco_type, etas, pts, variation); // Get the weight for the corresponding variation
 	  //std::cout << "Muon HLT weight (" << variation << "): " << weight << std::endl;
 	  return weight;
-	}, Muon_vars);
-
+	}, Muon_vars);   */
+	
 
       std::string column_name_id = output_var+"id_" + variation;
       _rlm = _rlm.Define(column_name_id, [this, muon_weightgenerator, variation](const ROOT::VecOps::RVec<float>& etas, const ROOT::VecOps::RVec<float>& pts) {
@@ -708,7 +720,8 @@ ROOT::RDF::RNode NanoAODAnalyzerrdframe::calculateMuSF(RNode _rlm, std::vector<s
 	column_name += "syst";
       }
 
-	std::string sf_definition = column_name_hlt+" * "+column_name_reco+" * "+column_name_id+" * "+column_name_iso;
+	//std::string sf_definition = column_name_hlt+" * "+column_name_reco+" * "+column_name_id+" * "+column_name_iso;
+	std::string sf_definition = column_name_hlt+" * "+column_name_id+" * "+column_name_iso;
 	_rlm = _rlm.Define(column_name, sf_definition);
 	std::cout<< "Muon SF column name: " << column_name << std::endl;
     }

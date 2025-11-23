@@ -30,17 +30,17 @@ config = {
         # pileup weight for MC
         'pileupfname': 'data/LUM/2022_preEE/puWeights.json',
 
-        'pileuptag': 'Collisions17_UltraLegacy_goldenJSON',
+        'pileuptag': 'Collisions2022_355100_357900_eraBCD_GoldenJson',
 
         # json filename for BTV correction
-        'btvfname': 'data/BTV/2017_UL/btagging.json',
+        'btvfname': 'data/BTV/2022_preEE/btagging.json',
 
         # BTV correction type
-        #'btvtype': 'deepJet_shape',
-        'btvtype': 'deepJet_mujets',
-        'fname_btagEff': 'data/BTV/2017_UL/BtaggingEfficiency.root',
-        'hname_btagEff_bcflav': 'h_btagEff_bcflav',
-        'hname_btagEff_lflav': 'h_btagEff_lflav',
+        'btvtype': 'deepJet_shape',
+        #'btvtype': 'deepJet_mujets',
+        #'fname_btagEff': 'data/BTV/2017_UL/BtaggingEfficiency.root',
+        #'hname_btagEff_bcflav': 'h_btagEff_bcflav',
+        #'hname_btagEff_lflav': 'h_btagEff_lflav',
     
         # Muon Correction 
         'muon_roch_fname': 'data/MUO/2017_UL/RoccoR2017UL.txt', 
@@ -59,13 +59,14 @@ config = {
 
 
         # json file name for JERC
-        'jercfname': 'data/JERC/UL17_jerc.json',
+        'jercfname': 'data/JERC/2022_preEE/jet_jerc.json',
 
-        # conbined correction type for jets
-        'jerctag': 'Summer19UL17_V5_MC_L1L2L3Res_AK4PFchs', 
+        # conbined correction type for jetsi
+        'jerctag': 'Summer22_22Sep2023_V2_MC_L1L2L3Res_AK4PFPuppi', #this is for Data
+        'jettagMC' :'Summer22_22Sep2023_V2_MC_L1L2L3Res_AK4PFPuppi', #this is for MC
 
         # jet uncertainty 
-        'jercunctag': 'Summer19UL17_V5_MC_Total_AK4PFchs', 
+        'jercunctag': 'Summer22_22Sep2023_V2_MC_Total_AK4PFPuppi', 
         
         }
 
@@ -96,17 +97,6 @@ procflags = {
         ###### Make a copy of the analyzer in the same directory as the analyzed root files ######
         'copyInstance': False,
         }
-
-# input directory where your input root tree resides
-#data='/eos/lyoeos.in2p3.fr/grid/cms/store/data/'
-#mc17 = '/eos/lyoeos.in2p3.fr/grid/cms/store/mc/RunIISummer20UL17NanoAODv9'
-#outDir = '/eos/lyoeos.in2p3.fr/grid/cms/store/user/apurohit/SingleTop_Data_Oct2023_Results'
-#outDir = '/eos/lyoeos.in2p3.fr/grid/cms/store/user/apurohit/SingleTop_MC_Results_Oct2023'
-#outDir = '/uscms/home/msahoo/nobackup/Project_tzq/CMSSW_12_3_4/src/single_top_analyser/output_file'
-# output directory where your output should go
-# dump of stderr/stdout to file
-
-
 
 
 

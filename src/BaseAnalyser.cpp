@@ -488,7 +488,7 @@ void BaseAnalyser::removeOverlaps()
 		.Define("Central_jetpt", "Selected_jetpt[centraljetpass]")
 		.Define("nCentral_jet","int(Central_jetpt.size())")
                 .Define("Selected_jetHT", "Sum(Selected_jetpt)");
-	_rlm = applyJetVetoMap(_rlm,"Selected_jeteta","Selected_jetphi").Filter("!vetoed_jets");
+//	_rlm = applyJetVetoMap(_rlm,"Selected_jeteta","Selected_jetphi").Filter("!vetoed_jets");
 	if (!_isData){
         _rlm = _rlm.Define("Selected_jethadflav", "goodJets_hadflav[muonjetoverlap]");
 	}
@@ -1613,7 +1613,8 @@ void BaseAnalyser::defineSignalRegion()
     }
 
 
-    _rlm = _rlm.Define("trialRegion", " NgoodLepton==3 && ncleanjetspass >= 2 && ncleanbjetspass >= 1 && All_good_tightLeptons && MET_pt>20")
+    _rlm = _rlm.Define("trialRegion_with_tightL", " NgoodLepton==3 && ncleanjetspass >= 2 && ncleanbjetspass >= 1 && All_good_tightLeptons && MET_pt>20");
+    _rlm = _rlm.Define("trialRegion", " NgoodLepton==3 && ncleanjetspass >= 2 && ncleanbjetspass >= 1 && MET_pt>20")
 	       .Define("trialRegion_lead" , "trialRegion && leadingLepton_pt > 0")
 	       .Define("trialRegion_sublead" , "trialRegion && subleadingLepton_pt > 0")
 	       .Define("trialRegion_trail" , "trialRegion && TrailingLepton_pt > 0")
@@ -1852,6 +1853,7 @@ void BaseAnalyser::defineMoreVars()
     addVartoStore("goodJets_pt");
     addVartoStore("Selected_jetpt");
     addVartoStore("Selected_jeteta");
+    addVartoStore("Selected_jetphi");
     addVartoStore("Selected_jetbtag");
     addVartoStore("Ngood_bjets");
     addVartoStore("good_bjetpt");
