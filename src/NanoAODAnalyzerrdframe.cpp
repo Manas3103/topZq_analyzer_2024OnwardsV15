@@ -341,12 +341,107 @@ void NanoAODAnalyzerrdframe::applyMuPtCorrection() //data and MC
   }
 }
 
+void NanoAODAnalyzerrdframe::applyElectronPtCorrection()
+{
+    std::cout << "Apply Electron Pt correction" << std::endl;
 
+    if (!_correction_electronss) {
+        std::cerr << "Electron corrections file not loaded!" << std::endl;
+        return;
+    }
 
-void NanoAODAnalyzerrdframe::setupCorrections(string goodjsonfname, string pufname, string putag, string btvfname, string btvtype, string muon_roch_fname, string muon_fname, string muonhlttype, string muonrecotype,string muonidtype,string muonisotype,string electron_fname, string electron_reco_type, string electron_id_type, string jercfname, string jerctag, string jerctagMC, string jercunctag,string jet_veto_f_name,string jet_veto_tag )
+    using ROOT::VecOps::RVec;
+    using floats = RVec<float>;
+
+    auto scale_corr = _correction_electronss->at("Scale");
+    auto smear_corr = _correction_electronss->at("Smearing");
+
+    if (_isData) {
+       auto scale_lambda = [scale_corr](const ROOT::VecOps::RVec<float> &pt,
+                                 const ROOT::VecOps::RVec<float> &scEta,
+                                 const ROOT::VecOps::RVec<float> &r9,
+                                 const ROOT::VecOps::RVec<UChar_t> &seedGain,
+                                 unsigned int run) -> ROOT::VecOps::RVec<float>
+{
+    ROOT::VecOps::RVec<float> result;
+    result.reserve(pt.size());
+
+    for (size_t i = 0; i < pt.size(); ++i) {
+        try {
+            float gain = static_cast<int>(seedGain[i]);
+            float eta = std::abs(scEta[i]);
+            float et = pt[i];  // Et = pt in barrel-endcap electrons, unless corrected separately
+
+         float factor = scale_corr->evaluate({
+	    "total_correction",
+	    static_cast<int>(seedGain[i]),
+	    static_cast<float>(run),
+	    std::abs(scEta[i]),
+	    r9[i],
+	    pt[i]
+	});
+
+            result.emplace_back(pt[i] * factor);
+        } catch (const std::exception &e) {
+            std::cerr << "Error evaluating scale correction at index " << i << ": " << e.what() << std::endl;
+            result.emplace_back(pt[i]);  // fallback to uncorrected
+        }
+    }
+
+    return result;
+
+};
+_rlm = _rlm.Define("Electron_eta_supercluster", "Electron_eta + Electron_deltaEtaSC");
+
+_rlm = _rlm.Define("Electron_pt_corr", scale_lambda,
+                   {"Electron_pt", "Electron_eta_supercluster", "Electron_r9", "Electron_seedGain", "run"});
+
+    }
+    else {
+        auto smear_lambda = [smear_corr](const floats &pt,
+                                         const floats &scEta,
+                                         const floats &r9) -> std::tuple<floats, floats, floats>
+        {
+            floats nominal, smear_up, smear_down;
+            size_t N = pt.size();
+            nominal.reserve(N);
+            smear_up.reserve(N);
+            smear_down.reserve(N);
+
+            std::random_device rd;
+            std::mt19937 gen(rd());
+            std::normal_distribution<float> gauss(0.0, 1.0);
+
+            for (size_t i = 0; i < N; ++i) {
+                float eta = std::abs(scEta[i]);
+                float smear_val = smear_corr->evaluate({"rho", eta, r9[i]});
+                float smear_unc = smear_corr->evaluate({"err_rho", eta, r9[i]});
+                float rand = gauss(gen);
+
+                nominal.emplace_back(pt[i] * (1.0 + smear_val * rand));
+                smear_up.emplace_back(pt[i] * (1.0 + (smear_val + smear_unc) * rand));
+                smear_down.emplace_back(pt[i] * (1.0 + (smear_val - smear_unc) * rand));
+            }
+
+            return std::make_tuple(nominal, smear_up, smear_down);
+        };
+      _rlm = _rlm.Define("Electron_eta_supercluster", "Electron_eta + Electron_deltaEtaSC");
+
+        _rlm = _rlm.Define("Electron_pt_corr_triple", smear_lambda,
+                           {"Electron_pt", "Electron_eta_supercluster", "Electron_r9"})
+                   .Define("Electron_pt_corr", "std::get<0>(Electron_pt_corr_triple)")
+                   .Define("Electron_pt_corr_smearUp", "std::get<1>(Electron_pt_corr_triple)")
+                   .Define("Electron_pt_corr_smearDown", "std::get<2>(Electron_pt_corr_triple)");
+    }
+}
+
+void NanoAODAnalyzerrdframe::setupCorrections(string goodjsonfname, string pufname, string putag, string btvfname, string btvtype, string muon_roch_fname, string muon_fname, string muonhlttype, string muonrecotype,string muonidtype,string muonisotype,string electron_fname,string electronHlt_fname,string electronHlt_type, string electron_reco_type1, string electron_reco_type2, string electron_id_type, string jercfname, string jerctag, string jerctagMC, string jercunctag,string jet_veto_f_name,string jet_veto_tag, string electron_SSF )
 //In this function the correction is evaluated for each jet, Muon, Electron and MET. The correction depends on the momentum, pseudorapidity, energy, and cone area of the jet, as well as the value of rho(the average momentum per area) and number of interactions in the event. The correction is used to scale the momentum of the jet.
 {
     cout << "set up Corrections!" << endl;
+         _correction_electronss = correction::CorrectionSet::from_file(electron_SSF);
+	 cout<< "Electron scaling and smearing filename   : " << electron_SSF << endl;
+         _electron_SSF=electron_SSF;
 
 	if (_isData) _jsonOK = readgoodjson(goodjsonfname); // read golden json file
           _correction_jetveto = correction::CorrectionSet::from_file(jet_veto_f_name);
@@ -373,11 +468,16 @@ void NanoAODAnalyzerrdframe::setupCorrections(string goodjsonfname, string pufna
 	  
 	  //Electron corrections
 	  _correction_electron = correction::CorrectionSet::from_file(electron_fname);
-	  _electron_reco_type = electron_reco_type;
+          _correction_electronHlt = correction::CorrectionSet::from_file(electronHlt_fname);
+
+	//  _electron_reco_type = electron_reco_type;
+	  _electron_reco_type1=electron_reco_type1;
+	  _electron_reco_type2=electron_reco_type2;
 	  _electron_id_type = electron_id_type;
+          _electronHlt_type =electronHlt_type;
 	  std::cout<< "================================//=================================" << std::endl;
 	  cout<< "ELECTRON JSON FILE : " << electron_fname << endl;
-	  cout<< "ELECTRON RECO type in JSON  : " << _electron_reco_type << endl;
+	  cout<< "ELECTRON RECO type in JSON  : " << _electron_reco_type1 << endl;
 	  cout<< "ELECTRONID type in JSON  : " << _electron_id_type << endl;
 	  assert(_correction_electron->validate());
 	  
@@ -417,6 +517,7 @@ void NanoAODAnalyzerrdframe::setupCorrections(string goodjsonfname, string pufna
 	
 	setupJetMETCorrection(jercfname, _jerctag, _jerctagMC);
 	applyJetMETCorrections();
+	applyElectronPtCorrection();
 	//applyMuPtCorrection();
 }
 /*double NanoAODAnalyzerrdframe::getBTaggingEff(double hadflav, double eta, double pt){
@@ -748,6 +849,18 @@ ROOT::RDF::RNode NanoAODAnalyzerrdframe::calculateEleSF(RNode _rlm, std::vector<
       }
       return electronReco_w;
     };
+   auto electronHlt_weightgenerator = [this](const std::string eletype, const ROOT::VecOps::RVec<float>& etas, const ROOT::VecOps::RVec<float>& pts, const std::string& variation) -> float {
+        double electronHlt_w = 1.0;
+
+        for (std::size_t i = 0; i < pts.size(); i++) {
+
+            double w = _correction_electron->at("Electron-HLT-SF")->evaluate({"2022Re-recoBCD", variation, eletype, std::fabs(etas[i]), pts[i]}); 
+            electronHlt_w *= w;
+            //std::cout << "Individual weight (electron " << i << "): " << w << std::endl;
+            //std::cout << "Cumulative weight after electron " << i << ": " << electronId_w << std::endl;
+        }
+        return electronHlt_w;
+    };
 
     //'sf' is nominal, and 'systup' and 'systdown' are up/down variations with total stat+-syst uncertainties. Individual systs are also available (in these cases syst only, not sf +/- syst
     std::vector<std::string> variations_elec = {"sf", "sfup", "sfdown"};
@@ -756,12 +869,29 @@ ROOT::RDF::RNode NanoAODAnalyzerrdframe::calculateEleSF(RNode _rlm, std::vector<
     for (const std::string& variation : variations_elec) {
 
       // define electron RECO weight sf/systs for each variation individually
-      std::string column_name_reco = output_var+ "reco_" + variation;
+   /*   std::string column_name_reco = output_var+ "reco_" + variation;
       _rlm = _rlm.Define(column_name_reco, [this, electron_weightgenerator, variation](const ROOT::VecOps::RVec<float>& etas, const ROOT::VecOps::RVec<float>& pts) {
 	  float weight = electron_weightgenerator(_electron_reco_type, etas, pts, variation); // Get the weight for the corresponding variation
 	  //std::cout << "Electron RECO weight (" << variation << "): " << weight << std::endl;
 	  return weight;
-	}, Ele_vars);
+	}, Ele_vars);*/
+
+        std::string column_name_reco = output_var + "reco_" + variation;
+        _rlm = _rlm.Define(column_name_reco,
+                [this, electron_weightgenerator, variation](const ROOT::VecOps::RVec<float>& etas, const ROOT::VecOps::RVec<float>& pts) {
+                ROOT::VecOps::RVec<float> weights(pts.size());
+
+                for (size_t i = 0; i < pts.size(); ++i) {
+                std::string reco_type = (pts[i] < 75.0) ? _electron_reco_type1 : _electron_reco_type2;
+
+                // Wrap each eta and pt into RVec of size 1 for individual eval
+                ROOT::VecOps::RVec<float> eta_single = { etas[i] };
+                ROOT::VecOps::RVec<float> pt_single = { pts[i] };
+
+                weights[i] = electron_weightgenerator(reco_type, eta_single, pt_single, variation);
+                }
+                return std::accumulate(weights.begin(), weights.end(), 1.0f, std::multiplies<float>());
+                }, Ele_vars);
 
 
       // define electron ID weight sf/systs for each variation individually
@@ -771,7 +901,12 @@ ROOT::RDF::RNode NanoAODAnalyzerrdframe::calculateEleSF(RNode _rlm, std::vector<
 	  //std::cout << "Electron RECO weight (" << variation << "): " << weight << std::endl;
 	  return weight;
 	}, Ele_vars);
-      
+      std::string column_name_Hlt = output_var+ "Hlt_" + variation;
+      _rlm = _rlm.Define(column_name_Hlt, [this, electronHlt_weightgenerator, variation](const ROOT::VecOps::RVec<float>& etas, const ROOT::VecOps::RVec<float>& pts) {
+          float weight = electronHlt_weightgenerator(_electron_id_type, etas, pts, variation); // Get the weight for the corresponding variation
+          //std::cout << "Electron RECO weight (" << variation << "): " << weight << std::endl;
+          return weight;
+        }, Ele_vars);
       std::string column_name = output_var;
 
       if(variation=="sf"){

@@ -46,15 +46,19 @@ int main(void) {
 	string muonRECOtype = "NUM_TrackerMuons_DEN_genTracks";   // not required for Run3
 	string muonIDtype = "NUM_MediumID_DEN_TrackerMuons";
 	string muonISOtype = "NUM_TightRelIso_DEN_MediumID";
-	string electron_fname = "data/EGM/2017_UL/electron.json.gz";
-	string electron_reco_type = "RecoAbove20";
-	string electron_id_type = "Tight";
+	string electron_fname = "data/EGM/2022_Summer22/electron.json.gz";
+	string electronHlt_fname = "data/EGM/2022_Summer22/electronHlt.json.gz";
+	string electronHlt_type="HLT_SF_Ele30_TightID";
+	string electron_reco_type1 = "Reco20to75";
+	string electron_reco_type2 =  "RecoAbove75";
+	string electron_id_type = "wp90iso";
 	string jet_veto_f_name="data/JERC/2022_Summer22/jetvetomaps.json";
         string jet_veto_tag = "Summer22_23Sep2023_RunCD_V1";
+	string electron_SSF = "data/EGM/2022_Summer22/electronSS.json";
 
 // The below line is commented out because it causes some problem while loading the DATA file and the code unable to load all the entries need to fix that some how
 
-	nanoaodrdf.setupCorrections(goodjsonfname, pileupfname, pileuptag, btvfname, btvtype, muon_roch_fname, muon_fname, muonHLTtype, muonRECOtype, muonIDtype, muonISOtype, electron_fname, electron_reco_type, electron_id_type, jercfname, jerctag, jettagMC, jercunctag, jet_veto_f_name, jet_veto_tag);
+	nanoaodrdf.setupCorrections(goodjsonfname, pileupfname, pileuptag, btvfname, btvtype, muon_roch_fname, muon_fname, muonHLTtype, muonRECOtype, muonIDtype, muonISOtype, electron_fname,electronHlt_fname,electronHlt_type, electron_reco_type1,electron_reco_type2, electron_id_type, jercfname, jerctag, jettagMC, jercunctag, jet_veto_f_name, jet_veto_tag,electron_SSF);
 
 	nanoaodrdf.setupObjects();
 	nanoaodrdf.setupAnalysis();

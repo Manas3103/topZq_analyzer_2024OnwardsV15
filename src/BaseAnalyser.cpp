@@ -488,7 +488,7 @@ void BaseAnalyser::removeOverlaps()
 		.Define("Central_jetpt", "Selected_jetpt[centraljetpass]")
 		.Define("nCentral_jet","int(Central_jetpt.size())")
                 .Define("Selected_jetHT", "Sum(Selected_jetpt)");
-//	_rlm = applyJetVetoMap(_rlm,"Selected_jeteta","Selected_jetphi").Filter("!vetoed_jets");
+	_rlm = applyJetVetoMap(_rlm,"Selected_jeteta","Selected_jetphi").Filter("!vetoed_jets");
 	if (!_isData){
         _rlm = _rlm.Define("Selected_jethadflav", "goodJets_hadflav[muonjetoverlap]");
 	}
