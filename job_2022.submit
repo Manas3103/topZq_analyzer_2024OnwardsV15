@@ -1,6 +1,9 @@
 universe=vanilla
 executable=runjob_22.sh
-arguments= $(input_dir) $(output_file) $(stderr_file)
+
+jobconfmod = jobconfiganalysis_2022
+
+arguments= $(input_dir) $(output_file) $(stderr_file) $(jobconfmod)
 
 output=logs/$(ClusterId).out
 error=logs/$(ClusterId).err

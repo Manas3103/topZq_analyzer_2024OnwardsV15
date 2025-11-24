@@ -24,16 +24,15 @@ config = {
         #for correction
         
         # good json file
-        # 'goodjson': 'data/Cert_294927-306462_13TeV_EOY2017ReReco_Collisions17_JSON.txt',
         'goodjson' : 'data/Cert_Collisions2022_355100_362760_Golden.json',
 
         # pileup weight for MC
-        'pileupfname': 'data/LUM/2022_preEE/puWeights.json',
+        'pileupfname': 'data/LUM/2022_Summer22/puWeights.json',
 
         'pileuptag': 'Collisions2022_355100_357900_eraBCD_GoldenJson',
 
         # json filename for BTV correction
-        'btvfname': 'data/BTV/2022_preEE/btagging.json',
+        'btvfname': 'data/BTV/2022_Summer22/btagging.json',
 
         # BTV correction type
         'btvtype': 'deepJet_shape',
@@ -59,7 +58,7 @@ config = {
 
 
         # json file name for JERC
-        'jercfname': 'data/JERC/2022_preEE/jet_jerc.json',
+        'jercfname': 'data/JERC/2022_Summer22/jet_jerc.json',
 
         # conbined correction type for jetsi
         'jerctag': 'Summer22_22Sep2023_V2_MC_L1L2L3Res_AK4PFPuppi', #this is for Data
@@ -67,7 +66,10 @@ config = {
 
         # jet uncertainty 
         'jercunctag': 'Summer22_22Sep2023_V2_MC_Total_AK4PFPuppi', 
-        
+       
+        # for Jet veto map
+        'jet_veto_f_name': 'data/JERC/2022_Summer22/jetvetomaps.json',
+        'jet_veto_tag': 'Summer22_23Sep2023_RunCD_V1'
         }
 
 # processing options
@@ -103,7 +105,7 @@ procflags = {
 nanoaod_inputdir_outputdir_pairs = [
     ['/TZQB-Zto2L-4FS_MLL-30_TuneCP5_13p6TeV_amcatnlo-pythia8/Run3Summer22NanoAODv12-130X_mcRun3_2022_realistic_v5-v2/NANOAODSIM',
      'TOP_tzq_2022.root',
-     'TOP_tzq_2022.out'],
+     'TOP_tzq_2022.out']
 
 ]
 

@@ -248,7 +248,7 @@ def Nanoaodprocessor_singledir(indir, outputroot, procflags, config):
         raise
 
     # Handle corrections with expanded configuration
-    skipcorrections = procflags.get('skipcorrections', True)
+    skipcorrections = procflags.get('skipcorrections', False)
     if not skipcorrections:
         print("Applying corrections...")
         aproc.setupCorrections(
@@ -268,7 +268,10 @@ def Nanoaodprocessor_singledir(indir, outputroot, procflags, config):
             config['electron_id_type'],
             config['jercfname'],
             config['jerctag'],
-            config['jercunctag']
+            config['jettagMC'],
+            config['jercunctag'],
+            config['jet_veto_f_name'],
+            config['jet_veto_tag']
         )
     else:
         print("Skipping corrections step")

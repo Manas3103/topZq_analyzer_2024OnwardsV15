@@ -323,7 +323,7 @@ void NanoAODAnalyzerrdframe::applyMuPtCorrection() //data and MC
 	  }
 	return corrMuPts;
       };
-    _rlm = _rlm.Define("Muon_genPartIdx_int", [](const ROOT::VecOps::RVec<Short_t>& v) {
+/*    _rlm = _rlm.Define("Muon_genPartIdx_int", [](const ROOT::VecOps::RVec<Short_t>& v) {
   	   return ROOT::VecOps::RVec<int>(v.begin(), v.end());
     	   },
 	   {"Muon_genPartIdx"}
@@ -334,7 +334,7 @@ void NanoAODAnalyzerrdframe::applyMuPtCorrection() //data and MC
            },
 	   {"Muon_nTrackerLayers"}
 	);
-
+*/
     _rlm = _rlm.Define("Muon_gen_pt", "GenPart_pt[Muon_genPartIdx_int]");
     _rlm = _rlm.Define("Muon_pt_corr", lambdaf_mc, {"Muon_charge", "Muon_pt", "Muon_eta", "Muon_phi", "Muon_genPartIdx_int", "GenPart_pt", "Muon_nTrackerLayers_int"});
     

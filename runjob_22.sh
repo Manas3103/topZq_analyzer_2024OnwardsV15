@@ -4,9 +4,10 @@
 input_dir=$1
 output_file=$2  # Output ROOT file
 stderr_file=$3  # Log file
+jobconfmod=$4
 
 # Configuration variables
-jobconfmod="jobconfiganalysis_2022"
+#jobconfmod="jobconfiganalysis_2022"
 eos_output_dir="/eos/uscms/store/user/msahoo/test/"
 
 echo "==================== JOB STARTED ===================="
