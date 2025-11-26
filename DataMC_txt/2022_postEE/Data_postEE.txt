@@ -1,0 +1,10 @@
+/EGamma/Run2022E-22Sep2023-v1/NANOAOD Data_EGamma_e.root Data_EGamma_e.out 1
+/Muon/Run2022E-22Sep2023-v1/NANOAOD Data_Muon_e.root Data_Muon_e.out 1
+/MuonEG/Run2022E-22Sep2023-v1/NANOAOD Data_MuonEG_e.root Data_MuonEG_e.out 1
+/EGamma/Run2022F-22Sep2023-v1/NANOAOD Data_EGamma_f.root Data_EGamma_f.out 1
+/Muon/Run2022F-22Sep2023-v2/NANOAOD Data_Muon_f.root Data_Muon_f.out 1
+/MuonEG/Run2022F-22Sep2023-v1/NANOAOD Data_MuonEG_f.root Data_MuonEG_f.out 1
+/EGamma/Run2022G-22Sep2023-v2/NANOAOD Data_EGamma_g.root Data_EGamma_g.out 1
+/Muon/Run2022G-22Sep2023-v1/NANOAOD Data_Muon_g.root Data_Muon_g.out 1
+/MuonEG/Run2022G-22Sep2023-v1/NANOAOD Data_MuonEG_g.root Data_MuonEG_g.out 1
+

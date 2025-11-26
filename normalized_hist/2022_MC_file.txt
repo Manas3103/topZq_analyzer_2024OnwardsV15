@@ -1,6 +1,6 @@
 /store/user/msahoo/test/top_zq.root 80.0
-/store/user/msahoo/test/ttz_4to50.root 44.23
-/store/user/msahoo/test/ttz_50.root 96.84
+/store/user/msahoo/test/ttz_4to50.root 39.49
+/store/user/msahoo/test/ttz_50.root 86.46
 /store/user/msahoo/test/ttbar_dilepton.root 97448.8
 /store/user/msahoo/test/ttbar_semilep.root 403254.9
 /store/user/msahoo/test/wz.root 5310.0

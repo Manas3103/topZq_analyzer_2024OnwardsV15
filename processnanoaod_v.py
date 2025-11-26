@@ -264,14 +264,18 @@ def Nanoaodprocessor_singledir(indir, outputroot, procflags, config):
             config['muonIDtype'],
             config['muonISOtype'],
             config['electron_fname'],
-            config['electron_reco_type'],
+            config['electronHlt_fname'],
+            config['electronHlt_type'],
+            config['electron_reco_type1'],
+            config['electron_reco_type2'],
             config['electron_id_type'],
             config['jercfname'],
             config['jerctag'],
             config['jettagMC'],
             config['jercunctag'],
             config['jet_veto_f_name'],
-            config['jet_veto_tag']
+            config['jet_veto_tag'],
+            config['electron_SSF']
         )
     else:
         print("Skipping corrections step")

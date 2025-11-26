@@ -26,7 +26,7 @@ def ensure_dir(d):
         os.makedirs(d, exist_ok=True)
 
 def main():
-    in_list = "Temp.txt"
+    in_list = "2022_postEE/Data_postEE.txt"
     out_list = "sample_list_split.txt"
 
     if not os.path.isfile(in_list):

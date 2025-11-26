@@ -1470,16 +1470,6 @@ std::string NanoAODAnalyzerrdframe::ElectronID(int cutbasedID){
         std::cout<< "EXITING PROGRAM!!" << std::endl;
         exit(1);
     }
-	/*if(_year==2018 && _isUL){
-    	if(cutbasedID==2 ){
-        	Electron_eta=2.5;
-    		Electron_pt=10;
-    	}else if (cutbasedID==3){
-        	Electron_eta=2.4;
-        	Electron_pt=10;
-		}
-	}*/
-
 //Rdataframe look for the variables in the intput Ttree..
 std::string output = Form("Electron_cutBased == %d ",cutbasedID);
 //std::string output = Form("Electron_cutBased == %d &&  abs(Electron_eta)<%f && Electron_pt<%f",cutbasedID,  Electron_eta, Electron_pt);

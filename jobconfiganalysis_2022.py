@@ -24,7 +24,7 @@ config = {
         #for correction
         
         # good json file
-        'goodjson' : 'data/Cert_Collisions2022_355100_362760_Golden.json',
+        'goodjson' : 'data/GoldenJSON/golden_json_latest_2022.json',
 
         # pileup weight for MC
         'pileupfname': 'data/LUM/2022_Summer22/puWeights.json',
@@ -37,31 +37,28 @@ config = {
         # BTV correction type
         'btvtype': 'deepJet_shape',
         #'btvtype': 'deepJet_mujets',
-        #'fname_btagEff': 'data/BTV/2017_UL/BtaggingEfficiency.root',
-        #'hname_btagEff_bcflav': 'h_btagEff_bcflav',
-        #'hname_btagEff_lflav': 'h_btagEff_lflav',
     
         # Muon Correction 
         'muon_roch_fname': 'data/MUO/2017_UL/RoccoR2017UL.txt', 
-        'muon_fname': 'data/MUO/2017_UL/muon_Z.json.gz', 
-        'muonHLTtype': 'NUM_IsoMu27_DEN_CutBasedIdTight_and_PFIsoTight',
+        'muon_fname': 'data/MUO/2022_summer22/muon_Z.json', 
+        'muonHLTtype': 'NUM_IsoMu24_DEN_CutBasedIdTight_and_PFIsoTight',
         'muonRECOtype': 'NUM_TrackerMuons_DEN_genTracks',
-        'muonIDtype': 'NUM_MediumID_DEN_TrackerMuons',
-        'muonISOtype': 'NUM_TightRelIso_DEN_MediumID',
-        #'muontype': 'NUM_TightRelIso_DEN_MediumID',#'Medium ISO UL scale factor',
+        'muonIDtype': 'NUM_TightID_DEN_TrackerMuons',
+        'muonISOtype': 'NUM_TightPFIso_DEN_TightID',
 
         # Electron Correction 
-        'electron_fname': 'data/EGM/2017_UL/electron.json.gz', 
-        'electron_reco_type': 'RecoAbove20',
-        'electron_id_type': 'Tight',#'Tight ID UL scale factor',
-        #'muontype': 'NUM_TightRelIso_DEN_MediumID',#'Medium ISO UL scale factor',
-
+        'electron_fname': 'data/EGM/2022_Summer22/electron.json',
+        'electronHlt_fname':'data/EGM/2022_Summer22/electronHlt.json',
+        'electronHlt_type':'HLT_SF_Ele30_TightID',
+        'electron_reco_type1': 'Reco20to75',
+        'electron_reco_type2' :  'RecoAbove75',
+        'electron_id_type': 'wp90iso',
 
         # json file name for JERC
         'jercfname': 'data/JERC/2022_Summer22/jet_jerc.json',
 
         # conbined correction type for jetsi
-        'jerctag': 'Summer22_22Sep2023_V2_MC_L1L2L3Res_AK4PFPuppi', #this is for Data
+        'jerctag': 'Summer22_22Sep2023_RunCD_V2_DATA_L1L2L3Res_AK4PFPuppi', #this is for Data
         'jettagMC' :'Summer22_22Sep2023_V2_MC_L1L2L3Res_AK4PFPuppi', #this is for MC
 
         # jet uncertainty 
@@ -69,7 +66,8 @@ config = {
        
         # for Jet veto map
         'jet_veto_f_name': 'data/JERC/2022_Summer22/jetvetomaps.json',
-        'jet_veto_tag': 'Summer22_23Sep2023_RunCD_V1'
+        'jet_veto_tag': 'Summer22_23Sep2023_RunCD_V1',
+        'electron_SSF' :'data/EGM/2022_Summer22/electronSS.json'
         }
 
 # processing options
