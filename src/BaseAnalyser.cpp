@@ -129,7 +129,7 @@ void BaseAnalyser::selectElectrons()
 		       );
 
     // Additional variables for baseline electrons
-    _rlm = _rlm.Define("A_baselineElectrons_pt", "Electron_pt[baselineElectrons]")
+    _rlm = _rlm.Define("A_baselineElectrons_pt", "Electron_pt_corr[baselineElectrons]")
                 .Define("A_baselineElectrons_eta", "Electron_eta[baselineElectrons]")
                 .Define("A_baselineElectrons_phi", "Electron_phi[baselineElectrons]")
                 .Define("A_baselineElectrons_mass", "Electron_mass[baselineElectrons]")
@@ -477,8 +477,6 @@ void BaseAnalyser::calculateEvWeight(){
     Jets_vars_names.emplace_back("Selected_jetbtag");
   }
   std::string output_btag_column_name = "btag_SF_";
-//  _rlm = calculateBTagSF(_rlm, Jets_vars_names, _case, 0.2783, "M", output_btag_column_name);
-
   _rlm = calculateBTagSF(_rlm, Jets_vars_names, 0.3040,output_btag_column_name);
 
 
@@ -497,20 +495,13 @@ void BaseAnalyser::calculateEvWeight(){
 
 */
   //Scale Factors for Electron RECO and ID
-  //std::vector<std::string> Electron_vars_names = {"goodElectrons_eta", "goodElectrons_pt"};
   std::vector<std::string> Electron_vars_names = {"baselineElectrons_eta", "baselineElectrons_pt"};
   std::string output_ele_column_name = "ele_SF_";
   _rlm = calculateEleSF(_rlm, Electron_vars_names, output_ele_column_name);
 
-//   _rlm = _rlm.Define("evWeight_wobtagSF", " pugenWeight * muon_SF_central * ele_SF_central"); 
-//  _rlm = _rlm.Define("totbtagSF", "btag_SF_bcflav_central * btag_SF_lflav_central"); 
   //Total event Weight:
 
-  //Prefiring Weight for 2016 and 2017
-//  _rlm = applyPrefiringWeight(_rlm);
-  //Total event Weight:
   //_rlm = _rlm.Define("evWeight", " pugenWeight * prefiring_SF_central * btag_SF_bcflav_central * btag_SF_lflav_central * muon_SF_central * ele_SF_central"); 
-//  _rlm = _rlm.Define("evWeight", " pugenWeight * prefiring_SF_central * muon_SF_central * ele_SF_central"); 
   _rlm = _rlm.Define("evWeight", " pugenWeight ");  //prefiring_SF_central has been removed 
 }
 
@@ -561,10 +552,12 @@ void BaseAnalyser::mergeLeptons() {
     //-------------------------------------------------------
     // Combine lepton pt, eta, phi properties
     //-------------------------------------------------------
-    _rlm = _rlm.Define("combinedLeptonPt", [](const ROOT::VecOps::RVec<float>& muonPt,
+  /*  _rlm = _rlm.Define("combinedLeptonPt", [](const ROOT::VecOps::RVec<float>& muonPt,
                                               const ROOT::VecOps::RVec<float>& electronPt) {
         return ROOT::VecOps::Concatenate(muonPt, electronPt);
-    }, {"baselineMuons_pt", "baselineElectrons_pt"});
+    }, {"baselineMuons_pt", "baselineElectrons_pt"});*/
+    _rlm = _rlm.Define("combinedLeptonPt","ROOT::VecOps::Concatenate(baselineMuons_pt, baselineElectrons_pt)");
+
 
     _rlm = _rlm.Define("combinedLeptonEta", [](const ROOT::VecOps::RVec<float>& muonEta,
                                                const ROOT::VecOps::RVec<float>& electronEta) {
@@ -1580,7 +1573,7 @@ void BaseAnalyser::defineSignalRegion()
                .Define("TR_trailingLepton_eta",
                    [](bool cond, float eta) { return cond ? eta : -999.f; },
                    {"trialRegion_trail", "TrailingLepton_eta"});       
-    
+/*  
     _rlm = _rlm.Define("baseRegion", " NgoodLepton==3 && All_good_tightLeptons && MET_pt>20")
 	       .Define("SignalRegion", "baseRegion && ncleanjetspass >= 2 && ncleanbjetspass >= 1 && OSSF_category ==1")
 	       .Define("SignalRegion_tzq", "SignalRegion && nCentral_jet < 4")
@@ -1719,7 +1712,7 @@ void BaseAnalyser::defineSignalRegion()
 	       .Define("maxDEEPJET_signal", "SignalRegion ? Selected_bjet_score : ROOT::VecOps::RVec<float>{}")
 	       .Define("MET_pt_signal", "SignalRegion ? MET_pt : -10");
 
-
+*/
 
 }
 
@@ -2197,8 +2190,8 @@ void BaseAnalyser::setupObjects()
 	removeOverlaps();
 	mergeLeptons();
 	DefineGoodLeptonGroups();
-//	mergeTrailingLeptons();
-//	search_for_OSSFPairs();
+//	mergeTrailingLeptons(); not required to turn on Outdated 
+//	search_for_OSSFPairs();  not required to turn on Outdated not required to turn on Outdated
 	processOSSFPairs();
 	reconstructWboson();
 	reconstructTop();

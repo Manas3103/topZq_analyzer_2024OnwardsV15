@@ -1,4 +1,5 @@
 WARNING: In non-interactive mode release checks e.g. deprecated releases, production architectures are disabled.
-Error in <TNetXNGFile::Open>: [ERROR] Server responded with an error: [3011] No servers are available to read the file.
-
-Error: Unable to open the ROOT file: root://cmsxrootd.fnal.gov//store/user/msahoo/test/tw_minus.root
+Warning: evWeight branch not found. Using default weight of 1.0
+Warning: Branch OSSF_ZPair_mass not found in the tree.
+Warning: Branch trailingLepton_pt not found in the tree.
+free(): invalid pointer
