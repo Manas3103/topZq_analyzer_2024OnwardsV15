@@ -257,9 +257,9 @@ void BaseAnalyser::selectJets()
         std::cout<< "================================//=================================" << std::endl;
     }
 
-    _rlm = _rlm.Define("goodJetsID", JetID(6)); //without pt-eta cuts
-    _rlm = _rlm.Define("goodJets", "goodJetsID && ((abs(Jet_eta) > 2.65 && abs(Jet_eta) < 3.139 && Jet_pt > 50.0) || (Jet_pt > 25.0 && abs(Jet_eta) < 5 && abs(Jet_eta)>3.139) || (Jet_pt > 25.0 && abs(Jet_eta) < 2.65 && abs(Jet_eta)>0))");
-    _rlm = _rlm.Define("goodJets_pt", "Jet_pt[goodJets]")
+    _rlm = _rlm.Define("goodJetsID", JetID(6)); //without pt-eta cuts here i have to add other cuts since its NanoAODv12
+    _rlm = _rlm.Define("goodJets", "goodJetsID && ((abs(Jet_eta) > 2.65 && abs(Jet_eta) < 3.139 && Jet_pt_corr > 50.0) || (Jet_pt_corr > 25.0 && abs(Jet_eta) < 5 && abs(Jet_eta)>3.139) || (Jet_pt_corr > 25.0 && abs(Jet_eta) < 2.65 && abs(Jet_eta)>0))");
+    _rlm = _rlm.Define("goodJets_pt", "Jet_pt_corr[goodJets]")
                .Define("goodJets_eta", "Jet_eta[goodJets]")
                .Define("goodJets_phi", "Jet_phi[goodJets]")
                .Define("goodJets_mass", "Jet_mass[goodJets]")
@@ -1082,16 +1082,12 @@ void BaseAnalyser::selectMET()
         std::cout<< "================================//=================================" << std::endl;
     }
 
-    _rlm = _rlm.Define("goodMET","MET_pt>20");
-              // .Define("goodMET_pt","MET_pt[goodMET]")
-	      // .Define("goodMET_phi", "ROOT::VecOps::RVec<float>{MET_phi}[goodMET]");
-               //.Define("goodMET_phi","MET_phi[goodMET]");
-                //.Define("goodMET_phi","MET_phi[goodMET]")
-                //.Define("NgoodMET","int(goodMET_pt.size())");
-    //_rlm = _rlm.Define("goodMet", "MET_sumEt>600 && MET_pt>5");
-    //_rlm = _rlm.Define("goodMet_pt", "MET_pt[goodMet]");
+    _rlm = _rlm.Define("goodMET_pt","PuppiMET_pt_corr>20 ? PuppiMET_pt_corr : std::numeric_limits<float>::quiet_NaN()")
+	       .Define("goodMET_phi","PuppiMET_pt_corr > 20 ? PuppiMET_phi_corr : std::numeric_limits<float>::quiet_NaN()");
 
-    
+    std::cout<< "================================//=================================" << std::endl;
+    std::cout<< "==================CORRECT MET HAS BEEN SELECTED====================" << std::endl;
+    std::cout<< "================================//=================================" << std::endl;
 }
 /*
 void BaseAnalyser::reconstructWboson()
@@ -1162,8 +1158,8 @@ void BaseAnalyser::reconstructWboson()
 
     //-------------------- Reconstruct neutrino ---------------------
     std::cout << "Reconstructing neutrino from MET" << std::endl;
-    _rlm = _rlm.Define("nu_pt", "MET_pt")
-               .Define("nu_phi", "MET_phi")
+    _rlm = _rlm.Define("nu_pt", "goodMET_pt")
+               .Define("nu_phi", "goodMET_phi")
                .Define("nu_phi_double", "static_cast<double>(nu_phi)")
                .Define("nu_px", "nu_pt * cos(nu_phi)")
                .Define("nu_py", "nu_pt * sin(nu_phi)");
@@ -1333,7 +1329,7 @@ void BaseAnalyser::BDT_variables()
                    float sum = met_pt;
                    for (auto pt : lepton_pts) sum += pt;
                    return sum;
-               }, {"goodLepton3_pt", "MET_pt"});
+               }, {"goodLepton3_pt", "goodMET_pt"});
 
     _rlm = _rlm.Define("Selected_jeteta_maxAbs", [](const ROOT::VecOps::RVec<float>& etas) {
 	    if (etas.empty()) return -999.0f;
@@ -1546,8 +1542,8 @@ void BaseAnalyser::defineSignalRegion()
     }
 
 
-    _rlm = _rlm.Define("trialRegion_with_tightL", " NgoodLepton==3 && ncleanjetspass >= 2 && ncleanbjetspass >= 1 && All_good_tightLeptons && MET_pt>20");
-    _rlm = _rlm.Define("trialRegion", " NgoodLepton==3 && ncleanjetspass >= 2 && ncleanbjetspass >= 1 && MET_pt>20")
+    _rlm = _rlm.Define("trialRegion_with_tightL", " NgoodLepton==3 && ncleanjetspass >= 2 && ncleanbjetspass >= 1 && All_good_tightLeptons && goodMET_pt>20");
+    _rlm = _rlm.Define("trialRegion", " NgoodLepton==3 && ncleanjetspass >= 2 && ncleanbjetspass >= 1 && goodMET_pt>20")
 	       .Define("trialRegion_lead" , "trialRegion && leadingLepton_pt > 0")
 	       .Define("trialRegion_sublead" , "trialRegion && subleadingLepton_pt > 0")
 	       .Define("trialRegion_trail" , "trialRegion && TrailingLepton_pt > 0")
@@ -1574,11 +1570,11 @@ void BaseAnalyser::defineSignalRegion()
                    [](bool cond, float eta) { return cond ? eta : -999.f; },
                    {"trialRegion_trail", "TrailingLepton_eta"});       
 /*  
-    _rlm = _rlm.Define("baseRegion", " NgoodLepton==3 && All_good_tightLeptons && MET_pt>20")
+    _rlm = _rlm.Define("baseRegion", " NgoodLepton==3 && All_good_tightLeptons && goodMET_pt>20")
 	       .Define("SignalRegion", "baseRegion && ncleanjetspass >= 2 && ncleanbjetspass >= 1 && OSSF_category ==1")
 	       .Define("SignalRegion_tzq", "SignalRegion && nCentral_jet < 4")
 	       .Define("SignalRegion_ttz", "SignalRegion && nCentral_jet >= 4")
-	       .Define("WZ_Region", "baseRegion && ncleanbjetspass == 0 && OSSF_category ==1 && MET_pt > 50")
+	       .Define("WZ_Region", "baseRegion && ncleanbjetspass == 0 && OSSF_category ==1 && goodMET_pt > 50")
 	       .Define("X_gamma_Region", "baseRegion && OSSF_category ==2 && nonZ_OSSF_mass > 35 && nonZ_OSSF_mass < 76")
 	       .Define("NP_2_Region", "baseRegion && OSSF_category ==3 && nonZ_OSSF_mass > 35 && ncleanjetspass >= 2 && ncleanjetspass <= 3 && ncleanbjetspass == 1")
 	       .Define("NP_1_Region", "baseRegion && OSSF_category ==0 && ncleanjetspass >= 2 && ncleanjetspass <= 3 && ncleanbjetspass == 1");
@@ -1640,7 +1636,7 @@ void BaseAnalyser::defineSignalRegion()
 	       .Define("etaRecoilingJet_tzq", "SignalRegion_tzq ? RecoilingJet_eta : -99.0")
 	       .Define("lep_asymmetry_tzq", "SignalRegion_tzq ? topLepton_absEta_times_charge : -9.0")
 	       .Define("maxDEEPJET_tzq", "SignalRegion_tzq ? Selected_bjet_score : ROOT::VecOps::RVec<float>{}")
-	       .Define("MET_pt_tzq", "SignalRegion_tzq ? MET_pt : -10");
+	       .Define("MET_pt_tzq", "SignalRegion_tzq ? goodMET_pt : -10");
 
 
     _rlm = _rlm.Define("nJet_ttz", "SignalRegion_ttz ? ncleanjetspass : -1")
@@ -1664,7 +1660,7 @@ void BaseAnalyser::defineSignalRegion()
 	       .Define("etaRecoilingJet_ttz", "SignalRegion_ttz ? RecoilingJet_eta : -99.0")
 	       .Define("lep_asymmetry_ttz", "SignalRegion_ttz ? topLepton_absEta_times_charge : -9.0")
 	       .Define("maxDEEPJET_ttz", "SignalRegion_ttz ? Selected_bjet_score : ROOT::VecOps::RVec<float>{}")
-	       .Define("MET_pt_ttz", "SignalRegion_ttz ? MET_pt : -10");
+	       .Define("MET_pt_ttz", "SignalRegion_ttz ? goodMET_pt : -10");
 
     _rlm = _rlm.Define("nJet_trial", "trialRegion ? ncleanjetspass : -1")
 	       .Define("nBJets_trial", "trialRegion ? ncleanbjetspass : -1")
@@ -1687,7 +1683,7 @@ void BaseAnalyser::defineSignalRegion()
 	       .Define("etaRecoilingJet_trial", "trialRegion ? RecoilingJet_eta : -99.0")
 	       .Define("lep_asymmetry_trial", "trialRegion ? topLepton_absEta_times_charge : -9.0")
 	       .Define("maxDEEPJET_trial", "trialRegion ? Selected_bjet_score : ROOT::VecOps::RVec<float>{}")
-	       .Define("MET_pt_trial", "trialRegion ? MET_pt : -10");
+	       .Define("MET_pt_trial", "trialRegion ? goodMET_pt : -10");
 
     _rlm = _rlm.Define("nJet_signal", "SignalRegion ? ncleanjetspass : -1")
 	       .Define("nBJets_signal", "SignalRegion ? ncleanbjetspass : -1")
@@ -1710,7 +1706,7 @@ void BaseAnalyser::defineSignalRegion()
 	       .Define("etaRecoilingJet_signal", "SignalRegion ? RecoilingJet_eta : -99.0")
 	       .Define("lep_asymmetry_signal", "SignalRegion ? topLepton_absEta_times_charge : -9.0")
 	       .Define("maxDEEPJET_signal", "SignalRegion ? Selected_bjet_score : ROOT::VecOps::RVec<float>{}")
-	       .Define("MET_pt_signal", "SignalRegion ? MET_pt : -10");
+	       .Define("MET_pt_signal", "SignalRegion ? goodMET_pt : -10");
 
 */
 
@@ -1806,6 +1802,8 @@ void BaseAnalyser::defineMoreVars()
     addVartoStore("Jet_pt_relerror");
     addVartoStore("MET_pt_corr");
     addVartoStore("MET_pt");
+    addVartoStore("goodMET_pt");
+    addVartoStore("goodMET_phi");
 
 
 //new funciton variable for merged lepton

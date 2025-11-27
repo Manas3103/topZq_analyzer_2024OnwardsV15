@@ -54,9 +54,10 @@ public:
 	bool readgoodjson(string goodjsonfname); // get ready for applying golden JSON
 	void selectFatJets();
 
-	void setupCorrections(string goodjsonfname, string pufname, string putag, string btvfname, string btvtype, string muon_roch_fname, string muon_fname, string muon_hlt_type, string muon_reco_type, string muon_id_type, string muon_iso_type, string electron_fname, string electronHlt_fname, string electronHlt_type, string electron_reco_type1,string electron_reco_type2, string electron_id_type, string jercfname, string jerctag, string jerctagMC, string jercunctag,string jet_veto_f_name,string jet_veto_tag, string electron_SSF);
+	void setupCorrections(string goodjsonfname, string pufname, string putag, string btvfname, string btvtype, string muon_roch_fname, string muon_fname, string muon_hlt_type, string muon_reco_type, string muon_id_type, string muon_iso_type, string electron_fname, string electronHlt_fname, string electronHlt_type, string electron_reco_type1,string electron_reco_type2, string electron_id_type, string jercfname, string jerctag, string jerctagMC, string jercunctag,string jet_veto_f_name,string jet_veto_tag, string electron_SSF, string metpt_fname);
 	void setupJetMETCorrection(string fname, string jettag, string jettagMC);
 	void applyJetMETCorrections();
+	void applyMETPtPhiCorrection();
     
 	//virtual void applyJetMETCorrections();
 
@@ -109,6 +110,8 @@ public:
 	std::vector< std::string > HLT2017Names;
 	std::vector< std::string > HLT2018Names;
 	std::vector< std::string > HLT2022Names;
+	std::vector< std::string > HLT2022EENames;
+	std::vector< std::string > HLT2023Names;
 
 	//initialize object IDs
 	std::string ElectronID(int cutbasedID);
@@ -138,6 +141,7 @@ public:
 	string _jet_veto_f_name;
         string _jet_veto_tag;	
 	string _electron_SSF;
+	string _metpt_fname;
 
 	TFile *_outrootfile;
 	vector<string> _outrootfilenames;
@@ -183,6 +187,9 @@ public:
 	std::shared_ptr<const correction::CompoundCorrection> _jetCorrector; // just the combined L1L2L3 correction
 	std::shared_ptr<const correction::Correction> _jetCorrectionUnc; // for uncertainty corresponding to the jet corrector
         std::unique_ptr<correction::CorrectionSet>_correction_jetveto; // jet veto map application
+
+
+	std::unique_ptr<correction::CorrectionSet> _correction_MET_pt_corrector; //MET pt phi corrector
 
 
 

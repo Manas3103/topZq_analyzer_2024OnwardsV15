@@ -435,13 +435,66 @@ _rlm = _rlm.Define("Electron_pt_corr", scale_lambda,
     }
 }
 
-void NanoAODAnalyzerrdframe::setupCorrections(string goodjsonfname, string pufname, string putag, string btvfname, string btvtype, string muon_roch_fname, string muon_fname, string muonhlttype, string muonrecotype,string muonidtype,string muonisotype,string electron_fname,string electronHlt_fname,string electronHlt_type, string electron_reco_type1, string electron_reco_type2, string electron_id_type, string jercfname, string jerctag, string jerctagMC, string jercunctag,string jet_veto_f_name,string jet_veto_tag, string electron_SSF )
+
+void NanoAODAnalyzerrdframe::applyMETPtPhiCorrection() //data and MC
+{
+  cout << "apply MET Pt and Phi correction" << endl;
+  
+  if(_isData){
+    
+    auto lambdaf_met_data = [this](float met_pt, float met_phi, unsigned char npvGood)->std::pair<float, float>
+      {
+        // Get corrected pt
+        float met_pt_corr = _correction_MET_pt_corrector->at("met_xy_corrections")->evaluate({"pt", "PuppiMET", "2022", "DATA", "nom", 
+                                                       met_pt, met_phi, static_cast<float>(npvGood)});
+        
+        // Get corrected phi
+        float met_phi_corr = _correction_MET_pt_corrector->at("met_xy_corrections")->evaluate({"phi", "PuppiMET", "2022", "DATA", "nom", 
+                                                        met_pt, met_phi, static_cast<float>(npvGood)});
+        
+        return std::make_pair(met_pt_corr, met_phi_corr);
+      };
+    
+    _rlm = _rlm.Define("MET_pt_phi_corr", lambdaf_met_data, {"PuppiMET_pt", "PuppiMET_phi", "PV_npvsGood"});
+    _rlm = _rlm.Define("PuppiMET_pt_corr", "MET_pt_phi_corr.first");
+    _rlm = _rlm.Define("PuppiMET_phi_corr", "MET_pt_phi_corr.second");
+  }
+  else{
+    
+    auto lambdaf_met_mc = [this](float met_pt, float met_phi, unsigned char npvGood)->std::pair<float, float>
+      {
+        // Get corrected pt
+        float met_pt_corr = _correction_MET_pt_corrector->at("met_xy_corrections")->evaluate({"pt", "PuppiMET", "2022", "MC", "nom", 
+                                                       met_pt, met_phi, static_cast<float>(npvGood)});
+        
+        // Get corrected phi
+        float met_phi_corr = _correction_MET_pt_corrector->at("met_xy_corrections")->evaluate({"phi", "PuppiMET", "2022", "MC", "nom", 
+                                                        met_pt, met_phi, static_cast<float>(npvGood)});
+        
+        return std::make_pair(met_pt_corr, met_phi_corr);
+      };
+    
+    _rlm = _rlm.Define("MET_pt_phi_corr", lambdaf_met_mc, {"PuppiMET_pt", "PuppiMET_phi", "PV_npvsGood"});
+    _rlm = _rlm.Define("PuppiMET_pt_corr", "MET_pt_phi_corr.first");
+    _rlm = _rlm.Define("PuppiMET_phi_corr", "MET_pt_phi_corr.second");
+  }
+}
+
+
+void NanoAODAnalyzerrdframe::setupCorrections(string goodjsonfname, string pufname, string putag, string btvfname, string btvtype, string muon_roch_fname, string muon_fname, string muonhlttype, string muonrecotype,string muonidtype,string muonisotype,string electron_fname,string electronHlt_fname,string electronHlt_type, string electron_reco_type1, string electron_reco_type2, string electron_id_type, string jercfname, string jerctag, string jerctagMC, string jercunctag,string jet_veto_f_name,string jet_veto_tag, string electron_SSF,string metpt_fname)
 //In this function the correction is evaluated for each jet, Muon, Electron and MET. The correction depends on the momentum, pseudorapidity, energy, and cone area of the jet, as well as the value of rho(the average momentum per area) and number of interactions in the event. The correction is used to scale the momentum of the jet.
 {
-    cout << "set up Corrections!" << endl;
+         cout << "set up Corrections!" << endl;
          _correction_electronss = correction::CorrectionSet::from_file(electron_SSF);
 	 cout<< "Electron scaling and smearing filename   : " << electron_SSF << endl;
          _electron_SSF=electron_SSF;
+
+         cout<< "Segment violation comming    : " << endl;
+
+         _correction_MET_pt_corrector = correction::CorrectionSet::from_file(metpt_fname);
+	 cout<< "met pt correction file name    : " << metpt_fname<< endl;
+         _metpt_fname=metpt_fname;
+         assert(_correction_MET_pt_corrector->validate());
 
 	if (_isData) _jsonOK = readgoodjson(goodjsonfname); // read golden json file
           _correction_jetveto = correction::CorrectionSet::from_file(jet_veto_f_name);
@@ -518,6 +571,7 @@ void NanoAODAnalyzerrdframe::setupCorrections(string goodjsonfname, string pufna
 	setupJetMETCorrection(jercfname, _jerctag, _jerctagMC);
 	applyJetMETCorrections();
 	applyElectronPtCorrection();
+	applyMETPtPhiCorrection();
 	//applyMuPtCorrection();
 }
 /*double NanoAODAnalyzerrdframe::getBTaggingEff(double hadflav, double eta, double pt){

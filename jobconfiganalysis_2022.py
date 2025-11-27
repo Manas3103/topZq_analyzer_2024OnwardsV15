@@ -40,7 +40,7 @@ config = {
     
         # Muon Correction 
         'muon_roch_fname': 'data/MUO/2017_UL/RoccoR2017UL.txt', 
-        'muon_fname': 'data/MUO/2022_summer22/muon_Z.json', 
+        'muon_fname': 'data/MUO/2022_Summer22/muon_Z.json', 
         'muonHLTtype': 'NUM_IsoMu24_DEN_CutBasedIdTight_and_PFIsoTight',
         'muonRECOtype': 'NUM_TrackerMuons_DEN_genTracks',
         'muonIDtype': 'NUM_TightID_DEN_TrackerMuons',
@@ -67,7 +67,12 @@ config = {
         # for Jet veto map
         'jet_veto_f_name': 'data/JERC/2022_Summer22/jetvetomaps.json',
         'jet_veto_tag': 'Summer22_23Sep2023_RunCD_V1',
-        'electron_SSF' :'data/EGM/2022_Summer22/electronSS.json'
+
+        
+        'electron_SSF' :'data/EGM/2022_Summer22/electronSS.json',
+
+        # MET correction 
+        'metpt_fname' : 'data/JERC/2022_Summer22/met_xyCorrections_2022_2022.json'
         }
 
 # processing options

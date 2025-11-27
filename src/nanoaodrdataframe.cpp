@@ -50,10 +50,11 @@ int main(void) {
 	string jet_veto_f_name="data/JERC/2022_Summer22/jetvetomaps.json";
         string jet_veto_tag = "Summer22_23Sep2023_RunCD_V1";
 	string electron_SSF = "data/EGM/2022_Summer22/electronSS.json";
+	string metpt_fname = "data/JERC/2022_Summer22/met_xyCorrections_2022_2022.json";
 
 // The below line is commented out because it causes some problem while loading the DATA file and the code unable to load all the entries need to fix that some how
 
-	nanoaodrdf.setupCorrections(goodjsonfname, pileupfname, pileuptag, btvfname, btvtype, muon_roch_fname, muon_fname, muonHLTtype, muonRECOtype, muonIDtype, muonISOtype, electron_fname,electronHlt_fname,electronHlt_type, electron_reco_type1,electron_reco_type2, electron_id_type, jercfname, jerctag, jettagMC, jercunctag, jet_veto_f_name, jet_veto_tag,electron_SSF);
+	nanoaodrdf.setupCorrections(goodjsonfname, pileupfname, pileuptag, btvfname, btvtype, muon_roch_fname, muon_fname, muonHLTtype, muonRECOtype, muonIDtype, muonISOtype, electron_fname,electronHlt_fname,electronHlt_type, electron_reco_type1,electron_reco_type2, electron_id_type, jercfname, jerctag, jettagMC, jercunctag, jet_veto_f_name, jet_veto_tag,electron_SSF, metpt_fname);
 
 	nanoaodrdf.setupObjects();
 	nanoaodrdf.setupAnalysis();
