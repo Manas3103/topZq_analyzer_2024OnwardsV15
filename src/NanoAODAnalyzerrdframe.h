@@ -28,7 +28,6 @@
 #include "RNodeTree.h"
 #include "TCut.h"
 #include "TRandom.h"
-#include "RoccoR.h"
 
 using namespace ROOT::RDF;
 using namespace std;
@@ -54,7 +53,7 @@ public:
 	bool readgoodjson(string goodjsonfname); // get ready for applying golden JSON
 	void selectFatJets();
 
-	void setupCorrections(string goodjsonfname, string pufname, string putag, string btvfname, string btvtype, string muon_roch_fname, string muon_fname, string muon_hlt_type, string muon_reco_type, string muon_id_type, string muon_iso_type, string electron_fname, string electronHlt_fname, string electronHlt_type, string electron_reco_type1,string electron_reco_type2, string electron_id_type, string jercfname, string jerctag, string jerctagMC, string jercunctag,string jet_veto_f_name,string jet_veto_tag, string electron_SSF, string metpt_fname);
+	void setupCorrections(string goodjsonfname, string pufname, string putag, string btvfname, string btvtype, string muon_roch_fname, string muon_fname, string muon_hlt_type, string muon_id_type, string muon_iso_type, string electron_fname, string electronHlt_fname, string electronHlt_type, string electron_reco_type1,string electron_reco_type2, string electron_id_type, string jercfname, string jerctag, string jerctagMC, string jercunctag,string jet_veto_f_name,string jet_veto_tag, string electron_SSF, string metpt_fname);
 	void setupJetMETCorrection(string fname, string jettag, string jettagMC);
 	void applyJetMETCorrections();
 	void applyMETPtPhiCorrection();
@@ -131,7 +130,7 @@ public:
 	string _putag;
 	string _btvtype;
 	string _muon_hlt_type;
-	string _muon_reco_type;
+//	string _muon_reco_type;
 	string _muon_id_type;
 	string _muon_iso_type;
 	string _electron_reco_type1;
@@ -142,6 +141,7 @@ public:
         string _jet_veto_tag;	
 	string _electron_SSF;
 	string _metpt_fname;
+	string _muon_roch_fname;
 
 	TFile *_outrootfile;
 	vector<string> _outrootfilenames;
@@ -173,7 +173,8 @@ public:
 
 	//muon correction
 	std::unique_ptr<correction::CorrectionSet> _correction_muon ;
-	RoccoR _Roch_corr;
+	std::unique_ptr<correction::CorrectionSet>_muon_scalsmear_corrector;
+	//RoccoR _Roch_corr; this needs to on for something without the new mjuon correction
 	void applyMuPtCorrection();
 
 	//electron correction

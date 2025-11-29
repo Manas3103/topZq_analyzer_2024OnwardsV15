@@ -260,7 +260,6 @@ def Nanoaodprocessor_singledir(indir, outputroot, procflags, config):
             config['muon_roch_fname'],
             config['muon_fname'],
             config['muonHLTtype'],
-            config['muonRECOtype'],
             config['muonIDtype'],
             config['muonISOtype'],
             config['electron_fname'],
