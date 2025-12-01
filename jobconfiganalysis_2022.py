@@ -105,13 +105,35 @@ procflags = {
 
 
 
+
+nanoaod_inputdir_outputdir_pairs = [
+    ['/MuonEG/Run2022D-22Sep2023-v1/NANOAOD',
+     'Data_MuonEG_d.root',
+     'Data_MuonEG_d.out'],
+
+    ['/TTWZ_TuneCP5_13p6TeV_madgraph-pythia8/Run3Summer22NanoAODv11-126X_mcRun3_2022_realistic_v2-v2/NANOAODSIM',
+     'ttwz.root',
+     'ttwz.out'],
+
+    ['/EGamma/Run2022C-16Dec2023-v1/NANOAOD',
+     'Data_EGamma_c.root',
+     'Data_EGamma_c.out'],
+
+    ['/Muon/Run2022C-16Dec2023-v1/NANOAOD',
+     'Data_Muon_c.root',
+     'Data_Muon_c.out'],
+]
+
+
+
+'''
 nanoaod_inputdir_outputdir_pairs = [
     ['/TZQB-Zto2L-4FS_MLL-30_TuneCP5_13p6TeV_amcatnlo-pythia8/Run3Summer22NanoAODv12-130X_mcRun3_2022_realistic_v5-v2/NANOAODSIM',
      'TOP_tzq_2022.root',
      'TOP_tzq_2022.out']
 
 ]
-
+'''
 """
 nanoaod_inputdir_outputdir_pairs = [
     ['/ST_tW_antitop_5f_inclusiveDecays_TuneCP5_PSweights_13TeV-powheg-pythia8/RunIIFall17NanoAODv7-PU2017_12Apr2018_Nano02Apr2020_102X_mc2017_realistic_v8-v1/NANOAODSIM',

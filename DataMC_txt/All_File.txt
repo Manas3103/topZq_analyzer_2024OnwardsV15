@@ -41,4 +41,4 @@
 /MuonEG/Run2022C-22Sep2023-v1/NANOAOD Data_MuonEG_c.root Data_MuonEG_c.out
 /EGamma/Run2022D-16Dec2023-v1/NANOAOD  Data_EGamma_d.root  Data_EGamma_d.out
 /Muon/Run2022D-16Dec2023-v1/NANOAOD  Data_Muon_d.root  Data_Muon_d.out
-MuonEG/Run2022D-22Sep2023-v1/NANOAOD Data_MuonEG_d.root  Data_MuonEG_d.out
+/MuonEG/Run2022D-22Sep2023-v1/NANOAOD Data_MuonEG_d.root  Data_MuonEG_d.out

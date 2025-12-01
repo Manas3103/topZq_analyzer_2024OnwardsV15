@@ -26,5 +26,5 @@ das/
 logs/*
 nanoaodrdataframe
 batch_*
-.log
-
+*.log
+*.err
