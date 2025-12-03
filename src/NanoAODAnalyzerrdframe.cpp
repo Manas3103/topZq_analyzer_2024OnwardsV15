@@ -1352,17 +1352,28 @@ void NanoAODAnalyzerrdframe::setParams(int year, string runtype, int datatype)
     }
 
 
-	if(_runtype.find("PreEE") != std::string::npos){
+    if(_runtype.find("PreEE") != std::string::npos){
         _isPreEE = true;
         cout << "PreEE Selected " << endl;
         std::cout<< "-------------------------------------------------------------------" << std::endl;
-    }else if(_runtype.find("PostEE") != std::string::npos){
+    }
+    else if(_runtype.find("PostEE") != std::string::npos){
         _isPostEE = true;
         cout << " PostEE  Selected!" << endl;
         std::cout<< "-------------------------------------------------------------------" << std::endl;
     }
-    if (!_isPreEE && !_isPostEE){
-        std::cout<< "Default run version : PreEE or PostEE is not selected! "<< std::endl;
+    else if(_runtype.find("PreBPix") != std::string::npos) {
+        _isPreBPix = true;
+        cout << "PreBPix Selected" << endl;
+        cout << "-------------------------------------------------------------------" << endl;
+    }
+    else if(_runtype.find("PostBPix") != std::string::npos) {
+        _isPostBPix = true;
+        cout << "PostBPix Selected!" << endl;
+        cout << "-------------------------------------------------------------------" << endl;
+    }
+    else if(!_isPreEE && !_isPostEE && !_isPreBPix && !_isPostBPix){
+        std::cout<< "Default run version : PreEE , PostEE , PreBPix, PostBPix is not selected! "<< std::endl;
         std::cout<< "-------------------------------------------------------------------" << std::endl;
     }
 

@@ -1569,7 +1569,21 @@ void BaseAnalyser::defineSignalRegion()
                .Define("TR_trailingLepton_eta",
                    [](bool cond, float eta) { return cond ? eta : -999.f; },
                    {"trialRegion_trail", "TrailingLepton_eta"});       
-/*  
+
+
+    _rlm = _rlm.Define("ThreeLSignalRegion", " NgoodLepton==3 && ncleanbjetspass >= 1 && All_good_tightLeptons && abs(Sum(goodLepton_charge)) == 1")
+    	       .Define("ThreeLSignalRegion_lead" , "ThreeLSignalRegion && leadingLepton_pt > 0")
+	       .Define("ThreeLSignal_leadingLepton_pt", [](bool cond, float pt) { return cond ? pt : -999.f; }, {"ThreeLSignalRegion_lead", "leadingLepton_pt"})
+	       .Define("ThreeLSignalRegion_nElectron","ThreeLSignalRegion ? NbaselineElectrons : -1");
+
+    _rlm = _rlm.Define(
+    "zboson_mass_3LRegion",
+    [](double zmass, bool is3LSR) {
+        return (is3LSR ? zmass : -1.0);},{"zboson_mass", "ThreeLSignalRegion"});
+
+
+
+	       /*  
     _rlm = _rlm.Define("baseRegion", " NgoodLepton==3 && All_good_tightLeptons && goodMET_pt>20")
 	       .Define("SignalRegion", "baseRegion && ncleanjetspass >= 2 && ncleanbjetspass >= 1 && OSSF_category ==1")
 	       .Define("SignalRegion_tzq", "SignalRegion && nCentral_jet < 4")
@@ -1833,6 +1847,10 @@ void BaseAnalyser::defineMoreVars()
     addVartoStore("subleadingLepton_eta");
     addVartoStore("TrailingLepton_pt");
     addVartoStore("TrailingLepton_eta");
+
+    addVartoStore("ThreeLSignal_leadingLepton_pt");
+    addVartoStore("ThreeLSignalRegion_nElectron");
+    addVartoStore("zboson_mass_3LRegion");
 
     // 3-lepton case
     addVartoStore("goodLepton3_pt");
@@ -2193,7 +2211,7 @@ void BaseAnalyser::setupObjects()
 	processOSSFPairs();
 	reconstructWboson();
 	reconstructTop();
-	BDT_variables();
+//	BDT_variables();
 	defineSignalRegion();
 
 	/*calculateZBosonMass();
