@@ -25,6 +25,7 @@ int main(void) {
 	c1.Add("/uscms/home/msahoo/nobackup/Project_tzq/2022_postEE_tZq.root"); // MC
 	BaseAnalyser nanoaodrdf(&c1, "top_tzq.root");
 	nanoaodrdf.setParams(2022, "PreEE", -1);
+//        nanoaodrdf.setParams(2022, "PostEE", -1);
 	nanoaodrdf.setHLT();
 
 	string goodjsonfname = "data/GoldenJSON/golden_json_latest_2022.json";

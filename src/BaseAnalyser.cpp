@@ -53,6 +53,44 @@ BaseAnalyser::BaseAnalyser(TTree *t, std::string outfilename)
             "HLT_DiMu9_Ele9_CaloIdL_TrackIdL_DZ",
             "HLT_Mu8_DiEle12_CaloIdL_TrackIdL"
     };
+
+	HLT2022EENames = {
+	    "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL",
+	    "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ",
+	    "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ",
+	    "HLT_Mu37_Ele27_CaloIdL_MW",
+	    "HLT_Mu27_Ele37_CaloIdL_MW",
+	    "HLT_DiMu9_Ele9_CaloIdL_TrackIdL_DZ",
+	    "HLT_Mu8_DiEle12_CaloIdL_TrackIdL",
+	    "HLT_Mu8_DiEle12_CaloIdL_TrackIdL_DZ",
+	    "HLT_Ele27_WPTight_Gsf",
+	    "HLT_Ele28_WPTight_Gsf",
+	    "HLT_Ele30_WPTight_Gsf",
+	    "HLT_Ele32_WPTight_Gsf",
+	    "HLT_Ele35_WPTight_Gsf",
+	    "HLT_Ele38_WPTight_Gsf",
+	    "HLT_Ele40_WPTight_Gsf",
+	    "HLT_Ele115_CaloIdVT_GsfTrkIdT",
+	    "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL",
+	    "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ",
+	    "HLT_Ele27_Ele37_CaloIdL_MW",
+	    "HLT_DoubleEle33_CaloIdL_MW",
+	    "HLT_DoubleEle25_CaloIdL_MW",
+	    "HLT_DoubleEle27_CaloIdL_MW",
+	    "HLT_Ele16_Ele12_Ele8_CaloIdL_TrackIdL",
+	    "HLT_IsoMu30",
+	    "HLT_IsoMu24",
+	    "HLT_IsoMu24_eta2p1",
+	    "HLT_IsoMu27",
+	    "HLT_Mu50",
+	    "HLT_TripleMu_10_5_5_DZ",
+	    "HLT_TripleMu_12_10_5",
+	    "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8",
+	    "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8",
+	    "HLT_Mu19_TrkIsoVVL_Mu9_TrkIsoVVL_DZ_Mass8",
+	    "HLT_Mu19_TrkIsoVVL_Mu9_TrkIsoVVL_DZ_Mass3p8"
+	};
+
 }
 
 
@@ -96,8 +134,11 @@ void BaseAnalyser::selectElectrons()
     }
 
     // Define good electrons based on ID and additional criteria
-    _rlm = _rlm.Define("goodElectronsID", ElectronID(2)); // ID level 2
-    _rlm = _rlm.Define("goodElectrons", "goodElectronsID && Electron_pt > 25.0 && abs(Electron_eta) < 2.1 && Electron_pfRelIso03_all < 0.15");
+    _rlm = _rlm.Define("looseElect_ID", ElectronID(2)) // ID level 2
+	       .Define("mediumElect_ID", ElectronID(3))
+	       .Define("tightElect_ID", ElectronID(4))
+               .Define("goodElectronsID", "looseElect_ID || mediumElect_ID || tightElect_ID");
+    _rlm = _rlm.Define("goodElectrons", "Electron_pt > 30.0 && abs(Electron_eta) < 2.4 && Electron_miniPFRelIso_all < 0.40 && goodElectronsID");
 
     // Define additional variables for good electrons
     _rlm = _rlm.Define("goodElectrons_pt", "Electron_pt[goodElectrons]")
@@ -120,7 +161,7 @@ void BaseAnalyser::selectElectrons()
     // =====================================================================
     _rlm = _rlm.Define("baselineElectrons", 
                        "Electron_pt > 10.0 && abs(Electron_eta) < 2.5 && goodElectronsID &&"
-                       "Electron_pfRelIso03_all < 0.40 && abs(Electron_dxy) < 0.05 && "
+                       "Electron_miniPFRelIso_all < 0.40 && abs(Electron_dxy) < 0.05 && "
                        "abs(Electron_dz) < 0.10 && Electron_lostHits <= 1 && "
                        "Electron_hoe < 0.10 && Electron_convVeto &&"
 		       "((abs(Electron_eta) < 1.479 && Electron_sieie < 0.011) || " // Barrel cut
@@ -129,7 +170,7 @@ void BaseAnalyser::selectElectrons()
 		       );
 
     // Additional variables for baseline electrons
-    _rlm = _rlm.Define("A_baselineElectrons_pt", "Electron_pt_corr[baselineElectrons]")
+    _rlm = _rlm.Define("A_baselineElectrons_pt", "Electron_pt[baselineElectrons]")
                 .Define("A_baselineElectrons_eta", "Electron_eta[baselineElectrons]")
                 .Define("A_baselineElectrons_phi", "Electron_phi[baselineElectrons]")
                 .Define("A_baselineElectrons_mass", "Electron_mass[baselineElectrons]")
@@ -184,7 +225,7 @@ void BaseAnalyser::selectMuons()
 
     // Define good muons based on ID and additional criteria
     _rlm = _rlm.Define("goodMuonsID", MuonID(2)); // loose muons
-    _rlm = _rlm.Define("goodMuons", "goodMuonsID && Muon_pt > 30 && abs(Muon_eta) < 2.4 && Muon_miniPFRelIso_all < 0.40");
+    _rlm = _rlm.Define("goodMuons", "Muon_pt > 30 && abs(Muon_eta) < 2.4 && Muon_miniPFRelIso_all < 0.40 && goodMuonsID");
 
     // Define additional variables for good muons
     _rlm = _rlm.Define("goodMuons_pt", "Muon_pt[goodMuons]")
@@ -1755,6 +1796,7 @@ void BaseAnalyser::defineMoreVars()
     addVartoStore("evWeight");
     //electron
     addVartoStore("nElectron");
+    addVartoStore("NgoodElectrons");
     addVartoStore("baselineElectrons_idx");
     //addVartoStore("ngoodElectrons");
     addVartoStore("Electron_charge");
@@ -1767,11 +1809,13 @@ void BaseAnalyser::defineMoreVars()
     addVartoStore("baselineElectrons_eta");
     addVartoStore("baselineElectrons_phi");
     addVartoStore("NbaselineElectrons");
+    addVartoStore("A_NbaselineElectrons");
     addVartoStore("baselineElectrons_charge");
 
 
     //muon
     addVartoStore("nMuon");
+    addVartoStore("NgoodMuons");
     addVartoStore("Muon_charge");
     addVartoStore("Muon_mass");
     addVartoStore("Muon_pt");

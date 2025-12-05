@@ -114,6 +114,7 @@ public:
 	std::vector< std::string > HLT2022Names;
 	std::vector< std::string > HLT2022EENames;
 	std::vector< std::string > HLT2023Names;
+	std::vector< std::string > HLT2024Names;
 
 	//initialize object IDs
 	std::string ElectronID(int cutbasedID);

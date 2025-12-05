@@ -1449,11 +1449,15 @@ std::string NanoAODAnalyzerrdframe::setHLT(std::string str_HLT){
             }else if(_year==2018){
                 HLTGlobalNames=HLT2018Names;
             }else if(_year==2022){
-                HLTGlobalNames=HLT2022Names;
+		if(_runtype == "PreEE"){
+                   HLTGlobalNames = HLT2022Names;
+                }else if(_runtype == "PostEE"){
+                   HLTGlobalNames = HLT2022EENames;
+                }
             }else if(_year==2023){
-                HLTGlobalNames=HLT2018Names;
+                HLTGlobalNames=HLT2023Names;
             }else if(_year==2024){
-                HLTGlobalNames=HLT2022Names;
+                HLTGlobalNames=HLT2024Names;
             }
 
             //loop on HLTs
