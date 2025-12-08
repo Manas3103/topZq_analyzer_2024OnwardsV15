@@ -563,35 +563,6 @@ void BaseAnalyser::mergeLeptons() {
         std::cout << "================================//=================================" << std::endl;
     }
 
-    //-------------------------------------------------------
-    // Define total number of leptons (sum of electrons and muons)
-    //-------------------------------------------------------
-    _rlm = _rlm.Define("totalLeptonCount_new", [](int electronCount, int muonCount) {
-        return electronCount + muonCount;
-    }, {"NbaselineElectrons", "NbaselineMuons"});
-
-    //-------------------------------------------------------
-    // Combine muon and electron 4-vectors
-    //-------------------------------------------------------
-    _rlm = _rlm.Define("combinedLepton4Vecs", [](const std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>& muonVectors,
-                                                 const std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>& electronVectors) {
-        std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>> mergedVectors;
-        mergedVectors.insert(mergedVectors.end(), muonVectors.begin(), muonVectors.end());
-        mergedVectors.insert(mergedVectors.end(), electronVectors.begin(), electronVectors.end());
-        return mergedVectors;
-    }, {"baselineMuon_4Vecs", "baselineElectron_4Vecs"});
-
-    //-------------------------------------------------------
-    // Compute mass of 3-lepton system
-    //-------------------------------------------------------
-    _rlm = _rlm.Define("mass_of_3lepton", [](const std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>& combined4Vecs) {
-        if (combined4Vecs.size() == 3) {
-            auto total4Vec = combined4Vecs[0] + combined4Vecs[1] + combined4Vecs[2];
-            return total4Vec.M();
-        }
-        return -1.0; // Default value for events without exactly 3 leptons
-    }, {"combinedLepton4Vecs"});
-
 
     //-------------------------------------------------------
     // Combine lepton pt, eta, phi properties
@@ -600,7 +571,9 @@ void BaseAnalyser::mergeLeptons() {
 	       .Define("combinedLeptonEta", "ROOT::VecOps::Concatenate(baselineMuons_eta, baselineElectrons_eta)")
 	       .Define("combinedLeptonPhi", "ROOT::VecOps::Concatenate(baselineMuons_phi, baselineElectrons_phi)")
 	       .Define("combinedLepton_isPrompt", "ROOT::VecOps::Concatenate(tight_Muons, tight_baselineElectrons)")
-	       .Define("totalLeptonCount","int(combinedLeptonPt.size())") 
+	       .Define("combinedLeptonMass", "ROOT::VecOps::Concatenate(baselineMuons_mass, baselineElectrons_mass)")
+	       .Define("totalLeptonCount","int(combinedLeptonPt.size())")
+	       .Define("combinedLepton4Vecs", ::generate_4vec, {"combinedLeptonPt", "combinedLeptonEta", "combinedLeptonPhi", "combinedLeptonMass"}) 
                .Define("combinedLeptonCharge", "ROOT::VecOps::Concatenate(baselineMuons_charge, baselineElectrons_charge)");
 	_rlm = _rlm.Define(
 	    "combinedLeptonFlavor",
@@ -608,11 +581,24 @@ void BaseAnalyser::mergeLeptons() {
 	    "ROOT::VecOps::RVec<int>(baselineMuons_charge.size(), 1), "
 	    "ROOT::VecOps::RVec<int>(baselineElectrons_charge.size(), 0))"
 	);
+        _rlm = _rlm.Define("mass_of_3lepton","combinedLepton4Vecs.size() == 3 ? (combinedLepton4Vecs[0] + combinedLepton4Vecs[1] + combinedLepton4Vecs[2]).M() : -1.0");
+
+	// 1. All prompt leptons
+	_rlm = _rlm.Define("allTightLeptons",
+			   "ROOT::VecOps::All(combinedLepton_isPrompt == 1)");
+
+	// 2. Count 4-vectors
+	_rlm = _rlm.Define("numCombinedLepton4Vecs",
+			   "int(combinedLepton4Vecs.size())");
+
+	// 3. Merge TLorentzVectors (muons + electrons)
+	_rlm = _rlm.Define("combinedLeptonTLorentzVecs",
+			   "ROOT::VecOps::Concatenate(baselineMuons_TL4Vecs, baselineElectrons_TL4Vecs)");
 
 
 
 
-
+/*
     _rlm = _rlm.Define("allTightLeptons",
     [](const ROOT::VecOps::RVec<int>& combinedLepton_isPrompt) {
         // Return true if ALL elements are 1 (prompt)
@@ -637,7 +623,7 @@ void BaseAnalyser::mergeLeptons() {
                            return ROOT::VecOps::Concatenate(muonTLVectors, electronTLVectors);
                        },
                        {"baselineMuons_TL4Vecs", "baselineElectrons_TL4Vecs"});
-
+*/
 	// ==============================================
 	// Define sorted indices with pT cuts
 	// ==============================================
