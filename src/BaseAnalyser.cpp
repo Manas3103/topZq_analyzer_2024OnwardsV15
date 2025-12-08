@@ -179,8 +179,11 @@ void BaseAnalyser::selectElectrons()
                 .Define("A_NbaselineElectrons", "int(A_baselineElectrons_pt.size())");
 
     // Define tight and fakable electrons based on MVA score
-    _rlm = _rlm.Define("A_baselineElectrons_mvaTTH", "Electron_mvaTTH[baselineElectrons]")
-               .Define("A_tight_baselineElectrons", "A_baselineElectrons_mvaTTH > 0.90");
+    _rlm = _rlm.Define("TightElectrons", "baselineElectrons && Electron_mvaTTH > 0.90")
+	       .Define("TightElectrons_pt", "Electron_pt[TightElectrons]")
+	       .Define("N_TightElectrons", "int(TightElectrons_pt.size())")
+               .Define("A_baselineElectrons_mvaTTH", "Electron_mvaTTH[baselineElectrons]")
+               .Define("A_tight_baselineElectrons", "Electron_mvaTTH[baselineElectrons] > 0.90");
 
 
     // Generate 4-vectors for baseline electrons
@@ -272,7 +275,7 @@ void BaseAnalyser::selectMuons()
     },
     {"baselineMuons_pt", "baselineMuons_eta", "baselineMuons_phi", "baselineMuons_mass"});
     
-    _rlm = _rlm.Define("tight_baselineMuons", "Muon_mvaTTH[baselineMuons] > 0.64");
+    _rlm = _rlm.Define("tight_Muons", "Muon_mvaTTH[baselineMuons] > 0.64");
 
     
 
@@ -563,7 +566,7 @@ void BaseAnalyser::mergeLeptons() {
     //-------------------------------------------------------
     // Define total number of leptons (sum of electrons and muons)
     //-------------------------------------------------------
-    _rlm = _rlm.Define("totalLeptonCount", [](int electronCount, int muonCount) {
+    _rlm = _rlm.Define("totalLeptonCount_new", [](int electronCount, int muonCount) {
         return electronCount + muonCount;
     }, {"NbaselineElectrons", "NbaselineMuons"});
 
@@ -593,30 +596,22 @@ void BaseAnalyser::mergeLeptons() {
     //-------------------------------------------------------
     // Combine lepton pt, eta, phi properties
     //-------------------------------------------------------
-  /*  _rlm = _rlm.Define("combinedLeptonPt", [](const ROOT::VecOps::RVec<float>& muonPt,
-                                              const ROOT::VecOps::RVec<float>& electronPt) {
-        return ROOT::VecOps::Concatenate(muonPt, electronPt);
-    }, {"baselineMuons_pt", "baselineElectrons_pt"});*/
-    _rlm = _rlm.Define("combinedLeptonPt","ROOT::VecOps::Concatenate(baselineMuons_pt, baselineElectrons_pt)");
+    _rlm = _rlm.Define("combinedLeptonPt","ROOT::VecOps::Concatenate(baselineMuons_pt, baselineElectrons_pt)")
+	       .Define("combinedLeptonEta", "ROOT::VecOps::Concatenate(baselineMuons_eta, baselineElectrons_eta)")
+	       .Define("combinedLeptonPhi", "ROOT::VecOps::Concatenate(baselineMuons_phi, baselineElectrons_phi)")
+	       .Define("combinedLepton_isPrompt", "ROOT::VecOps::Concatenate(tight_Muons, tight_baselineElectrons)")
+	       .Define("totalLeptonCount","int(combinedLeptonPt.size())") 
+               .Define("combinedLeptonCharge", "ROOT::VecOps::Concatenate(baselineMuons_charge, baselineElectrons_charge)");
+	_rlm = _rlm.Define(
+	    "combinedLeptonFlavor",
+	    "ROOT::VecOps::Concatenate("
+	    "ROOT::VecOps::RVec<int>(baselineMuons_charge.size(), 1), "
+	    "ROOT::VecOps::RVec<int>(baselineElectrons_charge.size(), 0))"
+	);
 
 
-    _rlm = _rlm.Define("combinedLeptonEta", [](const ROOT::VecOps::RVec<float>& muonEta,
-                                               const ROOT::VecOps::RVec<float>& electronEta) {
-        return ROOT::VecOps::Concatenate(muonEta, electronEta);
-    }, {"baselineMuons_eta", "baselineElectrons_eta"});
 
-    _rlm = _rlm.Define("combinedLeptonPhi", [](const ROOT::VecOps::RVec<float>& muonPhi,
-                                               const ROOT::VecOps::RVec<float>& electronPhi) {
-        return ROOT::VecOps::Concatenate(muonPhi, electronPhi);
-    }, {"baselineMuons_phi", "baselineElectrons_phi"});
-    
-    
 
-    _rlm = _rlm.Define("combinedLepton_isPrompt", [](const ROOT::VecOps::RVec<int>& muonIsPrompt,
-                                                     const ROOT::VecOps::RVec<int>& electronIsPrompt) {
-        return ROOT::VecOps::Concatenate(muonIsPrompt, electronIsPrompt);
-    },
-    {"tight_baselineMuons" , "tight_baselineElectrons"});
 
     _rlm = _rlm.Define("allTightLeptons",
     [](const ROOT::VecOps::RVec<int>& combinedLepton_isPrompt) {
@@ -632,27 +627,6 @@ void BaseAnalyser::mergeLeptons() {
     _rlm = _rlm.Define("numCombinedLepton4Vecs", [](const std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>& combined4Vecs) {
         return int(combined4Vecs.size());
     }, {"combinedLepton4Vecs"});
-
-    //-------------------------------------------------------
-    // Combine lepton charges
-    //-------------------------------------------------------
-    _rlm = _rlm.Define("combinedLeptonCharge",
-                       [](const ROOT::VecOps::RVec<int>& muonCharges,
-                          const ROOT::VecOps::RVec<int>& electronCharges) {
-                           return ROOT::VecOps::Concatenate(muonCharges, electronCharges);
-                       },
-                       {"baselineMuons_charge" , "baselineElectrons_charge"});
-
-    //-------------------------------------------------------
-    // Assign flavor to leptons: 1 for muon, 0 for electron
-    //-------------------------------------------------------
-    _rlm = _rlm.Define("combinedLeptonFlavor", [](const ROOT::VecOps::RVec<int>& muonCharges,
-                                                  const ROOT::VecOps::RVec<int>& electronCharges) {
-        std::vector<int> flavor;
-        flavor.insert(flavor.end(), muonCharges.size(), 1);  // 1 for muons
-        flavor.insert(flavor.end(), electronCharges.size(), 0); // 0 for electrons
-        return flavor;
-    }, {"baselineMuons_charge", "baselineElectrons_charge"});
 
     //-------------------------------------------------------
     // Merge muons and electrons into a ROOT::VecOps::RVec<TLorentzVector>
@@ -743,12 +717,12 @@ void BaseAnalyser::mergeLeptons() {
 
 	// 6. Flavor (e.g., 11 for electron, 13 for muon)
 	_rlm = _rlm.Define("goodLepton_flavor",
-	    [](const std::vector<int>& flavorVec,
+	    [](const ROOT::VecOps::RVec<int>& flavorVec,
 	       const ROOT::VecOps::RVec<size_t>& indices,
 	       int nLeptons) {
-		if (nLeptons < 3 || indices.size() < 3) return std::vector<int>{};
+		if (nLeptons < 3 || indices.size() < 3) return ROOT::VecOps::RVec<int>{};
 		
-		std::vector<int> sortedFlavor;
+		ROOT::VecOps::RVec<int> sortedFlavor;
 		sortedFlavor.reserve(indices.size());
 		for (auto i : indices) sortedFlavor.push_back(flavorVec[i]);
 		return sortedFlavor;
@@ -837,7 +811,7 @@ void BaseAnalyser::DefineGoodLeptonGroups()
                .Define("goodLepton3_eta", "is3LeptonEvent ? goodLepton_eta : ROOT::VecOps::RVec<float>{}")
                .Define("goodLepton3_phi", "is3LeptonEvent ? goodLepton_phi : ROOT::VecOps::RVec<float>{}")
                .Define("goodLepton3_charge", "is3LeptonEvent ? goodLepton_charge : ROOT::VecOps::RVec<int>{}")
-               .Define("goodLepton3_flavor", "is3LeptonEvent ? goodLepton_flavor : std::vector<int>{}")
+               .Define("goodLepton3_flavor", "is3LeptonEvent ? goodLepton_flavor : ROOT::VecOps::RVec<int>{}")
                .Define("goodLepton3_isPrompt", "is3LeptonEvent ? goodLepton_isPrompt : ROOT::VecOps::RVec<int>{}")
                .Define("goodLepton3_4Vecs", "is3LeptonEvent ? goodLepton_4Vecs : std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>{}")
                .Define("goodLepton3_TL4Vecs", "is3LeptonEvent ? goodLepton_TL4Vecs : ROOT::VecOps::RVec<TLorentzVector>{}");
@@ -851,7 +825,7 @@ void BaseAnalyser::DefineGoodLeptonGroups()
                .Define("goodLepton4_eta", "is4LeptonEvent ? goodLepton_eta : ROOT::VecOps::RVec<float>{}")
                .Define("goodLepton4_phi", "is4LeptonEvent ? goodLepton_phi : ROOT::VecOps::RVec<float>{}")
                .Define("goodLepton4_charge", "is4LeptonEvent ? goodLepton_charge : ROOT::VecOps::RVec<int>{}")
-               .Define("goodLepton4_flavor", "is4LeptonEvent ? goodLepton_flavor : std::vector<int>{}")
+               .Define("goodLepton4_flavor", "is4LeptonEvent ? goodLepton_flavor : ROOT::VecOps::RVec<int>{}")
                .Define("goodLepton4_isPrompt", "is4LeptonEvent ? goodLepton_isPrompt : ROOT::VecOps::RVec<int>{}")
                .Define("goodLepton4_4Vecs", "is4LeptonEvent ? goodLepton_4Vecs : std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>{}")
                .Define("goodLepton4_TL4Vecs", "is4LeptonEvent ? goodLepton_TL4Vecs : ROOT::VecOps::RVec<TLorentzVector>{}");
@@ -874,7 +848,7 @@ void BaseAnalyser::processOSSFPairs() {
     //-------------------------------------------------------
     _rlm = _rlm.Define("OSSF_info", [](const std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>& lep4vecs,
                                        const ROOT::VecOps::RVec<int>& charges,
-                                       const std::vector<int>& flavors) {
+                                       const ROOT::VecOps::RVec<int>& flavors) {
         const double Z_mass = 91.1876;
         const double window = 15.0;
 
@@ -995,7 +969,7 @@ void BaseAnalyser::processOSSFPairs() {
     }, {"topLepton_index", "goodLepton3_charge"});
 
     // flavor
-    _rlm = _rlm.Define("topLepton_flavor_new", [](int idx, const std::vector<int>& flavors) {
+    _rlm = _rlm.Define("topLepton_flavor_new", [](int idx, const ROOT::VecOps::RVec<int>& flavors) {
 	return idx >= 0 ? flavors[idx] : -1;
     }, {"topLepton_index", "goodLepton3_flavor"});
 
@@ -1010,7 +984,7 @@ void BaseAnalyser::processOSSFPairs() {
 
     _rlm = _rlm.Define("OSSF4L_info", [](const std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>& lep4vecs,
                                      const ROOT::VecOps::RVec<int>& charges,
-                                     const std::vector<int>& flavors) {
+                                     const ROOT::VecOps::RVec<int>& flavors) {
        const double Z_mass = 91.1876;
        const double window = 15.0;
 
@@ -1802,14 +1776,18 @@ void BaseAnalyser::defineMoreVars()
     addVartoStore("Electron_charge");
     addVartoStore("Electron_pt");
    ////BDT VARIABLES FOR ELECTRONS///////////
+    addVartoStore("A_NbaselineElectrons");
+    addVartoStore("A_tight_baselineElectrons");
     addVartoStore("tight_baselineElectrons");
+    addVartoStore("Tight_baselineElectrons");
+    addVartoStore("N_TightElectrons");
+    addVartoStore("A_TightNbaselineElectrons");
     //addVartoStore("baselineElectrons_isPrompt");  // this is decided using genPartFlav
 
     addVartoStore("baselineElectrons_pt");
     addVartoStore("baselineElectrons_eta");
     addVartoStore("baselineElectrons_phi");
     addVartoStore("NbaselineElectrons");
-    addVartoStore("A_NbaselineElectrons");
     addVartoStore("baselineElectrons_charge");
 
 
@@ -1826,7 +1804,7 @@ void BaseAnalyser::defineMoreVars()
     addVartoStore("baselineMuons_eta");
     addVartoStore("baselineMuons_phi");
     addVartoStore("baselineMuons_charge");
-    addVartoStore("tight_baselineMuons");
+    addVartoStore("tight_Muons");
 
  
     
@@ -1868,6 +1846,7 @@ void BaseAnalyser::defineMoreVars()
     addVartoStore("totalLeptonCount");
     addVartoStore("mass_of_3lepton");
     addVartoStore("combinedLeptonPt");
+    addVartoStore("combinedLeptonPt_new");
     addVartoStore("combinedLeptonEta");
     addVartoStore("combinedLeptonPhi");
     addVartoStore("combinedLepton_isPrompt");
@@ -1875,6 +1854,9 @@ void BaseAnalyser::defineMoreVars()
     addVartoStore("numCombinedLepton4Vecs");
     addVartoStore("combinedLeptonCharge");
     addVartoStore("combinedLeptonFlavor");
+    addVartoStore("combinedLeptonCharge_new");
+    addVartoStore("combinedLeptonFlavor_new");
+
    // addVartoStore("combinedLeptonTLorentzVecs");
     
     addVartoStore("goodLepton_pt");
