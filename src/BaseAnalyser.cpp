@@ -113,7 +113,8 @@ void BaseAnalyser::defineCuts()
 	std::cout<< "-------------------------------------------------------------------" << std::endl;
 
 	//MinimalSelection to filter events
-	addCuts("nMuon + nElectron >= 3  && nJet>0 && PV_npvsGood >= 1 ", "0");//not for drellyan
+//	addCuts("nMuon + nElectron >= 3  && nJet>0 && PV_npvsGood >= 1 ", "0");//not for drellyan
+	addCuts("totalLeptonCount >= 3  && ncleanjetspass >0 && PV_npvsGood >= 1 ", "0");//not for drellyan
 	//addCuts("Flag_goodVertices && Flag_HBHENoiseFilter && Flag_HBHENoiseIsoFilter && Flag_EcalDeadCellTriggerPrimitiveFilter && Flag_BadPFMuonFilter && Flag_BadPFMuobDzFilter && Flag_eeBadScFilter && Flag_ecalBadCalibFilter", "00");
 	addCuts("Flag_goodVertices && Flag_HBHENoiseFilter && Flag_HBHENoiseIsoFilter && Flag_EcalDeadCellTriggerPrimitiveFilter && Flag_BadPFMuonFilter && Flag_BadPFMuonDzFilter && Flag_eeBadScFilter", "00");
 	addCuts(setHLT(),"000");
@@ -1090,63 +1091,7 @@ void BaseAnalyser::selectMET()
     std::cout<< "==================CORRECT MET HAS BEEN SELECTED====================" << std::endl;
     std::cout<< "================================//=================================" << std::endl;
 }
-/*
-void BaseAnalyser::reconstructWboson()
-{
-    if (debug){
-    std::cout<<std::endl;
-    std::cout<< "================================//=================================" << std::endl;
-    std::cout<< "Line : "<< __LINE__ << " Function : " << __FUNCTION__ << std::endl;
-    std::cout<< "================================//=================================" << std::endl;
-    }
-    //-------------------- Reconstruct neutrino ---------------------
 
-    std::cout<<"Reconstructing neutrino from MET"<<std::endl;
-    _rlm = _rlm.Define("nu_pt", "MET_pt")
-               .Define("nu_phi", "MET_phi")
-               .Define("nu_phi_double", "static_cast<double>(nu_phi)")
-
-               .Define("nu_px", "nu_pt*cos(nu_phi)")
-               .Define("nu_py", "nu_pt*sin(nu_phi)");
-   
-    _rlm = _rlm.Define("lambda_reco", ::calculateLambda, {"topLepton_TLorentzVector", "nu_pt", "nu_phi"});
-
-    _rlm = _rlm.Define("delta_reco", ::calculateDelta, {"topLepton_TLorentzVector", "nu_pt", "lambda_reco"})
-               .Define("isRealSolution", "delta_reco > 0 ? 1 : -1");
-
-    _rlm = _rlm.Define("nu_pz", ::calculate_nu_z, {"topLepton_TLorentzVector", "lambda_reco", "delta_reco", "nu_pt", "nu_phi"});
-
-    _rlm = _rlm.Define("nu_energy", ::calculate_nu_energy, {"nu_pt", "nu_phi", "nu_pz"});
-
-    _rlm = _rlm.Define("nu_TL4vec", ::get_neutrino_TL4vec, {"nu_pt", "nu_phi", "nu_pz", "nu_energy"});
-
-
-    // for (const auto &delta_reco: _rlm.Take<float>("delta_reco"))
-    // {
-    //     std::cout << "delta_reco: " << delta_reco << "\n";
-    // }
-
-    //--------------------- Reconstruct W boson ---------------------
-
-    _rlm = _rlm.Define("Wboson_4vec", ::reconstructWboson_TL4vec, {"topLepton_TLorentzVector", "nu_TL4vec"})
-               .Define("w_mass","Wboson_4vec.M()")
-	       .Define("w_eta","Wboson_4vec.Eta()")
-	       .Define("w_phi","Wboson_4vec.Phi()")
-
-               .Define("w_pt","Wboson_4vec.Pt()");
-
-    // _rlm = _rlm.Define("Wboson_transversMass", "Wboson_4vec.Mt()");
-    _rlm = _rlm.Define("topLepton_phi", "topLepton_TLorentzVector.Phi()");
-    _rlm = _rlm.Define("topLepton_eta", "topLepton_TLorentzVector.Eta()");
-    _rlm = _rlm.Define("topLepton_pt", "topLepton_TLorentzVector.Pt()");
-
-    // _rlm = _rlm.Define("Wboson_transversMass", "sqrt(pow(topLepton_4vecs.Pt()+nu_pt,2)-pow(nu_pt*cos(nu_phi)+topLepton_4vecs.Px(),2) - pow(nu_pt*sin(nu_phi)+topLepton_4vecs.Py(),2))");
-    _rlm = _rlm.Define("delta_phi_lep_nu", ::calculate_deltaPhi_scalars, {"topLepton_phi", "nu_phi_double"})
-               .Define("Wboson_transversMass", "sqrt(2*topLepton_TLorentzVector.Pt()*nu_pt*(1-cos(delta_phi_lep_nu)))");
-   // _rlm = _rlm.Filter("Wboson_transversMass > 0", "Events with invariant mass close to Z boson mass");   
-
-}
-*/
 
 void BaseAnalyser::reconstructWboson()
 {
