@@ -113,8 +113,8 @@ void BaseAnalyser::defineCuts()
 	std::cout<< "-------------------------------------------------------------------" << std::endl;
 
 	//MinimalSelection to filter events
-//	addCuts("nMuon + nElectron >= 3  && nJet>0 && PV_npvsGood >= 1 ", "0");//not for drellyan
-	addCuts("totalLeptonCount >= 3  && ncleanjetspass >0 && PV_npvsGood >= 1 ", "0");//not for drellyan
+	addCuts("nMuon + nElectron >= 3  && nJet>0 && PV_npvsGood >= 1 ", "0");//not for drellyan
+//	addCuts("PV_npvsGood >= 1 ", "0");//not for drellyan
 	//addCuts("Flag_goodVertices && Flag_HBHENoiseFilter && Flag_HBHENoiseIsoFilter && Flag_EcalDeadCellTriggerPrimitiveFilter && Flag_BadPFMuonFilter && Flag_BadPFMuobDzFilter && Flag_eeBadScFilter && Flag_ecalBadCalibFilter", "00");
 	addCuts("Flag_goodVertices && Flag_HBHENoiseFilter && Flag_HBHENoiseIsoFilter && Flag_EcalDeadCellTriggerPrimitiveFilter && Flag_BadPFMuonFilter && Flag_BadPFMuonDzFilter && Flag_eeBadScFilter", "00");
 	addCuts(setHLT(),"000");
@@ -139,7 +139,7 @@ void BaseAnalyser::selectElectrons()
 	       .Define("mediumElect_ID", ElectronID(3))
 	       .Define("tightElect_ID", ElectronID(4))
                .Define("goodElectronsID", "looseElect_ID || mediumElect_ID || tightElect_ID");
-    _rlm = _rlm.Define("goodElectrons", "Electron_pt > 30.0 && abs(Electron_eta) < 2.4 && Electron_miniPFRelIso_all < 0.40 && goodElectronsID");
+    _rlm = _rlm.Define("goodElectrons", "Electron_pt > 10.0 && abs(Electron_eta) < 2.4 && Electron_miniPFRelIso_all < 0.40 && goodElectronsID && Electron_mvaTTH > 0.90");
 
     // Define additional variables for good electrons
     _rlm = _rlm.Define("goodElectrons_pt", "Electron_pt[goodElectrons]")
@@ -462,6 +462,7 @@ void BaseAnalyser::removeOverlaps()
 		.Define("centraljetpass", "abs(Selected_jeteta)<2.4")
 		.Define("Central_jetpt", "Selected_jetpt[centraljetpass]")
 		.Define("nCentral_jet","int(Central_jetpt.size())")
+		.Define("Leading_SelectedJet_pt" , "Selected_jetpt.size() > 0 ? Selected_jetpt[0] : -999") 
                 .Define("Selected_jetHT", "Sum(Selected_jetpt)");
 	_rlm = applyJetVetoMap(_rlm,"Selected_jeteta","Selected_jetphi").Filter("!vetoed_jets");
 	if (!_isData){
@@ -1489,7 +1490,7 @@ void BaseAnalyser::defineSignalRegion()
 
 
     _rlm = _rlm.Define("trialRegion_with_tightL", " NgoodLepton==3 && ncleanjetspass >= 2 && ncleanbjetspass >= 1 && All_good_tightLeptons && goodMET_pt>20");
-    _rlm = _rlm.Define("trialRegion", " NgoodLepton==3 && ncleanjetspass >= 2 && ncleanbjetspass >= 1 && goodMET_pt>20")
+    _rlm = _rlm.Define("trialRegion", " NgoodLepton==3 && ncleanjetspass >= 2 && ncleanbjetspass >= 1 && abs(Sum(goodLepton_charge)) == 1")
 	       .Define("trialRegion_lead" , "trialRegion && leadingLepton_pt > 0")
 	       .Define("trialRegion_sublead" , "trialRegion && subleadingLepton_pt > 0")
 	       .Define("trialRegion_trail" , "trialRegion && TrailingLepton_pt > 0")
@@ -1514,19 +1515,26 @@ void BaseAnalyser::defineSignalRegion()
                    {"trialRegion_top_lepton", "topLepton_pt_new"})
                .Define("TR_trailingLepton_eta",
                    [](bool cond, float eta) { return cond ? eta : -999.f; },
-                   {"trialRegion_trail", "TrailingLepton_eta"});       
+                   {"trialRegion_trail", "TrailingLepton_eta"})
+	       .Define("TR_nJets", "trialRegion ? int(Selected_jetpt.size()) : -1")
+	       .Define("TR_nbJets", "trialRegion ? int(Selected_bjetpt.size()) : -1");
 
 
     _rlm = _rlm.Define("ThreeLSignalRegion", " NgoodLepton==3 && ncleanbjetspass >= 1 && All_good_tightLeptons && abs(Sum(goodLepton_charge)) == 1")
     	       .Define("ThreeLSignalRegion_lead" , "ThreeLSignalRegion && leadingLepton_pt > 0")
 	       .Define("ThreeLSignal_leadingLepton_pt", [](bool cond, float pt) { return cond ? pt : -999.f; }, {"ThreeLSignalRegion_lead", "leadingLepton_pt"})
-	       .Define("ThreeLSignalRegion_nElectron","ThreeLSignalRegion ? NbaselineElectrons : -1");
+	       .Define("ThreeLSignalRegion_nElectron","ThreeLSignalRegion ? NbaselineElectrons : -1")
+	       .Define("ThreeLSignalRegion_nMuon","ThreeLSignalRegion ? NbaselineMuons : -1")
+               .Define("ThreeLSignalRegion_leadingJet_pt", "ThreeLSignalRegion ? Leading_SelectedJet_pt : -999")
+	       .Define("ThreeLSignalRegion_Jet_HT", "ThreeLSignalRegion ? Selected_jetHT : -1");
 
     _rlm = _rlm.Define(
     "zboson_mass_3LRegion",
     [](double zmass, bool is3LSR) {
         return (is3LSR ? zmass : -1.0);},{"zboson_mass", "ThreeLSignalRegion"});
-
+//    _rlm = _rlm.Define("Test3Ele_tight_region", "ncleanbjetspass >= 1 && baselineElectrons_mvaTTH>0.90 && NbaselineElectrons==3 && abs(Sum(baselineElectrons_charge)) == 1")
+     _rlm = _rlm.Define("Test3Ele_tight_region", "baselineElectrons_mvaTTH>0.90 && NbaselineElectrons==3")
+	       .Define("nElectron_T3E_TR", "int((baselineElectrons_pt[Test3Ele_tight_region]).size())");
 
 
 	       /*  
@@ -1807,7 +1815,11 @@ void BaseAnalyser::defineMoreVars()
 
     addVartoStore("ThreeLSignal_leadingLepton_pt");
     addVartoStore("ThreeLSignalRegion_nElectron");
+    addVartoStore("ThreeLSignalRegion_nMuon");
+    addVartoStore("ThreeLSignalRegion_leadingJet_pt");
+    addVartoStore("ThreeLSignalRegion_Jet_HT");
     addVartoStore("zboson_mass_3LRegion");
+    addVartoStore("nElectron_T3E_TR");
 
     // 3-lepton case
     addVartoStore("goodLepton3_pt");
@@ -1840,6 +1852,8 @@ void BaseAnalyser::defineMoreVars()
     addVartoStore("TR_subleadingLepton_eta");
     addVartoStore("TR_topLepton_pt");
     addVartoStore("TR_trailingLepton_eta");
+    addVartoStore("TR_nJets");
+    addVartoStore("TR_nbJets");
 
     // 3-lepton region variables
     addVartoStore("ncleanjetspass_SignalRegion");
