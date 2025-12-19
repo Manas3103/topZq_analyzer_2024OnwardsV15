@@ -1530,17 +1530,28 @@ void NanoAODAnalyzerrdframe::setParams(int year, string runtype, int datatype)
     }
 
 
-	if(_runtype.find("PreEE") != std::string::npos){
+    if(_runtype.find("PreEE") != std::string::npos){
         _isPreEE = true;
         cout << "PreEE Selected " << endl;
         std::cout<< "-------------------------------------------------------------------" << std::endl;
-    }else if(_runtype.find("PostEE") != std::string::npos){
+    }
+    else if(_runtype.find("PostEE") != std::string::npos){
         _isPostEE = true;
         cout << " PostEE  Selected!" << endl;
         std::cout<< "-------------------------------------------------------------------" << std::endl;
     }
-    if (!_isPreEE && !_isPostEE){
-        std::cout<< "Default run version : PreEE or PostEE is not selected! "<< std::endl;
+    else if(_runtype.find("PreBPix") != std::string::npos) {
+        _isPreBPix = true;
+        cout << "PreBPix Selected" << endl;
+        cout << "-------------------------------------------------------------------" << endl;
+    }
+    else if(_runtype.find("PostBPix") != std::string::npos) {
+        _isPostBPix = true;
+        cout << "PostBPix Selected!" << endl;
+        cout << "-------------------------------------------------------------------" << endl;
+    }
+    else if(!_isPreEE && !_isPostEE && !_isPreBPix && !_isPostBPix){
+        std::cout<< "Default run version : PreEE , PostEE , PreBPix, PostBPix is not selected! "<< std::endl;
         std::cout<< "-------------------------------------------------------------------" << std::endl;
     }
 
@@ -1616,11 +1627,15 @@ std::string NanoAODAnalyzerrdframe::setHLT(std::string str_HLT){
             }else if(_year==2018){
                 HLTGlobalNames=HLT2018Names;
             }else if(_year==2022){
-                HLTGlobalNames=HLT2022Names;
+		if(_runtype == "PreEE"){
+                   HLTGlobalNames = HLT2022Names;
+                }else if(_runtype == "PostEE"){
+                   HLTGlobalNames = HLT2022EENames;
+                }
             }else if(_year==2023){
-                HLTGlobalNames=HLT2018Names;
+                HLTGlobalNames=HLT2023Names;
             }else if(_year==2024){
-                HLTGlobalNames=HLT2022Names;
+                HLTGlobalNames=HLT2024Names;
             }
 
             //loop on HLTs

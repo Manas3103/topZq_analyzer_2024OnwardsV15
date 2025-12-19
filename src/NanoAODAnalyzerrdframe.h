@@ -95,6 +95,8 @@ public:
 	int _datatype;
 	bool _isPreEE =false;
 	bool _isPostEE = false;
+	bool _isPreBPix = false;
+	bool _isPostBPix = false;
 	bool _isData;
 	TTree* _atree;
 	bool debug = true;
@@ -111,6 +113,7 @@ public:
 	std::vector< std::string > HLT2022Names;
 	std::vector< std::string > HLT2022EENames;
 	std::vector< std::string > HLT2023Names;
+	std::vector< std::string > HLT2024Names;
 
 	//initialize object IDs
 	std::string ElectronID(int cutbasedID);

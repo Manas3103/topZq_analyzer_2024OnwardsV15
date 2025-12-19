@@ -13,7 +13,8 @@ void create_normalized_histogram(const std::string& filename,
 
                        double cross_section,
                       // double luminosity=2.9700 ,
-		       double luminosity=5.0104 ,
+		       //double luminosity=5.0104 ,
+		       double luminosity=7.9804 ,
 
                        const std::string& Tree="outputTree") {
     // ROOT file and tree details
