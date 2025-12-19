@@ -35,7 +35,7 @@ int main(void) {
 	string jerctag = "Summer22_22Sep2023_RunCD_V2_DATA_L1L2L3Res_AK4PFPuppi";
 	string jettagMC = "Summer22_22Sep2023_V2_MC_L1L2L3Res_AK4PFPuppi";
 	string jercunctag = "Summer22_22Sep2023_V2_MC_Total_AK4PFPuppi";
-	string muon_roch_fname = "data/MUON/2022_Summer22/muon_scalesmearing.json";
+	string muon_roch_fname = "data/MUO/2022_Summer22/muon_scalesmearing.json";
 	string muon_fname = "data/MUO/2022_Summer22/muon_Z.json";
 	string muonHLTtype = "NUM_IsoMu24_DEN_CutBasedIdTight_and_PFIsoTight";
 	string muonRECOtype = "NUM_TrackerMuons_DEN_genTracks";   // not required for Run3

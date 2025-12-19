@@ -667,6 +667,12 @@ void NanoAODAnalyzerrdframe::setupCorrections(string goodjsonfname, string pufna
          _metpt_fname=metpt_fname;
          assert(_correction_MET_pt_corrector->validate());
 
+	   _muon_scalsmear_corrector = correction::CorrectionSet::from_file(muon_roch_fname);
+	    cout<<"muon scaling and smearing filename :"<< muon_roch_fname<<endl;
+	    _muon_roch_fname=muon_roch_fname;
+	    assert(_muon_scalsmear_corrector ->validate());
+
+
 	if (_isData) _jsonOK = readgoodjson(goodjsonfname); // read golden json file
           _correction_jetveto = correction::CorrectionSet::from_file(jet_veto_f_name);
 	  cout<< "Jrt veto JSON FILE : " <<  jet_veto_f_name << endl;
@@ -744,7 +750,7 @@ void NanoAODAnalyzerrdframe::setupCorrections(string goodjsonfname, string pufna
 	applyJetMETCorrections();
 	applyElectronPtCorrection();
 	applyMETPtPhiCorrection();
-//	applyMuPtCorrection();
+	applyMuPtCorrection();
 }
 /*double NanoAODAnalyzerrdframe::getBTaggingEff(double hadflav, double eta, double pt){
   double efficiency = 1.0;
@@ -1034,7 +1040,7 @@ ROOT::RDF::RNode NanoAODAnalyzerrdframe::calculateMuSF(RNode _rlm, std::vector<s
 	}, Muon_vars);
 
       std::string column_name = output_var;
-      if(variation=="sf"){
+      if(variation=="nominal"){
 	column_name += "central";
       }
       else if(variation=="systup"){
