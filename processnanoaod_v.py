@@ -176,10 +176,11 @@ def Nanoaodprocessor_singledir(indir, outputroot, procflags, config):
    # >>> ADDED: Handle remote EOS path with XRootD
     elif indir.startswith("/store/user/msahoo/"):
         print(f"COLLECT root files from remote EOS path:\n{indir}\n")
-        xrootd_prefix = "root://cmsxrootd.fnal.gov/"
+        #xrootd_prefix = "root://cmsxrootd.fnal.gov/"
+        xrootd_prefix = "root://cmseos.fnal.gov/"
         eos_full_path = xrootd_prefix + indir
 
-        eos_ls_cmd = f'xrdfs cmsxrootd.fnal.gov ls -R {indir}'
+        eos_ls_cmd = f'xrdfs cmseos.fnal.gov ls -R {indir}'
         eos_files = os.popen(eos_ls_cmd).read().splitlines()
 
         counter = 0

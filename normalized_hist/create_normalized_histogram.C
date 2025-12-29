@@ -42,7 +42,29 @@ void create_normalized_histogram(const std::string& filename,
         {"Bdt_discriminant", {0, 1,10}}
 };*/
 
-    // Branch ranges definition
+
+    // Define histogram parameters: {branch_name, (min, max, bins)}
+    std::map<std::string, std::tuple<double, double, int>> branch_ranges = {
+        {"top_mass", {5, 700,50}},
+        {"nJet", {2, 10,8}},
+        {"TR_leadingLepton_pt", {0, 250,25}},
+        {"TR_subleadingLepton_pt", {0, 150,20}},
+        {"TR_trailingLepton_pt", {0, 100,20}},
+        {"TR_leadingLepton_eta", {-3, 3,24}},
+        {"TR_subleadingLepton_eta", {-3, 3,24}},
+        {"TR_trailingLepton_eta", {-3, 3,24}},
+        {"combinedLeptonPt", {0, 500, 50}},
+        {"ThreeLSignal_leadingLepton_pt", {0, 300, 10}},
+        {"ThreeLSignalRegion_leadingJet_pt", {0, 400, 10}},
+        {"ThreeLSignalRegion_Jet_HT", {0, 500, 10}},
+        {"ThreeLSignalRegion_nElectron", {0, 6, 6}},
+        {"ThreeLSignalRegion_nMuon", {0, 6, 6}},
+        {"zboson_mass_3LRegion", {70, 110, 20}}
+
+
+    };
+
+/*    // Branch ranges definition
     std::map<std::string, std::tuple<double, double, int>> branch_ranges = {
 	// Original variables kept
 	{"top_mass", {5, 700, 50}},
@@ -180,7 +202,7 @@ void create_normalized_histogram(const std::string& filename,
 	{"MET_pt_signal", {0, 270, 27}}
 
 
-    };
+    };*/
 
     // Calculate normalization factor
     double normalization_factor = luminosity * cross_section ;

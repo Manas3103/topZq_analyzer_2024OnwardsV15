@@ -39,7 +39,7 @@ config = {
         #'btvtype': 'deepJet_mujets',
     
         # Muon Correction 
-        'muon_roch_fname': 'data/MUON/2022_Summer22/muon_scalesmearing.json', 
+        'muon_roch_fname': 'data/MUO/2022_Summer22/muon_scalesmearing.json', 
         'muon_fname': 'data/MUO/2022_Summer22/muon_Z.json', 
         'muonHLTtype': 'NUM_IsoMu24_DEN_CutBasedIdTight_and_PFIsoTight',
         'muonRECOtype': 'NUM_TrackerMuons_DEN_genTracks',

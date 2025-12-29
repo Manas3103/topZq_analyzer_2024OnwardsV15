@@ -13,7 +13,6 @@ crossection=$2
 
 
 # Convert EOS path to xrootd URL if needed
-#xrootd_filename="root://cmsxrootd.fnal.gov/${filename}"
 xrootd_filename="root://cmseos.fnal.gov/${filename}"
 
 echo "Processing histogram with the following parameters:"

@@ -139,7 +139,12 @@ void BaseAnalyser::selectElectrons()
 	       .Define("mediumElect_ID", ElectronID(3))
 	       .Define("tightElect_ID", ElectronID(4))
                .Define("goodElectronsID", "looseElect_ID || mediumElect_ID || tightElect_ID");
-    _rlm = _rlm.Define("goodElectrons", "Electron_pt > 10.0 && abs(Electron_eta) < 2.4 && Electron_miniPFRelIso_all < 0.40 && goodElectronsID && Electron_mvaTTH > 0.90");
+    _rlm = _rlm.Define("goodElectrons", "Electron_pt > 20.0 && abs(Electron_eta) < 2.4 && Electron_miniPFRelIso_all < 0.40 && goodElectronsID");
+//    _rlm = _rlm.Define("goodElectrons_test", "Electron_cutBased==4 && Electron_pt_corr>20 && abs(Electron_eta)<2.5 && !(( abs(Electron_eta + Electron_deltaEtaSC) > 1.4442 && abs(Electron_eta + Electron_deltaEtaSC) < 1.566 ))");
+
+//    auto n_Elect =_rlm.Define("pass_goodElectrons_test","goodElectrons_test>0").Sum("pass_goodElectrons_test");
+//    std::cout<<"events with >=1 electron: "<< *n_Elect << std::endl;
+
 
     // Define additional variables for good electrons
     _rlm = _rlm.Define("goodElectrons_pt", "Electron_pt[goodElectrons]")
@@ -230,6 +235,10 @@ void BaseAnalyser::selectMuons()
     // Define good muons based on ID and additional criteria
     _rlm = _rlm.Define("goodMuonsID", MuonID(2)); // loose muons
     _rlm = _rlm.Define("goodMuons", "Muon_pt > 30 && abs(Muon_eta) < 2.4 && Muon_miniPFRelIso_all < 0.40 && goodMuonsID");
+//    _rlm = _rlm.Define("goodmuonsID2", MuonID(4));
+//    _rlm = _rlm.Define("goodmuons_test", "goodmuonsID2 && Muon_pt_corr > 20 && abs(Muon_eta) < 2.4 && Muon_pfRelIso04_all<0.15");
+//    auto n_Muon =_rlm.Define("pass_goodMuon_test","goodmuons_test>0").Sum("pass_goodMuon_test");
+//    std::cout<<"events with >=1 Muon: "<< *n_Muon << std::endl;
 
     // Define additional variables for good muons
     _rlm = _rlm.Define("goodMuons_pt", "Muon_pt[goodMuons]")
@@ -311,6 +320,11 @@ void BaseAnalyser::selectJets()
                .Define("goodJets_idx", ::good_idx, {"goodJets"})
 	       .Define("NgoodJets", "int(goodJets_pt.size())")
                .Define("goodJets_4vecs", ::generate_4vec, {"goodJets_pt", "goodJets_eta", "goodJets_phi", "goodJets_mass"});
+   
+//    _rlm = _rlm.Define("goodJets_test", "goodJetsID && Jet_pt>30 && abs(Jet_eta)<2.4 ");
+   
+//    auto n_pass_jet =_rlm.Define("pass_goodjet","goodJets_test>0").Sum("pass_goodjet");
+//    std::cout<<"events with >=1 jet: "<< *n_pass_jet << std::endl;
 
     if (!_isData){
        _rlm = _rlm.Define("goodJets_hadflav", "Jet_hadronFlavour[goodJets]");

@@ -1,0 +1,3 @@
+/EGamma/Run2022F-22Sep2023-v1/NANOAOD Data_EGamma_f.root Data_EGamma_f.out
+/Muon/Run2022F-22Sep2023-v2/NANOAOD Data_Muon_f.root Data_Muon_f.out
+/MuonEG/Run2022F-22Sep2023-v1/NANOAOD Data_MuonEG_f.root Data_MuonEG_f.out
