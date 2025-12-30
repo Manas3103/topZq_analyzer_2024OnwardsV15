@@ -52,6 +52,7 @@ config = {
         'electronHlt_type':'HLT_SF_Ele30_TightID',
         'electron_reco_type1': 'Reco20to75',
         'electron_reco_type2' :  'RecoAbove75',
+        'electron_reco_type3' :  'RecoBelow20',
         'electron_id_type': 'wp90iso',
 
         # json file name for JERC

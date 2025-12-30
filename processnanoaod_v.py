@@ -268,6 +268,7 @@ def Nanoaodprocessor_singledir(indir, outputroot, procflags, config):
             config['electronHlt_type'],
             config['electron_reco_type1'],
             config['electron_reco_type2'],
+            config['electron_reco_type3'],
             config['electron_id_type'],
             config['jercfname'],
             config['jerctag'],

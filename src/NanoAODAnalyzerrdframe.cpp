@@ -652,7 +652,7 @@ void NanoAODAnalyzerrdframe::applyMETPtPhiCorrection() //data and MC
 }
 
 
-void NanoAODAnalyzerrdframe::setupCorrections(string goodjsonfname, string pufname, string putag, string btvfname, string btvtype, string muon_roch_fname, string muon_fname, string muonhlttype,string muonidtype,string muonisotype,string electron_fname,string electronHlt_fname,string electronHlt_type, string electron_reco_type1, string electron_reco_type2, string electron_id_type, string jercfname, string jerctag, string jerctagMC, string jercunctag,string jet_veto_f_name,string jet_veto_tag, string electron_SSF,string metpt_fname)
+void NanoAODAnalyzerrdframe::setupCorrections(string goodjsonfname, string pufname, string putag, string btvfname, string btvtype, string muon_roch_fname, string muon_fname, string muonhlttype,string muonidtype,string muonisotype,string electron_fname,string electronHlt_fname,string electronHlt_type, string electron_reco_type1, string electron_reco_type2,string electron_reco_type3, string electron_id_type, string jercfname, string jerctag, string jerctagMC, string jercunctag,string jet_veto_f_name,string jet_veto_tag, string electron_SSF,string metpt_fname)
 //In this function the correction is evaluated for each jet, Muon, Electron and MET. The correction depends on the momentum, pseudorapidity, energy, and cone area of the jet, as well as the value of rho(the average momentum per area) and number of interactions in the event. The correction is used to scale the momentum of the jet.
 {
          cout << "set up Corrections!" << endl;
@@ -703,6 +703,7 @@ void NanoAODAnalyzerrdframe::setupCorrections(string goodjsonfname, string pufna
 	//  _electron_reco_type = electron_reco_type;
 	  _electron_reco_type1=electron_reco_type1;
 	  _electron_reco_type2=electron_reco_type2;
+	  _electron_reco_type3=electron_reco_type3;
 	  _electron_id_type = electron_id_type;
           _electronHlt_type =electronHlt_type;
 	  std::cout<< "================================//=================================" << std::endl;
@@ -1248,7 +1249,7 @@ ROOT::RDF::RNode NanoAODAnalyzerrdframe::calculateEleSF(
         // ======================================================
         std::string column_name_reco = output_var + "reco_" + variation;
 
-        _rlm = _rlm.Define(
+/*        _rlm = _rlm.Define(
             column_name_reco,
             [this, electron_weightgenerator, variation](
                 const ROOT::VecOps::RVec<float>& etas,
@@ -1277,6 +1278,45 @@ ROOT::RDF::RNode NanoAODAnalyzerrdframe::calculateEleSF(
             },
             Ele_vars  // MUST have 3 vars: eta, pt, phi
         );
+*/
+	_rlm = _rlm.Define(
+	    column_name_reco,
+	    [this, electron_weightgenerator, variation](
+		const ROOT::VecOps::RVec<float>& etas,
+		const ROOT::VecOps::RVec<float>& pts,
+		const ROOT::VecOps::RVec<float>& phis)
+	    {
+		ROOT::VecOps::RVec<float> weights(pts.size(), 1.0f);
+
+		for (size_t i = 0; i < pts.size(); ++i) {
+
+		    std::string reco_type;
+		    if (pts[i] > 75.0) {
+			reco_type = _electron_reco_type1;
+		    }
+		    else if (pts[i] > 20.0 && pts[i] <= 75.0) {
+			reco_type = _electron_reco_type2;
+		    }
+		    else {  // pts[i] <= 20.0
+			reco_type = _electron_reco_type3;
+		    }
+
+		    ROOT::VecOps::RVec<float> eta1 = {etas[i]};
+		    ROOT::VecOps::RVec<float> pt1  = {pts[i]};
+		    ROOT::VecOps::RVec<float> phi1 = {phis[i]};
+
+		    weights[i] = electron_weightgenerator(
+			reco_type, eta1, pt1, phi1, variation);
+		}
+
+		return std::accumulate(
+		    weights.begin(),
+		    weights.end(),
+		    1.0f,
+		    std::multiplies<float>());
+	    },
+	    Ele_vars
+	);
 
         // ======================================================
         // 2) ELECTRON ID SCALE FACTOR
