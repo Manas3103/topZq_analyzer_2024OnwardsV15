@@ -166,7 +166,7 @@ void BaseAnalyser::selectElectrons()
     // baselineElectrons_isPromptBaseline Electron Selection
     // =====================================================================
     _rlm = _rlm.Define("baselineElectrons", 
-                       "Electron_pt > 10.0 && abs(Electron_eta) < 2.5 && goodElectronsID &&"
+                       "Electron_pt > 15.0 && abs(Electron_eta) < 2.5 && goodElectronsID &&"
                        "Electron_miniPFRelIso_all < 0.40 && abs(Electron_dxy) < 0.05 && "
                        "abs(Electron_dz) < 0.10 && Electron_lostHits <= 1 && "
                        "Electron_hoe < 0.10 && Electron_convVeto &&"
@@ -253,7 +253,7 @@ void BaseAnalyser::selectMuons()
     // Baseline Muon Selection
     // // =====================================================================
     _rlm = _rlm.Define("baselineMuons",
-		       "Muon_pt > 10.0 && abs(Muon_eta) < 2.4 && goodMuonsID && "
+		       "Muon_pt > 15.0 && abs(Muon_eta) < 2.4 && goodMuonsID && "
 	       	       "Muon_miniPFRelIso_all < 0.4 && abs(Muon_dxy) < 0.05 && "
 		       "abs(Muon_dz) < 0.10 && Muon_sip3d < 8.0 && "
 		       "Muon_mediumId");
@@ -546,22 +546,23 @@ void BaseAnalyser::calculateEvWeight(){
 
 
 // #####------------ THIS IS THE CORRECTION THAT NEED TO IMPLEMENTED LATER--------######## 
-  //Scale Factors for Muon HLT, RECO, ID and ISO
-  /*
+//Scale Factors for Muon HLT, RECO, ID and ISO
+  
  // std::vector<std::string> Muon_vars_names = {"goodMuons_eta", "goodMuons_pt"};
   std::vector<std::string> Muon_vars_names = {"baselineMuons_eta", "baselineMuons_pt"};
   std::string output_mu_column_name = "muon_SF_";
   _rlm = calculateMuSF(_rlm, Muon_vars_names, output_mu_column_name);
-*/
+
   //Scale Factors for Electron RECO and ID
-  std::vector<std::string> Electron_vars_names = {"baselineElectrons_eta", "baselineElectrons_pt"};
+  std::vector<std::string> Electron_vars_names = {"baselineElectrons_eta", "baselineElectrons_pt", "baselineElectrons_phi"};
   std::string output_ele_column_name = "ele_SF_";
   _rlm = calculateEleSF(_rlm, Electron_vars_names, output_ele_column_name);
 
   //Total event Weight:
 
-  //_rlm = _rlm.Define("evWeight", " pugenWeight * prefiring_SF_central * btag_SF_bcflav_central * btag_SF_lflav_central * muon_SF_central * ele_SF_central"); 
-  _rlm = _rlm.Define("evWeight", " pugenWeight ");  //prefiring_SF_central has been removed 
+// _rlm = _rlm.Define("evWeight", " pugenWeight * btag_SF_bcflav_central * btag_SF_lflav_central * muon_SF_central * ele_SF_central"); 
+//  _rlm = _rlm.Define("evWeight", " pugenWeight * muon_SF_central * ele_SF_central"); 
+  _rlm = _rlm.Define("evWeight", " pugenWeight * muon_SF_central"); 
 }
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -2090,11 +2091,8 @@ void BaseAnalyser::defineMoreVars()
 //    addVartoStore("btag_SF_bcflav_central");
 //    addVartoStore("btag_SF_lflav_central");
     addVartoStore("totbtagSF");
-    //addVartoStore("btag_SF_down");
     addVartoStore("evWeight_wobtagSF");
     
-    //case3 shape correction
-    //addVartoStore("btagWeight_case3");
     
     
     //MUONID - ISO SF & WEIGHT	
@@ -2104,7 +2102,7 @@ void BaseAnalyser::defineMoreVars()
     addVartoStore("muon_SF_id_syst");
     addVartoStore("muon_SF_id_systup");
     addVartoStore("muon_SF_id_systdown");
-    //addVartoStore("muonISO_SF");
+   // addVartoStore("ele_SF_central");
     addVartoStore("muon_SF_iso_sf");
     }
 

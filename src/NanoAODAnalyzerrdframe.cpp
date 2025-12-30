@@ -1000,7 +1000,7 @@ ROOT::RDF::RNode NanoAODAnalyzerrdframe::calculateMuSF(RNode _rlm, std::vector<s
     };
 
     //'sf' is nominal, and 'systup' and 'systdown' are up/down variations with total stat+-syst uncertainties. Individual systs are also available (in these cases syst only, not sf +/- syst
-    std::vector<std::string> variations = {"sf", "systup", "systdown","syst"};
+    std::vector<std::string> variations = {"nominal", "systup", "systdown","syst"};
 
 
     //cout<<"Generate MUONHLT weight"<<endl;
@@ -1054,14 +1054,14 @@ ROOT::RDF::RNode NanoAODAnalyzerrdframe::calculateMuSF(RNode _rlm, std::vector<s
       }
 
 	//std::string sf_definition = column_name_hlt+" * "+column_name_reco+" * "+column_name_id+" * "+column_name_iso;
-	std::string sf_definition = column_name_hlt+" * "+column_name_id+" * "+column_name_iso;
+	std::string sf_definition = column_name_id+" * "+column_name_iso;
 	_rlm = _rlm.Define(column_name, sf_definition);
 	std::cout<< "Muon SF column name: " << column_name << std::endl;
     }
     return _rlm;
 }
 
-
+/*
 ROOT::RDF::RNode NanoAODAnalyzerrdframe::calculateEleSF(RNode _rlm, std::vector<std::string> Ele_vars, std::string output_var)
 {
 
@@ -1101,12 +1101,12 @@ ROOT::RDF::RNode NanoAODAnalyzerrdframe::calculateEleSF(RNode _rlm, std::vector<
     for (const std::string& variation : variations_elec) {
 
       // define electron RECO weight sf/systs for each variation individually
-   /*   std::string column_name_reco = output_var+ "reco_" + variation;
+   commentstart   std::string column_name_reco = output_var+ "reco_" + variation;
       _rlm = _rlm.Define(column_name_reco, [this, electron_weightgenerator, variation](const ROOT::VecOps::RVec<float>& etas, const ROOT::VecOps::RVec<float>& pts) {
 	  float weight = electron_weightgenerator(_electron_reco_type, etas, pts, variation); // Get the weight for the corresponding variation
 	  //std::cout << "Electron RECO weight (" << variation << "): " << weight << std::endl;
 	  return weight;
-	}, Ele_vars);*/
+	}, Ele_vars);commentend
 
         std::string column_name_reco = output_var + "reco_" + variation;
         _rlm = _rlm.Define(column_name_reco,
@@ -1158,6 +1158,185 @@ ROOT::RDF::RNode NanoAODAnalyzerrdframe::calculateEleSF(RNode _rlm, std::vector<
     }
     return _rlm;
 }
+*/
+
+ROOT::RDF::RNode NanoAODAnalyzerrdframe::calculateEleSF(
+        RNode _rlm,
+        std::vector<std::string> Ele_vars,
+        std::string output_var)
+{
+    // electron RECO & ID scale factor generator
+    auto electron_weightgenerator = [this](
+            const std::string eletype,
+            const ROOT::VecOps::RVec<float>& etas,
+            const ROOT::VecOps::RVec<float>& pts,
+            const ROOT::VecOps::RVec<float>& phis,
+            const std::string& variation) -> float 
+    {
+
+        double w_tot = 1.0;
+        for (size_t i = 0; i < pts.size(); i++)
+        {
+
+            double w = 1.0;
+
+            if (_year == 2023 && _runtype =="PreBPix")
+            {
+                w = _correction_electron
+                    ->at("Electron-ID-SF")
+                    ->evaluate({"2023PromptC", variation, eletype,
+                            std::fabs(etas[i]), pts[i], phis[i]});
+            }
+            else if (_year == 2022 && _runtype =="PreEE")
+            {
+                w = _correction_electron
+                    ->at("Electron-ID-SF")
+                    ->evaluate({"2022Re-recoBCD", variation, eletype,
+                            std::fabs(etas[i]), pts[i]});
+            }
+            else if (_year == 2022 && _runtype =="PostEE")
+            {
+                w = _correction_electron
+                    ->at("Electron-ID-SF")
+                    ->evaluate({"2022Re-recoE+PromptFG", variation, eletype,
+                            std::fabs(etas[i]), pts[i]});
+            }
+            else if (_year == 2023 && _runtype =="PostBPix")
+            {
+                w = _correction_electron
+                    ->at("Electron-ID-SF")
+                    ->evaluate({"2023PromptD", variation, eletype,
+                            std::fabs(etas[i]), pts[i], phis[i]});
+            }
+
+            w_tot *= w;
+        }
+
+        return w_tot;
+    };
+
+    // electron HLT scale factor generator
+    auto electronHlt_weightgenerator = [this](
+        const std::string eletype,
+        const ROOT::VecOps::RVec<float>& etas,
+        const ROOT::VecOps::RVec<float>& pts,
+        const std::string& variation) -> float
+    {
+        double w_tot = 1.0;
+
+        for (size_t i = 0; i < pts.size(); i++) {
+
+            if (pts[i] < 25.0) continue; // HLT threshold
+
+            double w = _correction_electronHlt
+                ->at("Electron-HLT-SF")
+                ->evaluate({"2023PromptC", variation, eletype,
+                            etas[i], pts[i]});
+            w_tot *= w;
+        }
+        return w_tot;
+    };
+
+
+    // variations
+    std::vector<std::string> variations_elec = {"sf", "sfup", "sfdown"};
+
+    for (const std::string& variation : variations_elec)
+    {
+        // ======================================================
+        // 1) ELECTRON RECO SCALE FACTOR
+        // ======================================================
+        std::string column_name_reco = output_var + "reco_" + variation;
+
+        _rlm = _rlm.Define(
+            column_name_reco,
+            [this, electron_weightgenerator, variation](
+                const ROOT::VecOps::RVec<float>& etas,
+                const ROOT::VecOps::RVec<float>& pts,
+                const ROOT::VecOps::RVec<float>& phis)
+            {
+                ROOT::VecOps::RVec<float> weights(pts.size());
+
+                for (size_t i = 0; i < pts.size(); ++i) {
+
+                    std::string reco_type =
+                        (pts[i] < 75.0) ? _electron_reco_type1 : _electron_reco_type2;
+
+                    ROOT::VecOps::RVec<float> eta1 = {etas[i]};
+                    ROOT::VecOps::RVec<float> pt1  = {pts[i]};
+                    ROOT::VecOps::RVec<float> phi1 = {phis[i]};
+
+                    weights[i] = electron_weightgenerator(
+                        reco_type, eta1, pt1, phi1, variation);
+                }
+
+                return std::accumulate(weights.begin(),
+                                       weights.end(),
+                                       1.0f,
+                                       std::multiplies<float>());
+            },
+            Ele_vars  // MUST have 3 vars: eta, pt, phi
+        );
+
+        // ======================================================
+        // 2) ELECTRON ID SCALE FACTOR
+        // ======================================================
+        std::string column_name_id = output_var + "id_" + variation;
+
+        _rlm = _rlm.Define(
+            column_name_id,
+            [this, electron_weightgenerator, variation](
+                const ROOT::VecOps::RVec<float>& etas,
+                const ROOT::VecOps::RVec<float>& pts,
+                const ROOT::VecOps::RVec<float>& phis)
+            {
+                return electron_weightgenerator(
+                    _electron_id_type, etas, pts, phis, variation);
+            },
+            Ele_vars
+        );
+
+        // ======================================================
+        // 3) ELECTRON HLT SCALE FACTOR
+        // ======================================================
+        std::string column_name_Hlt = output_var + "Hlt_" + variation;
+
+        _rlm = _rlm.Define(
+            column_name_Hlt,
+            [this, electronHlt_weightgenerator, variation](
+                const ROOT::VecOps::RVec<float>& etas,
+                const ROOT::VecOps::RVec<float>& pts,
+                const ROOT::VecOps::RVec<float>& phis)   // phi included for consistency
+            {
+                return electronHlt_weightgenerator(
+                    _electronHlt_type, etas, pts, variation);
+            },
+            Ele_vars
+        );
+
+        // ======================================================
+        // 4) COMBINE: RECO * ID * HLT
+        // ======================================================
+        std::string column_name = output_var;
+
+        if (variation == "sf")
+            column_name += "central";
+        else if (variation == "sfup")
+            column_name += "up";
+        else
+            column_name += "down";
+
+        std::cout << "Electron SF column name: " << column_name << std::endl;
+
+        _rlm = _rlm.Define(
+            column_name,
+            column_name_reco + " * " + column_name_id 
+        );
+    }
+
+    return _rlm;
+}
+
 
 
 ROOT::RDF::RNode NanoAODAnalyzerrdframe::applyJetVetoMap(ROOT::RDF::RNode _rlm,
