@@ -1249,36 +1249,6 @@ ROOT::RDF::RNode NanoAODAnalyzerrdframe::calculateEleSF(
         // ======================================================
         std::string column_name_reco = output_var + "reco_" + variation;
 
-/*        _rlm = _rlm.Define(
-            column_name_reco,
-            [this, electron_weightgenerator, variation](
-                const ROOT::VecOps::RVec<float>& etas,
-                const ROOT::VecOps::RVec<float>& pts,
-                const ROOT::VecOps::RVec<float>& phis)
-            {
-                ROOT::VecOps::RVec<float> weights(pts.size());
-
-                for (size_t i = 0; i < pts.size(); ++i) {
-
-                    std::string reco_type =
-                        (pts[i] < 75.0) ? _electron_reco_type1 : _electron_reco_type2;
-
-                    ROOT::VecOps::RVec<float> eta1 = {etas[i]};
-                    ROOT::VecOps::RVec<float> pt1  = {pts[i]};
-                    ROOT::VecOps::RVec<float> phi1 = {phis[i]};
-
-                    weights[i] = electron_weightgenerator(
-                        reco_type, eta1, pt1, phi1, variation);
-                }
-
-                return std::accumulate(weights.begin(),
-                                       weights.end(),
-                                       1.0f,
-                                       std::multiplies<float>());
-            },
-            Ele_vars  // MUST have 3 vars: eta, pt, phi
-        );
-*/
 	_rlm = _rlm.Define(
 	    column_name_reco,
 	    [this, electron_weightgenerator, variation](

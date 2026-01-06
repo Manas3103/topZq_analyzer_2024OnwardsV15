@@ -47,8 +47,8 @@ int main(void) {
 	string electron_fname = "data/EGM/2022_Summer22/electron.json";
 	string electronHlt_fname = "data/EGM/2022_Summer22/electronHlt.json";
 	string electronHlt_type="HLT_SF_Ele30_TightID";
-	string electron_reco_type1 = "Reco20to75";
-	string electron_reco_type2 =  "RecoAbove75";
+	string electron_reco_type1 = "RecoAbove75";
+	string electron_reco_type2 =  "Reco20to75";
 	string electron_reco_type3 =  "RecoBelow20";
 	string electron_id_type = "wp90iso";
 	string jet_veto_f_name="data/JERC/2022_Summer22/jetvetomaps.json";

@@ -50,8 +50,8 @@ config = {
         'electron_fname': 'data/EGM/2022_Summer22/electron.json',
         'electronHlt_fname':'data/EGM/2022_Summer22/electronHlt.json',
         'electronHlt_type':'HLT_SF_Ele30_TightID',
-        'electron_reco_type1': 'Reco20to75',
-        'electron_reco_type2' :  'RecoAbove75',
+        'electron_reco_type1': 'RecoAbove75',
+        'electron_reco_type2' :  'Reco20to75',
         'electron_reco_type3' :  'RecoBelow20',
         'electron_id_type': 'wp90iso',
 

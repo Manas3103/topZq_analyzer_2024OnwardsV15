@@ -17,7 +17,7 @@ BaseAnalyser::BaseAnalyser(TTree *t, std::string outfilename)
 :NanoAODAnalyzerrdframe(t, outfilename)
 {
     //initiliaze the HLT names in your analyzer class
-    HLT2022Names = {
+/*    HLT2022Names = {
             "HLT_IsoMu24_eta2p1",
 	    "HLT_IsoMu24",
             "HLT_IsoMu27",
@@ -52,7 +52,23 @@ BaseAnalyser::BaseAnalyser(TTree *t, std::string outfilename)
             "HLT_DiMu9_Ele9_CaloIdL_TrackIdL",
             "HLT_DiMu9_Ele9_CaloIdL_TrackIdL_DZ",
             "HLT_Mu8_DiEle12_CaloIdL_TrackIdL"
-    };
+    };*/
+        HLT2022Names = {"HLT_Ele32_WPTight_Gsf",
+		        "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL",
+                        "HLT_Ele16_Ele12_Ele8_CaloIdL_TrackIdL",
+			"HLT_IsoMu24",
+			"HLT_IsoMu27",
+			"HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8",
+			"HLT_TripleMu_12_10_5",
+			"HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ",
+                        "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ",
+                        "HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ",
+			"HLT_Mu8_DiEle12_CaloIdL_TrackIdL",
+			"HLT_DiMu9_Ele9_CaloIdL_TrackIdL_DZ"
+			};
+
+		        
+
 
 	HLT2022EENames = {
 	    "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL",
@@ -139,7 +155,7 @@ void BaseAnalyser::selectElectrons()
 	       .Define("mediumElect_ID", ElectronID(3))
 	       .Define("tightElect_ID", ElectronID(4))
                .Define("goodElectronsID", "looseElect_ID || mediumElect_ID || tightElect_ID");
-    _rlm = _rlm.Define("goodElectrons", "Electron_pt > 20.0 && abs(Electron_eta) < 2.4 && Electron_miniPFRelIso_all < 0.40 && goodElectronsID");
+    _rlm = _rlm.Define("goodElectrons", "Electron_pt > 15.0 && abs(Electron_eta) < 2.4 && Electron_miniPFRelIso_all < 0.40 && goodElectronsID");
 //    _rlm = _rlm.Define("goodElectrons_test", "Electron_cutBased==4 && Electron_pt_corr>20 && abs(Electron_eta)<2.5 && !(( abs(Electron_eta + Electron_deltaEtaSC) > 1.4442 && abs(Electron_eta + Electron_deltaEtaSC) < 1.566 ))");
 
 //    auto n_Elect =_rlm.Define("pass_goodElectrons_test","goodElectrons_test>0").Sum("pass_goodElectrons_test");
@@ -253,12 +269,12 @@ void BaseAnalyser::selectMuons()
     // Baseline Muon Selection
     // // =====================================================================
     _rlm = _rlm.Define("baselineMuons",
-		       "Muon_pt > 10.0 && abs(Muon_eta) < 2.4 && goodMuonsID && "
+		       "Muon_pt > 15.0 && abs(Muon_eta) < 2.4 && goodMuonsID && "
 	       	       "Muon_miniPFRelIso_all < 0.4 && abs(Muon_dxy) < 0.05 && "
 		       "abs(Muon_dz) < 0.10 && Muon_sip3d < 8.0 && "
 		       "Muon_mediumId");
 
-	// Additional variables for baseline muons
+	// Additional variables for baseline muons  the value of pt has to be >15 because correction is lot avalaible below 15 
     _rlm = _rlm.Define("baselineMuons_pt", "Muon_pt_corr[baselineMuons]")
 	       .Define("baselineMuons_eta", "Muon_eta[baselineMuons]")
 	       .Define("baselineMuons_phi", "Muon_phi[baselineMuons]")
@@ -540,15 +556,7 @@ void BaseAnalyser::calculateEvWeight(){
   _rlm = calculateBTagSF(_rlm, Jets_vars_names, 0.3040,output_btag_column_name);
 
 
-
-
-
-
-
-// #####------------ THIS IS THE CORRECTION THAT NEED TO IMPLEMENTED LATER--------######## 
-//Scale Factors for Muon HLT, RECO, ID and ISO
-  
- // std::vector<std::string> Muon_vars_names = {"goodMuons_eta", "goodMuons_pt"};
+  //Scale Factors for Muon HLT, RECO, ID and ISO
   std::vector<std::string> Muon_vars_names = {"baselineMuons_eta", "baselineMuons_pt"};
   std::string output_mu_column_name = "muon_SF_";
   _rlm = calculateMuSF(_rlm, Muon_vars_names, output_mu_column_name);
@@ -561,8 +569,7 @@ void BaseAnalyser::calculateEvWeight(){
   //Total event Weight:
 
 // _rlm = _rlm.Define("evWeight", " pugenWeight * btag_SF_bcflav_central * btag_SF_lflav_central * muon_SF_central * ele_SF_central"); 
-//  _rlm = _rlm.Define("evWeight", " pugenWeight * muon_SF_central * ele_SF_central"); 
-  _rlm = _rlm.Define("evWeight", " pugenWeight * muon_SF_central"); 
+  _rlm = _rlm.Define("evWeight", " pugenWeight * muon_SF_central * ele_SF_central"); 
 }
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -1126,14 +1133,10 @@ void BaseAnalyser::reconstructWboson()
                .Define("nu_py", "nu_pt * sin(nu_phi)");
 
     _rlm = _rlm.Define("lambda_reco", ::calculateLambda, {"topLepton_TL4Vec_new", "nu_pt", "nu_phi"});
-
     _rlm = _rlm.Define("delta_reco", ::calculateDelta, {"topLepton_TL4Vec_new", "nu_pt", "lambda_reco"})
                .Define("isRealSolution", "delta_reco > 0 ? 1 : -1");
-
     _rlm = _rlm.Define("nu_pz", ::calculate_nu_z, {"topLepton_TL4Vec_new", "lambda_reco", "delta_reco", "nu_pt", "nu_phi"});
-
     _rlm = _rlm.Define("nu_energy", ::calculate_nu_energy, {"nu_pt", "nu_phi", "nu_pz"});
-
     _rlm = _rlm.Define("nu_TL4vec", ::get_neutrino_TL4vec, {"nu_pt", "nu_phi", "nu_pz", "nu_energy"});
 
     //--------------------- Reconstruct W boson ---------------------
@@ -1151,55 +1154,7 @@ void BaseAnalyser::reconstructWboson()
                .Define("Wboson_transversMass", "sqrt(2 * topLepton_TL4Vec_new.Pt() * nu_pt * (1 - cos(delta_phi_lep_nu)))");
 }
 
-/*
-void BaseAnalyser::reconstructTop()
-{
-    if (debug){
-        std::cout << std::endl;
-        std::cout << "================================//=================================" << std::endl;
-        std::cout << "Line : " << __LINE__ << " Function : " << __FUNCTION__ << std::endl;
-        std::cout << "================================//=================================" << std::endl;
-    }
 
-    //-------------------------------------------------------
-    // Reconstruct the top quark by combining W boson and b-jet 4-vectors
-    //-------------------------------------------------------
-    _rlm = _rlm.Define("topQuark_TL4vec",
-        [](const ROOT::VecOps::RVec<TLorentzVector>& bjet_vecs, const TLorentzVector& w_boson_4vec) -> TLorentzVector {
-            TLorentzVector best_top;
-            double min_mass_diff = std::numeric_limits<double>::max(); // Set an initial large value for min mass difference
-
-            const double top_mass = 172.76; // Mass of top quark in GeV (can be adjusted as needed)
-
-            for (const auto& bjet : bjet_vecs) {
-                TLorentzVector candidate_top = w_boson_4vec + bjet;
-                double mass_diff = std::abs(candidate_top.M() - top_mass); // Calculate mass difference from the top quark mass
-
-                // Update the best_top if this candidate has a smaller mass difference
-                if (mass_diff < min_mass_diff) {
-                    best_top = candidate_top;
-                    min_mass_diff = mass_diff;
-                }
-            }
-
-            return best_top; // Return the 4-vector of the best top candidate
-        }, {"top_Bjet_TL4Vecs", "Wboson_4vec"});
-
-
-    //-------------------------------------------------------
-    // Calculate the top mass and filter the events based on it
-    //-------------------------------------------------------
-    _rlm = _rlm.Define("top_mass_all", "topQuark_TL4vec.M()");
-              // .Filter("top_mass > 0", "Events with top mass")
-    _rlm = _rlm.Define("top_mass", [](double top_mass_all) {
-			       return top_mass_all >0;
-			     }, {"top_mass_all"});
-    _rlm = _rlm.Define("top_pt", "topQuark_TL4vec.Pt()")
-	       .Define("top_phi", "topQuark_TL4vec.Phi()")
-               .Define("top_eta", "topQuark_TL4vec.Eta()");
-
-}
-*/
 void BaseAnalyser::reconstructTop()
 {
     if (debug) {
@@ -1503,9 +1458,9 @@ void BaseAnalyser::defineSignalRegion()
     }
 
 
-    _rlm = _rlm.Define("trialRegion_with_tightL", " NgoodLepton==3 && ncleanjetspass >= 2 && ncleanbjetspass >= 1 && All_good_tightLeptons && goodMET_pt>20");
-    _rlm = _rlm.Define("trialRegion", " NgoodLepton==3 && ncleanjetspass >= 2 && ncleanbjetspass >= 1 && abs(Sum(goodLepton_charge)) == 1")
-	       .Define("trialRegion_lead" , "trialRegion && leadingLepton_pt > 0")
+    _rlm = _rlm.Define("trialRegion", " NgoodLepton==3 && ncleanjetspass >= 2 && ncleanbjetspass >= 1 && All_good_tightLeptons && goodMET_pt>20");
+   // _rlm = _rlm.Define("trialRegion", " NgoodLepton==3 && ncleanjetspass >= 2 && ncleanbjetspass >= 1 && abs(Sum(goodLepton_charge)) == 1")
+   _rlm = _rlm .Define("trialRegion_lead" , "trialRegion && leadingLepton_pt > 0")
 	       .Define("trialRegion_sublead" , "trialRegion && subleadingLepton_pt > 0")
 	       .Define("trialRegion_trail" , "trialRegion && TrailingLepton_pt > 0")
 	       .Define("trialRegion_top_lepton" , "trialRegion && topLepton_pt_new > 0") 
