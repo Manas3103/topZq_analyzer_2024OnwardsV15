@@ -69,6 +69,9 @@ config = {
         'jet_veto_f_name': 'data/JERC/2022_Summer22EE/jetvetomaps.json',
         'jet_veto_tag': 'Summer22EE_23Sep2023_RunEFG_V1',
 
+        'jetidfname' : "data/JERC/2022_Summer22EE/jetid.json",
+        'jetid_workingpoint' : "AK4PUPPI_TightLeptonVeto",
+
         
         'electron_SSF' :'data/EGM/2022_Summer22EE/electronSS.json',
 

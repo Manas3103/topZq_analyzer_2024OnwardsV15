@@ -27,14 +27,14 @@ else
     echo "Condor Scratch Directory: ${_CONDOR_SCRATCH_DIR}"
 
     source /cvmfs/cms.cern.ch/cmsset_default.sh
-    export SCRAM_ARCH=el8_amd64_gcc10
+    export SCRAM_ARCH=el9_amd64_gcc10
 
     # Use an existing CMSSW release if available
-    if [ ! -d "CMSSW_12_3_4" ]; then
-        eval `scramv1 project CMSSW CMSSW_12_3_4`
+    if [ ! -d "CMSSW_13_3_3" ]; then
+        eval `scramv1 project CMSSW CMSSW_13_3_3`
     fi
 
-    cd CMSSW_12_3_4/src
+    cd CMSSW_13_3_3/src
     cmsenv
     eval `scramv1 runtime -sh`
     cd - ;

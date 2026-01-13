@@ -201,11 +201,11 @@ void BaseAnalyser::selectElectrons()
                 .Define("A_NbaselineElectrons", "int(A_baselineElectrons_pt.size())");
 
     // Define tight and fakable electrons based on MVA score
-    _rlm = _rlm.Define("TightElectrons", "baselineElectrons && Electron_mvaTTH > 0.90")
+    _rlm = _rlm.Define("TightElectrons", "baselineElectrons && Electron_promptMVA > 0.90")
 	       .Define("TightElectrons_pt", "Electron_pt[TightElectrons]")
 	       .Define("N_TightElectrons", "int(TightElectrons_pt.size())")
-               .Define("A_baselineElectrons_mvaTTH", "Electron_mvaTTH[baselineElectrons]")
-               .Define("A_tight_baselineElectrons", "Electron_mvaTTH[baselineElectrons] > 0.90");
+               .Define("A_baselineElectrons_mvaTTH", "Electron_promptMVA[baselineElectrons]")
+               .Define("A_tight_baselineElectrons", "Electron_promptMVA[baselineElectrons] > 0.90");
 
 
     // Generate 4-vectors for baseline electrons
@@ -301,7 +301,7 @@ void BaseAnalyser::selectMuons()
     },
     {"baselineMuons_pt", "baselineMuons_eta", "baselineMuons_phi", "baselineMuons_mass"});
     
-    _rlm = _rlm.Define("tight_Muons", "Muon_mvaTTH[baselineMuons] > 0.64");
+    _rlm = _rlm.Define("tight_Muons", "Muon_promptMVA[baselineMuons] > 0.64");
 
     
 
@@ -329,6 +329,7 @@ void BaseAnalyser::selectJets()
 
     _rlm = _rlm.Define("goodJetsID", JetID(6)); //without pt-eta cuts here i have to add other cuts since its NanoAODv12
     _rlm = _rlm.Define("goodJets", "goodJetsID && ((abs(Jet_eta) > 2.65 && abs(Jet_eta) < 3.139 && Jet_pt_corr > 50.0) || (Jet_pt_corr > 25.0 && abs(Jet_eta) < 5 && abs(Jet_eta)>3.139) || (Jet_pt_corr > 25.0 && abs(Jet_eta) < 2.65 && abs(Jet_eta)>0))");
+//    _rlm = _rlm.Define("goodJets", "((abs(Jet_eta) > 2.65 && abs(Jet_eta) < 3.139 && Jet_pt_corr > 50.0) || (Jet_pt_corr > 25.0 && abs(Jet_eta) < 5 && abs(Jet_eta)>3.139) || (Jet_pt_corr > 25.0 && abs(Jet_eta) < 2.65 && abs(Jet_eta)>0))");
     _rlm = _rlm.Define("goodJets_pt", "Jet_pt_corr[goodJets]")
                .Define("goodJets_eta", "Jet_eta[goodJets]")
                .Define("goodJets_phi", "Jet_phi[goodJets]")

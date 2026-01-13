@@ -167,7 +167,6 @@ void NanoAODAnalyzerrdframe::setupJetMETCorrection(string fname, string jettag,s
 	// read from file 
 	_correction_jerc = correction::CorrectionSet::from_file(fname);//jercfname=json
 	assert(_correction_jerc->validate()); //the assert functionality : check if the parameters passed to a function are valid =1:true
-	// correction type(jobconfiganalysis.py)
 	cout<<"JERC JSON file : " << fname<<endl;
     if (_isData){
         _jetCorrector = _correction_jerc->compound().at(jettag);//jerctag#JSON (JEC,compound)compoundLevel="L1L2L3Res"
@@ -264,85 +263,17 @@ void NanoAODAnalyzerrdframe::applyJetMETCorrections() //data
 		_rlm = _rlm.Define("Jet_pt_relerror", jecuncertaintylambdaf, {"Jet_pt", "Jet_eta", "Jet_area", "Jet_rawFactor", "Rho_fixedGridRhoFastjetAll"});
 		_rlm = _rlm.Define("Jet_pt_corr_up", "Jet_pt_corr*(1.0f + Jet_pt_relerror)");
 		_rlm = _rlm.Define("Jet_pt_corr_down", "Jet_pt_corr*(1.0f - Jet_pt_relerror)");
-		_rlm = _rlm.Define("MET_pt_corr", metcorrlambdaf, {"MET_pt", "MET_phi", "Jet_pt", "Jet_pt_corr", "Jet_phi"});
-		_rlm = _rlm.Define("MET_phi_corr", metphicorrlambdaf, {"MET_pt", "MET_phi", "Jet_pt", "Jet_pt_corr", "Jet_phi"});
-		_rlm = _rlm.Define("MET_pt_corr_up", metcorrlambdaf, {"MET_pt", "MET_phi", "Jet_pt", "Jet_pt_corr_up", "Jet_phi"});
-		_rlm = _rlm.Define("MET_phi_corr_up", metphicorrlambdaf, {"MET_pt", "MET_phi", "Jet_pt", "Jet_pt_corr_up", "Jet_phi"});
-		_rlm = _rlm.Define("MET_pt_corr_down", metcorrlambdaf, {"MET_pt", "MET_phi", "Jet_pt", "Jet_pt_corr_down", "Jet_phi"});
-		_rlm = _rlm.Define("MET_phi_corr_down", metphicorrlambdaf, {"MET_pt", "MET_phi", "Jet_pt", "Jet_pt_corr_down", "Jet_phi"});
+		_rlm = _rlm.Define("MET_pt_corr", metcorrlambdaf, {"PuppiMET_pt", "PuppiMET_phi", "Jet_pt", "Jet_pt_corr", "Jet_phi"});
+		_rlm = _rlm.Define("MET_phi_corr", metphicorrlambdaf, {"PuppiMET_pt", "PuppiMET_phi", "Jet_pt", "Jet_pt_corr", "Jet_phi"});
+		_rlm = _rlm.Define("MET_pt_corr_up", metcorrlambdaf, {"PuppiMET_pt", "PuppiMET_phi", "Jet_pt", "Jet_pt_corr_up", "Jet_phi"});
+		_rlm = _rlm.Define("MET_phi_corr_up", metphicorrlambdaf, {"PuppiMET_pt", "PuppiMET_phi", "Jet_pt", "Jet_pt_corr_up", "Jet_phi"});
+		_rlm = _rlm.Define("MET_pt_corr_down", metcorrlambdaf, {"PuppiMET_pt", "PuppiMET_phi", "Jet_pt", "Jet_pt_corr_down", "Jet_phi"});
+		_rlm = _rlm.Define("MET_phi_corr_down", metphicorrlambdaf, {"PuppiMET_pt", "PuppiMET_phi", "Jet_pt", "Jet_pt_corr_down", "Jet_phi"});
 	}
 
 }
-/*
-void NanoAODAnalyzerrdframe::applyMuPtCorrection() //data and MC
-{
-  cout << "apply Muon Pt correction" << endl;
-  
-  if(_isData){
-    
-    auto lambdaf_data = [this](const ints mu_charges, const floats mu_pts, const floats mu_etas, const floats mu_phis)->floats
-      {
-	floats corrMuPts;
-	corrMuPts.reserve(mu_pts.size());
-	//std::cout<<"Number of muons: "<<mu_pts.size()<<std::endl;
-	for (auto i =0; i<int(mu_pts.size()); i++)
-	  {
-	    float mu_pt_uncorr = mu_pts[i];
-	    //std::cout<<"The Muon Uncorrected pt"<< mu_pt_uncorr<<std::endl;	    
-	    float corrfactor = 1;
-	    corrfactor = _Roch_corr.kScaleDT(mu_charges[i], mu_pt_uncorr, mu_etas[i], mu_phis[i], 0, 0);
-	    //std::cout<<"Muon pt correction factor===="<< corrfactor <<std::endl;
-	    corrMuPts.emplace_back(mu_pt_uncorr * corrfactor);
-	  }    
-	return corrMuPts;
-	
-      };
-    
-    
-    _rlm = _rlm.Define("Muon_pt_corr", lambdaf_data, {"Muon_charge", "Muon_pt", "Muon_eta", "Muon_phi"});
-  }
-  else{
-  
-    auto lambdaf_mc = [this](const ints mu_charges, const floats mu_pts, const floats mu_etas, const floats mu_phis, const ints muon_genIdx, const floats gen_pts,  const ints nls)->floats
-      {
-	floats corrMuPts;
-	corrMuPts.reserve(mu_pts.size());
-	//std::cout <<"Number of muons: "<<mu_pts.size()<<std::endl;
-	for (int i=0; i<int(mu_pts.size()); i++)
-	  {
-	    float corrfactor = 1;
-	    float mu_pt_uncorr = mu_pts[i];
-	    //std::cout<<"The Muon Uncorrected pt"<< mu_pt_uncorr<<std::endl;
-	    if ( muon_genIdx[i] != -1 ){
-	      corrfactor = _Roch_corr.kSpreadMC(mu_charges[i], mu_pt_uncorr, mu_etas[i], mu_phis[i], gen_pts[muon_genIdx[i]], 0, 0);
-	    }
-	    else{
-	      float rand = gRandom->Rndm();
-	      corrfactor = _Roch_corr.kSmearMC(mu_charges[i], mu_pt_uncorr, mu_etas[i], mu_phis[i], nls[i], rand, 0, 0);
-	    }
-	    //std::cout<<"Muon corrected Pt ===="<< corrfactor * mu_pt_uncorr <<std::endl;
-	    corrMuPts.emplace_back(corrfactor * mu_pt_uncorr);
-	  }
-	return corrMuPts;
-      };
-    _rlm = _rlm.Define("Muon_genPartIdx_int", [](const ROOT::VecOps::RVec<Short_t>& v) {
-  	   return ROOT::VecOps::RVec<int>(v.begin(), v.end());
-    	   },
-	   {"Muon_genPartIdx"}
-	);
 
-    _rlm = _rlm.Define("Muon_nTrackerLayers_int", [](const ROOT::VecOps::RVec<UChar_t>& v) {
-	   return ROOT::VecOps::RVec<int>(v.begin(), v.end());
-           },
-	   {"Muon_nTrackerLayers"}
-	);
 
-    _rlm = _rlm.Define("Muon_gen_pt", "GenPart_pt[Muon_genPartIdx_int]");
-    _rlm = _rlm.Define("Muon_pt_corr", lambdaf_mc, {"Muon_charge", "Muon_pt", "Muon_eta", "Muon_phi", "Muon_genPartIdx_int", "GenPart_pt", "Muon_nTrackerLayers_int"});
-    
-  }
-}
-*/
 
 void NanoAODAnalyzerrdframe::applyMuPtCorrection()
 {
@@ -652,7 +583,34 @@ void NanoAODAnalyzerrdframe::applyMETPtPhiCorrection() //data and MC
 }
 
 
-void NanoAODAnalyzerrdframe::setupCorrections(string goodjsonfname, string pufname, string putag, string btvfname, string btvtype, string muon_roch_fname, string muon_fname, string muonhlttype,string muonidtype,string muonisotype,string electron_fname,string electronHlt_fname,string electronHlt_type, string electron_reco_type1, string electron_reco_type2,string electron_reco_type3, string electron_id_type, string jercfname, string jerctag, string jerctagMC, string jercunctag,string jet_veto_f_name,string jet_veto_tag, string electron_SSF,string metpt_fname)
+void NanoAODAnalyzerrdframe::setupCorrections(
+		string goodjsonfname, 
+		string pufname, 
+		string putag, 
+		string btvfname, 
+		string btvtype, 
+		string muon_roch_fname, 
+		string muon_fname, 
+		string muonhlttype,
+		string muonidtype,
+		string muonisotype,
+		string electron_fname,
+		string electronHlt_fname,
+		string electronHlt_type, 
+		string electron_reco_type1, 
+		string electron_reco_type2,
+		string electron_reco_type3, 
+		string electron_id_type, 
+		string jercfname, 
+		string jerctag, 
+		string jerctagMC, 
+		string jercunctag,
+		string jet_veto_f_name,
+		string jet_veto_tag, 
+		string electron_SSF,
+		string metpt_fname,
+		string jetidfname,
+		string jetid_workingpoint)
 //In this function the correction is evaluated for each jet, Muon, Electron and MET. The correction depends on the momentum, pseudorapidity, energy, and cone area of the jet, as well as the value of rho(the average momentum per area) and number of interactions in the event. The correction is used to scale the momentum of the jet.
 {
          cout << "set up Corrections!" << endl;
@@ -748,148 +706,32 @@ void NanoAODAnalyzerrdframe::setupCorrections(string goodjsonfname, string pufna
 	_jercunctag = jercunctag;
 	
 	setupJetMETCorrection(jercfname, _jerctag, _jerctagMC);
+	if (!jetidfname.empty())
+	{
+		try
+		{
+			_correction_jetid = correction::CorrectionSet::from_file(jetidfname);
+			assert(_correction_jetid->validate());
+			std::cout << "Loaded JetID JSON file: " << jetidfname << std::endl;
+		}
+		catch (const std::exception &e)
+		{
+			std::cerr << "[JetID] Failed to load " << jetidfname << ": " << e.what() << std::endl;
+			_correction_jetid.reset();
+		}
+	}
+	else
+	{
+		_correction_jetid.reset();
+	}
+	_jetid_workingpoint = jetid_workingpoint;
+	_jetid_mask_defined = false;
 	applyJetMETCorrections();
 	applyElectronPtCorrection();
 	applyMETPtPhiCorrection();
 	applyMuPtCorrection();
 }
-/*double NanoAODAnalyzerrdframe::getBTaggingEff(double hadflav, double eta, double pt){
-  double efficiency = 1.0;
-  int maxXBin = -1;
-  int maxYBin = -1;
-  int binX = -1;
-  int binY = -1;
-  if(hadflav!=0){
-    // Get the maximum bin number for x and y axes
-    maxXBin = hist_btagEff_bcflav->GetXaxis()->GetNbins();
-    maxYBin = hist_btagEff_bcflav->GetYaxis()->GetNbins();
 
-    // Get the bin number corresponding to the provided x and y values
-    binX = hist_btagEff_bcflav->GetXaxis()->FindBin(eta);
-    binY = hist_btagEff_bcflav->GetYaxis()->FindBin(pt);
-
-    efficiency = hist_btagEff_bcflav->GetBinContent(binX, binY);
-  }
-  else{
-    // Get the maximum bin number for x and y axes
-    maxXBin = hist_btagEff_lflav->GetXaxis()->GetNbins();
-    maxYBin = hist_btagEff_lflav->GetYaxis()->GetNbins();
-
-    // Get the bin number corresponding to the provided x and y values
-    binX = hist_btagEff_lflav->GetXaxis()->FindBin(eta);
-    binY = hist_btagEff_lflav->GetYaxis()->FindBin(pt);
-
-    efficiency = hist_btagEff_lflav->GetBinContent(binX, binY);
-  }
-
-  return efficiency;
-}
-
-ROOT::RDF::RNode NanoAODAnalyzerrdframe::calculateBTagSF(RNode _rlm, std::vector<std::string> Jets_vars_names, int _case, const double btag_cut, std::string _BTaggingWP, std::string output_var)
-{
-
-  //case1 : fixedWP correction with mujets (here medium WP) # evaluate('systematic', 'working_point', 'flavor', 'abseta', 'pt')
-  //for case 1  use one of the btvtype = "deepJet_mujets " , deepJet_comb" for b/c , deepJet_incl" for lightjets 
-  if(_case==1){
-
-      //======================================================================================================================================
-      //>>>> function to calculate event weights for MC events, incorporating fixedWP correction with mujets (here medium WP)and systematics with
-      //all variations seperately (up/down/correlated/uncorrelated/)
-      //The weight for each variation is stored in separate columns (btag_SF_central,btag_SF_up, btag_SF_down, etc.). 
-      // btagWeight_case1_central  is used to recalculate the eventweight. Other variations are intended for systematics calculations.
-      //======================================================================================================================================
-    auto btagweightgenerator_bcflav_case1 = [this](const ROOT::VecOps::RVec<int>& hadflav, const ROOT::VecOps::RVec<float>& etas, const ROOT::VecOps::RVec<float>& pts, const ROOT::VecOps::RVec<float>& btag_scores, const double btag_cut, std::string _BTagWP, const std::string& variation) -> float {
-      double btagWeight_bcflav = 1.0;
-      for (std::size_t i = 0; i < pts.size(); i++) {
-	//std::cout<<"The BTag flavor"<< hadflav[i]<< " BTagJet eta:"<< etas[i]<<" BTagJet pt"<< pts[i]<<std::endl;
-	if(std::abs(etas[i])>2.4999 || pts[i]<30.000001 || hadflav[i]==0) continue;
-	//double selection_cut = _correction_btag1->("deepJet_wp_values")->evaluate(_BTagWP);
-	if(btag_scores[i]>=btag_cut){
-	    double bcjets_weights = _correction_btag1->at("deepJet_mujets")->evaluate({variation, _BTagWP, hadflav[i], std::fabs(etas[i]), pts[i]});
-	    btagWeight_bcflav *= bcjets_weights;
-	}
-	else{
-	    double bcjets_weights = _correction_btag1->at("deepJet_mujets")->evaluate({variation, _BTagWP, hadflav[i], std::fabs(etas[i]), pts[i]});
-	    double eff = getBTaggingEff(hadflav[i], etas[i], pts[i]);
-	    btagWeight_bcflav *= (1 - bcjets_weights*eff)/(1-eff);
-	}
-      }
-      return btagWeight_bcflav;
-    };
-
-    auto btagweightgenerator_lflav_case1 = [this](const ROOT::VecOps::RVec<int>& hadflav, const ROOT::VecOps::RVec<float>& etas, const ROOT::VecOps::RVec<float>& pts, const ROOT::VecOps::RVec<float>& btag_scores, const double btag_cut, std::string _BTagWP, const std::string& variation) -> float {
-      double btagWeight_lflav = 1.0;
-      for (std::size_t i = 0; i < pts.size(); i++) {
-	//std::cout<<"The BTag flavor"<< hadflav[i]<< " BTagJet eta:"<< etas[i]<<" BTagJet pt"<< pts[i]<<std::endl;
-	if(std::abs(etas[i])>2.4999 || pts[i]<30.000001 || hadflav[i]!=0) continue;
-	//double selection_cut = _correction_btag1->("deepJet_wp_values")->evaluate(_BTagWP);
-	if(btag_scores[i]>=btag_cut){
-	  double lightjets_weights = _correction_btag1->at("deepJet_incl")->evaluate({variation, _BTagWP, hadflav[i], std::fabs(etas[i]), pts[i]});
-	  btagWeight_lflav *= lightjets_weights;
-	}
-	else{
-	  double lightjets_weights = _correction_btag1->at("deepJet_incl")->evaluate({variation, _BTagWP, hadflav[i], std::fabs(etas[i]), pts[i]});
-	  double eff = getBTaggingEff(hadflav[i], etas[i], pts[i]);
-	  btagWeight_lflav *= (1 - lightjets_weights*eff)/(1-eff);
-	}
-      }
-      return btagWeight_lflav;
-    };
-    // btag weight for each variation individually
-    std::vector<std::string> variations = {"central", "up", "down", "up_correlated", "down_correlated", "up_uncorrelated", "down_uncorrelated", "up_statistic", "down_statistic"}; 
-    for (const std::string& variation : variations) {
-      std::string column_name_bcflav = output_var + "bcflav_" +variation;
-      _rlm = _rlm.Define(column_name_bcflav, [btagweightgenerator_bcflav_case1, variation, btag_cut, _BTaggingWP](const ROOT::VecOps::RVec<int>& hadflav, const ROOT::VecOps::RVec<float>& etas, const ROOT::VecOps::RVec<float>& pts, const ROOT::VecOps::RVec<float>& btag_scores) {
-	  float weight = btagweightgenerator_bcflav_case1(hadflav, etas, pts, btag_scores, btag_cut, _BTaggingWP, variation);// Get the weight for the corresponding variation
-	  return weight;
-	}, Jets_vars_names); //after all cuts, remove overlapped
-
-      std::string column_name_lflav = output_var + "lflav_" +variation;
-      _rlm = _rlm.Define(column_name_lflav, [btagweightgenerator_lflav_case1, variation, btag_cut, _BTaggingWP](const ROOT::VecOps::RVec<int>& hadflav, const ROOT::VecOps::RVec<float>& etas, const ROOT::VecOps::RVec<float>& pts, const ROOT::VecOps::RVec<float>& btag_scores) {
-	  float weight = btagweightgenerator_lflav_case1(hadflav, etas, pts, btag_scores, btag_cut, _BTaggingWP, variation);// Get the weight for the corresponding variation
-	  return weight;
-	}, Jets_vars_names); //after all cuts, remove overlapped
-      std::cout<< "BJet SF column name: " << column_name_bcflav<< " and " << column_name_lflav  << std::endl;
-      if(isDefined("column_name_bcflav")){
-	std::cout<< "BJet SF column: " << column_name_bcflav << " is saved in the Node."<< std::endl;
-      }
-      if(isDefined("column_name_lflav")){
-	std::cout<< "BJet SF column: " << column_name_lflav << " is saved in the Node."<< std::endl;
-      }
-    }
-  }
-  else if(_case==3){
-    //======================================================================================================================================
-    //case3 - Shape correction
-    //for case 3 : use btvtype': 'deepJet_shape' in jobconfiganalysis.py
-    cout<<"case 3 Shape correction B tagging SF for MC "<<endl;
-    //======================================================================================================================================
-    //>>>> function to calculate event weights for MC events,based on DeepJet algorithm, incorporating shape correction with central variation
-    //======================================================================================================================================
-    auto btagweightgenerator3= [this](ints &hadflav, floats &etas, floats &pts, floats &btags)->float
-      {
-	double bweight=1.0;
-	
-	for (auto i=0; i<int(pts.size()); i++)
-	  {
-	    if(std::abs(etas[i])>2.5 || pts[i]<30.000001) continue;
-	    double w = _correction_btag1->at(_btvtype)->evaluate({"central", int(hadflav[i]), fabs(float(etas[i])), float(pts[i]), float(btags[i])});
-	    bweight *= w;
-	  }
-	return bweight;
-      };
-    
-    cout<<"Generate case3 b-tagging weight"<<endl;
-    std::string column_name = output_var + "case3";
-    _rlm = _rlm.Define(column_name, btagweightgenerator3, Jets_vars_names);
-    //Total event weight after shape correction
-    //_rlm = _rlm.Define("evWeight", "pugenWeight*btagWeight_case3");
-    std::cout<< "BJet SF column name: " << column_name << std::endl;
-
-  }
-  return _rlm;
-}
-*/
 
 ROOT::RDF::RNode NanoAODAnalyzerrdframe::calculateBTagSF(RNode _rlm, std::vector<std::string> Jets_vars_names, int _case, std::string output_var)
 {
@@ -1062,104 +904,6 @@ ROOT::RDF::RNode NanoAODAnalyzerrdframe::calculateMuSF(RNode _rlm, std::vector<s
     return _rlm;
 }
 
-/*
-ROOT::RDF::RNode NanoAODAnalyzerrdframe::calculateEleSF(RNode _rlm, std::vector<std::string> Ele_vars, std::string output_var)
-{
-
-    //auto cs = correction::CorrectionSet::from_file("electron.json.gz");
-    //cout<<"Generate ELECTRONRECO weight"<<endl;
-    //electronRECO sf and systematics with up/down variations
-    //===========//===========//===========//===========//===========
-  auto electron_weightgenerator = [this](const std::string eletype, const ROOT::VecOps::RVec<float>& etas, const ROOT::VecOps::RVec<float>& pts, const std::string& variation) -> float {
-      double electronReco_w = 1.0;
-
-      for (std::size_t i = 0; i < pts.size(); i++) {
-	
-	double w = _correction_electron->at("UL-Electron-ID-SF")->evaluate({std::to_string(_year), variation, eletype, std::fabs(etas[i]), pts[i]}); 
-	electronReco_w *= w;
-	//std::cout << "Individual weight (electron " << i << "): " << w << std::endl;
-	//std::cout << "Cumulative weight after electron " << i << ": " << electronId_w << std::endl;
-      }
-      return electronReco_w;
-    };
-   auto electronHlt_weightgenerator = [this](const std::string eletype, const ROOT::VecOps::RVec<float>& etas, const ROOT::VecOps::RVec<float>& pts, const std::string& variation) -> float {
-        double electronHlt_w = 1.0;
-
-        for (std::size_t i = 0; i < pts.size(); i++) {
-
-            double w = _correction_electron->at("Electron-HLT-SF")->evaluate({"2022Re-recoBCD", variation, eletype, std::fabs(etas[i]), pts[i]}); 
-            electronHlt_w *= w;
-            //std::cout << "Individual weight (electron " << i << "): " << w << std::endl;
-            //std::cout << "Cumulative weight after electron " << i << ": " << electronId_w << std::endl;
-        }
-        return electronHlt_w;
-    };
-
-    //'sf' is nominal, and 'systup' and 'systdown' are up/down variations with total stat+-syst uncertainties. Individual systs are also available (in these cases syst only, not sf +/- syst
-    std::vector<std::string> variations_elec = {"sf", "sfup", "sfdown"};
-
-
-    for (const std::string& variation : variations_elec) {
-
-      // define electron RECO weight sf/systs for each variation individually
-   commentstart   std::string column_name_reco = output_var+ "reco_" + variation;
-      _rlm = _rlm.Define(column_name_reco, [this, electron_weightgenerator, variation](const ROOT::VecOps::RVec<float>& etas, const ROOT::VecOps::RVec<float>& pts) {
-	  float weight = electron_weightgenerator(_electron_reco_type, etas, pts, variation); // Get the weight for the corresponding variation
-	  //std::cout << "Electron RECO weight (" << variation << "): " << weight << std::endl;
-	  return weight;
-	}, Ele_vars);commentend
-
-        std::string column_name_reco = output_var + "reco_" + variation;
-        _rlm = _rlm.Define(column_name_reco,
-                [this, electron_weightgenerator, variation](const ROOT::VecOps::RVec<float>& etas, const ROOT::VecOps::RVec<float>& pts) {
-                ROOT::VecOps::RVec<float> weights(pts.size());
-
-                for (size_t i = 0; i < pts.size(); ++i) {
-                std::string reco_type = (pts[i] < 75.0) ? _electron_reco_type1 : _electron_reco_type2;
-
-                // Wrap each eta and pt into RVec of size 1 for individual eval
-                ROOT::VecOps::RVec<float> eta_single = { etas[i] };
-                ROOT::VecOps::RVec<float> pt_single = { pts[i] };
-
-                weights[i] = electron_weightgenerator(reco_type, eta_single, pt_single, variation);
-                }
-                return std::accumulate(weights.begin(), weights.end(), 1.0f, std::multiplies<float>());
-                }, Ele_vars);
-
-
-      // define electron ID weight sf/systs for each variation individually
-      std::string column_name_id = output_var+ "id_" + variation;
-      _rlm = _rlm.Define(column_name_id, [this, electron_weightgenerator, variation](const ROOT::VecOps::RVec<float>& etas, const ROOT::VecOps::RVec<float>& pts) {
-	  float weight = electron_weightgenerator(_electron_id_type, etas, pts, variation); // Get the weight for the corresponding variation
-	  //std::cout << "Electron RECO weight (" << variation << "): " << weight << std::endl;
-	  return weight;
-	}, Ele_vars);
-      std::string column_name_Hlt = output_var+ "Hlt_" + variation;
-      _rlm = _rlm.Define(column_name_Hlt, [this, electronHlt_weightgenerator, variation](const ROOT::VecOps::RVec<float>& etas, const ROOT::VecOps::RVec<float>& pts) {
-          float weight = electronHlt_weightgenerator(_electron_id_type, etas, pts, variation); // Get the weight for the corresponding variation
-          //std::cout << "Electron RECO weight (" << variation << "): " << weight << std::endl;
-          return weight;
-        }, Ele_vars);
-      std::string column_name = output_var;
-
-      if(variation=="sf"){
-	column_name += "central";
-      }
-      else if(variation=="sfup"){
-	column_name += "up";
-      }
-      else{
-	column_name += "down";
-      }
-      std::cout<< "Electron SF column name: " << column_name << std::endl;
-      std::string sf_definition = column_name_reco+" * "+column_name_id;
-
-      _rlm = _rlm.Define(column_name, sf_definition); 
-
-    }
-    return _rlm;
-}
-*/
 
 ROOT::RDF::RNode NanoAODAnalyzerrdframe::calculateEleSF(
         RNode _rlm,
@@ -1957,7 +1701,7 @@ std::string NanoAODAnalyzerrdframe::MuonID(int cutbasedID){
     return output;
 }
 
-
+/*
 std::string NanoAODAnalyzerrdframe::JetID(int cutbasedID){
 
     if(debug){
@@ -1978,3 +1722,92 @@ std::string NanoAODAnalyzerrdframe::JetID(int cutbasedID){
     output = Form ("Jet_jetId==%d",cutbasedID);
     return output;
 }
+*/
+std::string NanoAODAnalyzerrdframe::JetID(int cutbasedID)
+{
+	if (debug) {
+        std::cout << "================================//=================================" << std::endl;
+        std::cout << "Line : " << __LINE__ << " Function : " << __FUNCTION__ << std::endl;
+        std::cout << "================================//=================================" << std::endl;
+    }
+
+    std::string output;
+
+	if (_correction_jetid && cutbasedID == 6 && !_jetid_workingpoint.empty())
+	{
+		std::string column_name = "jetid_" + _jetid_workingpoint + "_mask";
+		if (!_jetid_mask_defined)
+		{
+			auto jetid_lambda = [this](const ROOT::VecOps::RVec<float> &eta,
+			                           const ROOT::VecOps::RVec<float> &chHEF,
+			                           const ROOT::VecOps::RVec<float> &neHEF,
+			                           const ROOT::VecOps::RVec<float> &chEmEF,
+			                           const ROOT::VecOps::RVec<float> &neEmEF,
+			                           const ROOT::VecOps::RVec<float> &muEF,
+			                           const ROOT::VecOps::RVec<UChar_t> &chMultiplicity,
+			                           const ROOT::VecOps::RVec<UChar_t> &neMultiplicity) -> ROOT::VecOps::RVec<char>
+			{
+				ROOT::VecOps::RVec<char> passMask(eta.size(), 0);
+				if (!_correction_jetid)
+					return passMask;
+
+				auto criteria = _correction_jetid->at(_jetid_workingpoint);
+				for (std::size_t i = 0; i < eta.size(); ++i)
+				{
+					try
+					{
+						const int64_t chMult = static_cast<int64_t>(chMultiplicity[i]);
+						const int64_t neMult = static_cast<int64_t>(neMultiplicity[i]);
+						const int64_t multiplicity = chMult + neMult;
+						std::vector<correction::Variable::Type> jetid_inputs;
+						jetid_inputs.reserve(9);
+						jetid_inputs.emplace_back(static_cast<double>(eta[i]));
+						jetid_inputs.emplace_back(static_cast<double>(chHEF[i]));
+						jetid_inputs.emplace_back(static_cast<double>(neHEF[i]));
+						jetid_inputs.emplace_back(static_cast<double>(chEmEF[i]));
+						jetid_inputs.emplace_back(static_cast<double>(neEmEF[i]));
+						jetid_inputs.emplace_back(static_cast<double>(muEF[i]));
+						jetid_inputs.emplace_back(static_cast<double>(chMult));
+						jetid_inputs.emplace_back(static_cast<double>(neMult));
+						jetid_inputs.emplace_back(static_cast<double>(multiplicity));
+						const double result = criteria->evaluate(jetid_inputs);
+						passMask[i] = (result > 0.5);
+					}
+					catch (const std::exception &e)
+					{
+						std::cerr << "[JetID] evaluation error: " << e.what()
+						          << " (eta=" << eta[i] << ")" << std::endl;
+						passMask[i] = 0;
+					}
+				}
+				return passMask;
+			};
+
+			_rlm = _rlm.Define(column_name, jetid_lambda,
+				{"Jet_eta", "Jet_chHEF", "Jet_neHEF", "Jet_chEmEF", "Jet_neEmEF",
+				 "Jet_muEF", "Jet_chMultiplicity", "Jet_neMultiplicity"});
+			_jetid_mask_defined = true;
+		}
+		output = column_name;
+	}
+	else if (cutbasedID == 6) {
+		// Apply bugfix recipe from POG : https://twiki.cern.ch/twiki/bin/viewauth/CMS/JetID13p6TeV#nanoAOD_Flags
+		output =
+			"( (abs(Jet_eta) <= 2.7 && ((Jet_jetId & (1 << 1)) != 0)) || "
+            "(abs(Jet_eta) > 2.7 && abs(Jet_eta) <= 3.0 && ((Jet_jetId & (1 << 1)) != 0) && Jet_neHEF < 0.99) || "
+            "(abs(Jet_eta) > 3.0 && ((Jet_jetId & (1 << 1)) != 0) && Jet_neEmEF < 0.4) )"
+            " && Jet_muEF < 0.8 && Jet_chEmEF < 0.8";
+    } else if (cutbasedID == 2) {
+        output = "Jet_jetId == 2";  // old use case
+    } else {
+        std::cerr << "Unsupported JetID requested: " << cutbasedID << std::endl;
+    }
+
+	//  // ----------- NanoAODv15+: Use correctionlib JSON 2024 -----------
+    // Load evaluator once per job
+    // evaluator["AK4PUPPI_TightLeptonVeto"].evaluate(...)
+
+    return output;
+}
+
+

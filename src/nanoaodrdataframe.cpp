@@ -20,9 +20,9 @@ using namespace ROOT;
 int main(void) {
 
 	TChain c1("Events");
-//	c1.Add("/uscms/home/msahoo/nobackup/Project_tzq/Data_DoubleMu_c_2022_skim.root"); //data
+	c1.Add("/uscms/home/msahoo/nobackup/Project_tzq/EGamma2022_EraF_v15.root"); //data
 //	c1.Add("/uscms/home/msahoo/nobackup/Project_tzq/2022Data_Muon.root"); //data
-	c1.Add("/uscms/home/msahoo/nobackup/Project_tzq/2022_postEE_tZq.root"); // MC
+//	c1.Add("/uscms/home/msahoo/nobackup/Project_tzq/2022_postEE_tZq.root"); // MC
 	//c1.Add("root://cmsxrootd.fnal.gov//store/data/Run2022D/Muon/NANOAOD/16Dec2023-v1/50000/fa77d341-cad2-4902-a837-308655dbca47.root");
 	BaseAnalyser nanoaodrdf(&c1, "top_tzq.root");
 	nanoaodrdf.setParams(2022, "PreEE", -1);
@@ -38,6 +38,8 @@ int main(void) {
 	string jerctag = "Summer22_22Sep2023_RunCD_V2_DATA_L1L2L3Res_AK4PFPuppi";
 	string jettagMC = "Summer22_22Sep2023_V2_MC_L1L2L3Res_AK4PFPuppi";
 	string jercunctag = "Summer22_22Sep2023_V2_MC_Total_AK4PFPuppi";
+	string jetidfname = "data/JERC/2022_Summer22EE/jetid.json";
+	string jetid_workingpoint = "AK4PUPPI_TightLeptonVeto";
 	string muon_roch_fname = "data/MUO/2022_Summer22/muon_scalesmearing.json";
 	string muon_fname = "data/MUO/2022_Summer22/muon_Z.json";
 	string muonHLTtype = "NUM_IsoMu24_DEN_CutBasedIdTight_and_PFIsoTight";
@@ -58,7 +60,7 @@ int main(void) {
 
 // The below line is commented out because it causes some problem while loading the DATA file and the code unable to load all the entries need to fix that some how
 
-	nanoaodrdf.setupCorrections(goodjsonfname, pileupfname, pileuptag, btvfname, btvtype, muon_roch_fname, muon_fname, muonHLTtype, muonIDtype, muonISOtype, electron_fname,electronHlt_fname,electronHlt_type, electron_reco_type1,electron_reco_type2,electron_reco_type3, electron_id_type, jercfname, jerctag, jettagMC, jercunctag, jet_veto_f_name, jet_veto_tag,electron_SSF, metpt_fname);
+	nanoaodrdf.setupCorrections(goodjsonfname, pileupfname, pileuptag, btvfname, btvtype, muon_roch_fname, muon_fname, muonHLTtype, muonIDtype, muonISOtype, electron_fname,electronHlt_fname,electronHlt_type, electron_reco_type1,electron_reco_type2,electron_reco_type3, electron_id_type, jercfname, jerctag, jettagMC, jercunctag, jet_veto_f_name, jet_veto_tag,electron_SSF, metpt_fname, jetidfname, jetid_workingpoint);
 
 	nanoaodrdf.setupObjects();
 	nanoaodrdf.setupAnalysis();

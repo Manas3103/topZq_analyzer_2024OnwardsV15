@@ -277,7 +277,9 @@ def Nanoaodprocessor_singledir(indir, outputroot, procflags, config):
             config['jet_veto_f_name'],
             config['jet_veto_tag'],
             config['electron_SSF'],
-            config['metpt_fname']
+            config['metpt_fname'],
+            config['jetidfname'],
+            config['jetid_workingpoint']
         )
     else:
         print("Skipping corrections step")
