@@ -1,8 +1,0 @@
-/store/user/msahoo/2022/Era_d/EGamma  Data_EGamma_fromEOS_d.root  Data_EGamma_fromEOS_d.out
-/store/user/msahoo/2022/Era_d/Muon  Data_Muon_fromEOS_d.root  Data_Muon_fromEOS_d.out
-/store/user/msahoo/2022/Era_d/MuonEG  Data_MuonEG_fromEOS_d.root  Data_MuonEG_fromEOS_d.out
-/store/user/msahoo/2022/Era_c/EGamma  Data_EGamma_fromEOS_c.root  Data_EGamma_fromEOS_c.out
-/store/user/msahoo/2022/Era_c/Muon  Data_Muon_fromEOS_c.root  Data_Muon_fromEOS_c.out
-/store/user/msahoo/2022/Era_c/MuonEG  Data_MuonEG_fromEOS_c.root  Data_MuonEG_fromEOS_c.out
-/store/user/msahoo/2022/Era_c/SingleMu  Data_SingleMu_fromEOS_c.root  Data_SingleMu_fromEOS_c.out
-/store/user/msahoo/2022/Era_c/DoubleMu  Data_DoubleMu_fromEOS_c.root  Data_DoubleMu_fromEOS_c.out
