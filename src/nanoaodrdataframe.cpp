@@ -21,17 +21,14 @@ int main(void) {
 
 	TChain c1("Events");
 //	c1.Add("/uscms/home/msahoo/nobackup/Project_tzq/EGamma2022_EraF_v15.root"); //data
-//	c1.Add("/uscms/home/msahoo/nobackup/Project_tzq/2022Data_Muon.root"); //data
-//	c1.Add("/uscms/home/msahoo/nobackup/Project_tzq/2022_postEE_tZq.root"); // MC
 	c1.Add("root://cmsxrootd.fnal.gov//store/mc/RunIII2024Summer24NanoAODv15/TZQB-Zto2L-4FS_Bin-MLL-30_TuneCP5_13p6TeV_amcatnlo-pythia8/NANOAODSIM/Madgraph_2_6_5_150X_mcRun3_2024_realistic_v2-v2/2810000/049a96b9-df0c-4e43-ba77-ec1728657c95.root");
 	BaseAnalyser nanoaodrdf(&c1, "top_tzq.root");
-	//nanoaodrdf.setParams(2022, "PreEE", -1);
-        nanoaodrdf.setParams(2022, "PostEE", -1);
+        nanoaodrdf.setParams(2024, "", -1);
 	nanoaodrdf.setHLT();
 
-	string goodjsonfname = "data/GoldenJSON/golden_json_latest_2022.json";
-	string pileupfname = "data/LUM/2022_Summer22/puWeights.json";
-	string pileuptag = "Collisions2022_355100_357900_eraBCD_GoldenJson";
+	string goodjsonfname = "data/GoldenJSON/2024_Era_HI_387853_388784_Golden.json";
+	string pileupfname = "data/LUM/2024/puWeights_BCDEFGHI.json";
+	string pileuptag = "Collisions24_BCDEFGHI_goldenJSON";
 	string btvfname = "data/BTV/2022_Summer22/btagging.json";
 	string btvtype = "deepJet_shape";
 	string jercfname = "data/JERC/2022_Summer22/jet_jerc.json";

@@ -130,8 +130,6 @@ void BaseAnalyser::defineCuts()
 
 	//MinimalSelection to filter events
 	addCuts("nMuon + nElectron >= 3  && nJet>0 && PV_npvsGood >= 1 ", "0");//not for drellyan
-//	addCuts("PV_npvsGood >= 1 ", "0");//not for drellyan
-	//addCuts("Flag_goodVertices && Flag_HBHENoiseFilter && Flag_HBHENoiseIsoFilter && Flag_EcalDeadCellTriggerPrimitiveFilter && Flag_BadPFMuonFilter && Flag_BadPFMuobDzFilter && Flag_eeBadScFilter && Flag_ecalBadCalibFilter", "00");
 	addCuts("Flag_goodVertices && Flag_HBHENoiseFilter && Flag_HBHENoiseIsoFilter && Flag_EcalDeadCellTriggerPrimitiveFilter && Flag_BadPFMuonFilter && Flag_BadPFMuonDzFilter && Flag_eeBadScFilter", "00");
 	addCuts(setHLT(),"000");
 }
@@ -183,6 +181,7 @@ void BaseAnalyser::selectElectrons()
     // =====================================================================
     _rlm = _rlm.Define("baselineElectrons", 
                        "Electron_pt > 10.0 && abs(Electron_eta) < 2.5 && goodElectronsID &&"
+		       "!(abs(Electron_eta) > 1.442 && abs(Electron_eta) < 1.566) && "
                        "Electron_miniPFRelIso_all < 0.40 && abs(Electron_dxy) < 0.05 && "
                        "abs(Electron_dz) < 0.10 && Electron_lostHits <= 1 && "
                        "Electron_hoe < 0.10 && Electron_convVeto &&"
@@ -275,7 +274,7 @@ void BaseAnalyser::selectMuons()
 		       "Muon_mediumId");
 
 	// Additional variables for baseline muons  the value of pt has to be >15 because correction is lot avalaible below 15 
-    _rlm = _rlm.Define("baselineMuons_pt", "Muon_pt_corr[baselineMuons]")
+    _rlm = _rlm.Define("baselineMuons_pt", "Muon_pt[baselineMuons]")
 	       .Define("baselineMuons_eta", "Muon_eta[baselineMuons]")
 	       .Define("baselineMuons_phi", "Muon_phi[baselineMuons]")
 	       .Define("baselineMuons_mass", "Muon_mass[baselineMuons]")
@@ -330,7 +329,7 @@ void BaseAnalyser::selectJets()
     _rlm = _rlm.Define("goodJetsID", JetID(6)); //without pt-eta cuts here i have to add other cuts since its NanoAODv12
     _rlm = _rlm.Define("goodJets", "goodJetsID && ((abs(Jet_eta) > 2.65 && abs(Jet_eta) < 3.139 && Jet_pt_corr > 50.0) || (Jet_pt_corr > 25.0 && abs(Jet_eta) < 5 && abs(Jet_eta)>3.139) || (Jet_pt_corr > 25.0 && abs(Jet_eta) < 2.65 && abs(Jet_eta)>0))");
 //    _rlm = _rlm.Define("goodJets", "((abs(Jet_eta) > 2.65 && abs(Jet_eta) < 3.139 && Jet_pt_corr > 50.0) || (Jet_pt_corr > 25.0 && abs(Jet_eta) < 5 && abs(Jet_eta)>3.139) || (Jet_pt_corr > 25.0 && abs(Jet_eta) < 2.65 && abs(Jet_eta)>0))");
-    _rlm = _rlm.Define("goodJets_pt", "Jet_pt_corr[goodJets]")
+    _rlm = _rlm.Define("goodJets_pt", "Jet_pt[goodJets]")
                .Define("goodJets_eta", "Jet_eta[goodJets]")
                .Define("goodJets_phi", "Jet_phi[goodJets]")
                .Define("goodJets_mass", "Jet_mass[goodJets]")
@@ -2155,11 +2154,11 @@ void BaseAnalyser::setupObjects()
 	/*calculateZBosonMass();
 	//identifyOSSFElectronPair();
 	// defineTwoElectronEvent();*/
-
+/*
 	//This code is also off due to the problem arising entries of Data files can continue when add the correction files
 	if(!_isData){
 	  this->calculateEvWeight(); // PU, genweight and BTV and Mu and Ele
-	}
+	}*/
 	//selectMET();
 
 }

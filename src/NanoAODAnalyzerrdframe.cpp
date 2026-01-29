@@ -1121,22 +1121,6 @@ ROOT::RDF::RNode NanoAODAnalyzerrdframe::applyJetVetoMap(ROOT::RDF::RNode _rlm,
 
 
 
-/*
-ROOT::RDF::RNode NanoAODAnalyzerrdframe::applyPrefiringWeight(RNode _rlm, std::string output_var)
-{
-  
-    std::vector<std::string> variations = {"Nom", "Up", "Dn"};
-    std::vector<std::string> output_variations = {"central", "up", "down"};
-    for (int i =0; i<int(variations.size()); i++) {
-      std::string input_column_name = "L1PreFiringWeight_" + variations[i];
-      std::string output_column_name = output_var + output_variations[i];
-      _rlm = _rlm.Define(output_column_name, input_column_name);
-    }
-    return _rlm;
-}
-//FOR RUN 2 
-*/
-
 bool NanoAODAnalyzerrdframe::helper_1DHistCreator(std::string hname, std::string title, const int nbins, const double xlow, const double xhi, std::string rdfvar, std::string evWeight, RNode *anode)
 {
 	//cout << "1DHistCreator " << hname  << endl;
@@ -1568,7 +1552,7 @@ std::string NanoAODAnalyzerrdframe::setHLT(std::string str_HLT){
             }else if(_year==2023){
                 HLTGlobalNames=HLT2023Names;
             }else if(_year==2024){
-                HLTGlobalNames=HLT2024Names;
+                HLTGlobalNames=HLT2022EENames;
             }
 
             //loop on HLTs
