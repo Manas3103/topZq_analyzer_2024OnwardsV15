@@ -159,7 +159,7 @@ void NanoAODAnalyzerrdframe::selectFatJets()
 				.Define("Sel_fatjetweight", "std::vector<double>(nfatjetspass, evWeight)")
 				.Define("Sel_fatjet4vecs", ::generate_4vec, {"Sel_fatjetpt", "Sel_fatjeteta", "Sel_fatjetphi", "Sel_fatjetmass"});
 }
-
+/*
 void NanoAODAnalyzerrdframe::setupJetMETCorrection(string fname, string jettag,string jettagMC) //data
 {
 
@@ -273,6 +273,128 @@ void NanoAODAnalyzerrdframe::applyJetMETCorrections() //data
 
 }
 
+*/
+
+void NanoAODAnalyzerrdframe::setupJetMETCorrection(string fname, string jettag,string jettagMC,string JER_tag) //data
+{
+
+    cout << "SETUP JETMET correction" << endl;
+	// read from file 
+	_correction_jerc = correction::CorrectionSet::from_file(fname);//jercfname=json
+	assert(_correction_jerc->validate()); //the assert functionality : check if the parameters passed to a function are valid =1:true
+	cout<<"JERC JSON file : " << fname<<endl;
+
+        if (_isData){
+            _jetCorrector = _correction_jerc->compound().at(jettag);//jerctag#JSON (JEC,compound)compoundLevel="L1L2L3Res"
+        }
+        else {
+            cout<<"JERC JSON file : " << fname<<endl;
+            _jetCorrector = _correction_jerc->compound().at(jettagMC);
+        }
+
+	cout<< "JET tag in JSON : " << jettag << endl;
+	_jetCorrectionUnc = _correction_jerc->at(_jercunctag);
+
+	cout<< "JET uncertainity tag in JSON  : " << _jercunctag << endl;
+        cout<< "JER tag in json: " << JER_tag << endl;
+
+        _jer_corrector = _correction_jerc->at(JER_tag);
+	std::cout<< "================================//=================================" << std::endl;
+}
+
+void NanoAODAnalyzerrdframe::applyJetMETCorrections()
+{
+    std::cout << "Applying JET/MET corrections" << std::endl;
+
+    using ROOT::VecOps::RVec;
+    using floats = RVec<float>;
+
+    //------------------------------------------------------------------
+    // 1. Create a vectorized run branch (needed only for Data)
+    //------------------------------------------------------------------
+    if (_isData)
+    {
+        _rlm = _rlm.Define("run_f",
+            [](unsigned int run, const floats &jetpts) {
+                return floats(jetpts.size(), float(run));
+            },
+            {"run", "Jet_pt"}
+        );
+    }
+
+    //------------------------------------------------------------------
+    // 2. Define branches in RDF
+    //------------------------------------------------------------------
+    if (_jetCorrector != nullptr)
+    {
+        if (_isData)
+        {
+            // Lambda for Data (with run)
+            auto jetCorrLambda_Data =[this](floats jetpts, floats jetetas, floats jetAreas, floats jetrawf, float rho, floats jetphis, floats run_f) -> floats
+            {
+                floats out;
+                out.reserve(jetpts.size());
+
+                for (size_t i = 0; i < jetpts.size(); i++)
+                {
+                    float rawpt = jetpts[i] * (1.f - jetrawf[i]);
+                    float corr = _jetCorrector->evaluate({jetAreas[i], jetetas[i], rawpt, rho, jetphis[i] , run_f[i]});
+                    out.emplace_back(rawpt * corr);
+                }
+
+                   return out;
+            };
+
+            _rlm = _rlm.Define("Jet_pt_corr",
+                jetCorrLambda_Data,
+                {"Jet_pt", "Jet_eta", "Jet_area", "Jet_rawFactor",
+                 "Rho_fixedGridRhoFastjetAll","Jet_phi","run_f"});
+             
+        }
+        else
+        {
+            // for MC pt correction  (without run)
+            auto jetCorrLambda_MC =[this](floats jetpts, floats jetetas, floats jetAreas, floats jetrawf, floats jetphis, float rho) -> floats
+            {
+                floats out;
+                out.reserve(jetpts.size());
+
+                for (size_t i = 0; i < jetpts.size(); i++)
+                {
+                     float rawpt = jetpts[i] * (1.f - jetrawf[i]);
+                     float corr = _jetCorrector->evaluate({jetAreas[i], jetetas[i], rawpt, rho, jetphis[i]});
+
+                    out.emplace_back(rawpt * corr);
+                }
+                return out;
+            };
+             
+	    //This is for the JER correction 
+            auto jerCorrLambda_MC =[this](floats jetpts, floats jetetas ) -> floats
+            {
+                floats out;
+                out.reserve(jetpts.size());
+
+                for (size_t i=0; i<jetpts.size(); i++)
+                {
+                    float corr = _jer_corrector->evaluate({jetetas[i],jetpts[i],"nom"});
+                    out.emplace_back(jetpts[i] * corr);
+                }
+                return out;
+            };
+
+            _rlm = _rlm.Define("Jet_pt_temp_corr",
+                jetCorrLambda_MC,
+                {"Jet_pt", "Jet_eta", "Jet_area", "Jet_rawFactor","Jet_phi",
+                 "Rho_fixedGridRhoFastjetAll"});
+                  
+            _rlm = _rlm.Define("Jet_pt_corr",
+                jerCorrLambda_MC,
+                {"Jet_pt_temp_corr", "Jet_eta"});
+
+      }
+    }
+}
 
 
 void NanoAODAnalyzerrdframe::applyMuPtCorrection()
@@ -610,7 +732,8 @@ void NanoAODAnalyzerrdframe::setupCorrections(
 		string electron_SSF,
 		string metpt_fname,
 		string jetidfname,
-		string jetid_workingpoint)
+		string jetid_workingpoint,
+		string JER_tag)
 //In this function the correction is evaluated for each jet, Muon, Electron and MET. The correction depends on the momentum, pseudorapidity, energy, and cone area of the jet, as well as the value of rho(the average momentum per area) and number of interactions in the event. The correction is used to scale the momentum of the jet.
 {
          cout << "set up Corrections!" << endl;
@@ -704,8 +827,9 @@ void NanoAODAnalyzerrdframe::setupCorrections(
 	_jerctag = jerctag;
 	_jerctagMC=jerctagMC;
 	_jercunctag = jercunctag;
+	_JER_tag = JER_tag;
 	
-	setupJetMETCorrection(jercfname, _jerctag, _jerctagMC);
+	setupJetMETCorrection(jercfname, _jerctag, _jerctagMC, _JER_tag);
 	if (!jetidfname.empty())
 	{
 		try
@@ -1706,7 +1830,12 @@ std::string NanoAODAnalyzerrdframe::JetID(int cutbasedID){
     output = Form ("Jet_jetId==%d",cutbasedID);
     return output;
 }
+
+
+
 */
+
+
 std::string NanoAODAnalyzerrdframe::JetID(int cutbasedID)
 {
 	if (debug) {
@@ -1740,9 +1869,9 @@ std::string NanoAODAnalyzerrdframe::JetID(int cutbasedID)
 				{
 					try
 					{
-						const int64_t chMult = static_cast<int64_t>(chMultiplicity[i]);
-						const int64_t neMult = static_cast<int64_t>(neMultiplicity[i]);
-						const int64_t multiplicity = chMult + neMult;
+						const int chMult = static_cast<int>(chMultiplicity[i]);
+						const int neMult = static_cast<int>(neMultiplicity[i]);
+						const int multiplicity = chMult + neMult;
 						std::vector<correction::Variable::Type> jetid_inputs;
 						jetid_inputs.reserve(9);
 						jetid_inputs.emplace_back(static_cast<double>(eta[i]));
@@ -1751,16 +1880,16 @@ std::string NanoAODAnalyzerrdframe::JetID(int cutbasedID)
 						jetid_inputs.emplace_back(static_cast<double>(chEmEF[i]));
 						jetid_inputs.emplace_back(static_cast<double>(neEmEF[i]));
 						jetid_inputs.emplace_back(static_cast<double>(muEF[i]));
-						jetid_inputs.emplace_back(static_cast<double>(chMult));
-						jetid_inputs.emplace_back(static_cast<double>(neMult));
-						jetid_inputs.emplace_back(static_cast<double>(multiplicity));
+						jetid_inputs.emplace_back(static_cast<int>(chMult));
+						jetid_inputs.emplace_back(static_cast<int>(neMult));
+						jetid_inputs.emplace_back(static_cast<int>(multiplicity));
 						const double result = criteria->evaluate(jetid_inputs);
 						passMask[i] = (result > 0.5);
 					}
 					catch (const std::exception &e)
 					{
 						std::cerr << "[JetID] evaluation error: " << e.what()
-						          << " (eta=" << eta[i] << ")" << std::endl;
+						          << " (eta=" << i << ")" << std::endl;
 						passMask[i] = 0;
 					}
 				}
@@ -1793,5 +1922,4 @@ std::string NanoAODAnalyzerrdframe::JetID(int cutbasedID)
 
     return output;
 }
-
 

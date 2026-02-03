@@ -31,11 +31,11 @@ int main(void) {
 	string pileuptag = "Collisions24_BCDEFGHI_goldenJSON";
 	string btvfname = "data/BTV/2022_Summer22/btagging.json";
 	string btvtype = "deepJet_shape";
-	string jercfname = "data/JERC/2022_Summer22/jet_jerc.json";
-	string jerctag = "Summer22_22Sep2023_RunCD_V2_DATA_L1L2L3Res_AK4PFPuppi";
-	string jettagMC = "Summer22_22Sep2023_V2_MC_L1L2L3Res_AK4PFPuppi";
-	string jercunctag = "Summer22_22Sep2023_V2_MC_Total_AK4PFPuppi";
-	string jetidfname = "data/JERC/2022_Summer22EE/jetid.json";
+	string jercfname = "data/JERC/2024_Summer24/jet_jerc.json";
+	string jerctag = "Summer24Prompt24_V2_DATA_L1L2L3Res_AK4PFPuppi";
+	string jettagMC = "Summer24Prompt24_V2_MC_L1L2L3Res_AK4PFPuppi";
+	string jercunctag = "Summer24Prompt24_V2_MC_Total_AK4PFPuppi";
+	string jetidfname = "data/JERC/2024_Summer24/jetid.json";  //this is not working in naodv15 so doing it manualy
 	string jetid_workingpoint = "AK4PUPPI_TightLeptonVeto";
 	string muon_roch_fname = "data/MUO/2022_Summer22/muon_scalesmearing.json";
 	string muon_fname = "data/MUO/2022_Summer22/muon_Z.json";
@@ -50,14 +50,22 @@ int main(void) {
 	string electron_reco_type2 =  "Reco20to75";
 	string electron_reco_type3 =  "RecoBelow20";
 	string electron_id_type = "wp90iso";
-	string jet_veto_f_name="data/JERC/2022_Summer22/jetvetomaps.json";
-        string jet_veto_tag = "Summer22_23Sep2023_RunCD_V1";
+	string jet_veto_f_name="data/JERC/2024_Summer24/jetvetomaps.json";
+        string jet_veto_tag = "Summer24Prompt24_RunBCDEFGHI_V1";
 	string electron_SSF = "data/EGM/2022_Summer22/electronSS.json";
 	string metpt_fname = "data/JERC/2022_Summer22/met_xyCorrections_2022_2022.json";
+	string JER_tag = "Summer23BPixPrompt23_RunD_JRV1_MC_ScaleFactor_AK4PFPuppi";
 
 // The below line is commented out because it causes some problem while loading the DATA file and the code unable to load all the entries need to fix that some how
 
-	nanoaodrdf.setupCorrections(goodjsonfname, pileupfname, pileuptag, btvfname, btvtype, muon_roch_fname, muon_fname, muonHLTtype, muonIDtype, muonISOtype, electron_fname,electronHlt_fname,electronHlt_type, electron_reco_type1,electron_reco_type2,electron_reco_type3, electron_id_type, jercfname, jerctag, jettagMC, jercunctag, jet_veto_f_name, jet_veto_tag,electron_SSF, metpt_fname, jetidfname, jetid_workingpoint);
+	nanoaodrdf.setupCorrections(goodjsonfname, pileupfname, pileuptag,
+		       	btvfname, btvtype, muon_roch_fname, muon_fname,
+		       	muonHLTtype, muonIDtype, muonISOtype, electron_fname,
+			electronHlt_fname,electronHlt_type, electron_reco_type1,
+			electron_reco_type2,electron_reco_type3, electron_id_type,
+		       	jercfname, jerctag, jettagMC, jercunctag, jet_veto_f_name,
+		       	jet_veto_tag,electron_SSF, metpt_fname, jetidfname,
+		       	jetid_workingpoint, JER_tag);
 
 	nanoaodrdf.setupObjects();
 	nanoaodrdf.setupAnalysis();

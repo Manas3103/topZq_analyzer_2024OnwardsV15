@@ -67,9 +67,9 @@ public:
 			string jercunctag,string jet_veto_f_name,
 			string jet_veto_tag, string electron_SSF, 
 			string metpt_fname,string jetidfname,
-			string jetid_workingpoint);
+			string jetid_workingpoint, string JER_tag);
 
-	void setupJetMETCorrection(string fname, string jettag, string jettagMC);
+	void setupJetMETCorrection(string fname, string jettag, string jettagMC, string JER_tag);
 	void applyJetMETCorrections();
 	void applyMETPtPhiCorrection();
     
@@ -161,6 +161,7 @@ public:
 	string _electron_SSF;
 	string _metpt_fname;
 	string _muon_roch_fname;
+	string _JER_tag;
 
 	TFile *_outrootfile;
 	vector<string> _outrootfilenames;
@@ -206,6 +207,7 @@ public:
 	std::unique_ptr<correction::CorrectionSet> _correction_jerc; // json containing all forms of corrections and uncertainties
 	std::shared_ptr<const correction::CompoundCorrection> _jetCorrector; // just the combined L1L2L3 correction
 	std::shared_ptr<const correction::Correction> _jetCorrectionUnc; // for uncertainty corresponding to the jet corrector
+	std::shared_ptr<const correction::Correction>_jer_corrector; // for th jer correction 
         std::unique_ptr<correction::CorrectionSet>_correction_jetveto; // jet veto map application
 
 	// jet id correction

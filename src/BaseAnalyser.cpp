@@ -326,10 +326,72 @@ void BaseAnalyser::selectJets()
         std::cout<< "================================//=================================" << std::endl;
     }
 
-    _rlm = _rlm.Define("goodJetsID", JetID(6)); //without pt-eta cuts here i have to add other cuts since its NanoAODv12
+    //_rlm = _rlm.Define("goodJetsID", JetID(6)); //without pt-eta cuts here i have to add other cuts since its NanoAODv12
+
+    _rlm = _rlm.Define("goodJetsID",
+	[](const ROOT::VecOps::RVec<UChar_t>& neMult,
+	   const ROOT::VecOps::RVec<UChar_t>& chMult,
+	   const ROOT::VecOps::RVec<float>& pt,
+	   const ROOT::VecOps::RVec<float>& neEmEF,
+	   const ROOT::VecOps::RVec<float>& chEmEF,
+	   const ROOT::VecOps::RVec<float>& chHEF,
+	   const ROOT::VecOps::RVec<float>& neHEF,
+	   const ROOT::VecOps::RVec<float>& muEF,
+	   const ROOT::VecOps::RVec<float>& eta)
+	{
+	    ROOT::VecOps::RVec<char> mask(pt.size(), false);
+
+	    for (size_t i = 0; i < pt.size(); i++) {
+
+		if (pt[i] <= 25.0 || std::abs(eta[i]) >= 5.0) continue;
+
+		bool is_tight = false;
+		float aeta = std::abs(eta[i]);
+
+		// |eta| <= 2.6
+		if (aeta <= 2.6) {
+		    is_tight =
+			neHEF[i] < 0.99 &&
+			neEmEF[i] < 0.90 &&
+			(chMult[i] + neMult[i]) > 1 &&
+			chHEF[i] > 0.01 &&
+			chMult[i] > 0;
+		}
+
+		// 2.6 < |eta| <= 2.7
+		else if (aeta <= 2.7) {
+		    is_tight =
+			neHEF[i] < 0.90 &&
+			neEmEF[i] < 0.99;
+		}
+
+		// 2.7 < |eta| <= 3.0
+		else if (aeta <= 3.0) {
+		    is_tight = (neHEF[i] < 0.99);
+		}
+
+		// |eta| > 3.0
+		else {
+		    is_tight =
+			neMult[i] >= 2 &&
+			neEmEF[i] < 0.40;
+		}
+
+		// TightLeptonVeto extension
+		bool pass_lepton_veto = (aeta > 2.7) || (muEF[i] < 0.8 && chEmEF[i] < 0.8);
+
+		mask[i] = is_tight && pass_lepton_veto;
+	    }
+
+	    return mask;
+	},
+	{"Jet_neMultiplicity", "Jet_chMultiplicity", "Jet_pt_corr",
+	 "Jet_neEmEF", "Jet_chEmEF", "Jet_chHEF", "Jet_neHEF",
+	 "Jet_muEF", "Jet_eta"});
+
+
     _rlm = _rlm.Define("goodJets", "goodJetsID && ((abs(Jet_eta) > 2.65 && abs(Jet_eta) < 3.139 && Jet_pt_corr > 50.0) || (Jet_pt_corr > 25.0 && abs(Jet_eta) < 5 && abs(Jet_eta)>3.139) || (Jet_pt_corr > 25.0 && abs(Jet_eta) < 2.65 && abs(Jet_eta)>0))");
-//    _rlm = _rlm.Define("goodJets", "((abs(Jet_eta) > 2.65 && abs(Jet_eta) < 3.139 && Jet_pt_corr > 50.0) || (Jet_pt_corr > 25.0 && abs(Jet_eta) < 5 && abs(Jet_eta)>3.139) || (Jet_pt_corr > 25.0 && abs(Jet_eta) < 2.65 && abs(Jet_eta)>0))");
-    _rlm = _rlm.Define("goodJets_pt", "Jet_pt[goodJets]")
+    _rlm = _rlm.Define("goodJets_pt", "Jet_pt_corr[goodJets]")
                .Define("goodJets_eta", "Jet_eta[goodJets]")
                .Define("goodJets_phi", "Jet_phi[goodJets]")
                .Define("goodJets_mass", "Jet_mass[goodJets]")
