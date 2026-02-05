@@ -1,6 +1,0 @@
-root://xrootd-cms.infn.it//store/data/Run2022C/EGamma/NANOAOD/16Dec2023-v1/2560000/e0b51e6b-df8f-4ad3-ab3b-85f83a7ca05d.root
-root://xrootd-cms.infn.it//store/data/Run2022C/EGamma/NANOAOD/16Dec2023-v1/2560000/fdbfb584-8f25-4309-b6c4-9d3562ef9747.root
-root://xrootd-cms.infn.it//store/data/Run2022C/EGamma/NANOAOD/16Dec2023-v1/2560000/a0e2cae1-165d-4dc2-97d0-fc42e2cbd4ce.root
-root://xrootd-cms.infn.it//store/data/Run2022C/EGamma/NANOAOD/16Dec2023-v1/2560000/4c56a9b9-13d0-4cab-b0a7-f38d1716a029.root
-root://xrootd-cms.infn.it//store/data/Run2022C/EGamma/NANOAOD/16Dec2023-v1/2560000/468c2a60-9cc2-48dc-b5ac-d071ff56497d.root
-

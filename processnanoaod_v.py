@@ -235,8 +235,6 @@ def Nanoaodprocessor_singledir(indir, outputroot, procflags, config):
     print("Total Number of Entries:", nevents)
     print("-------------------------------------------------------------------")
 
-#    aproc = ROOT.BaseAnalyser(t, outputroot)
- #   aproc.setParams(config['year'], config['runtype'], config['datatype'])
     aproc = ROOT.BaseAnalyser(t, outputroot)
 
     try:
@@ -279,7 +277,8 @@ def Nanoaodprocessor_singledir(indir, outputroot, procflags, config):
             config['electron_SSF'],
             config['metpt_fname'],
             config['jetidfname'],
-            config['jetid_workingpoint']
+            config['jetid_workingpoint'],
+            config['JER_tag']
         )
     else:
         print("Skipping corrections step")
