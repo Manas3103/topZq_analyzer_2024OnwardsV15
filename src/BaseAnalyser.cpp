@@ -398,11 +398,7 @@ void BaseAnalyser::selectJets()
                .Define("goodJets_idx", ::good_idx, {"goodJets"})
 	       .Define("NgoodJets", "int(goodJets_pt.size())")
                .Define("goodJets_4vecs", ::generate_4vec, {"goodJets_pt", "goodJets_eta", "goodJets_phi", "goodJets_mass"});
-   
-//    _rlm = _rlm.Define("goodJets_test", "goodJetsID && Jet_pt>30 && abs(Jet_eta)<2.4 ");
-   
-//    auto n_pass_jet =_rlm.Define("pass_goodjet","goodJets_test>0").Sum("pass_goodjet");
-//    std::cout<<"events with >=1 jet: "<< *n_pass_jet << std::endl;
+
 
     if (!_isData){
        _rlm = _rlm.Define("goodJets_hadflav", "Jet_hadronFlavour[goodJets]");
@@ -428,7 +424,10 @@ void BaseAnalyser::selectJets()
     }
     _rlm = _rlm.Define("Ngood_bjets", "int(good_bjetpt.size())")   //when remove the comment from the next linw remove the ; of this line 
                .Define("good_bjet4vecs", ::generate_4vec, {"good_bjetpt", "good_bjeteta", "good_bjetphi", "good_bjetmass"});
-               /*.Define("top_Bjet_TL4Vecs", [](const ROOT::VecOps::RVec<float>& pts,
+
+
+
+    /*.Define("top_Bjet_TL4Vecs", [](const ROOT::VecOps::RVec<float>& pts,
                                const ROOT::VecOps::RVec<float>& etas,
                                const ROOT::VecOps::RVec<float>& phis,
                                const ROOT::VecOps::RVec<float>& masses) -> ROOT::VecOps::RVec<TLorentzVector> {
@@ -1520,7 +1519,7 @@ void BaseAnalyser::defineSignalRegion()
     }
 
 
-    _rlm = _rlm.Define("trialRegion", " NgoodLepton==3 && ncleanjetspass >= 2 && ncleanbjetspass >= 1 && All_good_tightLeptons && goodMET_pt>20");
+    _rlm = _rlm.Define("trialRegion", " NgoodLepton==3 && ncleanjetspass >= 2 && ncleanbjetspass >= 1 && All_good_tightLeptons");
    // _rlm = _rlm.Define("trialRegion", " NgoodLepton==3 && ncleanjetspass >= 2 && ncleanbjetspass >= 1 && abs(Sum(goodLepton_charge)) == 1")
    _rlm = _rlm .Define("trialRegion_lead" , "trialRegion && leadingLepton_pt > 0")
 	       .Define("trialRegion_sublead" , "trialRegion && subleadingLepton_pt > 0")
