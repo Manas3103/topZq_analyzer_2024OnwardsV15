@@ -250,10 +250,7 @@ void BaseAnalyser::selectMuons()
     // Define good muons based on ID and additional criteria
     _rlm = _rlm.Define("goodMuonsID", MuonID(2)); // loose muons
     _rlm = _rlm.Define("goodMuons", "Muon_pt > 30 && abs(Muon_eta) < 2.4 && Muon_miniPFRelIso_all < 0.40 && goodMuonsID");
-//    _rlm = _rlm.Define("goodmuonsID2", MuonID(4));
-//    _rlm = _rlm.Define("goodmuons_test", "goodmuonsID2 && Muon_pt_corr > 20 && abs(Muon_eta) < 2.4 && Muon_pfRelIso04_all<0.15");
-//    auto n_Muon =_rlm.Define("pass_goodMuon_test","goodmuons_test>0").Sum("pass_goodMuon_test");
-//    std::cout<<"events with >=1 Muon: "<< *n_Muon << std::endl;
+
 
     // Define additional variables for good muons
     _rlm = _rlm.Define("goodMuons_pt", "Muon_pt[goodMuons]")
@@ -1519,8 +1516,8 @@ void BaseAnalyser::defineSignalRegion()
     }
 
 
-    _rlm = _rlm.Define("trialRegion", " NgoodLepton==3 && ncleanjetspass >= 2 && ncleanbjetspass >= 1 && All_good_tightLeptons");
-   // _rlm = _rlm.Define("trialRegion", " NgoodLepton==3 && ncleanjetspass >= 2 && ncleanbjetspass >= 1 && abs(Sum(goodLepton_charge)) == 1")
+  //  _rlm = _rlm.Define("trialRegion", " NgoodLepton==3 && ncleanjetspass >= 2 && ncleanbjetspass >= 1 && All_good_tightLeptons");
+   _rlm = _rlm.Define("trialRegion", " NgoodLepton==3 && ncleanjetspass >= 2 && ncleanbjetspass >= 1 && abs(Sum(goodLepton_charge)) == 1");
    _rlm = _rlm .Define("trialRegion_lead" , "trialRegion && leadingLepton_pt > 0")
 	       .Define("trialRegion_sublead" , "trialRegion && subleadingLepton_pt > 0")
 	       .Define("trialRegion_trail" , "trialRegion && TrailingLepton_pt > 0")
@@ -1550,7 +1547,8 @@ void BaseAnalyser::defineSignalRegion()
 	       .Define("TR_nbJets", "trialRegion ? int(Selected_bjetpt.size()) : -1");
 
 
-    _rlm = _rlm.Define("ThreeLSignalRegion", " NgoodLepton==3 && ncleanbjetspass >= 1 && All_good_tightLeptons && abs(Sum(goodLepton_charge)) == 1")
+//    _rlm = _rlm.Define("ThreeLSignalRegion", " NgoodLepton==3 && ncleanbjetspass >= 1 && All_good_tightLeptons && abs(Sum(goodLepton_charge)) == 1")
+    _rlm = _rlm.Define("ThreeLSignalRegion", " NgoodLepton==3 && ncleanbjetspass >= 1 && abs(Sum(goodLepton_charge)) == 1")
     	       .Define("ThreeLSignalRegion_lead" , "ThreeLSignalRegion && leadingLepton_pt > 0")
 	       .Define("ThreeLSignal_leadingLepton_pt", [](bool cond, float pt) { return cond ? pt : -999.f; }, {"ThreeLSignalRegion_lead", "leadingLepton_pt"})
 	       .Define("ThreeLSignalRegion_nElectron","ThreeLSignalRegion ? NbaselineElectrons : -1")

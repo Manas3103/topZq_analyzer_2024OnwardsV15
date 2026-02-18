@@ -10,13 +10,9 @@
 #include <vector>
 
 void create_normalized_histogram(const std::string& filename,
-
-                       double cross_section,
-                      // double luminosity=2.9700 ,
-		       //double luminosity=5.0104 ,
-		       double luminosity=62.4 ,
-
-                       const std::string& Tree="outputTree") {
+                       		 double cross_section,
+		     		 double luminosity=5.0104 ,
+                      		 const std::string& Tree="outputTree") {
     // ROOT file and tree details
     std::string inputFileName = filename;
     std::string treeName = Tree;
@@ -318,7 +314,7 @@ void create_normalized_histogram(const std::string& filename,
 
                 // Calculate total weight with normalization
                 //double total_weight = evWeight * genWeight * normalization_factor; use this when evWeight is properly defind
-                double total_weight = (evWeight/genEventSumw) * normalization_factor;
+                double total_weight = (genWeight/genEventSumw) * normalization_factor;
 
                 if (strcmp(typeName, "Float_t") == 0) {
                     hist->Fill(float_buffer, total_weight);
