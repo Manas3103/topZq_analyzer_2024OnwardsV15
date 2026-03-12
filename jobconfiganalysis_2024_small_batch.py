@@ -102,7 +102,7 @@ procflags = {
         
         ###### How many input files? ######
         #'nrootfiles': 'All',set the bellow to 65 while running for the data and 15 for the simulation 
-        'nrootfiles': 1000,
+        'nrootfiles': 300,
 
         ###### Make a copy of the analyzer in the same directory as the analyzed root files ######
         'copyInstance': False,
@@ -133,9 +133,9 @@ nanoaod_inputdir_outputdir_pairs = [
 
 '''
 nanoaod_inputdir_outputdir_pairs = [
-    ['/store/user/msahoo/2024/wg_1jet',
-     'wg_1jet.root',
-     'wg_1jet.out']
+    ['/store/user/msahoo/2024/MuonEG',
+     'MuonEG_24_EraH.root',
+     'MuonEG_24_EraH.out']
 
 ]
 

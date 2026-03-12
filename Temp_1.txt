@@ -1,1 +1,5 @@
-/EGamma/Run2022F-NanoAODv15-v1/NANOAOD EGamma_Run3_EraF.root EGamma_Run3_EraF.out
+/store/user/msahoo/2024/wz_3lnu wz_3lnu.root wz_3lnu.out
+/store/user/msahoo/2024/zz_4l zz_4l.root zz_4l.out
+/store/user/msahoo/2024/wg_1jet wg_1jet.root wg_1jet.out
+/store/user/msahoo/2024/ttbar_dilepton ttbar_dilepton.root ttbar_dilepton.out
+/store/user/msahoo/2024/ttbar_semilep ttbar_semilep.root ttbar_semilep.out

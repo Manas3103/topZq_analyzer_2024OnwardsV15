@@ -11,7 +11,7 @@
 
 void create_normalized_histogram(const std::string& filename,
                        		 double cross_section,
-		     		 double luminosity=5.0104 ,
+		     		 double luminosity=5.44 ,
                       		 const std::string& Tree="outputTree") {
     // ROOT file and tree details
     std::string inputFileName = filename;
@@ -41,14 +41,36 @@ void create_normalized_histogram(const std::string& filename,
 
     // Define histogram parameters: {branch_name, (min, max, bins)}
     std::map<std::string, std::tuple<double, double, int>> branch_ranges = {
-        {"top_mass", {5, 700,50}},
-        {"nJet", {2, 10,8}},
-        {"TR_leadingLepton_pt", {0, 250,25}},
-        {"TR_subleadingLepton_pt", {0, 150,20}},
-        {"TR_trailingLepton_pt", {0, 100,20}},
-        {"TR_leadingLepton_eta", {-3, 3,24}},
-        {"TR_subleadingLepton_eta", {-3, 3,24}},
-        {"TR_trailingLepton_eta", {-3, 3,24}},
+        {"top_mass", {5, 400,20}},
+        {"TR_leadingLepton_pt", {0, 250,18}},
+        {"TR_subleadingLepton_pt", {0, 150,15}},
+        {"TR_trailingLepton_pt", {0, 100,15}},
+        {"TR_leadingLepton_eta", {-3, 3,14}},
+        {"TR_subleadingLepton_eta", {-3, 3,14}},
+        {"TR_trailingLepton_eta", {-3, 3,14}},
+
+        {"ncleanjetspass_SignalRegion", {-0.5, 7.5, 7}},
+        {"ncleanbjetspass_SignalRegion", {-0.5, 5.5, 5}},
+
+        {"ncleanjetspass_WZ_Region", {-0.5, 7.5, 7}},
+        {"Wboson_transversMass_WZ_Region", {10, 150, 14}},
+
+        {"ncleanjetspass_X_gamma_Region", {-0.5, 7.5, 7}},
+        {"ncleanbjetspass_X_gamma_Region", {-0.5, 5.5, 5}},
+
+        {"ncleanjetspass_NP_2_Region", {-0.5, 7.5, 7}},
+        {"ncleanbjetspass_NP_2_Region", {-0.5, 5.5, 5}},
+
+        {"ncleanjetspass_NP_1_Region", {-0.5, 7.5, 7}},
+        {"ncleanbjetspass_NP_1_Region", {-0.5, 5.5, 5}},
+
+        {"ncleanjetspass_ZZ_Region", {-0.5, 7.5, 7}},
+        {"mass_of_4L_ZZ_Region", {0, 600, 60}},
+        {"Z_mass1_ZZ_Region", {70, 130, 35}},
+        {"Z_mass2_ZZ_Region", {70, 130, 35}},
+
+        {"ncleanjetspass_ttZ_Region", {-0.5, 7.5, 7}},
+        {"ncleanbjetspass_ttZ_Region", {-0.5, 5.5, 5}},
         {"combinedLeptonPt", {0, 500, 50}},
         {"ThreeLSignal_leadingLepton_pt", {0, 300, 10}},
         {"ThreeLSignalRegion_leadingJet_pt", {0, 400, 10}},
@@ -56,7 +78,6 @@ void create_normalized_histogram(const std::string& filename,
         {"ThreeLSignalRegion_nElectron", {0, 6, 6}},
         {"ThreeLSignalRegion_nMuon", {0, 6, 6}},
         {"zboson_mass_3LRegion", {70, 110, 20}}
-
 
     };
 
@@ -314,7 +335,7 @@ void create_normalized_histogram(const std::string& filename,
 
                 // Calculate total weight with normalization
                 //double total_weight = evWeight * genWeight * normalization_factor; use this when evWeight is properly defind
-                double total_weight = (genWeight/genEventSumw) * normalization_factor;
+                double total_weight = (pugenWeight/genEventSumw) * normalization_factor;
 
                 if (strcmp(typeName, "Float_t") == 0) {
                     hist->Fill(float_buffer, total_weight);
