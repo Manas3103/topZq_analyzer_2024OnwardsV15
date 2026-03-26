@@ -20,10 +20,10 @@ using namespace ROOT;
 int main(void) {
 
 	TChain c1("Events");
-	c1.Add("/uscms/home/msahoo/nobackup/Project_tzq/CMSSW_13_3_3/src/skim_with_rdf/wz_3lnu_part1.root"); //data
+	//c1.Add("/uscms/home/msahoo/nobackup/Project_tzq/CMSSW_13_3_3/src/skim_with_rdf/wz_3lnu_part1.root"); //data
 //	c1.Add("/eos/uscms/store/user/msahoo/2024/MuonEG/Data_MuonEG_2024_skim_7of15.root");
 //	c1.Add("/eos/uscms/store/user/msahoo/2024/EGamma0/Data_EGamma0_2024_skim_10of20.root");
-//	c1.Add("root://cmsxrootd.fnal.gov//store/mc/RunIII2024Summer24NanoAODv15/WGtoLNuG-1Jets_TuneCP5_13p6TeV_amcatnloFXFX-pythia8/NANOAODSIM/150X_mcRun3_2024_realistic_v2-v2/110000/00324ab1-b380-4d0a-beec-4973ac85c8f6.root");
+	c1.Add("root://cmsxrootd.fnal.gov//store/mc/RunIII2024Summer24NanoAODv15/WGtoLNuG-1Jets_TuneCP5_13p6TeV_amcatnloFXFX-pythia8/NANOAODSIM/150X_mcRun3_2024_realistic_v2-v2/110000/00324ab1-b380-4d0a-beec-4973ac85c8f6.root");
 	BaseAnalyser nanoaodrdf(&c1, "top_tzq.root");
         nanoaodrdf.setParams(2024, "", -1);
 	nanoaodrdf.setHLT();
@@ -39,14 +39,14 @@ int main(void) {
 	string jercunctag = "Summer24Prompt24_V2_MC_Total_AK4PFPuppi";
 	string jetidfname = "data/JERC/2024_Summer24/jetid.json";  //this is not working in naodv15 so doing it manualy
 	string jetid_workingpoint = "AK4PUPPI_TightLeptonVeto";
-	string muon_roch_fname = "data/MUO/2022_Summer22/muon_scalesmearing.json";
-	string muon_fname = "data/MUO/2022_Summer22/muon_Z.json";
+	string muon_roch_fname = "data/MUO/2024_Summer24/muon_scalesmearing.json";
+	string muon_fname = "data/MUO/2024_Summer24/muon_Z.json";
 	string muonHLTtype = "NUM_IsoMu24_DEN_CutBasedIdTight_and_PFIsoTight";
 	string muonRECOtype = "NUM_TrackerMuons_DEN_genTracks";   // not required for Run3
 	string muonIDtype = "NUM_TightID_DEN_TrackerMuons";
 	string muonISOtype = "NUM_TightPFIso_DEN_TightID";
-	string electron_fname = "data/EGM/2022_Summer22/electron.json";
-	string electronHlt_fname = "data/EGM/2022_Summer22/electronHlt.json";
+	string electron_fname = "data/EGM/2024_Summer24/electron.json";
+	string electronHlt_fname = "data/EGM/2024_Summer24/electronHlt.json";
 	string electronHlt_type="HLT_SF_Ele30_TightID";
 	string electron_reco_type1 = "RecoAbove75";
 	string electron_reco_type2 =  "Reco20to75";
@@ -54,7 +54,7 @@ int main(void) {
 	string electron_id_type = "wp90iso";
 	string jet_veto_f_name="data/JERC/2024_Summer24/jetvetomaps.json";
         string jet_veto_tag = "Summer24Prompt24_RunBCDEFGHI_V1";
-	string electron_SSF = "data/EGM/2022_Summer22/electronSS.json";
+	string electron_SSF = "data/EGM/2024_Summer24/electronSS_EtDependent.json";
 	string metpt_fname = "data/JERC/2022_Summer22/met_xyCorrections_2022_2022.json";
 	string JER_tag = "Summer23BPixPrompt23_RunD_JRV1_MC_ScaleFactor_AK4PFPuppi";
 

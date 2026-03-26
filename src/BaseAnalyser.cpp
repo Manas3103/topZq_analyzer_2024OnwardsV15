@@ -618,16 +618,16 @@ void BaseAnalyser::calculateEvWeight(){
   std::vector<std::string> Muon_vars_names = {"baselineMuons_eta", "baselineMuons_pt"};
   std::string output_mu_column_name = "muon_SF_";
   _rlm = calculateMuSF(_rlm, Muon_vars_names, output_mu_column_name);
-
+/*
   //Scale Factors for Electron RECO and ID
   std::vector<std::string> Electron_vars_names = {"baselineElectrons_eta", "baselineElectrons_pt", "baselineElectrons_phi"};
   std::string output_ele_column_name = "ele_SF_";
   _rlm = calculateEleSF(_rlm, Electron_vars_names, output_ele_column_name);
-
+*/
   //Total event Weight:
 
 // _rlm = _rlm.Define("evWeight", " pugenWeight * btag_SF_bcflav_central * btag_SF_lflav_central * muon_SF_central * ele_SF_central"); 
-  _rlm = _rlm.Define("evWeight", " pugenWeight * muon_SF_central * ele_SF_central"); 
+  _rlm = _rlm.Define("evWeight", " pugenWeight * muon_SF_central "); 
 }
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -1166,6 +1166,8 @@ void BaseAnalyser::selectMET()
 
     _rlm = _rlm.Define("goodMET_pt","PuppiMET_pt_corr>20 ? PuppiMET_pt_corr : std::numeric_limits<float>::quiet_NaN()")
 	       .Define("goodMET_phi","PuppiMET_pt_corr > 20 ? PuppiMET_phi_corr : std::numeric_limits<float>::quiet_NaN()");
+//    _rlm = _rlm.Define("goodMET_pt","PuppiMET_pt>20 ? PuppiMET_pt : std::numeric_limits<float>::quiet_NaN()")
+//	       .Define("goodMET_phi","PuppiMET_pt > 20 ? PuppiMET_phi : std::numeric_limits<float>::quiet_NaN()");
 
     std::cout<< "================================//=================================" << std::endl;
     std::cout<< "==================CORRECT MET HAS BEEN SELECTED====================" << std::endl;
@@ -1516,8 +1518,8 @@ void BaseAnalyser::defineSignalRegion()
     }
 
 
-  //  _rlm = _rlm.Define("trialRegion", " NgoodLepton==3 && ncleanjetspass >= 2 && ncleanbjetspass >= 1 && All_good_tightLeptons");
-   _rlm = _rlm.Define("trialRegion", " NgoodLepton==3 && ncleanjetspass >= 2 && ncleanbjetspass >= 1 && abs(Sum(goodLepton_charge)) == 1");
+   _rlm = _rlm.Define("trialRegion", " NgoodLepton==3 && ncleanjetspass >= 2 && ncleanbjetspass >= 1 && All_good_tightLeptons");
+  // _rlm = _rlm.Define("trialRegion", " NgoodLepton==3 && ncleanjetspass >= 2 && ncleanbjetspass >= 1 && abs(Sum(goodLepton_charge)) == 1");
    _rlm = _rlm .Define("trialRegion_lead" , "trialRegion && leadingLepton_pt > 0")
 	       .Define("trialRegion_sublead" , "trialRegion && subleadingLepton_pt > 0")
 	       .Define("trialRegion_trail" , "trialRegion && TrailingLepton_pt > 0")
@@ -1565,7 +1567,6 @@ void BaseAnalyser::defineSignalRegion()
 	       .Define("nElectron_T3E_TR", "int((baselineElectrons_pt[Test3Ele_tight_region]).size())");
 
 
-	       /*  
     _rlm = _rlm.Define("baseRegion", " NgoodLepton==3 && All_good_tightLeptons && goodMET_pt>20")
 	       .Define("SignalRegion", "baseRegion && ncleanjetspass >= 2 && ncleanbjetspass >= 1 && OSSF_category ==1")
 	       .Define("SignalRegion_tzq", "SignalRegion && nCentral_jet < 4")
@@ -1704,7 +1705,7 @@ void BaseAnalyser::defineSignalRegion()
 	       .Define("maxDEEPJET_signal", "SignalRegion ? Selected_bjet_score : ROOT::VecOps::RVec<float>{}")
 	       .Define("MET_pt_signal", "SignalRegion ? goodMET_pt : -10");
 
-*/
+
 
 }
 
@@ -2074,7 +2075,11 @@ void BaseAnalyser::defineMoreVars()
     addVartoStore("maxDEEPJET_signal");
     addVartoStore("MET_pt_signal");
 
-
+//these branches are for the skimmer files 
+	addVartoStore("totalWeight");
+	addVartoStore("globalScale");
+	addVartoStore("sumGenWeight");
+	addVartoStore("crossSection");
    
    if(!_isData){
       //case1 btag correction- fixed wp	
@@ -2099,6 +2104,7 @@ void BaseAnalyser::defineMoreVars()
     addVartoStore("goodJets_all_lflav_eta");
 
     addVartoStore("genWeight");
+    addVartoStore("pugenWeight");
     addVartoStore("genEventSumw");      
     //"evWeight", " pugenWeight * btag_SF_bcflav_central * btag_SF_lflav_central * muon_SF_central * ele_SF_central"
     //case1 btag correction- fixed wp	
@@ -2207,17 +2213,17 @@ void BaseAnalyser::setupObjects()
 	processOSSFPairs();
 	reconstructWboson();
 	reconstructTop();
-//	BDT_variables();
+	BDT_variables();
 	defineSignalRegion();
 
 	/*calculateZBosonMass();
 	//identifyOSSFElectronPair();
 	// defineTwoElectronEvent();*/
-/*
+
 	//This code is also off due to the problem arising entries of Data files can continue when add the correction files
 	if(!_isData){
 	  this->calculateEvWeight(); // PU, genweight and BTV and Mu and Ele
-	}*/
+	}
 	//selectMET();
 
 }

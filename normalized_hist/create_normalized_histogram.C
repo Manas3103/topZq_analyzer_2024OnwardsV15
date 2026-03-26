@@ -11,7 +11,7 @@
 
 void create_normalized_histogram(const std::string& filename,
                        		 double cross_section,
-		     		 double luminosity=5.44 ,
+		     		 double luminosity=110,
                       		 const std::string& Tree="outputTree") {
     // ROOT file and tree details
     std::string inputFileName = filename;
@@ -242,8 +242,18 @@ void create_normalized_histogram(const std::string& filename,
         std::cerr << "Warning: genWeight branch not found. Using default weight of 1.0" << std::endl;
     }
 
+    // Check for genWeight branch
+    if (tree->GetBranch("pugenWeight")) {
+        tree->SetBranchAddress("pugenWeight", &pugenWeight);
+    } else {
+        std::cerr << "Warning: pugenWeight branch not found. Using default weight of 1.0" << std::endl;
+    }
+
     // Check for sum of genWeight branch
-    if (tree->GetBranch("genEventSumw")) {
+    if (tree->GetBranch("sumGenWeight")) {
+        tree->SetBranchAddress("sumGenWeight", &genEventSumw);
+    }
+    else if (tree->GetBranch("genEventSumw")) {
         tree->SetBranchAddress("genEventSumw", &genEventSumw);
     } else {
         std::cerr << "Warning: genEventSumw branch not found. Using default weight of 1.0" << std::endl;

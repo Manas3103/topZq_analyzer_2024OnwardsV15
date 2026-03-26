@@ -578,7 +578,7 @@ void NanoAODAnalyzerrdframe::applyElectronPtCorrection()
     using floats = RVec<float>;
 
     auto scale_corr = _correction_electronss->at("Scale");
-    auto smear_corr = _correction_electronss->at("Smearing");
+    auto smear_corr = _correction_electronss->at("SmearAndSyst");
 
     if (_isData) {
        auto scale_lambda = [scale_corr](const ROOT::VecOps::RVec<float> &pt,
@@ -777,8 +777,10 @@ void NanoAODAnalyzerrdframe::setupCorrections(
 	  cout<< "MUON ISO type in JSON  : " << _muon_iso_type << endl;
 	  assert(_correction_muon->validate());
 	  
+	  cout<< "uptothis is completed  ok  " << endl;
 	  //Electron corrections
 	  _correction_electron = correction::CorrectionSet::from_file(electron_fname);
+          cout<< "above line has problem" << endl;
           _correction_electronHlt = correction::CorrectionSet::from_file(electronHlt_fname);
 
 	//  _electron_reco_type = electron_reco_type;
@@ -1077,6 +1079,14 @@ ROOT::RDF::RNode NanoAODAnalyzerrdframe::calculateEleSF(
                     ->evaluate({"2023PromptD", variation, eletype,
                             std::fabs(etas[i]), pts[i], phis[i]});
             }
+            else if (_year == 2024 )
+            {
+                w = _correction_electron
+                    ->at("Electron-ID-SF")
+                    ->evaluate({"2024Prompt", variation, eletype,
+                            std::fabs(etas[i]), pts[i], phis[i]});
+            }
+
 
             w_tot *= w;
         }
