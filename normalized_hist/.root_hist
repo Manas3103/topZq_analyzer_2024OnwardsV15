@@ -1,1 +1,1 @@
-.x create_normalized_histogram.C("root://cmseos.fnal.gov//store/user/msahoo/2024_processed/tbbar_lplus.root",7.244)
+.x create_normalized_histogram.C("root://cmseos.fnal.gov//store/user/msahoo/2024_processed/wg_1jet_skimed.root",671500.0)

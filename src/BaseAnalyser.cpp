@@ -618,16 +618,17 @@ void BaseAnalyser::calculateEvWeight(){
   std::vector<std::string> Muon_vars_names = {"baselineMuons_eta", "baselineMuons_pt"};
   std::string output_mu_column_name = "muon_SF_";
   _rlm = calculateMuSF(_rlm, Muon_vars_names, output_mu_column_name);
-/*
+
   //Scale Factors for Electron RECO and ID
   std::vector<std::string> Electron_vars_names = {"baselineElectrons_eta", "baselineElectrons_pt", "baselineElectrons_phi"};
   std::string output_ele_column_name = "ele_SF_";
   _rlm = calculateEleSF(_rlm, Electron_vars_names, output_ele_column_name);
-*/
+
   //Total event Weight:
 
 // _rlm = _rlm.Define("evWeight", " pugenWeight * btag_SF_bcflav_central * btag_SF_lflav_central * muon_SF_central * ele_SF_central"); 
-  _rlm = _rlm.Define("evWeight", " pugenWeight * muon_SF_central "); 
+  _rlm = _rlm.Define("evWeight", " pugenWeight * muon_SF_central * ele_SF_central"); 
+//  _rlm = _rlm.Define("evWeight", " pugenWeight * muon_SF_central "); 
 }
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

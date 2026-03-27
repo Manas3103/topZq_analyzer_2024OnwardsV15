@@ -51,7 +51,7 @@ int main(void) {
 	string electron_reco_type1 = "RecoAbove75";
 	string electron_reco_type2 =  "Reco20to75";
 	string electron_reco_type3 =  "RecoBelow20";
-	string electron_id_type = "wp90iso";
+	string electron_id_type = "PromptMVA-Tight";
 	string jet_veto_f_name="data/JERC/2024_Summer24/jetvetomaps.json";
         string jet_veto_tag = "Summer24Prompt24_RunBCDEFGHI_V1";
 	string electron_SSF = "data/EGM/2024_Summer24/electronSS_EtDependent.json";

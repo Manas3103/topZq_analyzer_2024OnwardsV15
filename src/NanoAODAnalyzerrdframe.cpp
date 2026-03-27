@@ -564,7 +564,7 @@ void NanoAODAnalyzerrdframe::applyMuPtCorrection()
 
     cout << "Muon Pt correction applied successfully" << endl;
 }
-
+/*
 void NanoAODAnalyzerrdframe::applyElectronPtCorrection()
 {
     std::cout << "Apply Electron Pt correction" << std::endl;
@@ -658,7 +658,205 @@ _rlm = _rlm.Define("Electron_pt_corr", scale_lambda,
                    .Define("Electron_pt_corr_smearDown", "std::get<2>(Electron_pt_corr_triple)");
     }
 }
+*/
+void NanoAODAnalyzerrdframe::applyElectronPtCorrection()
+{
+    std::cout << "Apply Electron Pt correction" << std::endl;
 
+    if (!_correction_electronss) {
+        std::cerr << "Electron corrections file not loaded!" << std::endl;
+        return;
+    }
+
+    using ROOT::VecOps::RVec;
+    using floats = RVec<float>;
+    cout << "Works fine till her" << endl;
+    auto smear_corr = _correction_electronss->at("SmearAndSyst");
+    cout << "Works fine till her" << endl;
+
+    auto scale_corr = _correction_electronss->compound().at("Scale");
+    cout << "Works fine till her" << endl;
+
+    // Define supercluster eta once (used by both DATA and MC)
+
+    // =====================================================
+    // DATA - Scale corrections
+    // =====================================================
+    if (_isData) {
+        auto scale_corr = _correction_electronss->compound().at("Scale");
+
+        // Create a std::function with explicit signature
+        std::function<floats(const floats&, const floats&, const floats&,
+                             const ROOT::VecOps::RVec<UChar_t>&, unsigned int, 
+                             const std::string&)> scale_lambda =
+            [scale_corr](const floats &pt,
+                         const floats &scEta,
+                         const floats &r9,
+                         const ROOT::VecOps::RVec<UChar_t> &seedGain,
+                         unsigned int run,
+                         const std::string &variation) -> floats
+        {
+            floats out;
+            out.reserve(pt.size());
+
+            for (size_t i = 0; i < pt.size(); ++i) {
+                const double pt_v    = pt[i];
+                const double scEta_v = scEta[i];
+                const double r9_v    = r9[i];
+
+                // Validation checks (fixed the bug from original line 24)
+                if (pt_v < 20 ||
+                    !std::isfinite(scEta_v) ||
+                    !std::isfinite(r9_v) ||
+                    std::abs(scEta_v) >= 2.5)
+                {
+                    out.emplace_back(pt[i]);
+                    continue;
+                }
+
+                const double scale = scale_corr->evaluate({
+                    variation,  // "scale", "scale_up", or "scale_down"
+                    static_cast<double>(run),
+                    scEta_v,
+                    r9_v,
+                    pt_v,
+                    static_cast<double>(seedGain[i])
+                });
+
+                out.emplace_back(pt[i] * scale);
+            }
+            return out;
+        };
+
+        // Define all scale variations with explicit return types
+        _rlm = _rlm
+            .Define("Electron_pt_corr",
+                    [scale_lambda](const floats &pt, const floats &scEta, 
+                                  const floats &r9,
+                                  const ROOT::VecOps::RVec<UChar_t> &seedGain, 
+                                  unsigned int run) -> floats {
+                        return scale_lambda(pt, scEta, r9, seedGain, run, "scale");
+                    },
+                    {"Electron_pt", "Electron_eta_supercluster", "Electron_r9",
+                     "Electron_seedGain", "run"})
+            .Define("Electron_pt_corr_scaleUp",
+                    [scale_lambda](const floats &pt, const floats &scEta, 
+                                  const floats &r9,
+                                  const ROOT::VecOps::RVec<UChar_t> &seedGain, 
+                                  unsigned int run) -> floats {
+                        return scale_lambda(pt, scEta, r9, seedGain, run, "scale_up");
+                    },
+                    {"Electron_pt", "Electron_eta_supercluster", "Electron_r9",
+                     "Electron_seedGain", "run"})
+            .Define("Electron_pt_corr_scaleDown",
+                    [scale_lambda](const floats &pt, const floats &scEta, 
+                                  const floats &r9,
+                                  const ROOT::VecOps::RVec<UChar_t> &seedGain, 
+                                  unsigned int run) -> floats {
+                        return scale_lambda(pt, scEta, r9, seedGain, run, "scale_down");
+                    },
+                    {"Electron_pt", "Electron_eta_supercluster", "Electron_r9",
+                     "Electron_seedGain", "run"});
+    }
+
+    // =====================================================
+    // MC - Smear and Scale corrections
+    // =====================================================
+    else {
+        // For MC: apply Smearing corrections
+        auto smear_lambda =
+            [smear_corr](const floats &pt,
+                    const floats &scEta,
+                    const floats &r9,
+                    const UInt_t run,
+                    const UInt_t lumi,
+                    const ULong64_t event)
+            -> std::tuple<floats, floats, floats>
+            {
+                floats nominal, smear_up, smear_down;
+                size_t N = pt.size();
+
+                nominal.reserve(N);
+                smear_up.reserve(N);
+                smear_down.reserve(N);
+
+                std::normal_distribution<float> gauss(0.0, 1.0);
+
+                for (size_t i = 0; i < N; ++i) {
+
+                    /* -----------------------------------------
+                       Deterministic seed per electron
+                       ----------------------------------------- */
+                    uint64_t seed =
+                        (uint64_t(run)  << 32) ^
+                        (uint64_t(lumi) << 16) ^
+                        (uint64_t(event)) ^
+                        uint64_t(i);   // electron index
+
+                    std::mt19937 gen(seed);
+                    float rand = gauss(gen);
+
+                    try {
+                        float smear_val = smear_corr->evaluate({
+                                "smear",
+                                static_cast<double>(pt[i]),
+                                static_cast<double>(r9[i]),
+                                static_cast<double>(scEta[i])
+                                });
+
+                        float smear_unc_up = smear_corr->evaluate({
+                                "smear_up",
+                                static_cast<double>(pt[i]),
+                                static_cast<double>(r9[i]),
+                                static_cast<double>(scEta[i])
+                                });
+
+                        float smear_unc_down = smear_corr->evaluate({
+                                "smear_down",
+                                static_cast<double>(pt[i]),
+                                static_cast<double>(r9[i]),
+                                static_cast<double>(scEta[i])
+                                });
+
+                        nominal.emplace_back(pt[i] * (1.0f + smear_val * rand));
+                        smear_up.emplace_back(pt[i] * (1.0f + smear_unc_up * rand));
+                        smear_down.emplace_back(pt[i] * (1.0f + smear_unc_down * rand));
+                    }
+                    catch (const std::exception &e) {
+                        std::cerr << "Smearing error at index " << i
+                            << ": " << e.what() << std::endl;
+                        nominal.emplace_back(pt[i]);
+                        smear_up.emplace_back(pt[i]);
+                        smear_down.emplace_back(pt[i]);
+                    }
+                }
+
+                return std::make_tuple(nominal, smear_up, smear_down);
+            };
+
+_rlm = _rlm.Define("Electron_eta_supercluster",
+                   "Electron_eta + Electron_deltaEtaSC");
+
+_rlm = _rlm.Define(
+            "Electron_pt_corr_triple",
+            smear_lambda,
+            {
+                "Electron_pt",
+                "Electron_eta_supercluster",
+                "Electron_r9",
+                "run",
+                "luminosityBlock",
+                "event"
+            })
+        .Define("Electron_pt_corr",
+                "std::get<0>(Electron_pt_corr_triple)")
+        .Define("Electron_pt_corr_smearUp",
+                "std::get<1>(Electron_pt_corr_triple)")
+        .Define("Electron_pt_corr_smearDown",
+                "std::get<2>(Electron_pt_corr_triple)");
+
+    }
+}
 
 void NanoAODAnalyzerrdframe::applyMETPtPhiCorrection() //data and MC
 {
@@ -1084,7 +1282,7 @@ ROOT::RDF::RNode NanoAODAnalyzerrdframe::calculateEleSF(
                 w = _correction_electron
                     ->at("Electron-ID-SF")
                     ->evaluate({"2024Prompt", variation, eletype,
-                            std::fabs(etas[i]), pts[i], phis[i]});
+                            std::fabs(etas[i]), pts[i]});
             }
 
 
@@ -1093,29 +1291,6 @@ ROOT::RDF::RNode NanoAODAnalyzerrdframe::calculateEleSF(
 
         return w_tot;
     };
-
-    // electron HLT scale factor generator
-    auto electronHlt_weightgenerator = [this](
-        const std::string eletype,
-        const ROOT::VecOps::RVec<float>& etas,
-        const ROOT::VecOps::RVec<float>& pts,
-        const std::string& variation) -> float
-    {
-        double w_tot = 1.0;
-
-        for (size_t i = 0; i < pts.size(); i++) {
-
-            if (pts[i] < 25.0) continue; // HLT threshold
-
-            double w = _correction_electronHlt
-                ->at("Electron-HLT-SF")
-                ->evaluate({"2023PromptC", variation, eletype,
-                            etas[i], pts[i]});
-            w_tot *= w;
-        }
-        return w_tot;
-    };
-
 
     // variations
     std::vector<std::string> variations_elec = {"sf", "sfup", "sfdown"};
@@ -1185,35 +1360,15 @@ ROOT::RDF::RNode NanoAODAnalyzerrdframe::calculateEleSF(
         );
 
         // ======================================================
-        // 3) ELECTRON HLT SCALE FACTOR
-        // ======================================================
-        std::string column_name_Hlt = output_var + "Hlt_" + variation;
-
-        _rlm = _rlm.Define(
-            column_name_Hlt,
-            [this, electronHlt_weightgenerator, variation](
-                const ROOT::VecOps::RVec<float>& etas,
-                const ROOT::VecOps::RVec<float>& pts,
-                const ROOT::VecOps::RVec<float>& phis)   // phi included for consistency
-            {
-                return electronHlt_weightgenerator(
-                    _electronHlt_type, etas, pts, variation);
-            },
-            Ele_vars
-        );
-
-        // ======================================================
-        // 4) COMBINE: RECO * ID * HLT
+        // 3) COMBINE: RECO * ID 
         // ======================================================
         std::string column_name = output_var;
-
         if (variation == "sf")
             column_name += "central";
         else if (variation == "sfup")
             column_name += "up";
         else
             column_name += "down";
-
         std::cout << "Electron SF column name: " << column_name << std::endl;
 
         _rlm = _rlm.Define(

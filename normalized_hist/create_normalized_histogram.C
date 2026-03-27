@@ -228,6 +228,7 @@ void create_normalized_histogram(const std::string& filename,
     // Event weight
     Float_t evWeight = 1.0;
     Float_t genWeight = 1.0;
+    Float_t pugenWeight = 1.0;
     Double_t genEventSumw =1.0;
     if (tree->GetBranch("evWeight")) {
         tree->SetBranchAddress("evWeight", &evWeight);
