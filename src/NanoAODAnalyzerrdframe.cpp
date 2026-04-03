@@ -273,7 +273,7 @@ void NanoAODAnalyzerrdframe::applyJetMETCorrections() //data
 
 }
 
-*/
+
 
 void NanoAODAnalyzerrdframe::setupJetMETCorrection(string fname, string jettag,string jettagMC,string JER_tag) //data
 {
@@ -395,7 +395,244 @@ void NanoAODAnalyzerrdframe::applyJetMETCorrections()
       }
     }
 }
+*/
 
+void NanoAODAnalyzerrdframe::setupJetMETCorrection(string fname, string jettag,string jettagMC,string JER_tag,string JER_tag_res) //data
+{
+
+    cout << "SETUP JETMET correction" << endl;
+	// read from file 
+	_correction_jerc = correction::CorrectionSet::from_file(fname);//jercfname=json
+	assert(_correction_jerc->validate()); //the assert functionality : check if the parameters passed to a function are valid =1:true
+	// correction type(jobconfiganalysis.py)
+	cout<<"JERC JSON file : " << fname<<endl;
+    if (_isData){
+        _jetCorrector = _correction_jerc->compound().at(jettag);//jerctag#JSON (JEC,compound)compoundLevel="L1L2L3Res"
+    }
+    else {
+        cout<<"JERC JSON file : " << fname<<endl;
+        _jetCorrector = _correction_jerc->compound().at(jettagMC);
+    }
+	cout<< "JET tag in JSON : " << jettag << endl;
+    for (const auto& tag : _jercunctag){
+        _jetCorrectionUnc.emplace_back(tag, _correction_jerc->at(tag));
+    }
+    for (const auto& tag : _jercunctag) {
+    cout << "JET uncertainty tag in JSON : " << tag << endl;
+    }
+    cout<< "JER tag in json: " << JER_tag << endl;
+    _jer_corrector = _correction_jerc->at(JER_tag);
+    _jer_resolution = _correction_jerc->at(JER_tag_res);
+	std::cout<< "================================//=================================" << std::endl;
+}
+
+void NanoAODAnalyzerrdframe::applyJetMETCorrections()
+{
+    std::cout << "Applying JET/MET corrections" << std::endl;
+
+    using ROOT::VecOps::RVec;
+    using floats = RVec<float>;
+
+    //------------------------------------------------------------------
+    // 1. Create a vectorized run branch (needed only for Data)
+    //------------------------------------------------------------------
+    if (_isData)
+    {
+        _rlm = _rlm.Define("run_f",
+            [](unsigned int run, const floats &jetpts) {
+                return floats(jetpts.size(), float(run));
+            },
+            {"run", "Jet_pt"}
+        );
+    }
+
+    //------------------------------------------------------------------
+    // 2. Define branches in RDF
+    //------------------------------------------------------------------
+    if (_jetCorrector != nullptr)
+    {
+        if (_isData)
+        {
+            // Lambda for Data (with run)
+            auto jetCorrLambda_Data =
+                [this](floats jetpts,
+                       floats jetetas,
+                       floats jetAreas,
+                       floats jetrawf,
+                       float rho,
+                       floats jetphis,
+                       floats run_f) -> floats
+            {
+                floats out;
+                out.reserve(jetpts.size());
+
+                for (size_t i = 0; i < jetpts.size(); i++)
+                {
+                    float rawpt = jetpts[i] * (1.f - jetrawf[i]);
+                    float corr = (_year == 2023) ? _jetCorrector->evaluate({jetAreas[i], jetetas[i], rawpt, rho, run_f[i]}) : (_year == 2024) ? _jetCorrector->evaluate({jetAreas[i], jetetas[i], rawpt, rho, jetphis[i] , run_f[i]}) : _jetCorrector->evaluate({jetAreas[i], jetetas[i], rawpt, rho});
+                    out.emplace_back(rawpt * corr);
+                }
+
+                   return out;
+            };
+
+            _rlm = _rlm.Define("Jet_pt_corr",
+                jetCorrLambda_Data,
+                {"Jet_pt", "Jet_eta", "Jet_area", "Jet_rawFactor",
+                 "Rho_fixedGridRhoFastjetAll","Jet_phi","run_f"});
+             
+        }
+        else
+        {
+            // ------------------------------------------
+            // 1. Apply JEC first
+            // ------------------------------------------
+            auto jetCorrLambda_MC =
+                [this](floats jetpts,
+                        floats jetetas,
+                        floats jetAreas,
+                        floats jetrawf,
+                        floats jetphis,
+                        float rho) -> floats
+                {
+                    floats out;
+                    out.reserve(jetpts.size());
+
+                    for (size_t i = 0; i < jetpts.size(); i++)
+                    {
+                        float rawpt = jetpts[i] * (1.f - jetrawf[i]);
+
+                        float corr = (_year == 2024) ?
+                            _jetCorrector->evaluate({jetAreas[i], jetetas[i], rawpt, rho, jetphis[i]}) :
+                            _jetCorrector->evaluate({jetAreas[i], jetetas[i], rawpt, rho});
+
+                        out.emplace_back(rawpt * corr);
+                    }
+                    return out;
+                };
+
+            _rlm = _rlm.Define("Jet_pt_JEC",
+                    jetCorrLambda_MC,
+                    {"Jet_pt", "Jet_eta", "Jet_area", "Jet_rawFactor",
+                    "Jet_phi", "Rho_fixedGridRhoFastjetAll"});
+
+            // ------------------------------------------
+            // 2. Apply JER Smearing (Correct Way)
+            // ------------------------------------------
+            auto jerSmearLambda =
+                [this](floats jetpts,
+                        floats jetetas,
+                        floats jetgenpt,
+                        float rho) -> floats
+                {
+                    floats out;
+                    out.reserve(jetpts.size());
+
+                    TRandom3 rand(0);
+
+                    for (size_t i = 0; i < jetpts.size(); i++)
+                    {
+                        float pt  = jetpts[i];
+                        float eta = jetetas[i];
+                        float genpt = jetgenpt[i];
+
+                        // Get resolution
+                        float resolution = _jer_resolution->evaluate({eta, pt, rho});
+
+                        // Get scale factor
+                        float sf = _jer_corrector->evaluate({eta, pt , "nom"});
+
+                        float smeared_pt = pt;
+
+                        if (genpt > 0) // matched
+                        {
+                            smeared_pt = std::max(0.f,
+                                    genpt + sf * (pt - genpt));
+                        }
+                        else // stochastic smearing
+                        {
+                            float sigma = resolution * std::sqrt(std::max(sf*sf - 1.f, 0.f));
+                            float gauss = rand.Gaus(0., sigma);
+                            smeared_pt = pt * (1.f + gauss);
+                        }
+
+                        out.emplace_back(smeared_pt);
+                    }
+
+                    return out;
+                };
+            _rlm = _rlm.Define("Jet_genJetPt",
+                    [](const ROOT::VecOps::RVec<float>& GenJet_pt,
+                        const ROOT::VecOps::RVec<short>& Jet_genJetIdx)
+                    {
+                    ROOT::VecOps::RVec<float> out;
+                    out.reserve(Jet_genJetIdx.size());
+
+                    for (size_t i = 0; i < Jet_genJetIdx.size(); i++)
+                    {
+                    int idx = Jet_genJetIdx[i];
+
+                    if (idx >= 0 && idx < (int)GenJet_pt.size())
+                    out.emplace_back(GenJet_pt[idx]);
+                    else
+                    out.emplace_back(-1.f);  // unmatched
+                    }
+
+                    return out;
+    },
+    {"GenJet_pt", "Jet_genJetIdx"});
+
+            _rlm = _rlm.Define("Jet_pt_corr",
+                    jerSmearLambda,
+                    {"Jet_pt_JEC", "Jet_eta", "Jet_genJetPt",
+                    "Rho_fixedGridRhoFastjetAll"});
+            for (const auto& [tag, unc] : _jetCorrectionUnc) {
+
+                // Make safe column name: "Summer22_22Sep2023_V2_MC_Total_AK4PFPuppi"
+                // becomes: "Jet_pt_corr_Summer22_22Sep2023_V2_MC_Total_AK4PFPuppi_up"
+                string colBase = tag;
+                std::replace_if(colBase.begin(), colBase.end(),
+                        [](char c){ return !std::isalnum(c); }, '_');
+
+                string colUp   = "Jet_pt_corr_" + colBase + "_up";
+                string colDown = "Jet_pt_corr_" + colBase + "_down";
+
+                // Capture this iteration's corrector by value (CRITICAL - loop variable changes)
+                auto unc_copy = unc;
+
+                // UP variation
+                _rlm = _rlm.Define(colUp,
+                        [unc_copy](floats jetpts, floats jetetas) -> floats {
+                        floats out;
+                        out.reserve(jetpts.size());
+                        for (size_t i = 0; i < jetpts.size(); i++) {
+                        float unc_val = unc_copy->evaluate({jetetas[i], jetpts[i]});
+                        out.emplace_back(jetpts[i] * (1.f + unc_val));
+                        }
+                        return out;
+                        },
+                        {"Jet_pt_JEC", "Jet_eta"}
+                        );
+
+                // DOWN variation
+                _rlm = _rlm.Define(colDown,
+                        [unc_copy](floats jetpts, floats jetetas) -> floats {
+                        floats out;
+                        out.reserve(jetpts.size());
+                        for (size_t i = 0; i < jetpts.size(); i++) {
+                        float unc_val = unc_copy->evaluate({jetetas[i], jetpts[i]});
+                        out.emplace_back(jetpts[i] * (1.f - unc_val));
+                        }
+                        return out;
+                        },
+                        {"Jet_pt_JEC", "Jet_eta"}
+                        );
+
+                cout << "Defined uncertainty columns: " << colUp << ", " << colDown << endl;
+            }
+       }
+    }
+}
 
 void NanoAODAnalyzerrdframe::applyMuPtCorrection()
 {
@@ -564,101 +801,8 @@ void NanoAODAnalyzerrdframe::applyMuPtCorrection()
 
     cout << "Muon Pt correction applied successfully" << endl;
 }
-/*
-void NanoAODAnalyzerrdframe::applyElectronPtCorrection()
-{
-    std::cout << "Apply Electron Pt correction" << std::endl;
 
-    if (!_correction_electronss) {
-        std::cerr << "Electron corrections file not loaded!" << std::endl;
-        return;
-    }
 
-    using ROOT::VecOps::RVec;
-    using floats = RVec<float>;
-
-    auto scale_corr = _correction_electronss->at("Scale");
-    auto smear_corr = _correction_electronss->at("SmearAndSyst");
-
-    if (_isData) {
-       auto scale_lambda = [scale_corr](const ROOT::VecOps::RVec<float> &pt,
-                                 const ROOT::VecOps::RVec<float> &scEta,
-                                 const ROOT::VecOps::RVec<float> &r9,
-                                 const ROOT::VecOps::RVec<UChar_t> &seedGain,
-                                 unsigned int run) -> ROOT::VecOps::RVec<float>
-{
-    ROOT::VecOps::RVec<float> result;
-    result.reserve(pt.size());
-
-    for (size_t i = 0; i < pt.size(); ++i) {
-        try {
-            float gain = static_cast<int>(seedGain[i]);
-            float eta = std::abs(scEta[i]);
-            float et = pt[i];  // Et = pt in barrel-endcap electrons, unless corrected separately
-
-         float factor = scale_corr->evaluate({
-	    "total_correction",
-	    static_cast<int>(seedGain[i]),
-	    static_cast<float>(run),
-	    std::abs(scEta[i]),
-	    r9[i],
-	    pt[i]
-	});
-
-            result.emplace_back(pt[i] * factor);
-        } catch (const std::exception &e) {
-            std::cerr << "Error evaluating scale correction at index " << i << ": " << e.what() << std::endl;
-            result.emplace_back(pt[i]);  // fallback to uncorrected
-        }
-    }
-
-    return result;
-
-};
-_rlm = _rlm.Define("Electron_eta_supercluster", "Electron_eta + Electron_deltaEtaSC");
-
-_rlm = _rlm.Define("Electron_pt_corr", scale_lambda,
-                   {"Electron_pt", "Electron_eta_supercluster", "Electron_r9", "Electron_seedGain", "run"});
-
-    }
-    else {
-        auto smear_lambda = [smear_corr](const floats &pt,
-                                         const floats &scEta,
-                                         const floats &r9) -> std::tuple<floats, floats, floats>
-        {
-            floats nominal, smear_up, smear_down;
-            size_t N = pt.size();
-            nominal.reserve(N);
-            smear_up.reserve(N);
-            smear_down.reserve(N);
-
-            std::random_device rd;
-            std::mt19937 gen(rd());
-            std::normal_distribution<float> gauss(0.0, 1.0);
-
-            for (size_t i = 0; i < N; ++i) {
-                float eta = std::abs(scEta[i]);
-                float smear_val = smear_corr->evaluate({"rho", eta, r9[i]});
-                float smear_unc = smear_corr->evaluate({"err_rho", eta, r9[i]});
-                float rand = gauss(gen);
-
-                nominal.emplace_back(pt[i] * (1.0 + smear_val * rand));
-                smear_up.emplace_back(pt[i] * (1.0 + (smear_val + smear_unc) * rand));
-                smear_down.emplace_back(pt[i] * (1.0 + (smear_val - smear_unc) * rand));
-            }
-
-            return std::make_tuple(nominal, smear_up, smear_down);
-        };
-      _rlm = _rlm.Define("Electron_eta_supercluster", "Electron_eta + Electron_deltaEtaSC");
-
-        _rlm = _rlm.Define("Electron_pt_corr_triple", smear_lambda,
-                           {"Electron_pt", "Electron_eta_supercluster", "Electron_r9"})
-                   .Define("Electron_pt_corr", "std::get<0>(Electron_pt_corr_triple)")
-                   .Define("Electron_pt_corr_smearUp", "std::get<1>(Electron_pt_corr_triple)")
-                   .Define("Electron_pt_corr_smearDown", "std::get<2>(Electron_pt_corr_triple)");
-    }
-}
-*/
 void NanoAODAnalyzerrdframe::applyElectronPtCorrection()
 {
     std::cout << "Apply Electron Pt correction" << std::endl;
@@ -924,14 +1068,15 @@ void NanoAODAnalyzerrdframe::setupCorrections(
 		string jercfname, 
 		string jerctag, 
 		string jerctagMC, 
-		string jercunctag,
+		vector<string> jercunctag,
 		string jet_veto_f_name,
 		string jet_veto_tag, 
 		string electron_SSF,
 		string metpt_fname,
 		string jetidfname,
 		string jetid_workingpoint,
-		string JER_tag)
+		string JER_tag,
+		string JER_tag_res)
 //In this function the correction is evaluated for each jet, Muon, Electron and MET. The correction depends on the momentum, pseudorapidity, energy, and cone area of the jet, as well as the value of rho(the average momentum per area) and number of interactions in the event. The correction is used to scale the momentum of the jet.
 {
          cout << "set up Corrections!" << endl;
@@ -1028,8 +1173,9 @@ void NanoAODAnalyzerrdframe::setupCorrections(
 	_jerctagMC=jerctagMC;
 	_jercunctag = jercunctag;
 	_JER_tag = JER_tag;
+	_JER_tag_res=JER_tag_res;
 	
-	setupJetMETCorrection(jercfname, _jerctag, _jerctagMC, _JER_tag);
+	setupJetMETCorrection(jercfname, _jerctag, _jerctagMC, _JER_tag,_JER_tag_res);
 	if (!jetidfname.empty())
 	{
 		try
