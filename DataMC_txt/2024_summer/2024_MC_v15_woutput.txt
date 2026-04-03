@@ -19,11 +19,6 @@
 /WGtoLNuG-1Jets_TuneCP5_13p6TeV_amcatnloFXFX-pythia8/RunIII2024Summer24NanoAODv15-150X_mcRun3_2024_realistic_v2-v2/NANOAODSIM wg_1jet_full.root wg_1jet_full.out
 /TbarBtoLminusNuB-s-channel-4FS_TuneCP5_13p6TeV_amcatnlo-pythia8/RunIII2024Summer24NanoAODv15-150X_mcRun3_2024_realistic_v2-v2/NANOAODSIM tbarb_lmin.root tbarb_lmin.out
 /TBbartoLplusNuBbar-s-channel-4FS_TuneCP5_13p6TeV_amcatnlo-pythia8/RunIII2024Summer24NanoAODv15-150X_mcRun3_2024_realistic_v2-v2/NANOAODSIM tbbar_lplus.root tbbar_lplus.out
-/EGamma0/Run2024H-MINIv6NANOv15-v2/NANOAOD Data_EGamma0.root Data_EGamma0.out
-/EGamma1/Run2024H-MINIv6NANOv15-v1/NANOAOD Data_EGamma1.root Data_EGamma1.out
-/Muon0/Run2024H-MINIv6NANOv15-v1/NANOAOD Data_Muon0.root Data_Muon0.out
-/Muon1/Run2024H-MINIv6NANOv15-v2/NANOAOD Data_Muon1.root Data_Muon1.out
-/MuonEG/Run2024H-MINIv6NANOv15-v2/NANOAOD Data_MuonEG.root Data_MuonEG.out
 /store/user/msahoo/2024/wz_3lnu wz_3lnu_skimed.root wz_3lnu_skimmed.out
 /store/user/msahoo/2024/zz_4l zz_4l_skimed.root zz_4l_skimmed.out
 /store/user/msahoo/2024/wg_1jet wg_1jet_skimed.root wg_1jet_skimmed.out

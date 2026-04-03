@@ -39,21 +39,21 @@ config = {
         #'btvtype': 'deepJet_mujets',
     
         # Muon Correction 
-        'muon_roch_fname': 'data/MUO/2022_Summer22/muon_scalesmearing.json', 
-        'muon_fname': 'data/MUO/2022_Summer22/muon_Z.json', 
+        'muon_roch_fname': 'data/MUO/2024_Summer24/muon_scalesmearing.json', 
+        'muon_fname': 'data/MUO/2024_Summer24/muon_Z.json', 
         'muonHLTtype': 'NUM_IsoMu24_DEN_CutBasedIdTight_and_PFIsoTight',
         'muonRECOtype': 'NUM_TrackerMuons_DEN_genTracks',
         'muonIDtype': 'NUM_TightID_DEN_TrackerMuons',
         'muonISOtype': 'NUM_TightPFIso_DEN_TightID',
 
         # Electron Correction 
-        'electron_fname': 'data/EGM/2022_Summer22/electron.json',
-        'electronHlt_fname':'data/EGM/2022_Summer22/electronHlt.json',
+        'electron_fname': 'data/EGM/2024_Summer24/electron.json',
+        'electronHlt_fname':'data/EGM/2024_Summer24/electronHlt.json',
         'electronHlt_type':'HLT_SF_Ele30_TightID',
         'electron_reco_type1': 'RecoAbove75',
         'electron_reco_type2' :  'Reco20to75',
         'electron_reco_type3' :  'RecoBelow20',
-        'electron_id_type': 'wp90iso',
+        'electron_id_type': 'PromptMVA-Tight',
 
         # json file name for JERC
         'jercfname': 'data/JERC/2024_Summer24/jet_jerc.json',
@@ -74,7 +74,7 @@ config = {
         'JER_tag' : 'Summer23BPixPrompt23_RunD_JRV1_MC_ScaleFactor_AK4PFPuppi',
 
         
-        'electron_SSF' :'data/EGM/2022_Summer22/electronSS.json',
+        'electron_SSF' :'data/EGM/2024_Summer24/electronSS_EtDependent.json',
 
         # MET correction 
         'metpt_fname' : 'data/JERC/2022_Summer22/met_xyCorrections_2022_2022.json'

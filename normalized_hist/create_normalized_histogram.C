@@ -11,7 +11,7 @@
 
 void create_normalized_histogram(const std::string& filename,
                        		 double cross_section,
-		     		 double luminosity=110,
+		     		 double luminosity=109,
                       		 const std::string& Tree="outputTree") {
     // ROOT file and tree details
     std::string inputFileName = filename;
@@ -38,7 +38,7 @@ void create_normalized_histogram(const std::string& filename,
         {"Bdt_discriminant", {0, 1,10}}
 };*/
 
-
+/*
     // Define histogram parameters: {branch_name, (min, max, bins)}
     std::map<std::string, std::tuple<double, double, int>> branch_ranges = {
         {"top_mass", {5, 400,20}},
@@ -81,7 +81,7 @@ void create_normalized_histogram(const std::string& filename,
 
     };
 
-/*    // Branch ranges definition
+*/    // Branch ranges definition
     std::map<std::string, std::tuple<double, double, int>> branch_ranges = {
 	// Original variables kept
 	{"top_mass", {5, 700, 50}},
@@ -219,7 +219,7 @@ void create_normalized_histogram(const std::string& filename,
 	{"MET_pt_signal", {0, 270, 27}}
 
 
-    };*/
+    };
 
     // Calculate normalization factor
     double normalization_factor = luminosity * cross_section ;

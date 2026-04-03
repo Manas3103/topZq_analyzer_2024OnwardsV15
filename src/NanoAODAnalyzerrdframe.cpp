@@ -676,6 +676,9 @@ void NanoAODAnalyzerrdframe::applyElectronPtCorrection()
 
     auto scale_corr = _correction_electronss->compound().at("Scale");
     cout << "Works fine till her" << endl;
+    _rlm = _rlm.Define("Electron_eta_supercluster",
+                   "Electron_eta + Electron_deltaEtaSC");
+
 
     // Define supercluster eta once (used by both DATA and MC)
 
@@ -833,9 +836,6 @@ void NanoAODAnalyzerrdframe::applyElectronPtCorrection()
 
                 return std::make_tuple(nominal, smear_up, smear_down);
             };
-
-_rlm = _rlm.Define("Electron_eta_supercluster",
-                   "Electron_eta + Electron_deltaEtaSC");
 
 _rlm = _rlm.Define(
             "Electron_pt_corr_triple",
