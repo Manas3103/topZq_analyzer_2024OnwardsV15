@@ -20,10 +20,10 @@ using namespace ROOT;
 int main(void) {
 
 	TChain c1("Events");
-	//c1.Add("/uscms/home/msahoo/nobackup/Project_tzq/CMSSW_13_3_3/src/skim_with_rdf/wz_3lnu_part1.root"); //data
+	c1.Add("root://cmsxrootd.fnal.gov//store/mc/RunIII2024Summer24NanoAODv15/TZQB-Zto2L-4FS_Bin-MLL-30_TuneCP5_13p6TeV_amcatnlo-pythia8/NANOAODSIM/Madgraph_2_6_5_150X_mcRun3_2024_realistic_v2-v2/2810000/43318103-fc71-48c7-8d99-4915164b3b87.root"); 
 //	c1.Add("/eos/uscms/store/user/msahoo/2024/MuonEG/Data_MuonEG_2024_skim_7of15.root");
 //	c1.Add("/eos/uscms/store/user/msahoo/2024/EGamma0/Data_EGamma0_2024_skim_10of20.root");
-	c1.Add("root://cmsxrootd.fnal.gov//store/mc/RunIII2024Summer24NanoAODv15/WGtoLNuG-1Jets_TuneCP5_13p6TeV_amcatnloFXFX-pythia8/NANOAODSIM/150X_mcRun3_2024_realistic_v2-v2/110000/00324ab1-b380-4d0a-beec-4973ac85c8f6.root");
+//	c1.Add("root://cmsxrootd.fnal.gov//store/mc/RunIII2024Summer24NanoAODv15/WGtoLNuG-1Jets_TuneCP5_13p6TeV_amcatnloFXFX-pythia8/NANOAODSIM/150X_mcRun3_2024_realistic_v2-v2/110000/00324ab1-b380-4d0a-beec-4973ac85c8f6.root");
 	BaseAnalyser nanoaodrdf(&c1, "top_tzq.root");
         nanoaodrdf.setParams(2024, "", -1);
 	nanoaodrdf.setHLT();
