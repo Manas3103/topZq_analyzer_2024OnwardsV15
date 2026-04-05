@@ -1,1 +1,1 @@
-.x create_normalized_histogram.C("root://cmseos.fnal.gov//store/user/msahoo/2024_processed/zzz.root",20.0)
+.x create_normalized_histogram.C("root://cmseos.fnal.gov//store/user/msahoo/2024_processed/ggh_zz_4l.root",14.34)

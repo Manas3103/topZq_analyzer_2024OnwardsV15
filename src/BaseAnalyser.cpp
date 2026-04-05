@@ -268,7 +268,8 @@ void BaseAnalyser::selectMuons()
 		       "Muon_pt > 15.0 && abs(Muon_eta) < 2.4 && goodMuonsID && "
 	       	       "Muon_miniPFRelIso_all < 0.4 && abs(Muon_dxy) < 0.05 && "
 		       "abs(Muon_dz) < 0.10 && Muon_sip3d < 8.0 && "
-		       "Muon_mediumId");
+		       "Muon_mediumId && Muon_isPFcand"
+		       "&& (Muon_isGlobal || Muon_isTracker)");
 
 	// Additional variables for baseline muons  the value of pt has to be >15 because correction is lot avalaible below 15 
     _rlm = _rlm.Define("baselineMuons_pt", "Muon_pt[baselineMuons]")
@@ -402,9 +403,10 @@ void BaseAnalyser::selectJets()
     }
     //good jets deep-b tag          
     _rlm = _rlm.Define("goodJets_deepjetbtag", "Jet_btagDeepFlavB[goodJets]");
-    
+    _rlm = _rlm.Define("goodJets_UparTjetbtag", "Jet_btagUParTAK4B[goodJets]");
     //Good Bjets
-    _rlm = _rlm.Define("btagcuts", "goodJets_deepjetbtag > 0.7") // 0.2783 - medium, 0.7 - tight
+    //_rlm = _rlm.Define("btagcuts", "goodJets_deepjetbtag > 0.7") // 0.2783 - medium, 0.7 - tight
+    _rlm = _rlm.Define("btagcuts", "goodJets_UparTjetbtag > 0.4648") // 0.1272 - medium, 0.4648- tight
                .Define("good_bjetpt", "goodJets_pt[btagcuts]")
 	       .Define("good_bjeteta", "goodJets_eta[btagcuts]")
 	       .Define("good_bjetphi", "goodJets_phi[btagcuts]")
