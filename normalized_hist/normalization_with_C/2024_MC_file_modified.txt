@@ -1,0 +1,24 @@
+/store/user/msahoo/2024_processed/top_zq.root 80.0
+/store/user/msahoo/2024_processed/ttz_4to50.root 44.23
+/store/user/msahoo/2024_processed/ttz_50.root 96.84
+/store/user/msahoo/2024_processed/ttbar_dilepton_part1_skimed.root 97448.8
+/store/user/msahoo/2024_processed/ttbar_dilepton_part2_skimed.root 97448.8
+/store/user/msahoo/2024_processed/ttbar_dilepton_part3_skimed.root 97448.8
+/store/user/msahoo/2024_processed/ttbar_semilep_skimed.root 403254.9
+/store/user/msahoo/2024_processed/wz_3lnu_skimed.root 5310.0
+/store/user/msahoo/2024_processed/zz_4l_skimed.root 1390.0
+/store/user/msahoo/2024_processed/www.root 232.0
+/store/user/msahoo/2024_processed/wwz.root 190.0
+/store/user/msahoo/2024_processed/wzz.root 60.0
+/store/user/msahoo/2024_processed/zzz.root 20.0
+/store/user/msahoo/2024_processed/ggh_zz_4l.root 14.34
+/store/user/msahoo/2024_processed/vbfh_zz_4l.root 1.2
+/store/user/msahoo/2024_processed/wmh_zz_4l.root 580.3
+/store/user/msahoo/2024_processed/wph_zz_4l.root 921.8
+/store/user/msahoo/2024_processed/ttwh.root 1.252
+/store/user/msahoo/2024_processed/ttww.root 8.203
+/store/user/msahoo/2024_processed/ttwz.root 2.715
+/store/user/msahoo/2024_processed/wg_1jet_skimed.root 671500.0
+/store/user/msahoo/2024_processed/tbarb_lmin.root 4.534
+/store/user/msahoo/2024_processed/tbbar_lplus.root 7.244
+
