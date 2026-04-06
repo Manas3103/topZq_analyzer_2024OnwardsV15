@@ -558,6 +558,8 @@ void BaseAnalyser::removeOverlaps()
 	if (!_isData){
         _rlm = _rlm.Define("Selected_jethadflav", "goodJets_hadflav[muonjetoverlap]");
 	}
+    _rlm = _rlm.Define("leadingJet_pt", "Selected_jetpt.size() > 0 ? Selected_jetpt[0] : -999.f")
+    	       .Define("leadingJet_eta", "Selected_jeteta.size() > 0 ? Selected_jeteta[0] : -999.f");
      //==============================Clean b-Jets==============================================// 
          //--> after remove overlap: use requested btaggedJets for btag-weight SFs && weight_generator. 
          //=====================================================================================//
@@ -1167,10 +1169,10 @@ void BaseAnalyser::selectMET()
         std::cout<< "================================//=================================" << std::endl;
     }
 
-    _rlm = _rlm.Define("goodMET_pt","PuppiMET_pt_corr>20 ? PuppiMET_pt_corr : std::numeric_limits<float>::quiet_NaN()")
-	       .Define("goodMET_phi","PuppiMET_pt_corr > 20 ? PuppiMET_phi_corr : std::numeric_limits<float>::quiet_NaN()");
-//    _rlm = _rlm.Define("goodMET_pt","PuppiMET_pt>20 ? PuppiMET_pt : std::numeric_limits<float>::quiet_NaN()")
-//	       .Define("goodMET_phi","PuppiMET_pt > 20 ? PuppiMET_phi : std::numeric_limits<float>::quiet_NaN()");
+//    _rlm = _rlm.Define("goodMET_pt","PuppiMET_pt_corr>20 ? PuppiMET_pt_corr : std::numeric_limits<float>::quiet_NaN()")
+//	       .Define("goodMET_phi","PuppiMET_pt_corr > 20 ? PuppiMET_phi_corr : std::numeric_limits<float>::quiet_NaN()");
+    _rlm = _rlm.Define("goodMET_pt","PuppiMET_pt>20 ? PuppiMET_pt : std::numeric_limits<float>::quiet_NaN()")
+	       .Define("goodMET_phi","PuppiMET_pt > 20 ? PuppiMET_phi : std::numeric_limits<float>::quiet_NaN()");
 
     std::cout<< "================================//=================================" << std::endl;
     std::cout<< "==================CORRECT MET HAS BEEN SELECTED====================" << std::endl;
@@ -1523,35 +1525,34 @@ void BaseAnalyser::defineSignalRegion()
 
    _rlm = _rlm.Define("trialRegion", " NgoodLepton==3 && ncleanjetspass >= 2 && ncleanbjetspass >= 1 && All_good_tightLeptons");
   // _rlm = _rlm.Define("trialRegion", " NgoodLepton==3 && ncleanjetspass >= 2 && ncleanbjetspass >= 1 && abs(Sum(goodLepton_charge)) == 1");
-   _rlm = _rlm .Define("trialRegion_lead" , "trialRegion && leadingLepton_pt > 0")
-	       .Define("trialRegion_sublead" , "trialRegion && subleadingLepton_pt > 0")
-	       .Define("trialRegion_trail" , "trialRegion && TrailingLepton_pt > 0")
-	       .Define("trialRegion_top_lepton" , "trialRegion && topLepton_pt_new > 0") 
-               .Define("TR_leadingLepton_pt", 
-                   [](bool cond, float pt) { return cond ? pt : -999.f; },
-                   {"trialRegion_lead", "leadingLepton_pt"})
-               .Define("TR_subleadingLepton_pt",
-                   [](bool cond, float pt) { return cond ? pt : -999.f; },
-                   {"trialRegion_sublead", "subleadingLepton_pt"})
-               .Define("TR_trailingLepton_pt",
-                   [](bool cond, float pt) { return cond ? pt : -999.f; },
-                   {"trialRegion_trail", "TrailingLepton_pt"})
-               .Define("TR_leadingLepton_eta",
-                   [](bool cond, float eta) { return cond ? eta : -999.f; },
-                   {"trialRegion_lead", "leadingLepton_eta"})
-               .Define("TR_subleadingLepton_eta",
-                   [](bool cond, float eta) { return cond ? eta : -999.f; },
-                   {"trialRegion_sublead", "subleadingLepton_eta"})
-	       .Define("TR_topLepton_pt",
-                   [](bool cond, float eta) { return cond ? eta : -999.f; },
-                   {"trialRegion_top_lepton", "topLepton_pt_new"})
-               .Define("TR_trailingLepton_eta",
-                   [](bool cond, float eta) { return cond ? eta : -999.f; },
-                   {"trialRegion_trail", "TrailingLepton_eta"})
-	       .Define("TR_nJets", "trialRegion ? int(Selected_jetpt.size()) : -1")
-	       .Define("TR_nbJets", "trialRegion ? int(Selected_bjetpt.size()) : -1");
 
+	_rlm = _rlm
+	    .Define("TR_leadingLepton_pt",
+		"trialRegion && leadingLepton_pt > 0 ? leadingLepton_pt : -999.f")
 
+	    .Define("TR_subleadingLepton_pt",
+		"trialRegion && subleadingLepton_pt > 0 ? subleadingLepton_pt : -999.f")
+
+	    .Define("TR_trailingLepton_pt",
+		"trialRegion && TrailingLepton_pt > 0 ? TrailingLepton_pt : -999.f")
+
+	    .Define("TR_topLepton_pt",
+		"trialRegion && topLepton_pt_new > 0 ? topLepton_pt_new : -999.f")
+
+	    .Define("TR_leadingLepton_eta",
+		"trialRegion && leadingLepton_pt > 0 ? leadingLepton_eta : -999.f")
+
+	    .Define("TR_subleadingLepton_eta",
+		"trialRegion && subleadingLepton_pt > 0 ? subleadingLepton_eta : -999.f")
+
+	    .Define("TR_trailingLepton_eta",
+		"trialRegion && TrailingLepton_pt > 0 ? TrailingLepton_eta : -999.f")
+
+	    .Define("TR_nJets",
+		"trialRegion ? int(Selected_jetpt.size()) : -1")
+
+	    .Define("TR_nbJets",
+		"trialRegion ? int(Selected_bjetpt.size()) : -1");
 //    _rlm = _rlm.Define("ThreeLSignalRegion", " NgoodLepton==3 && ncleanbjetspass >= 1 && All_good_tightLeptons && abs(Sum(goodLepton_charge)) == 1")
     _rlm = _rlm.Define("ThreeLSignalRegion", " NgoodLepton==3 && ncleanbjetspass >= 1 && abs(Sum(goodLepton_charge)) == 1")
     	       .Define("ThreeLSignalRegion_lead" , "ThreeLSignalRegion && leadingLepton_pt > 0")
@@ -1611,6 +1612,164 @@ void BaseAnalyser::defineSignalRegion()
 	    .Define("ncleanjetspass_ttZ_Region", "ttZ_Region ? ncleanjetspass : -1")
 	    .Define("ncleanbjetspass_ttZ_Region", "ttZ_Region ? ncleanbjetspass : -1");
 
+
+
+	_rlm = _rlm
+
+	// =======================
+	// 3L REGIONS
+	// =======================
+
+	// -------- Signal Region
+	.Define("SR_leadLepton_pt",  "SignalRegion ? leadingLepton_pt  : -999.f")
+	.Define("SR_leadLepton_eta", "SignalRegion ? leadingLepton_eta : -999.f")
+	.Define("SR_subleadLepton_pt",  "SignalRegion ? subleadingLepton_pt  : -999.f")
+	.Define("SR_subleadLepton_eta", "SignalRegion ? subleadingLepton_eta : -999.f")
+	.Define("SR_trailLepton_pt",  "SignalRegion ? TrailingLepton_pt  : -999.f")
+	.Define("SR_trailLepton_eta", "SignalRegion ? TrailingLepton_eta : -999.f")
+
+	// -------- tZq SR
+	.Define("SR_tzq_leadLepton_pt",  "SignalRegion_tzq ? leadingLepton_pt  : -999.f")
+	.Define("SR_tzq_leadLepton_eta", "SignalRegion_tzq ? leadingLepton_eta : -999.f")
+	.Define("SR_tzq_subleadLepton_pt",  "SignalRegion_tzq ? subleadingLepton_pt  : -999.f")
+	.Define("SR_tzq_subleadLepton_eta", "SignalRegion_tzq ? subleadingLepton_eta : -999.f")
+	.Define("SR_tzq_trailLepton_pt",  "SignalRegion_tzq ? TrailingLepton_pt  : -999.f")
+	.Define("SR_tzq_trailLepton_eta", "SignalRegion_tzq ? TrailingLepton_eta : -999.f")
+
+	// -------- ttZ SR
+	.Define("SR_ttz_leadLepton_pt",  "SignalRegion_ttz ? leadingLepton_pt  : -999.f")
+	.Define("SR_ttz_leadLepton_eta", "SignalRegion_ttz ? leadingLepton_eta : -999.f")
+	.Define("SR_ttz_subleadLepton_pt",  "SignalRegion_ttz ? subleadingLepton_pt  : -999.f")
+	.Define("SR_ttz_subleadLepton_eta", "SignalRegion_ttz ? subleadingLepton_eta : -999.f")
+	.Define("SR_ttz_trailLepton_pt",  "SignalRegion_ttz ? TrailingLepton_pt  : -999.f")
+	.Define("SR_ttz_trailLepton_eta", "SignalRegion_ttz ? TrailingLepton_eta : -999.f")
+
+	// -------- WZ Region
+	.Define("WZ_leadLepton_pt",  "WZ_Region ? leadingLepton_pt  : -999.f")
+	.Define("WZ_leadLepton_eta", "WZ_Region ? leadingLepton_eta : -999.f")
+	.Define("WZ_subleadLepton_pt",  "WZ_Region ? subleadingLepton_pt  : -999.f")
+	.Define("WZ_subleadLepton_eta", "WZ_Region ? subleadingLepton_eta : -999.f")
+	.Define("WZ_trailLepton_pt",  "WZ_Region ? TrailingLepton_pt  : -999.f")
+	.Define("WZ_trailLepton_eta", "WZ_Region ? TrailingLepton_eta : -999.f")
+
+	// -------- Xγ Region
+	.Define("XG_leadLepton_pt",  "X_gamma_Region ? leadingLepton_pt  : -999.f")
+	.Define("XG_leadLepton_eta", "X_gamma_Region ? leadingLepton_eta : -999.f")
+	.Define("XG_subleadLepton_pt",  "X_gamma_Region ? subleadingLepton_pt  : -999.f")
+	.Define("XG_subleadLepton_eta", "X_gamma_Region ? subleadingLepton_eta : -999.f")
+	.Define("XG_trailLepton_pt",  "X_gamma_Region ? TrailingLepton_pt  : -999.f")
+	.Define("XG_trailLepton_eta", "X_gamma_Region ? TrailingLepton_eta : -999.f")
+
+	// -------- NP_2
+	.Define("NP2_leadLepton_pt",  "NP_2_Region ? leadingLepton_pt  : -999.f")
+	.Define("NP2_leadLepton_eta", "NP_2_Region ? leadingLepton_eta : -999.f")
+	.Define("NP2_subleadLepton_pt",  "NP_2_Region ? subleadingLepton_pt  : -999.f")
+	.Define("NP2_subleadLepton_eta", "NP_2_Region ? subleadingLepton_eta : -999.f")
+	.Define("NP2_trailLepton_pt",  "NP_2_Region ? TrailingLepton_pt  : -999.f")
+	.Define("NP2_trailLepton_eta", "NP_2_Region ? TrailingLepton_eta : -999.f")
+
+	// -------- NP_1
+	.Define("NP1_leadLepton_pt",  "NP_1_Region ? leadingLepton_pt  : -999.f")
+	.Define("NP1_leadLepton_eta", "NP_1_Region ? leadingLepton_eta : -999.f")
+	.Define("NP1_subleadLepton_pt",  "NP_1_Region ? subleadingLepton_pt  : -999.f")
+	.Define("NP1_subleadLepton_eta", "NP_1_Region ? subleadingLepton_eta : -999.f")
+	.Define("NP1_trailLepton_pt",  "NP_1_Region ? TrailingLepton_pt  : -999.f")
+	.Define("NP1_trailLepton_eta", "NP_1_Region ? TrailingLepton_eta : -999.f")
+
+	// =======================
+	// 4L REGIONS
+	// =======================
+
+	.Define("ZZ_leadLepton_pt",  "ZZ_Region ? leadingLepton_pt  : -999.f")
+	.Define("ZZ_leadLepton_eta", "ZZ_Region ? leadingLepton_eta : -999.f")
+	.Define("ZZ_subleadLepton_pt",  "ZZ_Region ? subleadingLepton_pt  : -999.f")
+	.Define("ZZ_subleadLepton_eta", "ZZ_Region ? subleadingLepton_eta : -999.f")
+	.Define("ZZ_trailLepton_pt",  "ZZ_Region ? TrailingLepton_pt  : -999.f")
+	.Define("ZZ_trailLepton_eta", "ZZ_Region ? TrailingLepton_eta : -999.f")
+
+	.Define("ttZ4L_leadLepton_pt",  "ttZ_Region ? leadingLepton_pt  : -999.f")
+	.Define("ttZ4L_leadLepton_eta", "ttZ_Region ? leadingLepton_eta : -999.f")
+	.Define("ttZ4L_subleadLepton_pt",  "ttZ_Region ? subleadingLepton_pt  : -999.f")
+	.Define("ttZ4L_subleadLepton_eta", "ttZ_Region ? subleadingLepton_eta : -999.f")
+	.Define("ttZ4L_trailLepton_pt",  "ttZ_Region ? TrailingLepton_pt  : -999.f")
+	.Define("ttZ4L_trailLepton_eta", "ttZ_Region ? TrailingLepton_eta : -999.f");
+
+
+	_rlm = _rlm
+
+	// Signal Region
+	.Define("SR_leadingJet_pt",  "SignalRegion ? leadingJet_pt  : -999.f")
+	.Define("SR_leadingJet_eta", "SignalRegion ? leadingJet_eta : -999.f")
+
+	// SignalRegion_tzq
+	.Define("SR_tzq_leadingJet_pt",  "SignalRegion_tzq ? leadingJet_pt  : -999.f")
+	.Define("SR_tzq_leadingJet_eta", "SignalRegion_tzq ? leadingJet_eta : -999.f")
+
+	// SignalRegion_ttz
+	.Define("SR_ttz_leadingJet_pt",  "SignalRegion_ttz ? leadingJet_pt  : -999.f")
+	.Define("SR_ttz_leadingJet_eta", "SignalRegion_ttz ? leadingJet_eta : -999.f")
+
+	// WZ Region
+	.Define("WZ_leadingJet_pt",  "WZ_Region ? leadingJet_pt  : -999.f")
+	.Define("WZ_leadingJet_eta", "WZ_Region ? leadingJet_eta : -999.f")
+
+	// X_gamma Region
+	.Define("XG_leadingJet_pt",  "X_gamma_Region ? leadingJet_pt  : -999.f")
+	.Define("XG_leadingJet_eta", "X_gamma_Region ? leadingJet_eta : -999.f")
+
+	// NP_2
+	.Define("NP2_leadingJet_pt",  "NP_2_Region ? leadingJet_pt  : -999.f")
+	.Define("NP2_leadingJet_eta", "NP_2_Region ? leadingJet_eta : -999.f")
+
+	// NP_1
+	.Define("NP1_leadingJet_pt",  "NP_1_Region ? leadingJet_pt  : -999.f")
+	.Define("NP1_leadingJet_eta", "NP_1_Region ? leadingJet_eta : -999.f")
+
+	// ZZ (4L)
+	.Define("ZZ_leadingJet_pt",  "ZZ_Region ? leadingJet_pt  : -999.f")
+	.Define("ZZ_leadingJet_eta", "ZZ_Region ? leadingJet_eta : -999.f")
+
+	// ttZ (4L)
+	.Define("ttZ4L_leadingJet_pt",  "ttZ_Region ? leadingJet_pt  : -999.f")
+	.Define("ttZ4L_leadingJet_eta", "ttZ_Region ? leadingJet_eta : -999.f");
+
+	_rlm = _rlm
+
+	// Signal Region
+	.Define("SR_goodMET_pt",  "SignalRegion ? goodMET_pt  : std::numeric_limits<float>::quiet_NaN()")
+	.Define("SR_goodMET_phi", "SignalRegion ? goodMET_phi : std::numeric_limits<float>::quiet_NaN()")
+
+	// SignalRegion_tzq
+	.Define("SR_tzq_goodMET_pt",  "SignalRegion_tzq ? goodMET_pt  : std::numeric_limits<float>::quiet_NaN()")
+	.Define("SR_tzq_goodMET_phi", "SignalRegion_tzq ? goodMET_phi : std::numeric_limits<float>::quiet_NaN()")
+
+	// SignalRegion_ttz
+	.Define("SR_ttz_goodMET_pt",  "SignalRegion_ttz ? goodMET_pt  : std::numeric_limits<float>::quiet_NaN()")
+	.Define("SR_ttz_goodMET_phi", "SignalRegion_ttz ? goodMET_phi : std::numeric_limits<float>::quiet_NaN()")
+
+	// WZ Region
+	.Define("WZ_goodMET_pt",  "WZ_Region ? goodMET_pt  : std::numeric_limits<float>::quiet_NaN()")
+	.Define("WZ_goodMET_phi", "WZ_Region ? goodMET_phi : std::numeric_limits<float>::quiet_NaN()")
+
+	// X_gamma Region
+	.Define("XG_goodMET_pt",  "X_gamma_Region ? goodMET_pt  : std::numeric_limits<float>::quiet_NaN()")
+	.Define("XG_goodMET_phi", "X_gamma_Region ? goodMET_phi : std::numeric_limits<float>::quiet_NaN()")
+
+	// NP_2 Region
+	.Define("NP2_goodMET_pt",  "NP_2_Region ? goodMET_pt  : std::numeric_limits<float>::quiet_NaN()")
+	.Define("NP2_goodMET_phi", "NP_2_Region ? goodMET_phi : std::numeric_limits<float>::quiet_NaN()")
+
+	// NP_1 Region
+	.Define("NP1_goodMET_pt",  "NP_1_Region ? goodMET_pt  : std::numeric_limits<float>::quiet_NaN()")
+	.Define("NP1_goodMET_phi", "NP_1_Region ? goodMET_phi : std::numeric_limits<float>::quiet_NaN()")
+
+	// ZZ Region (4L)
+	.Define("ZZ_goodMET_pt",  "ZZ_Region ? goodMET_pt  : std::numeric_limits<float>::quiet_NaN()")
+	.Define("ZZ_goodMET_phi", "ZZ_Region ? goodMET_phi : std::numeric_limits<float>::quiet_NaN()")
+
+	// ttZ 4L Region
+	.Define("ttZ4L_goodMET_pt",  "ttZ_Region ? goodMET_pt  : std::numeric_limits<float>::quiet_NaN()")
+	.Define("ttZ4L_goodMET_phi", "ttZ_Region ? goodMET_phi : std::numeric_limits<float>::quiet_NaN()");
 /////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////BDT VARIABLE IN DIFFERENT REGION/////////////////////////////////////
@@ -1913,7 +2072,187 @@ void BaseAnalyser::defineMoreVars()
     addVartoStore("ncleanjetspass_ttZ_Region");
     addVartoStore("ncleanbjetspass_ttZ_Region");
 
+    // =======================
+    // Signal Region
+    // =======================
+    addVartoStore("SR_leadLepton_pt");
+    addVartoStore("SR_leadLepton_eta");
+    addVartoStore("SR_subleadLepton_pt");
+    addVartoStore("SR_subleadLepton_eta");
+    addVartoStore("SR_trailLepton_pt");
+    addVartoStore("SR_trailLepton_eta");
 
+    // =======================
+    // SignalRegion_tzq
+    // =======================
+    addVartoStore("SR_tzq_leadLepton_pt");
+    addVartoStore("SR_tzq_leadLepton_eta");
+    addVartoStore("SR_tzq_subleadLepton_pt");
+    addVartoStore("SR_tzq_subleadLepton_eta");
+    addVartoStore("SR_tzq_trailLepton_pt");
+    addVartoStore("SR_tzq_trailLepton_eta");
+
+    // =======================
+    // SignalRegion_ttz
+    // =======================
+    addVartoStore("SR_ttz_leadLepton_pt");
+    addVartoStore("SR_ttz_leadLepton_eta");
+    addVartoStore("SR_ttz_subleadLepton_pt");
+    addVartoStore("SR_ttz_subleadLepton_eta");
+    addVartoStore("SR_ttz_trailLepton_pt");
+    addVartoStore("SR_ttz_trailLepton_eta");
+
+    // =======================
+    // WZ Region
+    // =======================
+    addVartoStore("WZ_leadLepton_pt");
+    addVartoStore("WZ_leadLepton_eta");
+    addVartoStore("WZ_subleadLepton_pt");
+    addVartoStore("WZ_subleadLepton_eta");
+    addVartoStore("WZ_trailLepton_pt");
+    addVartoStore("WZ_trailLepton_eta");
+
+    // =======================
+    // X_gamma Region
+    // =======================
+    addVartoStore("XG_leadLepton_pt");
+    addVartoStore("XG_leadLepton_eta");
+    addVartoStore("XG_subleadLepton_pt");
+    addVartoStore("XG_subleadLepton_eta");
+    addVartoStore("XG_trailLepton_pt");
+    addVartoStore("XG_trailLepton_eta");
+
+    // =======================
+    // NP_2 Region
+    // =======================
+    addVartoStore("NP2_leadLepton_pt");
+    addVartoStore("NP2_leadLepton_eta");
+    addVartoStore("NP2_subleadLepton_pt");
+    addVartoStore("NP2_subleadLepton_eta");
+    addVartoStore("NP2_trailLepton_pt");
+    addVartoStore("NP2_trailLepton_eta");
+
+    // =======================
+    // NP_1 Region
+    // =======================
+    addVartoStore("NP1_leadLepton_pt");
+    addVartoStore("NP1_leadLepton_eta");
+    addVartoStore("NP1_subleadLepton_pt");
+    addVartoStore("NP1_subleadLepton_eta");
+    addVartoStore("NP1_trailLepton_pt");
+    addVartoStore("NP1_trailLepton_eta");
+
+    // =======================
+    // ZZ Region (4L)
+    // =======================
+    addVartoStore("ZZ_leadLepton_pt");
+    addVartoStore("ZZ_leadLepton_eta");
+    addVartoStore("ZZ_subleadLepton_pt");
+    addVartoStore("ZZ_subleadLepton_eta");
+    addVartoStore("ZZ_trailLepton_pt");
+    addVartoStore("ZZ_trailLepton_eta");
+
+    // =======================
+    // ttZ 4L Region
+    // =======================
+    addVartoStore("ttZ4L_leadLepton_pt");
+    addVartoStore("ttZ4L_leadLepton_eta");
+    addVartoStore("ttZ4L_subleadLepton_pt");
+    addVartoStore("ttZ4L_subleadLepton_eta");
+    addVartoStore("ttZ4L_trailLepton_pt");
+    addVartoStore("ttZ4L_trailLepton_eta");
+
+
+    // =======================
+    // Global leading jet (if you want to store the raw one too)
+    // =======================
+    addVartoStore("leadingJet_pt");
+    addVartoStore("leadingJet_eta");
+
+    // =======================
+    // Signal Region
+    // =======================
+    addVartoStore("SR_leadingJet_pt");
+    addVartoStore("SR_leadingJet_eta");
+
+    // =======================
+    // SignalRegion_tzq
+    // =======================
+    addVartoStore("SR_tzq_leadingJet_pt");
+    addVartoStore("SR_tzq_leadingJet_eta");
+
+    // =======================
+    // SignalRegion_ttz
+    // =======================
+    addVartoStore("SR_ttz_leadingJet_pt");
+    addVartoStore("SR_ttz_leadingJet_eta");
+
+    // =======================
+    // WZ Region
+    // =======================
+    addVartoStore("WZ_leadingJet_pt");
+    addVartoStore("WZ_leadingJet_eta");
+
+    // =======================
+    // X_gamma Region
+    // =======================
+    addVartoStore("XG_leadingJet_pt");
+    addVartoStore("XG_leadingJet_eta");
+
+    // =======================
+    // NP_2 Region
+    // =======================
+    addVartoStore("NP2_leadingJet_pt");
+    addVartoStore("NP2_leadingJet_eta");
+
+    // =======================
+    // NP_1 Region
+    // =======================
+    addVartoStore("NP1_leadingJet_pt");
+    addVartoStore("NP1_leadingJet_eta");
+
+    // =======================
+    // ZZ Region (4L)
+    // =======================
+    addVartoStore("ZZ_leadingJet_pt");
+    addVartoStore("ZZ_leadingJet_eta");
+
+    // =======================
+    // ttZ 4L Region
+    // =======================
+    addVartoStore("ttZ4L_leadingJet_pt");
+    addVartoStore("ttZ4L_leadingJet_eta");
+
+
+    addVartoStore("goodMET_pt");
+    addVartoStore("goodMET_phi");
+
+    addVartoStore("SR_goodMET_pt");
+    addVartoStore("SR_goodMET_phi");
+
+    addVartoStore("SR_tzq_goodMET_pt");
+    addVartoStore("SR_tzq_goodMET_phi");
+
+    addVartoStore("SR_ttz_goodMET_pt");
+    addVartoStore("SR_ttz_goodMET_phi");
+
+    addVartoStore("WZ_goodMET_pt");
+    addVartoStore("WZ_goodMET_phi");
+
+    addVartoStore("XG_goodMET_pt");
+    addVartoStore("XG_goodMET_phi");
+
+    addVartoStore("NP2_goodMET_pt");
+    addVartoStore("NP2_goodMET_phi");
+
+    addVartoStore("NP1_goodMET_pt");
+    addVartoStore("NP1_goodMET_phi");
+
+    addVartoStore("ZZ_goodMET_pt");
+    addVartoStore("ZZ_goodMET_phi");
+
+    addVartoStore("ttZ4L_goodMET_pt");
+    addVartoStore("ttZ4L_goodMET_phi");
 
 
    //OSSF info
