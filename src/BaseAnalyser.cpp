@@ -1615,7 +1615,7 @@ void BaseAnalyser::defineSignalRegion()
 /////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////BDT VARIABLE IN DIFFERENT REGION/////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////
-    _rlm = _rlm.Define("nJet_tzq", "SignalRegion_tzq ? ncleanjetspass : -1")
+/*    _rlm = _rlm.Define("nJet_tzq", "SignalRegion_tzq ? ncleanjetspass : -1")
 	       .Define("nBJets_tzq", "SignalRegion_tzq ? ncleanbjetspass : -1")
 	       .Define("mWT_tzq", "SignalRegion_tzq ? Wboson_transversMass : -1")
 	       .Define("mTop_tzq", "SignalRegion_tzq ? top_mass : -1")
@@ -1707,7 +1707,7 @@ void BaseAnalyser::defineSignalRegion()
 	       .Define("lep_asymmetry_signal", "SignalRegion ? topLepton_absEta_times_charge : -9.0")
 	       .Define("maxDEEPJET_signal", "SignalRegion ? Selected_bjet_score : ROOT::VecOps::RVec<float>{}")
 	       .Define("MET_pt_signal", "SignalRegion ? goodMET_pt : -10");
-
+*/
 
 
 }
@@ -2216,7 +2216,7 @@ void BaseAnalyser::setupObjects()
 	processOSSFPairs();
 	reconstructWboson();
 	reconstructTop();
-	BDT_variables();
+//	BDT_variables();
 	defineSignalRegion();
 
 	/*calculateZBosonMass();
