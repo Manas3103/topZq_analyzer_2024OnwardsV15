@@ -278,7 +278,8 @@ def Nanoaodprocessor_singledir(indir, outputroot, procflags, config):
             config['metpt_fname'],
             config['jetidfname'],
             config['jetid_workingpoint'],
-            config['JER_tag']
+            config['JER_tag'],
+            config['JER_tag_res']
         )
     else:
         print("Skipping corrections step")

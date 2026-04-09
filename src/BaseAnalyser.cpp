@@ -388,7 +388,7 @@ void BaseAnalyser::selectJets()
 	 "Jet_muEF", "Jet_eta"});
 
 
-    _rlm = _rlm.Define("goodJets", "goodJetsID && ((abs(Jet_eta) > 2.65 && abs(Jet_eta) < 3.139 && Jet_pt_corr > 50.0) || (Jet_pt_corr > 25.0 && abs(Jet_eta) < 5 && abs(Jet_eta)>3.139) || (Jet_pt_corr > 25.0 && abs(Jet_eta) < 2.65 && abs(Jet_eta)>0))");
+    _rlm = _rlm.Define("goodJets", "goodJetsID && ((abs(Jet_eta) > 2.65 && abs(Jet_eta) < 3.139 && Jet_pt_corr > 50.0) || (Jet_pt_corr > 25.0 && abs(Jet_eta) < 5 && abs(Jet_eta)>3.139) || (Jet_pt_corr > 25.0 && abs(Jet_eta) < 2.65 && abs(Jet_eta)>0)) && abs(Jet_eta) > 5.0");
     _rlm = _rlm.Define("goodJets_pt", "Jet_pt_corr[goodJets]")
                .Define("goodJets_eta", "Jet_eta[goodJets]")
                .Define("goodJets_phi", "Jet_phi[goodJets]")
@@ -546,7 +546,8 @@ void BaseAnalyser::removeOverlaps()
                 .Define("Selected_jeteta", "goodJets_eta[muonjetoverlap]")
                 .Define("Selected_jetphi", "goodJets_phi[muonjetoverlap]")
                 .Define("Selected_jetmass", "goodJets_mass[muonjetoverlap]")
-                .Define("Selected_jetbtag", "goodJets_deepjetbtag[muonjetoverlap]") 
+                .Define("Selected_jetbtag", "goodJets_UparTjetbtag[muonjetoverlap]") 
+                //.Define("Selected_jetbtag", "goodJets_deepjetbtag[muonjetoverlap]") 
                 .Define("ncleanjetspass", "int(Selected_jetpt.size())")
                 .Define("cleanjet4vecs", ::generate_4vec, {"Selected_jetpt", "Selected_jeteta", "Selected_jetphi", "Selected_jetmass"})
 		.Define("centraljetpass", "abs(Selected_jeteta)<2.4")
@@ -563,7 +564,7 @@ void BaseAnalyser::removeOverlaps()
      //==============================Clean b-Jets==============================================// 
          //--> after remove overlap: use requested btaggedJets for btag-weight SFs && weight_generator. 
          //=====================================================================================//
-        _rlm = _rlm.Define("btagcuts2", "Selected_jetbtag>0.3040") //medium wp -->as an example. 
+        _rlm = _rlm.Define("btagcuts2", "Selected_jetbtag>0.1272") //medium wp -->as an example. 
                         .Define("Selected_bjetpt", "Selected_jetpt[btagcuts2]")
                         .Define("Selected_bjeteta", "Selected_jeteta[btagcuts2]")
                         .Define("Selected_bjetphi", "Selected_jetphi[btagcuts2]")

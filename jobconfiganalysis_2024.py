@@ -63,7 +63,7 @@ config = {
         'jettagMC' :'Summer24Prompt24_V2_MC_L1L2L3Res_AK4PFPuppi', #this is for MC
 
         # jet uncertainty 
-        'jercunctag': 'Summer24Prompt24_V2_MC_Total_AK4PFPuppi', 
+        'jercunctag': {'Summer24Prompt24_V2_MC_Total_AK4PFPuppi'}, 
        
         # for Jet veto map
         'jet_veto_f_name': 'data/JERC/2024_Summer24/jetvetomaps.json',
@@ -72,12 +72,13 @@ config = {
         'jetidfname' : 'data/JERC/2024_Summer24/jetid.json',
         'jetid_workingpoint' : 'AK4PUPPI_TightLeptonVeto',
         'JER_tag' : 'Summer23BPixPrompt23_RunD_JRV1_MC_ScaleFactor_AK4PFPuppi',
-
+	    'JER_tag_res' : 'Summer23BPixPrompt23_RunD_JRV1_MC_PtResolution_AK4PFPuppi',
         
         'electron_SSF' :'data/EGM/2024_Summer24/electronSS_EtDependent.json',
 
         # MET correction 
         'metpt_fname' : 'data/JERC/2022_Summer22/met_xyCorrections_2022_2022.json'
+
         }
 
 # processing options
