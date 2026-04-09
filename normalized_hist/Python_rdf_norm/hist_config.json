@@ -1,0 +1,150 @@
+{
+  "top_mass": { "bins": 50, "xmin": 5, "xmax": 700 },
+  "leadingLepton_pt": { "bins": 25, "xmin": 0, "xmax": 250 },
+  "subleadingLepton_pt": { "bins": 20, "xmin": 0, "xmax": 150 },
+  "trailingLepton_pt": { "bins": 20, "xmin": 0, "xmax": 100 },
+
+  "TR_leadingLepton_pt": { "bins": 25, "xmin": 0, "xmax": 250 },
+  "TR_subleadingLepton_pt": { "bins": 20, "xmin": 0, "xmax": 150 },
+  "TR_trailingLepton_pt": { "bins": 20, "xmin": 0, "xmax": 100 },
+  "TR_leadingLepton_eta": { "bins": 24, "xmin": -3, "xmax": 3 },
+  "TR_subleadingLepton_eta": { "bins": 24, "xmin": -3, "xmax": 3 },
+  "TR_trailingLepton_eta": { "bins": 24, "xmin": -3, "xmax": 3 },
+
+  "Wboson_transversMass": { "bins": 35, "xmin": 5, "xmax": 300 },
+  "OSSF_ZPair_mass": { "bins": 35, "xmin": 70, "xmax": 130 },
+
+  "ncleanjetspass_SignalRegion": { "bins": 7, "xmin": -0.5, "xmax": 7.5 },
+  "ncleanbjetspass_SignalRegion": { "bins": 5, "xmin": -0.5, "xmax": 5.5 },
+
+  "ncleanjetspass_WZ_Region": { "bins": 7, "xmin": -0.5, "xmax": 7.5 },
+  "Wboson_transversMass_WZ_Region": { "bins": 35, "xmin": 5, "xmax": 300 },
+
+  "ncleanjetspass_X_gamma_Region": { "bins": 7, "xmin": -0.5, "xmax": 7.5 },
+  "ncleanbjetspass_X_gamma_Region": { "bins": 5, "xmin": -0.5, "xmax": 5.5 },
+
+  "ncleanjetspass_NP_2_Region": { "bins": 7, "xmin": -0.5, "xmax": 7.5 },
+  "ncleanbjetspass_NP_2_Region": { "bins": 5, "xmin": -0.5, "xmax": 5.5 },
+
+  "ncleanjetspass_NP_1_Region": { "bins": 7, "xmin": -0.5, "xmax": 7.5 },
+  "ncleanbjetspass_NP_1_Region": { "bins": 5, "xmin": -0.5, "xmax": 5.5 },
+
+  "ncleanjetspass_ZZ_Region": { "bins": 7, "xmin": -0.5, "xmax": 7.5 },
+  "mass_of_4L_ZZ_Region": { "bins": 60, "xmin": 0, "xmax": 600 },
+  "Z_mass1_ZZ_Region": { "bins": 35, "xmin": 70, "xmax": 130 },
+  "Z_mass2_ZZ_Region": { "bins": 35, "xmin": 70, "xmax": 130 },
+
+  "ncleanjetspass_ttZ_Region": { "bins": 7, "xmin": -0.5, "xmax": 7.5 },
+  "ncleanbjetspass_ttZ_Region": { "bins": 5, "xmin": -0.5, "xmax": 5.5 },
+
+  "goodMET_pt": { "bins": 30, "xmin": 0, "xmax": 300 },
+  "goodMET_phi": { "bins": 32, "xmin": -3.2, "xmax": 3.2 },
+
+  "SR_goodMET_pt": { "bins": 30, "xmin": 0, "xmax": 300 },
+  "SR_goodMET_phi": { "bins": 32, "xmin": -3.2, "xmax": 3.2 },
+
+  "SR_tzq_goodMET_pt": { "bins": 30, "xmin": 0, "xmax": 300 },
+  "SR_tzq_goodMET_phi": { "bins": 32, "xmin": -3.2, "xmax": 3.2 },
+
+  "SR_ttz_goodMET_pt": { "bins": 30, "xmin": 0, "xmax": 300 },
+  "SR_ttz_goodMET_phi": { "bins": 32, "xmin": -3.2, "xmax": 3.2 },
+
+  "WZ_goodMET_pt": { "bins": 30, "xmin": 0, "xmax": 300 },
+  "WZ_goodMET_phi": { "bins": 32, "xmin": -3.2, "xmax": 3.2 },
+
+  "XG_goodMET_pt": { "bins": 30, "xmin": 0, "xmax": 300 },
+  "XG_goodMET_phi": { "bins": 32, "xmin": -3.2, "xmax": 3.2 },
+
+  "NP2_goodMET_pt": { "bins": 30, "xmin": 0, "xmax": 300 },
+  "NP2_goodMET_phi": { "bins": 32, "xmin": -3.2, "xmax": 3.2 },
+
+  "NP1_goodMET_pt": { "bins": 30, "xmin": 0, "xmax": 300 },
+  "NP1_goodMET_phi": { "bins": 32, "xmin": -3.2, "xmax": 3.2 },
+
+  "ZZ_goodMET_pt": { "bins": 30, "xmin": 0, "xmax": 300 },
+  "ZZ_goodMET_phi": { "bins": 32, "xmin": -3.2, "xmax": 3.2 },
+
+  "ttZ4L_goodMET_pt": { "bins": 30, "xmin": 0, "xmax": 300 },
+  "ttZ4L_goodMET_phi": { "bins": 32, "xmin": -3.2, "xmax": 3.2 },
+
+
+  "leadingJet_pt": { "bins": 25, "xmin": 0, "xmax": 500 },
+  "leadingJet_eta": { "bins": 20, "xmin": -5, "xmax": 5 },
+
+  "SR_leadingJet_pt": { "bins": 25, "xmin": 0, "xmax": 500 },
+  "SR_leadingJet_eta": { "bins": 20, "xmin": -5, "xmax": 5 },
+
+  "SR_tzq_leadingJet_pt": { "bins": 25, "xmin": 0, "xmax": 500 },
+  "SR_tzq_leadingJet_eta": { "bins": 20, "xmin": -5, "xmax": 5 },
+
+  "SR_ttz_leadingJet_pt": { "bins": 25, "xmin": 0, "xmax": 500 },
+  "SR_ttz_leadingJet_eta": { "bins": 20, "xmin": -5, "xmax": 5 },
+
+  "WZ_leadingJet_pt": { "bins": 25, "xmin": 0, "xmax": 500 },
+  "WZ_leadingJet_eta": { "bins": 20, "xmin": -5, "xmax": 5 },
+
+  "XG_leadingJet_pt": { "bins": 25, "xmin": 0, "xmax": 500 },
+  "XG_leadingJet_eta": { "bins": 20, "xmin": -5, "xmax": 5 },
+
+  "NP2_leadingJet_pt": { "bins": 25, "xmin": 0, "xmax": 500 },
+  "NP2_leadingJet_eta": { "bins": 20, "xmin": -5, "xmax": 5 },
+
+  "NP1_leadingJet_pt": { "bins": 25, "xmin": 0, "xmax": 500 },
+  "NP1_leadingJet_eta": { "bins": 20, "xmin": -5, "xmax": 5 },
+
+  "ZZ_leadingJet_pt": { "bins": 25, "xmin": 0, "xmax": 500 },
+  "ZZ_leadingJet_eta": { "bins": 20, "xmin": -5, "xmax": 5 },
+
+  "ttZ4L_leadingJet_pt": { "bins": 25, "xmin": 0, "xmax": 500 },
+  "ttZ4L_leadingJet_eta": { "bins": 20, "xmin": -5, "xmax": 5 },
+
+
+  "SR_leadLepton_pt": { "bins": 25, "xmin": 0, "xmax": 250 },
+  "SR_leadLepton_eta": { "bins": 25, "xmin": -2.5, "xmax": 2.5 },
+  "SR_subleadLepton_pt": { "bins": 20, "xmin": 0, "xmax": 200 },
+  "SR_subleadLepton_eta": { "bins": 25, "xmin": -2.5, "xmax": 2.5 },
+  "SR_trailLepton_pt": { "bins": 20, "xmin": 0, "xmax": 150 },
+  "SR_trailLepton_eta": { "bins": 25, "xmin": -2.5, "xmax": 2.5 },
+
+  "WZ_leadLepton_pt":       { "bins": 50, "xmin": 0, "xmax": 500 },
+  "WZ_leadLepton_eta":      { "bins": 25, "xmin": -2.5, "xmax": 2.5 },
+  "WZ_subleadLepton_pt":    { "bins": 50, "xmin": 0, "xmax": 500 },
+  "WZ_subleadLepton_eta":   { "bins": 25, "xmin": -2.5, "xmax": 2.5 },
+  "WZ_trailLepton_pt":      { "bins": 50, "xmin": 0, "xmax": 500 },
+  "WZ_trailLepton_eta":     { "bins": 25, "xmin": -2.5, "xmax": 2.5 },
+
+  "XG_leadLepton_pt":       { "bins": 50, "xmin": 0, "xmax": 500 },
+  "XG_leadLepton_eta":      { "bins": 25, "xmin": -2.5, "xmax": 2.5 },
+  "XG_subleadLepton_pt":    { "bins": 50, "xmin": 0, "xmax": 500 },
+  "XG_subleadLepton_eta":   { "bins": 25, "xmin": -2.5, "xmax": 2.5 },
+  "XG_trailLepton_pt":      { "bins": 50, "xmin": 0, "xmax": 500 },
+  "XG_trailLepton_eta":     { "bins": 25, "xmin": -2.5, "xmax": 2.5 },
+
+  "NP2_leadLepton_pt":      { "bins": 50, "xmin": 0, "xmax": 500 },
+  "NP2_leadLepton_eta":     { "bins": 25, "xmin": -2.5, "xmax": 2.5 },
+  "NP2_subleadLepton_pt":   { "bins": 50, "xmin": 0, "xmax": 500 },
+  "NP2_subleadLepton_eta":  { "bins": 25, "xmin": -2.5, "xmax": 2.5 },
+  "NP2_trailLepton_pt":     { "bins": 50, "xmin": 0, "xmax": 500 },
+  "NP2_trailLepton_eta":    { "bins": 25, "xmin": -2.5, "xmax": 2.5 },
+
+  "NP1_leadLepton_pt":      { "bins": 50, "xmin": 0, "xmax": 500 },
+  "NP1_leadLepton_eta":     { "bins": 25, "xmin": -2.5, "xmax": 2.5 },
+  "NP1_subleadLepton_pt":   { "bins": 50, "xmin": 0, "xmax": 500 },
+  "NP1_subleadLepton_eta":  { "bins": 25, "xmin": -2.5, "xmax": 2.5 },
+  "NP1_trailLepton_pt":     { "bins": 50, "xmin": 0, "xmax": 500 },
+  "NP1_trailLepton_eta":    { "bins": 25, "xmin": -2.5, "xmax": 2.5 },
+
+  "ZZ_leadLepton_pt":       { "bins": 50, "xmin": 0, "xmax": 500 },
+  "ZZ_leadLepton_eta":      { "bins": 25, "xmin": -2.5, "xmax": 2.5 },
+  "ZZ_subleadLepton_pt":    { "bins": 50, "xmin": 0, "xmax": 500 },
+  "ZZ_subleadLepton_eta":   { "bins": 25, "xmin": -2.5, "xmax": 2.5 },
+  "ZZ_trailLepton_pt":      { "bins": 50, "xmin": 0, "xmax": 500 },
+  "ZZ_trailLepton_eta":     { "bins": 25, "xmin": -2.5, "xmax": 2.5 },
+
+  "ttZ4L_leadLepton_pt":      { "bins": 50, "xmin": 0, "xmax": 500 },
+  "ttZ4L_leadLepton_eta":     { "bins": 25, "xmin": -2.5, "xmax": 2.5 },
+  "ttZ4L_subleadLepton_pt":   { "bins": 50, "xmin": 0, "xmax": 500 },
+  "ttZ4L_subleadLepton_eta":  { "bins": 25, "xmin": -2.5, "xmax": 2.5 },
+  "ttZ4L_trailLepton_pt":     { "bins": 50, "xmin": 0, "xmax": 500 },
+  "ttZ4L_trailLepton_eta":    { "bins": 25, "xmin": -2.5, "xmax": 2.5 }
+}

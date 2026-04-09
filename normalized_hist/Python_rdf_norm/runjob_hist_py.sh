@@ -10,7 +10,7 @@ fi
 # Input arguments
 filename=$1
 crosssection=$2
-luminosity=15.24
+luminosity=5.49
 
 
 start_time=$(date +%s)
@@ -55,16 +55,25 @@ fi
 output_dir="Analysed"
 mkdir -p "${output_dir}" || handle_error "Failed to create output directory"
 
+# Determine if DATA or MC
+if [ "$crosssection" = "1" ]; then
+    extra_flag="data"
+else
+    extra_flag="mc"
+fi
+
 #Run Python RDF version
 python3 create_hist_rdf.py \
     --filename "${xrootd_filename}" \
     --cross_section ${crosssection} \
     --luminosity ${luminosity} \
     --tree_name outputTree \
+    --config hist_config.json \
+    --extra ${extra_flag} \
     || handle_error "Processing failed"
 
 # Find output file
-HIST_FILE=$(ls -t *_hist_new.root 2>/dev/null | head -n1)
+HIST_FILE=$(ls -t *_hist.root 2>/dev/null | head -n1)
 
 if [ -n "${HIST_FILE}" ]; then
     echo "Moving file to Analysed/ directory..."
