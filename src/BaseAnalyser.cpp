@@ -154,11 +154,6 @@ void BaseAnalyser::selectElectrons()
 	       .Define("tightElect_ID", ElectronID(4))
                .Define("goodElectronsID", "looseElect_ID || mediumElect_ID || tightElect_ID");
     _rlm = _rlm.Define("goodElectrons", "Electron_pt > 15.0 && abs(Electron_eta) < 2.4 && Electron_miniPFRelIso_all < 0.40 && goodElectronsID");
-//    _rlm = _rlm.Define("goodElectrons_test", "Electron_cutBased==4 && Electron_pt_corr>20 && abs(Electron_eta)<2.5 && !(( abs(Electron_eta + Electron_deltaEtaSC) > 1.4442 && abs(Electron_eta + Electron_deltaEtaSC) < 1.566 ))");
-
-//    auto n_Elect =_rlm.Define("pass_goodElectrons_test","goodElectrons_test>0").Sum("pass_goodElectrons_test");
-//    std::cout<<"events with >=1 electron: "<< *n_Elect << std::endl;
-
 
     // Define additional variables for good electrons
     _rlm = _rlm.Define("goodElectrons_pt", "Electron_pt[goodElectrons]")
@@ -180,7 +175,7 @@ void BaseAnalyser::selectElectrons()
     // baselineElectrons_isPromptBaseline Electron Selection
     // =====================================================================
     _rlm = _rlm.Define("baselineElectrons", 
-                       "Electron_pt > 10.0 && abs(Electron_eta) < 2.5 && goodElectronsID &&"
+                       "Electron_pt > 15.0 && abs(Electron_eta) < 2.5 && goodElectronsID &&"
 		       "!(abs(Electron_eta) > 1.442 && abs(Electron_eta) < 1.566) && "
                        "Electron_miniPFRelIso_all < 0.40 && abs(Electron_dxy) < 0.05 && "
                        "abs(Electron_dz) < 0.10 && Electron_lostHits <= 1 && "
@@ -387,8 +382,8 @@ void BaseAnalyser::selectJets()
 	 "Jet_neEmEF", "Jet_chEmEF", "Jet_chHEF", "Jet_neHEF",
 	 "Jet_muEF", "Jet_eta"});
 
-
-    _rlm = _rlm.Define("goodJets", "goodJetsID && ((abs(Jet_eta) > 2.65 && abs(Jet_eta) < 3.139 && Jet_pt_corr > 50.0) || (Jet_pt_corr > 25.0 && abs(Jet_eta) < 5 && abs(Jet_eta)>3.139) || (Jet_pt_corr > 25.0 && abs(Jet_eta) < 2.65 && abs(Jet_eta)>0)) && abs(Jet_eta) > 5.0");
+/*
+    _rlm = _rlm.Define("goodJets", "goodJetsID && ((abs(Jet_eta) > 2.65 && abs(Jet_eta) < 3.139 && Jet_pt_corr > 50.0) || (Jet_pt_corr > 25.0 && abs(Jet_eta) < 5 && abs(Jet_eta)>3.139) || (Jet_pt_corr > 25.0 && abs(Jet_eta) < 2.65 && abs(Jet_eta)>0)) && abs(Jet_eta) < 5.0");
     _rlm = _rlm.Define("goodJets_pt", "Jet_pt_corr[goodJets]")
                .Define("goodJets_eta", "Jet_eta[goodJets]")
                .Define("goodJets_phi", "Jet_phi[goodJets]")
@@ -426,21 +421,6 @@ void BaseAnalyser::selectJets()
 
 
 
-    /*.Define("top_Bjet_TL4Vecs", [](const ROOT::VecOps::RVec<float>& pts,
-                               const ROOT::VecOps::RVec<float>& etas,
-                               const ROOT::VecOps::RVec<float>& phis,
-                               const ROOT::VecOps::RVec<float>& masses) -> ROOT::VecOps::RVec<TLorentzVector> {
-		    ROOT::VecOps::RVec<TLorentzVector> vecs;
-		    for (size_t i = 0; i < pts.size(); ++i) {
-			TLorentzVector vec;
-			vec.SetPtEtaPhiM(pts[i], etas[i], phis[i], masses[i]);
-			vecs.emplace_back(vec);
-		    }
-		    return vecs;
-		    }, {"good_bjetpt", "good_bjeteta", "good_bjetphi", "good_bjetmass"}); //seems like this is not required */
-		  
-
-
     if(!_isData){
       //For Btagging Efficiency    
       _rlm = _rlm.Define("btagpass_bcflav_goodJets", "goodJets_deepjetbtag>0.2783 && goodJets_hadflav!=0") //0.2783 -medium, 0.7 - tight 
@@ -460,6 +440,133 @@ void BaseAnalyser::selectJets()
 		 .Define("goodJets_all_lflav_pt", "goodJets_pt[all_lflav_goodJets]")
 		 .Define("goodJets_all_lflav_eta", "goodJets_eta[all_lflav_goodJets]");
     }
+
+*/
+
+	// =====================================================
+	// 1. GOOD JET SELECTION
+	// =====================================================
+
+	_rlm = _rlm.Define(
+	    "goodJets",
+	    "goodJetsID && ("
+		"("
+		    "abs(Jet_eta) > 2.65 && abs(Jet_eta) < 3.139 && Jet_pt_corr > 50.0"
+		") || ("
+		    "abs(Jet_eta) > 3.139 && abs(Jet_eta) < 5.0 && Jet_pt_corr > 25.0"
+		") || ("
+		    "abs(Jet_eta) > 0.0 && abs(Jet_eta) < 2.65 && Jet_pt_corr > 25.0"
+		")"
+	    ") && abs(Jet_eta) < 5.0"
+	);
+
+
+	// =====================================================
+	// 2. EXTRACT GOOD JET VARIABLES
+	// =====================================================
+
+	_rlm = _rlm.Define("goodJets_pt",   "Jet_pt_corr[goodJets]")
+		   .Define("goodJets_eta",  "Jet_eta[goodJets]")
+		   .Define("goodJets_phi",  "Jet_phi[goodJets]")
+		   .Define("goodJets_mass", "Jet_mass[goodJets]")
+		   .Define("goodJets_idx",  ::good_idx, {"goodJets"})
+		   .Define("NgoodJets",     "int(goodJets_pt.size())")
+		   .Define("goodJets_4vecs", ::generate_4vec,
+			   {"goodJets_pt", "goodJets_eta", "goodJets_phi", "goodJets_mass"});
+
+
+	// =====================================================
+	// 3. MC-ONLY INFORMATION
+	// =====================================================
+
+	if (!_isData) {
+	    _rlm = _rlm.Define("goodJets_hadflav",
+			       "Jet_hadronFlavour[goodJets]");
+	}
+
+
+	// =====================================================
+	// 4. BTAGGING VARIABLES
+	// =====================================================
+
+	_rlm = _rlm.Define("goodJets_deepjetbtag",
+			   "Jet_btagDeepFlavB[goodJets]")
+		   .Define("goodJets_UparTjetbtag",
+			   "Jet_btagUParTAK4B[goodJets]");
+
+
+	// =====================================================
+	// 5. SELECT GOOD BJETS (TIGHT WP)
+	// =====================================================
+
+	// DeepJet tight ~0.7
+	// UParT tight ~0.4648
+
+	_rlm = _rlm.Define("btagcuts",
+			   "goodJets_UparTjetbtag > 0.4648")
+
+		   .Define("good_bjetpt",   "goodJets_pt[btagcuts]")
+		   .Define("good_bjeteta",  "goodJets_eta[btagcuts]")
+		   .Define("good_bjetphi",  "goodJets_phi[btagcuts]")
+		   .Define("good_bjetmass", "goodJets_mass[btagcuts]");
+
+	if (!_isData) {
+	    _rlm = _rlm.Define("good_bjethadflav",
+			       "goodJets_hadflav[btagcuts]");
+	}
+
+	_rlm = _rlm.Define("Ngood_bjets",
+			   "int(good_bjetpt.size())")
+		   .Define("good_bjet4vecs", ::generate_4vec,
+			   {"good_bjetpt",
+			    "good_bjeteta",
+			    "good_bjetphi",
+			    "good_bjetmass"});
+
+
+	// =====================================================
+	// 6. BTAGGING EFFICIENCY STUDIES (MC ONLY)
+	// =====================================================
+
+	if (!_isData) {
+
+	    // ----------------------------
+	    // b/c flavour (hadflav != 0)
+	    // ----------------------------
+
+	    _rlm = _rlm.Define("btagpass_bcflav_goodJets",
+			       "goodJets_deepjetbtag > 0.2783 && goodJets_hadflav != 0")
+		       .Define("goodJets_btagpass_bcflav_pt",
+			       "goodJets_pt[btagpass_bcflav_goodJets]")
+		       .Define("goodJets_btagpass_bcflav_eta",
+			       "goodJets_eta[btagpass_bcflav_goodJets]");
+
+	    _rlm = _rlm.Define("all_bcflav_goodJets",
+			       "goodJets_hadflav != 0")
+		       .Define("goodJets_all_bcflav_pt",
+			       "goodJets_pt[all_bcflav_goodJets]")
+		       .Define("goodJets_all_bcflav_eta",
+			       "goodJets_eta[all_bcflav_goodJets]");
+
+
+	    // ----------------------------
+	    // light flavour (hadflav == 0)
+	    // ----------------------------
+
+	    _rlm = _rlm.Define("btagpass_lflav_goodJets",
+			       "goodJets_deepjetbtag > 0.2783 && goodJets_hadflav == 0")
+		       .Define("goodJets_btagpass_lflav_pt",
+			       "goodJets_pt[btagpass_lflav_goodJets]")
+		       .Define("goodJets_btagpass_lflav_eta",
+			       "goodJets_eta[btagpass_lflav_goodJets]");
+
+	    _rlm = _rlm.Define("all_lflav_goodJets",
+			       "goodJets_hadflav == 0")
+		       .Define("goodJets_all_lflav_pt",
+			       "goodJets_pt[all_lflav_goodJets]")
+		       .Define("goodJets_all_lflav_eta",
+			       "goodJets_eta[all_lflav_goodJets]");
+	}
 }
 //=================================Overlap function=================================================//
 void BaseAnalyser::removeOverlaps()

@@ -18,7 +18,7 @@
   "ncleanbjetspass_SignalRegion": { "bins": 5, "xmin": -0.5, "xmax": 5.5 },
 
   "ncleanjetspass_WZ_Region": { "bins": 7, "xmin": -0.5, "xmax": 7.5 },
-  "Wboson_transversMass_WZ_Region": { "bins": 35, "xmin": 5, "xmax": 300 },
+  "Wboson_transversMass_WZ_Region": { "bins": 10, "xmin": 5, "xmax": 175 },
 
   "ncleanjetspass_X_gamma_Region": { "bins": 7, "xmin": -0.5, "xmax": 7.5 },
   "ncleanbjetspass_X_gamma_Region": { "bins": 5, "xmin": -0.5, "xmax": 5.5 },
@@ -31,8 +31,8 @@
 
   "ncleanjetspass_ZZ_Region": { "bins": 7, "xmin": -0.5, "xmax": 7.5 },
   "mass_of_4L_ZZ_Region": { "bins": 60, "xmin": 0, "xmax": 600 },
-  "Z_mass1_ZZ_Region": { "bins": 35, "xmin": 70, "xmax": 130 },
-  "Z_mass2_ZZ_Region": { "bins": 35, "xmin": 70, "xmax": 130 },
+  "Z_mass1_ZZ_Region": { "bins": 6, "xmin": 75, "xmax": 105 },
+  "Z_mass2_ZZ_Region": { "bins": 6, "xmin": 75, "xmax": 105 },
 
   "ncleanjetspass_ttZ_Region": { "bins": 7, "xmin": -0.5, "xmax": 7.5 },
   "ncleanbjetspass_ttZ_Region": { "bins": 5, "xmin": -0.5, "xmax": 5.5 },
