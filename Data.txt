@@ -1,4 +1,4 @@
-f/store/user/msahoo/2022EE/Era_f/EGamma  Data_EGamma_fromEOS_f.root  Data_EGamma_fromEOS_f.out
+/store/user/msahoo/2022EE/Era_f/EGamma  Data_EGamma_fromEOS_f.root  Data_EGamma_fromEOS_f.out
 /store/user/msahoo/2024/Muon0 Muon0_EOS.root Muon0_EOS.out
 /store/user/msahoo/2024/Muon1 Muon1_EOS.root Muon1_EOS.out
 /store/user/msahoo/2024/EGamma0 EGamma0_EOS.root EGamma0_EOS.out

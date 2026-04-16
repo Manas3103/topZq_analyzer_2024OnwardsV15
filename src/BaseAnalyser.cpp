@@ -175,7 +175,7 @@ void BaseAnalyser::selectElectrons()
     // baselineElectrons_isPromptBaseline Electron Selection
     // =====================================================================
     _rlm = _rlm.Define("baselineElectrons", 
-                       "Electron_pt > 15.0 && abs(Electron_eta) < 2.5 && goodElectronsID &&"
+                       "Electron_pt > 15.0 && abs(Electron_eta) < 2.5 &&  Electron_cutBased >=4 &&"
 		       "!(abs(Electron_eta) > 1.442 && abs(Electron_eta) < 1.566) && "
                        "Electron_miniPFRelIso_all < 0.40 && abs(Electron_dxy) < 0.05 && "
                        "abs(Electron_dz) < 0.10 && Electron_lostHits <= 1 && "
@@ -260,10 +260,10 @@ void BaseAnalyser::selectMuons()
     // Baseline Muon Selection
     // // =====================================================================
     _rlm = _rlm.Define("baselineMuons",
-		       "Muon_pt > 15.0 && abs(Muon_eta) < 2.4 && goodMuonsID && "
+		       "Muon_pt > 15.0 && abs(Muon_eta) < 2.4 && "
 	       	       "Muon_miniPFRelIso_all < 0.4 && abs(Muon_dxy) < 0.05 && "
 		       "abs(Muon_dz) < 0.10 && Muon_sip3d < 8.0 && "
-		       "Muon_mediumId && Muon_isPFcand"
+		       "Muon_tightId && Muon_isPFcand"
 		       "&& (Muon_isGlobal || Muon_isTracker)");
 
 	// Additional variables for baseline muons  the value of pt has to be >15 because correction is lot avalaible below 15 
@@ -382,71 +382,15 @@ void BaseAnalyser::selectJets()
 	 "Jet_neEmEF", "Jet_chEmEF", "Jet_chHEF", "Jet_neHEF",
 	 "Jet_muEF", "Jet_eta"});
 
-/*
-    _rlm = _rlm.Define("goodJets", "goodJetsID && ((abs(Jet_eta) > 2.65 && abs(Jet_eta) < 3.139 && Jet_pt_corr > 50.0) || (Jet_pt_corr > 25.0 && abs(Jet_eta) < 5 && abs(Jet_eta)>3.139) || (Jet_pt_corr > 25.0 && abs(Jet_eta) < 2.65 && abs(Jet_eta)>0)) && abs(Jet_eta) < 5.0");
-    _rlm = _rlm.Define("goodJets_pt", "Jet_pt_corr[goodJets]")
-               .Define("goodJets_eta", "Jet_eta[goodJets]")
-               .Define("goodJets_phi", "Jet_phi[goodJets]")
-               .Define("goodJets_mass", "Jet_mass[goodJets]")
-               .Define("goodJets_idx", ::good_idx, {"goodJets"})
-	       .Define("NgoodJets", "int(goodJets_pt.size())")
-               .Define("goodJets_4vecs", ::generate_4vec, {"goodJets_pt", "goodJets_eta", "goodJets_phi", "goodJets_mass"});
-
-
-    if (!_isData){
-       _rlm = _rlm.Define("goodJets_hadflav", "Jet_hadronFlavour[goodJets]");
-    }
-    //good jets deep-b tag          
-    _rlm = _rlm.Define("goodJets_deepjetbtag", "Jet_btagDeepFlavB[goodJets]");
-    _rlm = _rlm.Define("goodJets_UparTjetbtag", "Jet_btagUParTAK4B[goodJets]");
-    //Good Bjets
-    //_rlm = _rlm.Define("btagcuts", "goodJets_deepjetbtag > 0.7") // 0.2783 - medium, 0.7 - tight
-    _rlm = _rlm.Define("btagcuts", "goodJets_UparTjetbtag > 0.4648") // 0.1272 - medium, 0.4648- tight
-               .Define("good_bjetpt", "goodJets_pt[btagcuts]")
-	       .Define("good_bjeteta", "goodJets_eta[btagcuts]")
-	       .Define("good_bjetphi", "goodJets_phi[btagcuts]")
-	       .Define("good_bjetmass", "goodJets_mass[btagcuts]");
-
-//             .Define("good_bjet_leading_pt", "int(good_bjetpt.size()) > 0 ? static_cast<double>(good_bjetpt[0]) : -999.9")
-//             .Define("good_bjet_leading_eta", "int(good_bjeteta.size()) > 0 ? static_cast<double>(good_bjeteta[0]) : -999.9")
-//             .Define("good_bjet_leading_phi", "int(good_bjetphi.size()) > 0 ? static_cast<double>(good_bjetphi[0]) : -999.9")
-//             .Define("good_bjet_leading_mass", "int(good_bjetmass.size()) > 0 ? static_cast<double>(good_bjetmass[0]) : -999.9");
-
- 
-    if (!_isData){  
-    _rlm = _rlm.Define("good_bjethadflav", "goodJets_hadflav[btagcuts]");
-    }
-    _rlm = _rlm.Define("Ngood_bjets", "int(good_bjetpt.size())")   //when remove the comment from the next linw remove the ; of this line 
-               .Define("good_bjet4vecs", ::generate_4vec, {"good_bjetpt", "good_bjeteta", "good_bjetphi", "good_bjetmass"});
-
-
-
-    if(!_isData){
-      //For Btagging Efficiency    
-      _rlm = _rlm.Define("btagpass_bcflav_goodJets", "goodJets_deepjetbtag>0.2783 && goodJets_hadflav!=0") //0.2783 -medium, 0.7 - tight 
-		 .Define("goodJets_btagpass_bcflav_pt", "goodJets_pt[btagpass_bcflav_goodJets]")
-		 .Define("goodJets_btagpass_bcflav_eta", "goodJets_eta[btagpass_bcflav_goodJets]");
-      
-      _rlm = _rlm.Define("all_bcflav_goodJets", "goodJets_hadflav!=0") //0.2783 -medium, 0.7 - tight 
-		 .Define("goodJets_all_bcflav_pt", "goodJets_pt[all_bcflav_goodJets]")
-		 .Define("goodJets_all_bcflav_eta", "goodJets_eta[all_bcflav_goodJets]");
-      
-      
-      _rlm = _rlm.Define("btagpass_lflav_goodJets", "goodJets_deepjetbtag>0.2783 && goodJets_hadflav==0") //0.2783 -medium, 0.7 - tight 
-		 .Define("goodJets_btagpass_lflav_pt", "goodJets_pt[btagpass_lflav_goodJets]")
-		 .Define("goodJets_btagpass_lflav_eta", "goodJets_eta[btagpass_lflav_goodJets]");
-      
-      _rlm = _rlm.Define("all_lflav_goodJets", "goodJets_hadflav==0") //0.2783 -medium, 0.7 - tight 
-		 .Define("goodJets_all_lflav_pt", "goodJets_pt[all_lflav_goodJets]")
-		 .Define("goodJets_all_lflav_eta", "goodJets_eta[all_lflav_goodJets]");
-    }
-
-*/
 
 	// =====================================================
 	// 1. GOOD JET SELECTION
 	// =====================================================
-
+	//Here the Tight LepVeto id is used in all the jet but a combination of loose and tight is required as per the AN 
+	//It will be updated ASAP the Jet id will work as json
+	//Also PU JetID is also not applied since it's not present in the NanoAOD v15
+	
+	
 	_rlm = _rlm.Define(
 	    "goodJets",
 	    "goodJetsID && ("
@@ -500,7 +444,7 @@ void BaseAnalyser::selectJets()
 	// =====================================================
 
 	// DeepJet tight ~0.7
-	// UParT tight ~0.4648
+	// UParT tight ~0.4648 Medium ID
 
 	_rlm = _rlm.Define("btagcuts",
 			   "goodJets_UparTjetbtag > 0.4648")
@@ -523,6 +467,11 @@ void BaseAnalyser::selectJets()
 			    "good_bjetphi",
 			    "good_bjetmass"});
 
+
+             _rlm = _rlm.Define("good_bjet_leading_pt", "int(good_bjetpt.size()) > 0 ? static_cast<double>(good_bjetpt[0]) : -999.9")
+             		.Define("good_bjet_leading_eta", "int(good_bjeteta.size()) > 0 ? static_cast<double>(good_bjeteta[0]) : -999.9")
+             		.Define("good_bjet_leading_phi", "int(good_bjetphi.size()) > 0 ? static_cast<double>(good_bjetphi[0]) : -999.9")
+             		.Define("good_bjet_leading_mass", "int(good_bjetmass.size()) > 0 ? static_cast<double>(good_bjetmass[0]) : -999.9");     
 
 	// =====================================================
 	// 6. BTAGGING EFFICIENCY STUDIES (MC ONLY)
@@ -569,7 +518,7 @@ void BaseAnalyser::selectJets()
 	}
 }
 //=================================Overlap function=================================================//
-void BaseAnalyser::removeOverlaps()
+/*void BaseAnalyser::removeOverlaps()
 {
     cout << "checking overlapss between jets and muons" << endl;
 	// lambda function
@@ -709,6 +658,236 @@ void BaseAnalyser::removeOverlaps()
             return vecs;
             }, {"Selected_jetpt", "Selected_jeteta", "Selected_jetphi", "Selected_jetmass"});
 
+
+}*/
+
+
+void BaseAnalyser::removeOverlaps()
+{
+    cout << "Checking overlaps between jets and leptons" << endl;
+
+    // ================================================================
+    // buildDeltaRMask
+    //
+    // Creates a cleaning mask for collection1 using collection2
+    // based on a minimum delta R separation.
+    //
+    // For each object in collection1:
+    //   - Compute delat R to all objects in collection2
+    //   - Find the minimum delta R
+    //   - Return 1 (keep) if min delta R > threshold
+    //   - Return 0 (remove) if min delta R <= threshold
+    //
+    // IMPORTANT:
+    //   - This function removes objects from collection1 only.
+    //   - collection2 is used only as a reference.
+    //   - Mask size == collection1.size()
+    //
+    // Typical usage:
+    //   - Clean jets with respect to leptons  (delta R > 0.4)
+    //   - Clean electrons with respect to muons (delta R > 0.05)
+    // ================================================================
+    
+
+    auto buildDeltaRMask = [](const FourVectorVec &collection1,
+			      const FourVectorVec &collection2,
+			      double minDeltaR)
+    {
+	ROOT::VecOps::RVec<int> mask;
+
+	for (const auto &obj1 : collection1)
+	{
+	    double mindr = 999.0;
+
+	    for (const auto &obj2 : collection2)
+	    {
+		double dr = ROOT::Math::VectorUtil::DeltaR(obj1, obj2);
+		if (dr < mindr)
+		    mindr = dr;
+	    }
+
+	    mask.emplace_back(mindr > minDeltaR ? 1 : 0);
+	}
+
+	return mask;
+    };
+
+    // =====================================================
+    // Common TLorentzVector builder
+    // =====================================================
+    auto buildTLorentzVectors =
+    [](const ROOT::VecOps::RVec<float>& pt,
+       const ROOT::VecOps::RVec<float>& eta,
+       const ROOT::VecOps::RVec<float>& phi,
+       const ROOT::VecOps::RVec<float>& mass)
+    {
+	ROOT::VecOps::RVec<TLorentzVector> vecs;
+	vecs.reserve(pt.size());
+
+	for (size_t i = 0; i < pt.size(); ++i)
+	{
+	    TLorentzVector v;
+	    v.SetPtEtaPhiM(pt[i], eta[i], phi[i], mass[i]);
+	    vecs.emplace_back(v);
+	}
+	return vecs;
+    };
+
+    // =====================================================
+    // 1 ELECTRO AND MUON OVERLAP CLEANING (dR > 0.05)
+    // =====================================================
+
+    _rlm = _rlm.Define("ElectronMuonCleanMask",
+                       [buildDeltaRMask](const FourVectorVec &ele,
+                                         const FourVectorVec &mu)
+                       { return buildDeltaRMask(ele, mu, 0.05); },
+                       {"A_baselineElectron_4Vecs", "baselineMuon_4Vecs"})
+
+               .Define("baselineElectrons_pt",   "A_baselineElectrons_pt[ElectronMuonCleanMask]")
+               .Define("baselineElectrons_eta",  "A_baselineElectrons_eta[ElectronMuonCleanMask]")
+               .Define("baselineElectrons_phi",  "A_baselineElectrons_phi[ElectronMuonCleanMask]")
+               .Define("baselineElectrons_mass", "A_baselineElectrons_mass[ElectronMuonCleanMask]")
+               .Define("baselineElectrons_charge", "A_baselineElectrons_charge[ElectronMuonCleanMask]")
+               .Define("baselineElectrons_mvaTTH", "A_baselineElectrons_mvaTTH[ElectronMuonCleanMask]")
+               .Define("tight_baselineElectrons", "A_tight_baselineElectrons[ElectronMuonCleanMask]")
+               .Define("NbaselineElectrons", "int(baselineElectrons_pt.size())");
+
+    _rlm = _rlm.Define("baselineElectron_4Vecs",
+                       ::generate_4vec,
+                       {"baselineElectrons_pt",
+                        "baselineElectrons_eta",
+                        "baselineElectrons_phi",
+                        "baselineElectrons_mass"});
+
+
+    // =====================================================
+    // 2 JET MUON OVERLAP CLEANING (dR > 0.4)
+    // =====================================================
+
+    _rlm = _rlm.Define("JetMuonCleanMask",
+                       [buildDeltaRMask](const FourVectorVec &jets,
+                                         const FourVectorVec &mu)
+                       { return buildDeltaRMask(jets, mu, 0.4); },
+                       {"goodJets_4vecs", "baselineMuon_4Vecs"})
+
+               .Define("JetElectronCleanMask",
+                       [buildDeltaRMask](const FourVectorVec &jets,
+                                         const FourVectorVec &ele)
+                       { return buildDeltaRMask(jets, ele, 0.4); },
+                       {"goodJets_4vecs", "baselineElectron_4Vecs"})
+
+               .Define("CleanJetMask",
+                       "JetMuonCleanMask && JetElectronCleanMask");
+
+
+    // =====================================================
+    // 3  CLEAN JETS
+    // =====================================================
+
+    _rlm = _rlm.Define("Selected_jetpt",   "goodJets_pt[CleanJetMask]")
+               .Define("Selected_jeteta",  "goodJets_eta[CleanJetMask]")
+               .Define("Selected_jetphi",  "goodJets_phi[CleanJetMask]")
+               .Define("Selected_jetmass", "goodJets_mass[CleanJetMask]")
+               .Define("Selected_jetbtag", "goodJets_UparTjetbtag[CleanJetMask]")
+               .Define("ncleanjetspass", "int(Selected_jetpt.size())")
+               .Define("Selected_jetHT", "Sum(Selected_jetpt)")
+               .Define("Leading_SelectedJet_pt",
+                       "Selected_jetpt.size() > 0 ? Selected_jetpt[0] : -999.f");
+
+    if (!_isData)
+        _rlm = _rlm.Define("Selected_jethadflav",
+                           "goodJets_hadflav[CleanJetMask]");
+
+    _rlm = applyJetVetoMap(_rlm,
+                           "Selected_jeteta",
+                           "Selected_jetphi")
+               .Filter("!vetoed_jets");
+
+
+    // =====================================================
+    // 4  CENTRAL JETS AND LEADING JETS
+    // =====================================================
+
+    _rlm = _rlm.Define("centraljetpass",
+                       "abs(Selected_jeteta) < 2.4")
+               .Define("Central_jetpt",
+                       "Selected_jetpt[centraljetpass]")
+               .Define("nCentral_jet",
+                       "int(Central_jetpt.size())");
+
+    _rlm = _rlm.Define("leadingJet_pt", "Selected_jetpt.size() > 0 ? Selected_jetpt[0] : -999.f")
+    	       .Define("leadingJet_eta", "Selected_jeteta.size() > 0 ? Selected_jeteta[0] : -999.f");
+ 
+    // =====================================================
+    // 5  CLEAN BJETS
+    // =====================================================
+
+    _rlm = _rlm.Define("btagcuts2",
+                       "Selected_jetbtag > 0.1272")
+
+               .Define("Selected_bjetpt",
+                       "Selected_jetpt[btagcuts2]")
+               .Define("Selected_bjeteta",
+                       "Selected_jeteta[btagcuts2]")
+               .Define("Selected_bjetphi",
+                       "Selected_jetphi[btagcuts2]")
+               .Define("Selected_bjetmass",
+                       "Selected_jetmass[btagcuts2]")
+               .Define("Selected_bjet_score",
+                       "Selected_jetbtag[btagcuts2]")
+               .Define("ncleanbjetspass",
+                       "int(Selected_bjetpt.size())")
+               .Define("Selected_bjetHT",
+                       "Sum(Selected_bjetpt)")
+               .Define("cleanbjet4vecs",
+                       ::generate_4vec,
+                       {"Selected_bjetpt",
+                        "Selected_bjeteta",
+                        "Selected_bjetphi",
+                        "Selected_bjetmass"});
+
+    if (!_isData)
+        _rlm = _rlm.Define("Selected_bjethadflav",
+                           "Selected_jethadflav[btagcuts2]");
+
+
+    // =====================================================
+    // TLorentzVector Collections (ALL IN ONE PLACE)
+    // =====================================================
+
+    _rlm = _rlm
+
+	// ---- Baseline Electrons ----
+	.Define("baselineElectrons_TL4Vecs",
+		buildTLorentzVectors,
+		{"baselineElectrons_pt",
+		 "baselineElectrons_eta",
+		 "baselineElectrons_phi",
+		 "baselineElectrons_mass"})
+
+	// ---- Clean Jets ----
+	.Define("cleanjet_TL4Vecs",
+		buildTLorentzVectors,
+		{"Selected_jetpt",
+		 "Selected_jeteta",
+		 "Selected_jetphi",
+		 "Selected_jetmass"})
+
+	// ---- Clean b-Jets ----
+	.Define("cleanbjet_TL4Vecs",
+		buildTLorentzVectors,
+		{"Selected_bjetpt",
+		 "Selected_bjeteta",
+		 "Selected_bjetphi",
+		 "Selected_bjetmass"});
+
+    _rlm = _rlm
+	  .Define("Topquark_Bjet_TL4Vecs",
+	   buildTLorentzVectors,
+	   {"Selected_bjetpt",
+	    "Selected_bjeteta",
+	    "Selected_bjetphi",
+	    "Selected_bjetmass"});
 
 }
 
@@ -895,7 +1074,7 @@ void BaseAnalyser::mergeLeptons() {
 		       : ROOT::VecOps::RVec<int>{};
 	    }, {"combinedLeptonCharge", "goodLepton_sorted_indices", "numCombinedLepton4Vecs"});
 
-	// 6. Flavor (e.g., 11 for electron, 13 for muon)
+	// 6. Flavor (e.g., 0 for electron, 1 for muon)
 	_rlm = _rlm.Define("goodLepton_flavor",
 	    [](const ROOT::VecOps::RVec<int>& flavorVec,
 	       const ROOT::VecOps::RVec<size_t>& indices,
@@ -907,6 +1086,10 @@ void BaseAnalyser::mergeLeptons() {
 		for (auto i : indices) sortedFlavor.push_back(flavorVec[i]);
 		return sortedFlavor;
 	    }, {"combinedLeptonFlavor", "goodLepton_sorted_indices", "numCombinedLepton4Vecs"});
+
+	_rlm = _rlm.Define("sum_goodLepton_flavor",
+                   "ROOT::VecOps::Sum(goodLepton_flavor)");
+	
 
 	// 7. LorentzVectors (ROOT::Math::PtEtaPhiM4D)
 	_rlm = _rlm.Define("goodLepton_4Vecs",
@@ -1154,7 +1337,26 @@ void BaseAnalyser::processOSSFPairs() {
     }, {"topLepton_index", "goodLepton3_flavor"});
 
 
+    _rlm = _rlm.Define("m3l", [](const std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>& lep4vecs) {
+	if (lep4vecs.size() != 3) return -1.0;
+	return (lep4vecs[0] + lep4vecs[1] + lep4vecs[2]).M();
+    }, {"goodLepton3_4Vecs"});
 
+    _rlm = _rlm.Define("OSSF_category_is_one",
+	[](const std::tuple<int, std::pair<int,int>, double>& t) {
+	    return std::get<0>(t);
+	},
+	{"OSSF_info"});
+
+    _rlm = _rlm.Define("mask_cat1_outsideZ3l",
+	[](int category, double m3l) {
+	    const double Z_mass = 91.1876;
+	    const double window = 15.0;
+
+	    return (category == 1) &&
+		   (std::abs(m3l - Z_mass) > window);
+	},
+	{"OSSF_category_is_one", "m3l"});
 
 
     /////////////////////////////////////////////////////////////////////
@@ -1679,11 +1881,13 @@ void BaseAnalyser::defineSignalRegion()
 	       .Define("nElectron_T3E_TR", "int((baselineElectrons_pt[Test3Ele_tight_region]).size())");
 
 
-    _rlm = _rlm.Define("baseRegion", " NgoodLepton==3 && All_good_tightLeptons && goodMET_pt>20")
+//    _rlm = _rlm.Define("baseRegion", " NgoodLepton==3 && All_good_tightLeptons && goodMET_pt>20")
+    _rlm = _rlm.Define("baseRegion", " is3LeptonEvent && goodMET_pt>20")
 	       .Define("SignalRegion", "baseRegion && ncleanjetspass >= 2 && ncleanbjetspass >= 1 && OSSF_category ==1")
 	       .Define("SignalRegion_tzq", "SignalRegion && nCentral_jet < 4")
 	       .Define("SignalRegion_ttz", "SignalRegion && nCentral_jet >= 4")
-	       .Define("WZ_Region", "baseRegion && ncleanbjetspass == 0 && OSSF_category ==1 && goodMET_pt > 50")
+	       .Define("WZ_Region", "baseRegion && ncleanbjetspass == 0 && OSSF_category ==1 && goodMET_pt > 50 && m3l>100")
+	       .Define("WZ_Region_modified", "baseRegion && ncleanbjetspass == 0 && OSSF_category ==1 && goodMET_pt > 50")
 	       .Define("X_gamma_Region", "baseRegion && OSSF_category ==2 && nonZ_OSSF_mass > 35 && nonZ_OSSF_mass < 76")
 	       .Define("NP_2_Region", "baseRegion && OSSF_category ==3 && nonZ_OSSF_mass > 35 && ncleanjetspass >= 2 && ncleanjetspass <= 3 && ncleanbjetspass == 1")
 	       .Define("NP_1_Region", "baseRegion && OSSF_category ==0 && ncleanjetspass >= 2 && ncleanjetspass <= 3 && ncleanbjetspass == 1");
@@ -1701,6 +1905,9 @@ void BaseAnalyser::defineSignalRegion()
 
 	    .Define("ncleanjetspass_WZ_Region", "WZ_Region ? ncleanjetspass : -1")
 	    .Define("Wboson_transversMass_WZ_Region", "WZ_Region ? Wboson_transversMass : -1")
+
+	    .Define("ncleanjetspass_WZ_Region_modified", "WZ_Region_modified ? ncleanjetspass : -1")
+	    .Define("Wboson_transversMass_WZ_Region_modified", "WZ_Region_modified ? Wboson_transversMass : -1")
 
 	    .Define("ncleanjetspass_X_gamma_Region", "X_gamma_Region ? ncleanjetspass : -1")
 	    .Define("ncleanbjetspass_X_gamma_Region", "X_gamma_Region ? ncleanbjetspass : -1")
@@ -1720,6 +1927,30 @@ void BaseAnalyser::defineSignalRegion()
 	    .Define("ncleanjetspass_ttZ_Region", "ttZ_Region ? ncleanjetspass : -1")
 	    .Define("ncleanbjetspass_ttZ_Region", "ttZ_Region ? ncleanbjetspass : -1");
 
+
+    _rlm = _rlm.Define("muon_multiplicity_SignalRegion",
+		       "SignalRegion ? sum_goodLepton_flavor : -1")
+
+	       .Define("muon_multiplicity_WZ_Region",
+		       "WZ_Region ? sum_goodLepton_flavor : -1")
+
+	       .Define("muon_multiplicity_WZ_Region_modified",
+		       "WZ_Region_modified ? sum_goodLepton_flavor : -1")
+
+	       .Define("muon_multiplicity_X_gamma_Region",
+		       "X_gamma_Region ? sum_goodLepton_flavor : -1")
+
+	       .Define("muon_multiplicity_NP_2_Region",
+		       "NP_2_Region ? sum_goodLepton_flavor : -1")
+
+	       .Define("muon_multiplicity_NP_1_Region",
+		       "NP_1_Region ? sum_goodLepton_flavor : -1");
+
+    _rlm = _rlm.Define("muon_multiplicity_ZZ_Region",
+		       "ZZ_Region ? sum_goodLepton_flavor : -1")
+
+	       .Define("muon_multiplicity_ttZ_Region",
+		       "ttZ_Region ? sum_goodLepton_flavor : -1");
 
 
 	_rlm = _rlm
@@ -2097,6 +2328,7 @@ void BaseAnalyser::defineMoreVars()
 
    // addVartoStore("combinedLeptonTLorentzVecs");
     
+    addVartoStore("sum_goodLepton_flavor");
     addVartoStore("goodLepton_pt");
     addVartoStore("All_good_tightLeptons");
     addVartoStore("NgoodLepton");
@@ -2161,6 +2393,10 @@ void BaseAnalyser::defineMoreVars()
     addVartoStore("ncleanjetspass_WZ_Region");
     addVartoStore("Wboson_transversMass_WZ_Region");
 
+
+    addVartoStore("ncleanjetspass_WZ_Region_modified");
+    addVartoStore("Wboson_transversMass_WZ_Region_modified");
+
     addVartoStore("ncleanjetspass_X_gamma_Region");
     addVartoStore("ncleanbjetspass_X_gamma_Region");
 
@@ -2179,6 +2415,15 @@ void BaseAnalyser::defineMoreVars()
 
     addVartoStore("ncleanjetspass_ttZ_Region");
     addVartoStore("ncleanbjetspass_ttZ_Region");
+
+    addVartoStore("muon_multiplicity_SignalRegion");
+    addVartoStore("muon_multiplicity_WZ_Region");
+    addVartoStore("muon_multiplicity_WZ_Region_modified");
+    addVartoStore("muon_multiplicity_X_gamma_Region");
+    addVartoStore("muon_multiplicity_NP_2_Region");
+    addVartoStore("muon_multiplicity_NP_1_Region");
+    addVartoStore("muon_multiplicity_ZZ_Region");
+    addVartoStore("muon_multiplicity_ttZ_Region");
 
     // =======================
     // Signal Region

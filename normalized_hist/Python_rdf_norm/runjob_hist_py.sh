@@ -10,7 +10,7 @@ fi
 # Input arguments
 filename=$1
 crosssection=$2
-luminosity=43.71
+luminosity=5.49
 
 
 start_time=$(date +%s)

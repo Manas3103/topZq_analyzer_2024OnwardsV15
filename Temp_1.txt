@@ -1,7 +1,5 @@
-/store/user/msahoo/2024/wz_3lnu wz_3lnu_skimed.root wz_3lnu_skimmed.out
-/store/user/msahoo/2024/zz_4l zz_4l_skimed.root zz_4l_skimmed.out
-/store/user/msahoo/2024/wg_1jet wg_1jet_skimed.root wg_1jet_skimmed.out
-/store/user/msahoo/2024/ttbar_semilep ttbar_semilep_skimed.root ttbar_semilep_skimmed.out
-/store/user/msahoo/2024/ttbar_dilepton/part1 ttbar_dilepton_part1_skimed.root ttbar_dilepton_part1_skimmed.out
-/store/user/msahoo/2024/ttbar_dilepton/part2 ttbar_dilepton_part2_skimed.root ttbar_dilepton_part2_skimmed.out
-/store/user/msahoo/2024/ttbar_dilepton/part3 ttbar_dilepton_part3_skimed.root ttbar_dilepton_part3_skimmed.out
+/WZto3LNu_TuneCP5_13p6TeV_powheg-pythia8/RunIII2024Summer24NanoAODv15-150X_mcRun3_2024_realistic_v2-v2/NANOAODSIM wz_3lnu_mini.root wz_3lnu_mini.out
+/ZZto4L_TuneCP5_13p6TeV_powheg-pythia8/RunIII2024Summer24NanoAODv15-150X_mcRun3_2024_realistic_v2-v2/NANOAODSIM zz_4l_mini.root zz_4l_mini.out
+/TTto2L2Nu_TuneCP5_13p6TeV_powheg-pythia8/RunIII2024Summer24NanoAODv15-150X_mcRun3_2024_realistic_v2-v3/NANOAODSIM ttbar_dilepton_mini.root ttbar_dilepton_mini.out
+/TTtoLNu2Q_TuneCP5_13p6TeV_powheg-pythia8/RunIII2024Summer24NanoAODv15-150X_mcRun3_2024_realistic_v2-v2/NANOAODSIM ttbar_semilep_mini.root ttbar_semilep_mini.out
+/WGtoLNuG-1Jets_TuneCP5_13p6TeV_amcatnloFXFX-pythia8/RunIII2024Summer24NanoAODv15-150X_mcRun3_2024_realistic_v2-v2/NANOAODSIM wg_1jet_mini.root wg_1jet_mini.out
