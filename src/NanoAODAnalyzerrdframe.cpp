@@ -1011,11 +1011,11 @@ void NanoAODAnalyzerrdframe::applyMETPtPhiCorrection() //data and MC
     auto lambdaf_met_data = [this](float met_pt, float met_phi, unsigned char npvGood)->std::pair<float, float>
       {
         // Get corrected pt
-        float met_pt_corr = _correction_MET_pt_corrector->at("met_xy_corrections")->evaluate({"pt", "PuppiMET", "2022", "DATA", "nom", 
+        float met_pt_corr = _correction_MET_pt_corrector->at("met_xy_corrections")->evaluate({"pt", "PuppiMET", "2023", "DATA", "nom", 
                                                        met_pt, met_phi, static_cast<float>(npvGood)});
         
         // Get corrected phi
-        float met_phi_corr = _correction_MET_pt_corrector->at("met_xy_corrections")->evaluate({"phi", "PuppiMET", "2022", "DATA", "nom", 
+        float met_phi_corr = _correction_MET_pt_corrector->at("met_xy_corrections")->evaluate({"phi", "PuppiMET", "2023", "DATA", "nom", 
                                                         met_pt, met_phi, static_cast<float>(npvGood)});
         
         return std::make_pair(met_pt_corr, met_phi_corr);
@@ -1030,11 +1030,11 @@ void NanoAODAnalyzerrdframe::applyMETPtPhiCorrection() //data and MC
     auto lambdaf_met_mc = [this](float met_pt, float met_phi, unsigned char npvGood)->std::pair<float, float>
       {
         // Get corrected pt
-        float met_pt_corr = _correction_MET_pt_corrector->at("met_xy_corrections")->evaluate({"pt", "PuppiMET", "2022", "MC", "nom", 
+        float met_pt_corr = _correction_MET_pt_corrector->at("met_xy_corrections")->evaluate({"pt", "PuppiMET", "2023", "MC", "nom", 
                                                        met_pt, met_phi, static_cast<float>(npvGood)});
         
         // Get corrected phi
-        float met_phi_corr = _correction_MET_pt_corrector->at("met_xy_corrections")->evaluate({"phi", "PuppiMET", "2022", "MC", "nom", 
+        float met_phi_corr = _correction_MET_pt_corrector->at("met_xy_corrections")->evaluate({"phi", "PuppiMET", "2023", "MC", "nom", 
                                                         met_pt, met_phi, static_cast<float>(npvGood)});
         
         return std::make_pair(met_pt_corr, met_phi_corr);

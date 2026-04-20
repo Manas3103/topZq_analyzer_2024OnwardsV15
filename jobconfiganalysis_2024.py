@@ -77,7 +77,7 @@ config = {
         'electron_SSF' :'data/EGM/2024_Summer24/electronSS_EtDependent.json',
 
         # MET correction 
-        'metpt_fname' : 'data/JERC/2022_Summer22/met_xyCorrections_2022_2022.json'
+        'metpt_fname' : 'data/JERC/2023_Summer23BPix/met_xyCorrections_2023_2023BPix.json'
 
         }
 

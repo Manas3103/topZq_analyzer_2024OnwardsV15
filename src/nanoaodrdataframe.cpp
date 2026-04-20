@@ -20,12 +20,12 @@ using namespace ROOT;
 int main(void) {
 
 	TChain c1("Events");
-//	c1.Add("root://cmsxrootd.fnal.gov//store/mc/RunIII2024Summer24NanoAODv15/TZQB-Zto2L-4FS_Bin-MLL-30_TuneCP5_13p6TeV_amcatnlo-pythia8/NANOAODSIM/Madgraph_2_6_5_150X_mcRun3_2024_realistic_v2-v2/2810000/43318103-fc71-48c7-8d99-4915164b3b87.root"); 
+	c1.Add("root://cmsxrootd.fnal.gov//store/mc/RunIII2024Summer24NanoAODv15/TZQB-Zto2L-4FS_Bin-MLL-30_TuneCP5_13p6TeV_amcatnlo-pythia8/NANOAODSIM/Madgraph_2_6_5_150X_mcRun3_2024_realistic_v2-v2/2810000/43318103-fc71-48c7-8d99-4915164b3b87.root"); 
 //	c1.Add("root://cmsxrootd.fnal.gov//store/mc/RunIII2024Summer24NanoAODv15/WZto3LNu_TuneCP5_13p6TeV_powheg-pythia8/NANOAODSIM/150X_mcRun3_2024_realistic_v2-v2/2810000/211342c7-9687-458b-93c9-dc3b28eae566.root"); 
 //	c1.Add("root://cmseos.fnal.gov//store/user/msahoo/2024/EGamma0_Era_C_Run24/EGamma0_Era_C_Run24_part20.root");
 //	c1.Add("/eos/uscms/store/user/msahoo/2024/EGamma0/Data_EGamma0_2024_skim_10of20.root");
-	c1.Add("root://cmsxrootd.fnal.gov//store/mc/RunIII2024Summer24NanoAODv15/ZZto4L_TuneCP5_13p6TeV_powheg-pythia8/NANOAODSIM/150X_mcRun3_2024_realistic_v2-v2/110000/9a62ce9c-6b2a-4838-853c-d7bcb2737a2c.root");
-	BaseAnalyser nanoaodrdf(&c1, "ZZ_4l.root");
+	//c1.Add("root://cmsxrootd.fnal.gov//store/mc/RunIII2024Summer24NanoAODv15/ZZto4L_TuneCP5_13p6TeV_powheg-pythia8/NANOAODSIM/150X_mcRun3_2024_realistic_v2-v2/110000/9a62ce9c-6b2a-4838-853c-d7bcb2737a2c.root");
+	BaseAnalyser nanoaodrdf(&c1, "tzq.root");
         nanoaodrdf.setParams(2024, "", -1);
 	nanoaodrdf.setHLT();
 
@@ -56,7 +56,7 @@ int main(void) {
 	string jet_veto_f_name="data/JERC/2024_Summer24/jetvetomaps.json";
         string jet_veto_tag = "Summer24Prompt24_RunBCDEFGHI_V1";
 	string electron_SSF = "data/EGM/2024_Summer24/electronSS_EtDependent.json";
-	string metpt_fname = "data/JERC/2022_Summer22/met_xyCorrections_2022_2022.json";
+	string metpt_fname = "data/JERC/2023_Summer23BPix/met_xyCorrections_2023_2023BPix.json";
 	string JER_tag = "Summer23BPixPrompt23_RunD_JRV1_MC_ScaleFactor_AK4PFPuppi";
 	string JER_tag_res = "Summer23BPixPrompt23_RunD_JRV1_MC_PtResolution_AK4PFPuppi";
 

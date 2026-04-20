@@ -3,5 +3,6 @@
 /store/user/msahoo/2024_processed/Data_files/Era_E/Era_E_merged_nodup.root 1
 /store/user/msahoo/2024_processed/Data_files/Era_F/Era_F_merged_nodup.root 1
 /store/user/msahoo/2024_processed/Data_files/Era_G/Era_G_merged_nodup.root 1
+/store/user/msahoo/2024_processed/Data_files/Era_G/Era_G_merged_nodup_py.root 1
 /store/user/msahoo/2024_processed/Data_files/Era_H/Era_H_merged_nodup.root 1
 /store/user/msahoo/2024_processed/Data_files/Era_I/Era_I_merged_nodup.root 1

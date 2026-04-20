@@ -186,7 +186,7 @@ void BaseAnalyser::selectElectrons()
 		       );
 
     // Additional variables for baseline electrons
-    _rlm = _rlm.Define("A_baselineElectrons_pt", "Electron_pt[baselineElectrons]")
+    _rlm = _rlm.Define("A_baselineElectrons_pt", "Electron_pt_corr[baselineElectrons]")
                 .Define("A_baselineElectrons_eta", "Electron_eta[baselineElectrons]")
                 .Define("A_baselineElectrons_phi", "Electron_phi[baselineElectrons]")
                 .Define("A_baselineElectrons_mass", "Electron_mass[baselineElectrons]")
@@ -267,7 +267,7 @@ void BaseAnalyser::selectMuons()
 		       "&& (Muon_isGlobal || Muon_isTracker)");
 
 	// Additional variables for baseline muons  the value of pt has to be >15 because correction is lot avalaible below 15 
-    _rlm = _rlm.Define("baselineMuons_pt", "Muon_pt[baselineMuons]")
+    _rlm = _rlm.Define("baselineMuons_pt", "Muon_pt_corr[baselineMuons]")
 	       .Define("baselineMuons_eta", "Muon_eta[baselineMuons]")
 	       .Define("baselineMuons_phi", "Muon_phi[baselineMuons]")
 	       .Define("baselineMuons_mass", "Muon_mass[baselineMuons]")
@@ -2018,20 +2018,35 @@ void BaseAnalyser::defineSignalRegion()
 	// =======================
 	// 4L REGIONS
 	// =======================
+	.Define("ZZ_leadLepton_pt",
+		"ZZ_Region && goodLepton_pt.size()>0 ? goodLepton_pt[0] : -999.f")
+	.Define("ZZ_leadLepton_eta",
+		"ZZ_Region && goodLepton_eta.size()>0 ? goodLepton_eta[0] : -999.f")
 
-	.Define("ZZ_leadLepton_pt",  "ZZ_Region ? leadingLepton_pt  : -999.f")
-	.Define("ZZ_leadLepton_eta", "ZZ_Region ? leadingLepton_eta : -999.f")
-	.Define("ZZ_subleadLepton_pt",  "ZZ_Region ? subleadingLepton_pt  : -999.f")
-	.Define("ZZ_subleadLepton_eta", "ZZ_Region ? subleadingLepton_eta : -999.f")
-	.Define("ZZ_trailLepton_pt",  "ZZ_Region ? TrailingLepton_pt  : -999.f")
-	.Define("ZZ_trailLepton_eta", "ZZ_Region ? TrailingLepton_eta : -999.f")
+	.Define("ZZ_subleadLepton_pt",
+		"ZZ_Region && goodLepton_pt.size()>1 ? goodLepton_pt[1] : -999.f")
+	.Define("ZZ_subleadLepton_eta",
+		"ZZ_Region && goodLepton_eta.size()>1 ? goodLepton_eta[1] : -999.f")
 
-	.Define("ttZ4L_leadLepton_pt",  "ttZ_Region ? leadingLepton_pt  : -999.f")
-	.Define("ttZ4L_leadLepton_eta", "ttZ_Region ? leadingLepton_eta : -999.f")
-	.Define("ttZ4L_subleadLepton_pt",  "ttZ_Region ? subleadingLepton_pt  : -999.f")
-	.Define("ttZ4L_subleadLepton_eta", "ttZ_Region ? subleadingLepton_eta : -999.f")
-	.Define("ttZ4L_trailLepton_pt",  "ttZ_Region ? TrailingLepton_pt  : -999.f")
-	.Define("ttZ4L_trailLepton_eta", "ttZ_Region ? TrailingLepton_eta : -999.f");
+	.Define("ZZ_trailLepton_pt",
+		"ZZ_Region && goodLepton_pt.size()>2 ? goodLepton_pt[2] : -999.f")
+	.Define("ZZ_trailLepton_eta",
+		"ZZ_Region && goodLepton_eta.size()>2 ? goodLepton_eta[2] : -999.f")
+
+	.Define("ttZ4L_leadLepton_pt",
+		"ttZ_Region && goodLepton_pt.size()>0 ? goodLepton_pt[0] : -999.f")
+	.Define("ttZ4L_leadLepton_eta",
+		"ttZ_Region && goodLepton_eta.size()>0 ? goodLepton_eta[0] : -999.f")
+
+	.Define("ttZ4L_subleadLepton_pt",
+		"ttZ_Region && goodLepton_pt.size()>1 ? goodLepton_pt[1] : -999.f")
+	.Define("ttZ4L_subleadLepton_eta",
+		"ttZ_Region && goodLepton_eta.size()>1 ? goodLepton_eta[1] : -999.f")
+
+	.Define("ttZ4L_trailLepton_pt",
+		"ttZ_Region && goodLepton_pt.size()>2 ? goodLepton_pt[2] : -999.f")
+	.Define("ttZ4L_trailLepton_eta",
+		"ttZ_Region && goodLepton_eta.size()>2 ? goodLepton_eta[2] : -999.f");
 
 
 	_rlm = _rlm
