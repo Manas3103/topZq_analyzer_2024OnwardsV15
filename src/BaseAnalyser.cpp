@@ -940,14 +940,14 @@ void BaseAnalyser::mergeLeptons() {
     //-------------------------------------------------------
     // Combine lepton pt, eta, phi properties
     //-------------------------------------------------------
-    _rlm = _rlm.Define("combinedLeptonPt","ROOT::VecOps::Concatenate(baselineMuons_pt, baselineElectrons_pt)")
-	       .Define("combinedLeptonEta", "ROOT::VecOps::Concatenate(baselineMuons_eta, baselineElectrons_eta)")
-	       .Define("combinedLeptonPhi", "ROOT::VecOps::Concatenate(baselineMuons_phi, baselineElectrons_phi)")
-	       .Define("combinedLepton_isPrompt", "ROOT::VecOps::Concatenate(tight_Muons, tight_baselineElectrons)")
-	       .Define("combinedLeptonMass", "ROOT::VecOps::Concatenate(baselineMuons_mass, baselineElectrons_mass)")
-	       .Define("totalLeptonCount","int(combinedLeptonPt.size())")
-	       .Define("combinedLepton4Vecs", ::generate_4vec, {"combinedLeptonPt", "combinedLeptonEta", "combinedLeptonPhi", "combinedLeptonMass"}) 
-               .Define("combinedLeptonCharge", "ROOT::VecOps::Concatenate(baselineMuons_charge, baselineElectrons_charge)");
+	_rlm = _rlm.Define("combinedLeptonPt","ROOT::VecOps::Concatenate(baselineMuons_pt, baselineElectrons_pt)")
+		   .Define("combinedLeptonEta", "ROOT::VecOps::Concatenate(baselineMuons_eta, baselineElectrons_eta)")
+		   .Define("combinedLeptonPhi", "ROOT::VecOps::Concatenate(baselineMuons_phi, baselineElectrons_phi)")
+		   .Define("combinedLepton_isPrompt", "ROOT::VecOps::Concatenate(tight_Muons, tight_baselineElectrons)")
+		   .Define("combinedLeptonMass", "ROOT::VecOps::Concatenate(baselineMuons_mass, baselineElectrons_mass)")
+		   .Define("totalLeptonCount","int(combinedLeptonPt.size())")
+		   .Define("combinedLepton4Vecs", ::generate_4vec, {"combinedLeptonPt", "combinedLeptonEta", "combinedLeptonPhi", "combinedLeptonMass"}) 
+		   .Define("combinedLeptonCharge", "ROOT::VecOps::Concatenate(baselineMuons_charge, baselineElectrons_charge)");
 	_rlm = _rlm.Define(
 	    "combinedLeptonFlavor",
 	    "ROOT::VecOps::Concatenate("

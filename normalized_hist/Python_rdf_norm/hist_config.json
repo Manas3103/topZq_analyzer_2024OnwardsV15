@@ -156,12 +156,12 @@
   "ttZ4L_trailLepton_pt":     { "bins": 50, "xmin": 0, "xmax": 500 },
   "ttZ4L_trailLepton_eta":    { "bins": 25, "xmin": -2.5, "xmax": 2.5 },
 
-  "muon_multiplicity_SignalRegion":        { "bins": 5, "xmin": -0.5, "xmax": 5.5 },
-  "muon_multiplicity_WZ_Region":           { "bins": 5, "xmin": -0.5, "xmax": 5.5 },
-  "muon_multiplicity_WZ_Region_modified":  { "bins": 5, "xmin": -0.5, "xmax": 5.5 },
-  "muon_multiplicity_X_gamma_Region":      { "bins": 5, "xmin": -0.5, "xmax": 5.5 },
-  "muon_multiplicity_NP_2_Region":         { "bins": 5, "xmin": -0.5, "xmax": 5.5 },
-  "muon_multiplicity_NP_1_Region":         { "bins": 5, "xmin": -0.5, "xmax": 5.5 },
-  "muon_multiplicity_ZZ_Region":           { "bins": 5, "xmin": -0.5, "xmax": 5.5 },
-  "muon_multiplicity_ttZ_Region":          { "bins": 5, "xmin": -0.5, "xmax": 5.5 }
+  "muon_multiplicity_SignalRegion":        { "bins": 6, "xmin": -0.5, "xmax": 5.5 },
+  "muon_multiplicity_WZ_Region":           { "bins": 6, "xmin": -0.5, "xmax": 5.5 },
+  "muon_multiplicity_WZ_Region_modified":  { "bins": 6, "xmin": -0.5, "xmax": 5.5 },
+  "muon_multiplicity_X_gamma_Region":      { "bins": 6, "xmin": -0.5, "xmax": 5.5 },
+  "muon_multiplicity_NP_2_Region":         { "bins": 6, "xmin": -0.5, "xmax": 5.5 },
+  "muon_multiplicity_NP_1_Region":         { "bins": 6, "xmin": -0.5, "xmax": 5.5 },
+  "muon_multiplicity_ZZ_Region":           { "bins": 6, "xmin": -0.5, "xmax": 5.5 },
+  "muon_multiplicity_ttZ_Region":          { "bins": 6, "xmin": -0.5, "xmax": 5.5 }
 }
