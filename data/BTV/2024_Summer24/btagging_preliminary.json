@@ -1,0 +1,4914 @@
+{
+  "schema_version": 2,
+  "description": "Corrections for UParTAK4 in 2024_Summer24.",
+  "corrections": [
+    {
+      "name": "UParTAK4_wp_values",
+      "description": "Working point values of the b jet discrimination for UParTAK4 in 2024_Summer24. The L M T XT XXT working points correspond to 10, 1, 0.1, 0.05, 0.01 percent light jet misidentification rates.",
+      "version": 1,
+      "inputs": [
+        {
+          "name": "working_point",
+          "type": "string",
+          "description": "L/M/T/XT/XXT"
+        }
+      ],
+      "output": {
+        "name": "wp",
+        "type": "real",
+        "description": "Working point value of the b jet discriminator"
+      },
+      "data": {
+        "nodetype": "category",
+        "input": "working_point",
+        "content": [
+          {
+            "key": "L",
+            "value": 0.0246
+          },
+          {
+            "key": "M",
+            "value": 0.1272
+          },
+          {
+            "key": "T",
+            "value": 0.4648
+          },
+          {
+            "key": "XT",
+            "value": 0.6298
+          },
+          {
+            "key": "XXT",
+            "value": 0.9739
+          }
+        ]
+      }
+    },
+    {
+      "name": "UParTAK4_kinfit",
+      "description": "UParTAK4_kinfit scale factors for 2024_Summer24 for b/c jets in fixedWP b-tagging. Uncertainties are provided in a broken-down format and consist of 'fsrdef/isrdef/hdamp/jer/jes/mass/tune/statistic'. All but the 'statistic' uncertainty are to be correlated with b-tagging SF uncertainties from other eras if possible",
+      "version": 1,
+      "inputs": [
+        {
+          "name": "systematic",
+          "type": "string"
+        },
+        {
+          "name": "working_point",
+          "type": "string",
+          "description": "L/M/T/XT/XXT"
+        },
+        {
+          "name": "flavor",
+          "type": "int",
+          "description": "hadron flavor definition: 5=b, 4=c, 0=udsg"
+        },
+        {
+          "name": "abseta",
+          "type": "real"
+        },
+        {
+          "name": "pt",
+          "type": "real"
+        }
+      ],
+      "output": {
+        "name": "weight",
+        "type": "real"
+      },
+      "data": {
+        "nodetype": "category",
+        "input": "systematic",
+        "content": [
+          {
+            "key": "central",
+            "value": {
+              "nodetype": "category",
+              "input": "working_point",
+              "content": [
+                {
+                  "key": "L",
+                  "value": {
+                    "nodetype": "category",
+                    "input": "flavor",
+                    "content": [
+                      {
+                        "key": 5,
+                        "value": {
+                          "nodetype": "binning",
+                          "input": "abseta",
+                          "edges": [
+                            0.0,
+                            2.5
+                          ],
+                          "content": [
+                            {
+                              "nodetype": "binning",
+                              "input": "pt",
+                              "edges": [
+                                20.0,
+                                30.0,
+                                50.0,
+                                70.0,
+                                100.0,
+                                140.0,
+                                200.0,
+                                300.0,
+                                600.0
+                              ],
+                              "content": [
+                                1.0626273155212402,
+                                1.0626273155212402,
+                                1.0240628719329834,
+                                1.0011484622955322,
+                                1.0,
+                                0.9940469861030579,
+                                0.9947269558906555,
+                                1.0092782974243164
+                              ],
+                              "flow": "clamp"
+                            }
+                          ],
+                          "flow": "error"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "key": "M",
+                  "value": {
+                    "nodetype": "category",
+                    "input": "flavor",
+                    "content": [
+                      {
+                        "key": 5,
+                        "value": {
+                          "nodetype": "binning",
+                          "input": "abseta",
+                          "edges": [
+                            0.0,
+                            2.5
+                          ],
+                          "content": [
+                            {
+                              "nodetype": "binning",
+                              "input": "pt",
+                              "edges": [
+                                20.0,
+                                30.0,
+                                50.0,
+                                70.0,
+                                100.0,
+                                140.0,
+                                200.0,
+                                300.0,
+                                600.0
+                              ],
+                              "content": [
+                                0.9540671110153198,
+                                0.9540671110153198,
+                                0.965829074382782,
+                                0.958664059638977,
+                                0.9698700904846191,
+                                0.9720131754875183,
+                                0.9750639200210571,
+                                0.9776942133903503
+                              ],
+                              "flow": "clamp"
+                            }
+                          ],
+                          "flow": "error"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "key": "T",
+                  "value": {
+                    "nodetype": "category",
+                    "input": "flavor",
+                    "content": [
+                      {
+                        "key": 5,
+                        "value": {
+                          "nodetype": "binning",
+                          "input": "abseta",
+                          "edges": [
+                            0.0,
+                            2.5
+                          ],
+                          "content": [
+                            {
+                              "nodetype": "binning",
+                              "input": "pt",
+                              "edges": [
+                                20.0,
+                                30.0,
+                                50.0,
+                                70.0,
+                                100.0,
+                                140.0,
+                                200.0,
+                                300.0,
+                                600.0
+                              ],
+                              "content": [
+                                0.8996301889419556,
+                                0.8996301889419556,
+                                0.9267295002937317,
+                                0.9275196194648743,
+                                0.9496759176254272,
+                                0.9487653970718384,
+                                0.9601640701293945,
+                                0.9316930174827576
+                              ],
+                              "flow": "clamp"
+                            }
+                          ],
+                          "flow": "error"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "key": "XT",
+                  "value": {
+                    "nodetype": "category",
+                    "input": "flavor",
+                    "content": [
+                      {
+                        "key": 5,
+                        "value": {
+                          "nodetype": "binning",
+                          "input": "abseta",
+                          "edges": [
+                            0.0,
+                            2.5
+                          ],
+                          "content": [
+                            {
+                              "nodetype": "binning",
+                              "input": "pt",
+                              "edges": [
+                                20.0,
+                                30.0,
+                                50.0,
+                                70.0,
+                                100.0,
+                                140.0,
+                                200.0,
+                                300.0,
+                                600.0
+                              ],
+                              "content": [
+                                0.8839162588119507,
+                                0.8839162588119507,
+                                0.9158830642700195,
+                                0.9168832898139954,
+                                0.9381526708602905,
+                                0.9419683814048767,
+                                0.9511158466339111,
+                                0.9072434306144714
+                              ],
+                              "flow": "clamp"
+                            }
+                          ],
+                          "flow": "error"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "key": "XXT",
+                  "value": {
+                    "nodetype": "category",
+                    "input": "flavor",
+                    "content": [
+                      {
+                        "key": 5,
+                        "value": {
+                          "nodetype": "binning",
+                          "input": "abseta",
+                          "edges": [
+                            0.0,
+                            2.5
+                          ],
+                          "content": [
+                            {
+                              "nodetype": "binning",
+                              "input": "pt",
+                              "edges": [
+                                20.0,
+                                30.0,
+                                50.0,
+                                70.0,
+                                100.0,
+                                140.0,
+                                200.0,
+                                300.0,
+                                600.0
+                              ],
+                              "content": [
+                                0.830708384513855,
+                                0.830708384513855,
+                                0.8757877349853516,
+                                0.8743566870689392,
+                                0.8986586332321167,
+                                0.9173104166984558,
+                                0.5118227601051331,
+                                0.5118227601051331
+                              ],
+                              "flow": "clamp"
+                            }
+                          ],
+                          "flow": "error"
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "key": "down",
+            "value": {
+              "nodetype": "category",
+              "input": "working_point",
+              "content": [
+                {
+                  "key": "L",
+                  "value": {
+                    "nodetype": "category",
+                    "input": "flavor",
+                    "content": [
+                      {
+                        "key": 5,
+                        "value": {
+                          "nodetype": "binning",
+                          "input": "abseta",
+                          "edges": [
+                            0.0,
+                            2.5
+                          ],
+                          "content": [
+                            {
+                              "nodetype": "binning",
+                              "input": "pt",
+                              "edges": [
+                                20.0,
+                                30.0,
+                                50.0,
+                                70.0,
+                                100.0,
+                                140.0,
+                                200.0,
+                                300.0,
+                                600.0
+                              ],
+                              "content": [
+                                1.0445200984160237,
+                                1.053573706968632,
+                                1.0151804044244654,
+                                0.9967929656179019,
+                                0.9963168540858716,
+                                0.9875418527850097,
+                                0.9832742712945369,
+                                0.9920896413278503
+                              ],
+                              "flow": "clamp"
+                            }
+                          ],
+                          "flow": "error"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "key": "M",
+                  "value": {
+                    "nodetype": "category",
+                    "input": "flavor",
+                    "content": [
+                      {
+                        "key": 5,
+                        "value": {
+                          "nodetype": "binning",
+                          "input": "abseta",
+                          "edges": [
+                            0.0,
+                            2.5
+                          ],
+                          "content": [
+                            {
+                              "nodetype": "binning",
+                              "input": "pt",
+                              "edges": [
+                                20.0,
+                                30.0,
+                                50.0,
+                                70.0,
+                                100.0,
+                                140.0,
+                                200.0,
+                                300.0,
+                                600.0
+                              ],
+                              "content": [
+                                0.924301377467617,
+                                0.9391842442414684,
+                                0.9535808733917402,
+                                0.950116679159911,
+                                0.962687430673612,
+                                0.9653531215768365,
+                                0.960255406673831,
+                                0.9521198225591556
+                              ],
+                              "flow": "clamp"
+                            }
+                          ],
+                          "flow": "error"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "key": "T",
+                  "value": {
+                    "nodetype": "category",
+                    "input": "flavor",
+                    "content": [
+                      {
+                        "key": 5,
+                        "value": {
+                          "nodetype": "binning",
+                          "input": "abseta",
+                          "edges": [
+                            0.0,
+                            2.5
+                          ],
+                          "content": [
+                            {
+                              "nodetype": "binning",
+                              "input": "pt",
+                              "edges": [
+                                20.0,
+                                30.0,
+                                50.0,
+                                70.0,
+                                100.0,
+                                140.0,
+                                200.0,
+                                300.0,
+                                600.0
+                              ],
+                              "content": [
+                                0.8674334537380401,
+                                0.8835318213399979,
+                                0.9128972327989425,
+                                0.9175311101702939,
+                                0.9408748603237291,
+                                0.940563711558671,
+                                0.9454068088814661,
+                                0.9049173196626701
+                              ],
+                              "flow": "clamp"
+                            }
+                          ],
+                          "flow": "error"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "key": "XT",
+                  "value": {
+                    "nodetype": "category",
+                    "input": "flavor",
+                    "content": [
+                      {
+                        "key": 5,
+                        "value": {
+                          "nodetype": "binning",
+                          "input": "abseta",
+                          "edges": [
+                            0.0,
+                            2.5
+                          ],
+                          "content": [
+                            {
+                              "nodetype": "binning",
+                              "input": "pt",
+                              "edges": [
+                                20.0,
+                                30.0,
+                                50.0,
+                                70.0,
+                                100.0,
+                                140.0,
+                                200.0,
+                                300.0,
+                                600.0
+                              ],
+                              "content": [
+                                0.8514803840635972,
+                                0.8676983214377739,
+                                0.9016903964586054,
+                                0.9064606236594792,
+                                0.9299780429427817,
+                                0.9334925839302912,
+                                0.9377867027848252,
+                                0.8776971018366384
+                              ],
+                              "flow": "clamp"
+                            }
+                          ],
+                          "flow": "error"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "key": "XXT",
+                  "value": {
+                    "nodetype": "category",
+                    "input": "flavor",
+                    "content": [
+                      {
+                        "key": 5,
+                        "value": {
+                          "nodetype": "binning",
+                          "input": "abseta",
+                          "edges": [
+                            0.0,
+                            2.5
+                          ],
+                          "content": [
+                            {
+                              "nodetype": "binning",
+                              "input": "pt",
+                              "edges": [
+                                20.0,
+                                30.0,
+                                50.0,
+                                70.0,
+                                100.0,
+                                140.0,
+                                200.0,
+                                300.0,
+                                600.0
+                              ],
+                              "content": [
+                                0.7936870530465803,
+                                0.8121977187802176,
+                                0.8603980197508526,
+                                0.8623150335594039,
+                                0.8871982337387272,
+                                0.9052456001758206,
+                                -0.33325464783810954,
+                                -0.2998620036517625
+                              ],
+                              "flow": "clamp"
+                            }
+                          ],
+                          "flow": "error"
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "key": "down_fsrdef",
+            "value": {
+              "nodetype": "category",
+              "input": "working_point",
+              "content": [
+                {
+                  "key": "L",
+                  "value": {
+                    "nodetype": "category",
+                    "input": "flavor",
+                    "content": [
+                      {
+                        "key": 5,
+                        "value": {
+                          "nodetype": "binning",
+                          "input": "abseta",
+                          "edges": [
+                            0.0,
+                            2.5
+                          ],
+                          "content": [
+                            {
+                              "nodetype": "binning",
+                              "input": "pt",
+                              "edges": [
+                                20.0,
+                                30.0,
+                                50.0,
+                                70.0,
+                                100.0,
+                                140.0,
+                                200.0,
+                                300.0,
+                                600.0
+                              ],
+                              "content": [
+                                1.0626256082220422,
+                                1.0626264618716412,
+                                1.0240607911497897,
+                                1.0011483692723822,
+                                1.0,
+                                0.9940415134833529,
+                                0.9947232590129573,
+                                1.0092318505402886
+                              ],
+                              "flow": "clamp"
+                            }
+                          ],
+                          "flow": "error"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "key": "M",
+                  "value": {
+                    "nodetype": "category",
+                    "input": "flavor",
+                    "content": [
+                      {
+                        "key": 5,
+                        "value": {
+                          "nodetype": "binning",
+                          "input": "abseta",
+                          "edges": [
+                            0.0,
+                            2.5
+                          ],
+                          "content": [
+                            {
+                              "nodetype": "binning",
+                              "input": "pt",
+                              "edges": [
+                                20.0,
+                                30.0,
+                                50.0,
+                                70.0,
+                                100.0,
+                                140.0,
+                                200.0,
+                                300.0,
+                                600.0
+                              ],
+                              "content": [
+                                0.9540624414786674,
+                                0.9540647762469936,
+                                0.9658259446833304,
+                                0.9586639873283493,
+                                0.9698700407242233,
+                                0.972005909602017,
+                                0.9750604497969055,
+                                0.9776850454762744
+                              ],
+                              "flow": "clamp"
+                            }
+                          ],
+                          "flow": "error"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "key": "T",
+                  "value": {
+                    "nodetype": "category",
+                    "input": "flavor",
+                    "content": [
+                      {
+                        "key": 5,
+                        "value": {
+                          "nodetype": "binning",
+                          "input": "abseta",
+                          "edges": [
+                            0.0,
+                            2.5
+                          ],
+                          "content": [
+                            {
+                              "nodetype": "binning",
+                              "input": "pt",
+                              "edges": [
+                                20.0,
+                                30.0,
+                                50.0,
+                                70.0,
+                                100.0,
+                                140.0,
+                                200.0,
+                                300.0,
+                                600.0
+                              ],
+                              "content": [
+                                0.8996245528395548,
+                                0.8996273708907552,
+                                0.9267270719828957,
+                                0.9275193306709753,
+                                0.9496758913989787,
+                                0.948760269922925,
+                                0.9601638516482893,
+                                0.9316927978578837
+                              ],
+                              "flow": "clamp"
+                            }
+                          ],
+                          "flow": "error"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "key": "XT",
+                  "value": {
+                    "nodetype": "category",
+                    "input": "flavor",
+                    "content": [
+                      {
+                        "key": 5,
+                        "value": {
+                          "nodetype": "binning",
+                          "input": "abseta",
+                          "edges": [
+                            0.0,
+                            2.5
+                          ],
+                          "content": [
+                            {
+                              "nodetype": "binning",
+                              "input": "pt",
+                              "edges": [
+                                20.0,
+                                30.0,
+                                50.0,
+                                70.0,
+                                100.0,
+                                140.0,
+                                200.0,
+                                300.0,
+                                600.0
+                              ],
+                              "content": [
+                                0.8839107615259465,
+                                0.8839135101689486,
+                                0.9158808170986816,
+                                0.9168829311952287,
+                                0.9381508286318327,
+                                0.9419655353681824,
+                                0.951115517747616,
+                                0.9071749105546152
+                              ],
+                              "flow": "clamp"
+                            }
+                          ],
+                          "flow": "error"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "key": "XXT",
+                  "value": {
+                    "nodetype": "category",
+                    "input": "flavor",
+                    "content": [
+                      {
+                        "key": 5,
+                        "value": {
+                          "nodetype": "binning",
+                          "input": "abseta",
+                          "edges": [
+                            0.0,
+                            2.5
+                          ],
+                          "content": [
+                            {
+                              "nodetype": "binning",
+                              "input": "pt",
+                              "edges": [
+                                20.0,
+                                30.0,
+                                50.0,
+                                70.0,
+                                100.0,
+                                140.0,
+                                200.0,
+                                300.0,
+                                600.0
+                              ],
+                              "content": [
+                                0.8307043949818063,
+                                0.8307063897478306,
+                                0.8757860811893172,
+                                0.8743564208771204,
+                                0.8986585796929916,
+                                0.917307113195057,
+                                0.5118227601051331,
+                                0.5118227601051331
+                              ],
+                              "flow": "clamp"
+                            }
+                          ],
+                          "flow": "error"
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "key": "down_hdamp",
+            "value": {
+              "nodetype": "category",
+              "input": "working_point",
+              "content": [
+                {
+                  "key": "L",
+                  "value": {
+                    "nodetype": "category",
+                    "input": "flavor",
+                    "content": [
+                      {
+                        "key": 5,
+                        "value": {
+                          "nodetype": "binning",
+                          "input": "abseta",
+                          "edges": [
+                            0.0,
+                            2.5
+                          ],
+                          "content": [
+                            {
+                              "nodetype": "binning",
+                              "input": "pt",
+                              "edges": [
+                                20.0,
+                                30.0,
+                                50.0,
+                                70.0,
+                                100.0,
+                                140.0,
+                                200.0,
+                                300.0,
+                                600.0
+                              ],
+                              "content": [
+                                1.062622389175253,
+                                1.0626248523482467,
+                                1.0240604057655922,
+                                1.00114732625876,
+                                0.999999957074067,
+                                0.9940462822404887,
+                                0.9947026557948098,
+                                1.009223897099897
+                              ],
+                              "flow": "clamp"
+                            }
+                          ],
+                          "flow": "error"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "key": "M",
+                  "value": {
+                    "nodetype": "category",
+                    "input": "flavor",
+                    "content": [
+                      {
+                        "key": 5,
+                        "value": {
+                          "nodetype": "binning",
+                          "input": "abseta",
+                          "edges": [
+                            0.0,
+                            2.5
+                          ],
+                          "content": [
+                            {
+                              "nodetype": "binning",
+                              "input": "pt",
+                              "edges": [
+                                20.0,
+                                30.0,
+                                50.0,
+                                70.0,
+                                100.0,
+                                140.0,
+                                200.0,
+                                300.0,
+                                600.0
+                              ],
+                              "content": [
+                                0.9540576606233468,
+                                0.9540623858193333,
+                                0.9658245052979595,
+                                0.9586624272357502,
+                                0.9698679709176963,
+                                0.9720110400977964,
+                                0.9749976391084507,
+                                0.9776730836456409
+                              ],
+                              "flow": "clamp"
+                            }
+                          ],
+                          "flow": "error"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "key": "T",
+                  "value": {
+                    "nodetype": "category",
+                    "input": "flavor",
+                    "content": [
+                      {
+                        "key": 5,
+                        "value": {
+                          "nodetype": "binning",
+                          "input": "abseta",
+                          "edges": [
+                            0.0,
+                            2.5
+                          ],
+                          "content": [
+                            {
+                              "nodetype": "binning",
+                              "input": "pt",
+                              "edges": [
+                                20.0,
+                                30.0,
+                                50.0,
+                                70.0,
+                                100.0,
+                                140.0,
+                                200.0,
+                                300.0,
+                                600.0
+                              ],
+                              "content": [
+                                0.8996188228159934,
+                                0.8996245058789745,
+                                0.926724159613002,
+                                0.9275179564578613,
+                                0.9496739418394702,
+                                0.9487623815641513,
+                                0.9601010133673604,
+                                0.9316846045185434
+                              ],
+                              "flow": "clamp"
+                            }
+                          ],
+                          "flow": "error"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "key": "XT",
+                  "value": {
+                    "nodetype": "category",
+                    "input": "flavor",
+                    "content": [
+                      {
+                        "key": 5,
+                        "value": {
+                          "nodetype": "binning",
+                          "input": "abseta",
+                          "edges": [
+                            0.0,
+                            2.5
+                          ],
+                          "content": [
+                            {
+                              "nodetype": "binning",
+                              "input": "pt",
+                              "edges": [
+                                20.0,
+                                30.0,
+                                50.0,
+                                70.0,
+                                100.0,
+                                140.0,
+                                200.0,
+                                300.0,
+                                600.0
+                              ],
+                              "content": [
+                                0.8839059715564588,
+                                0.8839111151842047,
+                                0.9158778460241841,
+                                0.9168815467727285,
+                                0.9381503339056385,
+                                0.9419647835599072,
+                                0.9510693030198603,
+                                0.9072098236924262
+                              ],
+                              "flow": "clamp"
+                            }
+                          ],
+                          "flow": "error"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "key": "XXT",
+                  "value": {
+                    "nodetype": "category",
+                    "input": "flavor",
+                    "content": [
+                      {
+                        "key": 5,
+                        "value": {
+                          "nodetype": "binning",
+                          "input": "abseta",
+                          "edges": [
+                            0.0,
+                            2.5
+                          ],
+                          "content": [
+                            {
+                              "nodetype": "binning",
+                              "input": "pt",
+                              "edges": [
+                                20.0,
+                                30.0,
+                                50.0,
+                                70.0,
+                                100.0,
+                                140.0,
+                                200.0,
+                                300.0,
+                                600.0
+                              ],
+                              "content": [
+                                0.8307052077491885,
+                                0.8307067961315218,
+                                0.8757806937151678,
+                                0.8743547828429987,
+                                0.8986559867878121,
+                                0.9173027713093864,
+                                0.3520891962966166,
+                                0.3740677704612949
+                              ],
+                              "flow": "clamp"
+                            }
+                          ],
+                          "flow": "error"
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "key": "down_isrdef",
+            "value": {
+              "nodetype": "category",
+              "input": "working_point",
+              "content": [
+                {
+                  "key": "L",
+                  "value": {
+                    "nodetype": "category",
+                    "input": "flavor",
+                    "content": [
+                      {
+                        "key": 5,
+                        "value": {
+                          "nodetype": "binning",
+                          "input": "abseta",
+                          "edges": [
+                            0.0,
+                            2.5
+                          ],
+                          "content": [
+                            {
+                              "nodetype": "binning",
+                              "input": "pt",
+                              "edges": [
+                                20.0,
+                                30.0,
+                                50.0,
+                                70.0,
+                                100.0,
+                                140.0,
+                                200.0,
+                                300.0,
+                                600.0
+                              ],
+                              "content": [
+                                1.0626130890024967,
+                                1.0626202022618685,
+                                1.0240599396814183,
+                                1.0011465402620123,
+                                1.0,
+                                0.9940459895233422,
+                                0.9947268009233445,
+                                1.0092671405905627
+                              ],
+                              "flow": "clamp"
+                            }
+                          ],
+                          "flow": "error"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "key": "M",
+                  "value": {
+                    "nodetype": "category",
+                    "input": "flavor",
+                    "content": [
+                      {
+                        "key": 5,
+                        "value": {
+                          "nodetype": "binning",
+                          "input": "abseta",
+                          "edges": [
+                            0.0,
+                            2.5
+                          ],
+                          "content": [
+                            {
+                              "nodetype": "binning",
+                              "input": "pt",
+                              "edges": [
+                                20.0,
+                                30.0,
+                                50.0,
+                                70.0,
+                                100.0,
+                                140.0,
+                                200.0,
+                                300.0,
+                                600.0
+                              ],
+                              "content": [
+                                0.9540522944473633,
+                                0.9540597027313416,
+                                0.9658254342436043,
+                                0.9586614539554006,
+                                0.9698689871804822,
+                                0.9720121199259459,
+                                0.9750638344416416,
+                                0.9776885044371033
+                              ],
+                              "flow": "clamp"
+                            }
+                          ],
+                          "flow": "error"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "key": "T",
+                  "value": {
+                    "nodetype": "category",
+                    "input": "flavor",
+                    "content": [
+                      {
+                        "key": 5,
+                        "value": {
+                          "nodetype": "binning",
+                          "input": "abseta",
+                          "edges": [
+                            0.0,
+                            2.5
+                          ],
+                          "content": [
+                            {
+                              "nodetype": "binning",
+                              "input": "pt",
+                              "edges": [
+                                20.0,
+                                30.0,
+                                50.0,
+                                70.0,
+                                100.0,
+                                140.0,
+                                200.0,
+                                300.0,
+                                600.0
+                              ],
+                              "content": [
+                                0.8996168916490888,
+                                0.8996235402955222,
+                                0.9267259956750422,
+                                0.927517049927963,
+                                0.9496746679583019,
+                                0.9487642005324233,
+                                0.9601640698761251,
+                                0.9316892354280659
+                              ],
+                              "flow": "clamp"
+                            }
+                          ],
+                          "flow": "error"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "key": "XT",
+                  "value": {
+                    "nodetype": "category",
+                    "input": "flavor",
+                    "content": [
+                      {
+                        "key": 5,
+                        "value": {
+                          "nodetype": "binning",
+                          "input": "abseta",
+                          "edges": [
+                            0.0,
+                            2.5
+                          ],
+                          "content": [
+                            {
+                              "nodetype": "binning",
+                              "input": "pt",
+                              "edges": [
+                                20.0,
+                                30.0,
+                                50.0,
+                                70.0,
+                                100.0,
+                                140.0,
+                                200.0,
+                                300.0,
+                                600.0
+                              ],
+                              "content": [
+                                0.8839027804744841,
+                                0.8839095196432174,
+                                0.9158796341240523,
+                                0.9168808363602317,
+                                0.938150997460351,
+                                0.9419672416803984,
+                                0.9511158393384527,
+                                0.9072412037689332
+                              ],
+                              "flow": "clamp"
+                            }
+                          ],
+                          "flow": "error"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "key": "XXT",
+                  "value": {
+                    "nodetype": "category",
+                    "input": "flavor",
+                    "content": [
+                      {
+                        "key": 5,
+                        "value": {
+                          "nodetype": "binning",
+                          "input": "abseta",
+                          "edges": [
+                            0.0,
+                            2.5
+                          ],
+                          "content": [
+                            {
+                              "nodetype": "binning",
+                              "input": "pt",
+                              "edges": [
+                                20.0,
+                                30.0,
+                                50.0,
+                                70.0,
+                                100.0,
+                                140.0,
+                                200.0,
+                                300.0,
+                                600.0
+                              ],
+                              "content": [
+                                0.8306959823949693,
+                                0.8307021834544122,
+                                0.8757842370584825,
+                                0.8743542989937714,
+                                0.8986571717895089,
+                                0.9173088810561216,
+                                0.5118227601051331,
+                                0.5118227601051331
+                              ],
+                              "flow": "clamp"
+                            }
+                          ],
+                          "flow": "error"
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "key": "down_jer",
+            "value": {
+              "nodetype": "category",
+              "input": "working_point",
+              "content": [
+                {
+                  "key": "L",
+                  "value": {
+                    "nodetype": "category",
+                    "input": "flavor",
+                    "content": [
+                      {
+                        "key": 5,
+                        "value": {
+                          "nodetype": "binning",
+                          "input": "abseta",
+                          "edges": [
+                            0.0,
+                            2.5
+                          ],
+                          "content": [
+                            {
+                              "nodetype": "binning",
+                              "input": "pt",
+                              "edges": [
+                                20.0,
+                                30.0,
+                                50.0,
+                                70.0,
+                                100.0,
+                                140.0,
+                                200.0,
+                                300.0,
+                                600.0
+                              ],
+                              "content": [
+                                1.0625657773904251,
+                                1.0625965464558327,
+                                1.0240362791915025,
+                                1.0011439621310592,
+                                0.9999999916180968,
+                                0.9940431029988721,
+                                0.9947261281449755,
+                                1.009274159021274
+                              ],
+                              "flow": "clamp"
+                            }
+                          ],
+                          "flow": "error"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "key": "M",
+                  "value": {
+                    "nodetype": "category",
+                    "input": "flavor",
+                    "content": [
+                      {
+                        "key": 5,
+                        "value": {
+                          "nodetype": "binning",
+                          "input": "abseta",
+                          "edges": [
+                            0.0,
+                            2.5
+                          ],
+                          "content": [
+                            {
+                              "nodetype": "binning",
+                              "input": "pt",
+                              "edges": [
+                                20.0,
+                                30.0,
+                                50.0,
+                                70.0,
+                                100.0,
+                                140.0,
+                                200.0,
+                                300.0,
+                                600.0
+                              ],
+                              "content": [
+                                0.9538581329394997,
+                                0.9539626219774098,
+                                0.9657652570982549,
+                                0.958634441750994,
+                                0.9698539779273565,
+                                0.972011956546023,
+                                0.9750604135051892,
+                                0.9776775781951415
+                              ],
+                              "flow": "clamp"
+                            }
+                          ],
+                          "flow": "error"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "key": "T",
+                  "value": {
+                    "nodetype": "category",
+                    "input": "flavor",
+                    "content": [
+                      {
+                        "key": 5,
+                        "value": {
+                          "nodetype": "binning",
+                          "input": "abseta",
+                          "edges": [
+                            0.0,
+                            2.5
+                          ],
+                          "content": [
+                            {
+                              "nodetype": "binning",
+                              "input": "pt",
+                              "edges": [
+                                20.0,
+                                30.0,
+                                50.0,
+                                70.0,
+                                100.0,
+                                140.0,
+                                200.0,
+                                300.0,
+                                600.0
+                              ],
+                              "content": [
+                                0.8993888058464279,
+                                0.8995094973941917,
+                                0.9266458732372485,
+                                0.9274771486549573,
+                                0.9496483922783021,
+                                0.9487530893240494,
+                                0.960164051188169,
+                                0.9316904494743374
+                              ],
+                              "flow": "clamp"
+                            }
+                          ],
+                          "flow": "error"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "key": "XT",
+                  "value": {
+                    "nodetype": "category",
+                    "input": "flavor",
+                    "content": [
+                      {
+                        "key": 5,
+                        "value": {
+                          "nodetype": "binning",
+                          "input": "abseta",
+                          "edges": [
+                            0.0,
+                            2.5
+                          ],
+                          "content": [
+                            {
+                              "nodetype": "binning",
+                              "input": "pt",
+                              "edges": [
+                                20.0,
+                                30.0,
+                                50.0,
+                                70.0,
+                                100.0,
+                                140.0,
+                                200.0,
+                                300.0,
+                                600.0
+                              ],
+                              "content": [
+                                0.8836731097365416,
+                                0.8837946842742461,
+                                0.9157932650611507,
+                                0.9168370741852492,
+                                0.9381332393285788,
+                                0.9419523372021024,
+                                0.9511150342175227,
+                                0.9072352170004825
+                              ],
+                              "flow": "clamp"
+                            }
+                          ],
+                          "flow": "error"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "key": "XXT",
+                  "value": {
+                    "nodetype": "category",
+                    "input": "flavor",
+                    "content": [
+                      {
+                        "key": 5,
+                        "value": {
+                          "nodetype": "binning",
+                          "input": "abseta",
+                          "edges": [
+                            0.0,
+                            2.5
+                          ],
+                          "content": [
+                            {
+                              "nodetype": "binning",
+                              "input": "pt",
+                              "edges": [
+                                20.0,
+                                30.0,
+                                50.0,
+                                70.0,
+                                100.0,
+                                140.0,
+                                200.0,
+                                300.0,
+                                600.0
+                              ],
+                              "content": [
+                                0.8303778414291099,
+                                0.8305431129714824,
+                                0.8756862773374143,
+                                0.8742976245503931,
+                                0.8986120896180658,
+                                0.9172738662206115,
+                                0.5118227601051331,
+                                0.5118227601051331
+                              ],
+                              "flow": "clamp"
+                            }
+                          ],
+                          "flow": "error"
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "key": "down_jes",
+            "value": {
+              "nodetype": "category",
+              "input": "working_point",
+              "content": [
+                {
+                  "key": "L",
+                  "value": {
+                    "nodetype": "category",
+                    "input": "flavor",
+                    "content": [
+                      {
+                        "key": 5,
+                        "value": {
+                          "nodetype": "binning",
+                          "input": "abseta",
+                          "edges": [
+                            0.0,
+                            2.5
+                          ],
+                          "content": [
+                            {
+                              "nodetype": "binning",
+                              "input": "pt",
+                              "edges": [
+                                20.0,
+                                30.0,
+                                50.0,
+                                70.0,
+                                100.0,
+                                140.0,
+                                200.0,
+                                300.0,
+                                600.0
+                              ],
+                              "content": [
+                                1.0625760476370871,
+                                1.0626016815791637,
+                                1.0240355476049352,
+                                1.0011451865754815,
+                                0.9999999999999778,
+                                0.9940446997158281,
+                                0.9947251036979843,
+                                1.0092736134694036
+                              ],
+                              "flow": "clamp"
+                            }
+                          ],
+                          "flow": "error"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "key": "M",
+                  "value": {
+                    "nodetype": "category",
+                    "input": "flavor",
+                    "content": [
+                      {
+                        "key": 5,
+                        "value": {
+                          "nodetype": "binning",
+                          "input": "abseta",
+                          "edges": [
+                            0.0,
+                            2.5
+                          ],
+                          "content": [
+                            {
+                              "nodetype": "binning",
+                              "input": "pt",
+                              "edges": [
+                                20.0,
+                                30.0,
+                                50.0,
+                                70.0,
+                                100.0,
+                                140.0,
+                                200.0,
+                                300.0,
+                                600.0
+                              ],
+                              "content": [
+                                0.9538966772468864,
+                                0.9539818941311031,
+                                0.9657704261506543,
+                                0.9586376111652584,
+                                0.9698564120379762,
+                                0.9720108182608476,
+                                0.9750583399307393,
+                                0.9776703476613271
+                              ],
+                              "flow": "clamp"
+                            }
+                          ],
+                          "flow": "error"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "key": "T",
+                  "value": {
+                    "nodetype": "category",
+                    "input": "flavor",
+                    "content": [
+                      {
+                        "key": 5,
+                        "value": {
+                          "nodetype": "binning",
+                          "input": "abseta",
+                          "edges": [
+                            0.0,
+                            2.5
+                          ],
+                          "content": [
+                            {
+                              "nodetype": "binning",
+                              "input": "pt",
+                              "edges": [
+                                20.0,
+                                30.0,
+                                50.0,
+                                70.0,
+                                100.0,
+                                140.0,
+                                200.0,
+                                300.0,
+                                600.0
+                              ],
+                              "content": [
+                                0.8994257699333712,
+                                0.8995279794376634,
+                                0.9266536803689256,
+                                0.9274823567386994,
+                                0.9496503904015157,
+                                0.9487528202113884,
+                                0.9601634999512063,
+                                0.9316898151358224
+                              ],
+                              "flow": "clamp"
+                            }
+                          ],
+                          "flow": "error"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "key": "XT",
+                  "value": {
+                    "nodetype": "category",
+                    "input": "flavor",
+                    "content": [
+                      {
+                        "key": 5,
+                        "value": {
+                          "nodetype": "binning",
+                          "input": "abseta",
+                          "edges": [
+                            0.0,
+                            2.5
+                          ],
+                          "content": [
+                            {
+                              "nodetype": "binning",
+                              "input": "pt",
+                              "edges": [
+                                20.0,
+                                30.0,
+                                50.0,
+                                70.0,
+                                100.0,
+                                140.0,
+                                200.0,
+                                300.0,
+                                600.0
+                              ],
+                              "content": [
+                                0.8837105470066646,
+                                0.8838134029093077,
+                                0.9158027915942588,
+                                0.9168429107642027,
+                                0.9381347742405488,
+                                0.941951678070609,
+                                0.9511150002381576,
+                                0.9072369479800519
+                              ],
+                              "flow": "clamp"
+                            }
+                          ],
+                          "flow": "error"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "key": "XXT",
+                  "value": {
+                    "nodetype": "category",
+                    "input": "flavor",
+                    "content": [
+                      {
+                        "key": 5,
+                        "value": {
+                          "nodetype": "binning",
+                          "input": "abseta",
+                          "edges": [
+                            0.0,
+                            2.5
+                          ],
+                          "content": [
+                            {
+                              "nodetype": "binning",
+                              "input": "pt",
+                              "edges": [
+                                20.0,
+                                30.0,
+                                50.0,
+                                70.0,
+                                100.0,
+                                140.0,
+                                200.0,
+                                300.0,
+                                600.0
+                              ],
+                              "content": [
+                                0.8305039426060077,
+                                0.8306061635599313,
+                                0.8756974227466605,
+                                0.8743030764982995,
+                                0.8986170692014319,
+                                0.9172724568882664,
+                                0.5118227601051331,
+                                0.5118227601051331
+                              ],
+                              "flow": "clamp"
+                            }
+                          ],
+                          "flow": "error"
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "key": "down_mass",
+            "value": {
+              "nodetype": "category",
+              "input": "working_point",
+              "content": [
+                {
+                  "key": "L",
+                  "value": {
+                    "nodetype": "category",
+                    "input": "flavor",
+                    "content": [
+                      {
+                        "key": 5,
+                        "value": {
+                          "nodetype": "binning",
+                          "input": "abseta",
+                          "edges": [
+                            0.0,
+                            2.5
+                          ],
+                          "content": [
+                            {
+                              "nodetype": "binning",
+                              "input": "pt",
+                              "edges": [
+                                20.0,
+                                30.0,
+                                50.0,
+                                70.0,
+                                100.0,
+                                140.0,
+                                200.0,
+                                300.0,
+                                600.0
+                              ],
+                              "content": [
+                                1.0626208479559125,
+                                1.0626240817385764,
+                                1.0240573736268175,
+                                1.0011480148108909,
+                                1.0,
+                                0.9940441629465573,
+                                0.9947127243805616,
+                                1.0092736477203026
+                              ],
+                              "flow": "clamp"
+                            }
+                          ],
+                          "flow": "error"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "key": "M",
+                  "value": {
+                    "nodetype": "category",
+                    "input": "flavor",
+                    "content": [
+                      {
+                        "key": 5,
+                        "value": {
+                          "nodetype": "binning",
+                          "input": "abseta",
+                          "edges": [
+                            0.0,
+                            2.5
+                          ],
+                          "content": [
+                            {
+                              "nodetype": "binning",
+                              "input": "pt",
+                              "edges": [
+                                20.0,
+                                30.0,
+                                50.0,
+                                70.0,
+                                100.0,
+                                140.0,
+                                200.0,
+                                300.0,
+                                600.0
+                              ],
+                              "content": [
+                                0.9540635031733142,
+                                0.954065307094317,
+                                0.9658265823132091,
+                                0.9586633139167589,
+                                0.9698693903176467,
+                                0.9720120566650934,
+                                0.9750397967768407,
+                                0.9776554691986012
+                              ],
+                              "flow": "clamp"
+                            }
+                          ],
+                          "flow": "error"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "key": "T",
+                  "value": {
+                    "nodetype": "category",
+                    "input": "flavor",
+                    "content": [
+                      {
+                        "key": 5,
+                        "value": {
+                          "nodetype": "binning",
+                          "input": "abseta",
+                          "edges": [
+                            0.0,
+                            2.5
+                          ],
+                          "content": [
+                            {
+                              "nodetype": "binning",
+                              "input": "pt",
+                              "edges": [
+                                20.0,
+                                30.0,
+                                50.0,
+                                70.0,
+                                100.0,
+                                140.0,
+                                200.0,
+                                300.0,
+                                600.0
+                              ],
+                              "content": [
+                                0.8996266982937566,
+                                0.8996284436178561,
+                                0.9267266933380958,
+                                0.9275181581663752,
+                                0.9496743177288884,
+                                0.948765331504319,
+                                0.9601375105735279,
+                                0.9316642727870663
+                              ],
+                              "flow": "clamp"
+                            }
+                          ],
+                          "flow": "error"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "key": "XT",
+                  "value": {
+                    "nodetype": "category",
+                    "input": "flavor",
+                    "content": [
+                      {
+                        "key": 5,
+                        "value": {
+                          "nodetype": "binning",
+                          "input": "abseta",
+                          "edges": [
+                            0.0,
+                            2.5
+                          ],
+                          "content": [
+                            {
+                              "nodetype": "binning",
+                              "input": "pt",
+                              "edges": [
+                                20.0,
+                                30.0,
+                                50.0,
+                                70.0,
+                                100.0,
+                                140.0,
+                                200.0,
+                                300.0,
+                                600.0
+                              ],
+                              "content": [
+                                0.8839128386737496,
+                                0.8839145487428501,
+                                0.9158811237648727,
+                                0.9168816152572878,
+                                0.9381510031612237,
+                                0.9419681258072927,
+                                0.9510947727452361,
+                                0.9072207982856604
+                              ],
+                              "flow": "clamp"
+                            }
+                          ],
+                          "flow": "error"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "key": "XXT",
+                  "value": {
+                    "nodetype": "category",
+                    "input": "flavor",
+                    "content": [
+                      {
+                        "key": 5,
+                        "value": {
+                          "nodetype": "binning",
+                          "input": "abseta",
+                          "edges": [
+                            0.0,
+                            2.5
+                          ],
+                          "content": [
+                            {
+                              "nodetype": "binning",
+                              "input": "pt",
+                              "edges": [
+                                20.0,
+                                30.0,
+                                50.0,
+                                70.0,
+                                100.0,
+                                140.0,
+                                200.0,
+                                300.0,
+                                600.0
+                              ],
+                              "content": [
+                                0.8306460536497564,
+                                0.8306772190818057,
+                                0.8757853036084375,
+                                0.874354433728171,
+                                0.898655245894119,
+                                0.917308130040837,
+                                0.3549836059759741,
+                                0.3700654977853679
+                              ],
+                              "flow": "clamp"
+                            }
+                          ],
+                          "flow": "error"
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "key": "down_statistic",
+            "value": {
+              "nodetype": "category",
+              "input": "working_point",
+              "content": [
+                {
+                  "key": "L",
+                  "value": {
+                    "nodetype": "category",
+                    "input": "flavor",
+                    "content": [
+                      {
+                        "key": 5,
+                        "value": {
+                          "nodetype": "binning",
+                          "input": "abseta",
+                          "edges": [
+                            0.0,
+                            2.5
+                          ],
+                          "content": [
+                            {
+                              "nodetype": "binning",
+                              "input": "pt",
+                              "edges": [
+                                20.0,
+                                30.0,
+                                50.0,
+                                70.0,
+                                100.0,
+                                140.0,
+                                200.0,
+                                300.0,
+                                600.0
+                              ],
+                              "content": [
+                                1.0562037178315222,
+                                1.0594155166763812,
+                                1.0211380089167506,
+                                0.9985045103821903,
+                                0.9963238437194377,
+                                0.9892897089011967,
+                                0.9867262616753578,
+                                0.9968263786286116
+                              ],
+                              "flow": "clamp"
+                            }
+                          ],
+                          "flow": "error"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "key": "M",
+                  "value": {
+                    "nodetype": "category",
+                    "input": "flavor",
+                    "content": [
+                      {
+                        "key": 5,
+                        "value": {
+                          "nodetype": "binning",
+                          "input": "abseta",
+                          "edges": [
+                            0.0,
+                            2.5
+                          ],
+                          "content": [
+                            {
+                              "nodetype": "binning",
+                              "input": "pt",
+                              "edges": [
+                                20.0,
+                                30.0,
+                                50.0,
+                                70.0,
+                                100.0,
+                                140.0,
+                                200.0,
+                                300.0,
+                                600.0
+                              ],
+                              "content": [
+                                0.9465967826545238,
+                                0.9503319468349218,
+                                0.9622387504205108,
+                                0.9552189172245562,
+                                0.9658233099617064,
+                                0.9668423547409475,
+                                0.9664511820301414,
+                                0.9560903757810593
+                              ],
+                              "flow": "clamp"
+                            }
+                          ],
+                          "flow": "error"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "key": "T",
+                  "value": {
+                    "nodetype": "category",
+                    "input": "flavor",
+                    "content": [
+                      {
+                        "key": 5,
+                        "value": {
+                          "nodetype": "binning",
+                          "input": "abseta",
+                          "edges": [
+                            0.0,
+                            2.5
+                          ],
+                          "content": [
+                            {
+                              "nodetype": "binning",
+                              "input": "pt",
+                              "edges": [
+                                20.0,
+                                30.0,
+                                50.0,
+                                70.0,
+                                100.0,
+                                140.0,
+                                200.0,
+                                300.0,
+                                600.0
+                              ],
+                              "content": [
+                                0.8911957377567887,
+                                0.8954129633493721,
+                                0.9225987829267979,
+                                0.9237747068982571,
+                                0.9453481356613338,
+                                0.943084392696619,
+                                0.950728234834969,
+                                0.9064013417810202
+                              ],
+                              "flow": "clamp"
+                            }
+                          ],
+                          "flow": "error"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "key": "XT",
+                  "value": {
+                    "nodetype": "category",
+                    "input": "flavor",
+                    "content": [
+                      {
+                        "key": 5,
+                        "value": {
+                          "nodetype": "binning",
+                          "input": "abseta",
+                          "edges": [
+                            0.0,
+                            2.5
+                          ],
+                          "content": [
+                            {
+                              "nodetype": "binning",
+                              "input": "pt",
+                              "edges": [
+                                20.0,
+                                30.0,
+                                50.0,
+                                70.0,
+                                100.0,
+                                140.0,
+                                200.0,
+                                300.0,
+                                600.0
+                              ],
+                              "content": [
+                                0.8749614236876369,
+                                0.8794388412497938,
+                                0.9116208637133241,
+                                0.9129186603240669,
+                                0.9335264209657907,
+                                0.9364079711958766,
+                                0.9422849509865046,
+                                0.8805428519845009
+                              ],
+                              "flow": "clamp"
+                            }
+                          ],
+                          "flow": "error"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "key": "XXT",
+                  "value": {
+                    "nodetype": "category",
+                    "input": "flavor",
+                    "content": [
+                      {
+                        "key": 5,
+                        "value": {
+                          "nodetype": "binning",
+                          "input": "abseta",
+                          "edges": [
+                            0.0,
+                            2.5
+                          ],
+                          "content": [
+                            {
+                              "nodetype": "binning",
+                              "input": "pt",
+                              "edges": [
+                                20.0,
+                                30.0,
+                                50.0,
+                                70.0,
+                                100.0,
+                                140.0,
+                                200.0,
+                                300.0,
+                                600.0
+                              ],
+                              "content": [
+                                0.819505930878222,
+                                0.8251071576960385,
+                                0.8703404041007161,
+                                0.8693404984660447,
+                                0.8927147975191474,
+                                0.9098228346556425,
+                                0.023645520210266113,
+                                0.023645520210266113
+                              ],
+                              "flow": "clamp"
+                            }
+                          ],
+                          "flow": "error"
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "key": "down_tune",
+            "value": {
+              "nodetype": "category",
+              "input": "working_point",
+              "content": [
+                {
+                  "key": "L",
+                  "value": {
+                    "nodetype": "category",
+                    "input": "flavor",
+                    "content": [
+                      {
+                        "key": 5,
+                        "value": {
+                          "nodetype": "binning",
+                          "input": "abseta",
+                          "edges": [
+                            0.0,
+                            2.5
+                          ],
+                          "content": [
+                            {
+                              "nodetype": "binning",
+                              "input": "pt",
+                              "edges": [
+                                20.0,
+                                30.0,
+                                50.0,
+                                70.0,
+                                100.0,
+                                140.0,
+                                200.0,
+                                300.0,
+                                600.0
+                              ],
+                              "content": [
+                                1.0626241449134568,
+                                1.0626257302173485,
+                                1.0240594231054523,
+                                1.0011478568885508,
+                                0.9999999998690328,
+                                0.9940434667398534,
+                                0.9947048664034241,
+                                1.0092633739117787
+                              ],
+                              "flow": "clamp"
+                            }
+                          ],
+                          "flow": "error"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "key": "M",
+                  "value": {
+                    "nodetype": "category",
+                    "input": "flavor",
+                    "content": [
+                      {
+                        "key": 5,
+                        "value": {
+                          "nodetype": "binning",
+                          "input": "abseta",
+                          "edges": [
+                            0.0,
+                            2.5
+                          ],
+                          "content": [
+                            {
+                              "nodetype": "binning",
+                              "input": "pt",
+                              "edges": [
+                                20.0,
+                                30.0,
+                                50.0,
+                                70.0,
+                                100.0,
+                                140.0,
+                                200.0,
+                                300.0,
+                                600.0
+                              ],
+                              "content": [
+                                0.9540639706542535,
+                                0.9540655408347867,
+                                0.9658282428910985,
+                                0.9586639934135297,
+                                0.9698686401175927,
+                                0.9720107083840048,
+                                0.975021853775778,
+                                0.9776221414514259
+                              ],
+                              "flow": "clamp"
+                            }
+                          ],
+                          "flow": "error"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "key": "T",
+                  "value": {
+                    "nodetype": "category",
+                    "input": "flavor",
+                    "content": [
+                      {
+                        "key": 5,
+                        "value": {
+                          "nodetype": "binning",
+                          "input": "abseta",
+                          "edges": [
+                            0.0,
+                            2.5
+                          ],
+                          "content": [
+                            {
+                              "nodetype": "binning",
+                              "input": "pt",
+                              "edges": [
+                                20.0,
+                                30.0,
+                                50.0,
+                                70.0,
+                                100.0,
+                                140.0,
+                                200.0,
+                                300.0,
+                                600.0
+                              ],
+                              "content": [
+                                0.8996270363199983,
+                                0.8996286126309769,
+                                0.9267287590428301,
+                                0.9275195896894921,
+                                0.9496750928596347,
+                                0.9487646926090667,
+                                0.9601257525292475,
+                                0.931662678043633
+                              ],
+                              "flow": "clamp"
+                            }
+                          ],
+                          "flow": "error"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "key": "XT",
+                  "value": {
+                    "nodetype": "category",
+                    "input": "flavor",
+                    "content": [
+                      {
+                        "key": 5,
+                        "value": {
+                          "nodetype": "binning",
+                          "input": "abseta",
+                          "edges": [
+                            0.0,
+                            2.5
+                          ],
+                          "content": [
+                            {
+                              "nodetype": "binning",
+                              "input": "pt",
+                              "edges": [
+                                20.0,
+                                30.0,
+                                50.0,
+                                70.0,
+                                100.0,
+                                140.0,
+                                200.0,
+                                300.0,
+                                600.0
+                              ],
+                              "content": [
+                                0.883911854260516,
+                                0.8839140565362333,
+                                0.9158827067569169,
+                                0.916883200480263,
+                                0.9381520969403567,
+                                0.9419680471645071,
+                                0.9510857777727182,
+                                0.907225048374058
+                              ],
+                              "flow": "clamp"
+                            }
+                          ],
+                          "flow": "error"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "key": "XXT",
+                  "value": {
+                    "nodetype": "category",
+                    "input": "flavor",
+                    "content": [
+                      {
+                        "key": 5,
+                        "value": {
+                          "nodetype": "binning",
+                          "input": "abseta",
+                          "edges": [
+                            0.0,
+                            2.5
+                          ],
+                          "content": [
+                            {
+                              "nodetype": "binning",
+                              "input": "pt",
+                              "edges": [
+                                20.0,
+                                30.0,
+                                50.0,
+                                70.0,
+                                100.0,
+                                140.0,
+                                200.0,
+                                300.0,
+                                600.0
+                              ],
+                              "content": [
+                                0.8307027267780711,
+                                0.830705555645963,
+                                0.8757869593207488,
+                                0.8743563327206765,
+                                0.8986582780673222,
+                                0.9173102022660338,
+                                0.3525566701781093,
+                                0.37081987390501947
+                              ],
+                              "flow": "clamp"
+                            }
+                          ],
+                          "flow": "error"
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "key": "up",
+            "value": {
+              "nodetype": "category",
+              "input": "working_point",
+              "content": [
+                {
+                  "key": "L",
+                  "value": {
+                    "nodetype": "category",
+                    "input": "flavor",
+                    "content": [
+                      {
+                        "key": 5,
+                        "value": {
+                          "nodetype": "binning",
+                          "input": "abseta",
+                          "edges": [
+                            0.0,
+                            2.5
+                          ],
+                          "content": [
+                            {
+                              "nodetype": "binning",
+                              "input": "pt",
+                              "edges": [
+                                20.0,
+                                30.0,
+                                50.0,
+                                70.0,
+                                100.0,
+                                140.0,
+                                200.0,
+                                300.0,
+                                600.0
+                              ],
+                              "content": [
+                                1.0807345326264568,
+                                1.0716809240738485,
+                                1.0329453394415014,
+                                1.0055039589731627,
+                                1.0036831459141284,
+                                1.000552119421106,
+                                1.006179640486774,
+                                1.0264669535207824
+                              ],
+                              "flow": "clamp"
+                            }
+                          ],
+                          "flow": "error"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "key": "M",
+                  "value": {
+                    "nodetype": "category",
+                    "input": "flavor",
+                    "content": [
+                      {
+                        "key": 5,
+                        "value": {
+                          "nodetype": "binning",
+                          "input": "abseta",
+                          "edges": [
+                            0.0,
+                            2.5
+                          ],
+                          "content": [
+                            {
+                              "nodetype": "binning",
+                              "input": "pt",
+                              "edges": [
+                                20.0,
+                                30.0,
+                                50.0,
+                                70.0,
+                                100.0,
+                                140.0,
+                                200.0,
+                                300.0,
+                                600.0
+                              ],
+                              "content": [
+                                0.9838328445630227,
+                                0.9689499777891712,
+                                0.9780772753738237,
+                                0.967211440118043,
+                                0.9770527502956263,
+                                0.9786732293982001,
+                                0.9898724333682832,
+                                1.003268604221545
+                              ],
+                              "flow": "clamp"
+                            }
+                          ],
+                          "flow": "error"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "key": "T",
+                  "value": {
+                    "nodetype": "category",
+                    "input": "flavor",
+                    "content": [
+                      {
+                        "key": 5,
+                        "value": {
+                          "nodetype": "binning",
+                          "input": "abseta",
+                          "edges": [
+                            0.0,
+                            2.5
+                          ],
+                          "content": [
+                            {
+                              "nodetype": "binning",
+                              "input": "pt",
+                              "edges": [
+                                20.0,
+                                30.0,
+                                50.0,
+                                70.0,
+                                100.0,
+                                140.0,
+                                200.0,
+                                300.0,
+                                600.0
+                              ],
+                              "content": [
+                                0.931826924145871,
+                                0.9157285565439133,
+                                0.9405617677885209,
+                                0.9375081287594547,
+                                0.9584769749271254,
+                                0.9569670825850057,
+                                0.974921331377323,
+                                0.958468715302845
+                              ],
+                              "flow": "clamp"
+                            }
+                          ],
+                          "flow": "error"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "key": "XT",
+                  "value": {
+                    "nodetype": "category",
+                    "input": "flavor",
+                    "content": [
+                      {
+                        "key": 5,
+                        "value": {
+                          "nodetype": "binning",
+                          "input": "abseta",
+                          "edges": [
+                            0.0,
+                            2.5
+                          ],
+                          "content": [
+                            {
+                              "nodetype": "binning",
+                              "input": "pt",
+                              "edges": [
+                                20.0,
+                                30.0,
+                                50.0,
+                                70.0,
+                                100.0,
+                                140.0,
+                                200.0,
+                                300.0,
+                                600.0
+                              ],
+                              "content": [
+                                0.9163521335603042,
+                                0.9001341961861274,
+                                0.9300757320814337,
+                                0.9273059559685115,
+                                0.9463272987777993,
+                                0.9504441788794622,
+                                0.964444990482997,
+                                0.9367897593923045
+                              ],
+                              "flow": "clamp"
+                            }
+                          ],
+                          "flow": "error"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "key": "XXT",
+                  "value": {
+                    "nodetype": "category",
+                    "input": "flavor",
+                    "content": [
+                      {
+                        "key": 5,
+                        "value": {
+                          "nodetype": "binning",
+                          "input": "abseta",
+                          "edges": [
+                            0.0,
+                            2.5
+                          ],
+                          "content": [
+                            {
+                              "nodetype": "binning",
+                              "input": "pt",
+                              "edges": [
+                                20.0,
+                                30.0,
+                                50.0,
+                                70.0,
+                                100.0,
+                                140.0,
+                                200.0,
+                                300.0,
+                                600.0
+                              ],
+                              "content": [
+                                0.8677297159811297,
+                                0.8492190502474923,
+                                0.8911774502198505,
+                                0.8863983405784746,
+                                0.9101190327255062,
+                                0.9293752332210911,
+                                1.3569001680483757,
+                                1.3235075238620286
+                              ],
+                              "flow": "clamp"
+                            }
+                          ],
+                          "flow": "error"
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "key": "up_fsrdef",
+            "value": {
+              "nodetype": "category",
+              "input": "working_point",
+              "content": [
+                {
+                  "key": "L",
+                  "value": {
+                    "nodetype": "category",
+                    "input": "flavor",
+                    "content": [
+                      {
+                        "key": 5,
+                        "value": {
+                          "nodetype": "binning",
+                          "input": "abseta",
+                          "edges": [
+                            0.0,
+                            2.5
+                          ],
+                          "content": [
+                            {
+                              "nodetype": "binning",
+                              "input": "pt",
+                              "edges": [
+                                20.0,
+                                30.0,
+                                50.0,
+                                70.0,
+                                100.0,
+                                140.0,
+                                200.0,
+                                300.0,
+                                600.0
+                              ],
+                              "content": [
+                                1.0626290228204383,
+                                1.0626281691708392,
+                                1.0240649527161771,
+                                1.0011485553186823,
+                                1.0,
+                                0.9940524587227628,
+                                0.9947306527683537,
+                                1.0093247443083442
+                              ],
+                              "flow": "clamp"
+                            }
+                          ],
+                          "flow": "error"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "key": "M",
+                  "value": {
+                    "nodetype": "category",
+                    "input": "flavor",
+                    "content": [
+                      {
+                        "key": 5,
+                        "value": {
+                          "nodetype": "binning",
+                          "input": "abseta",
+                          "edges": [
+                            0.0,
+                            2.5
+                          ],
+                          "content": [
+                            {
+                              "nodetype": "binning",
+                              "input": "pt",
+                              "edges": [
+                                20.0,
+                                30.0,
+                                50.0,
+                                70.0,
+                                100.0,
+                                140.0,
+                                200.0,
+                                300.0,
+                                600.0
+                              ],
+                              "content": [
+                                0.9540717805519723,
+                                0.954069445783646,
+                                0.9658322040822336,
+                                0.9586641319496048,
+                                0.9698701402450149,
+                                0.9720204413730196,
+                                0.9750673902452087,
+                                0.9777033813044262
+                              ],
+                              "flow": "clamp"
+                            }
+                          ],
+                          "flow": "error"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "key": "T",
+                  "value": {
+                    "nodetype": "category",
+                    "input": "flavor",
+                    "content": [
+                      {
+                        "key": 5,
+                        "value": {
+                          "nodetype": "binning",
+                          "input": "abseta",
+                          "edges": [
+                            0.0,
+                            2.5
+                          ],
+                          "content": [
+                            {
+                              "nodetype": "binning",
+                              "input": "pt",
+                              "edges": [
+                                20.0,
+                                30.0,
+                                50.0,
+                                70.0,
+                                100.0,
+                                140.0,
+                                200.0,
+                                300.0,
+                                600.0
+                              ],
+                              "content": [
+                                0.8996358250443564,
+                                0.899633006993156,
+                                0.9267319286045677,
+                                0.9275199082587733,
+                                0.9496759438518758,
+                                0.9487705242207518,
+                                0.9601642886104997,
+                                0.9316932371076314
+                              ],
+                              "flow": "clamp"
+                            }
+                          ],
+                          "flow": "error"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "key": "XT",
+                  "value": {
+                    "nodetype": "category",
+                    "input": "flavor",
+                    "content": [
+                      {
+                        "key": 5,
+                        "value": {
+                          "nodetype": "binning",
+                          "input": "abseta",
+                          "edges": [
+                            0.0,
+                            2.5
+                          ],
+                          "content": [
+                            {
+                              "nodetype": "binning",
+                              "input": "pt",
+                              "edges": [
+                                20.0,
+                                30.0,
+                                50.0,
+                                70.0,
+                                100.0,
+                                140.0,
+                                200.0,
+                                300.0,
+                                600.0
+                              ],
+                              "content": [
+                                0.8839217560979549,
+                                0.8839190074549528,
+                                0.9158853114413574,
+                                0.916883648432762,
+                                0.9381545130887483,
+                                0.941971227441571,
+                                0.9511161755202062,
+                                0.9073119506743277
+                              ],
+                              "flow": "clamp"
+                            }
+                          ],
+                          "flow": "error"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "key": "XXT",
+                  "value": {
+                    "nodetype": "category",
+                    "input": "flavor",
+                    "content": [
+                      {
+                        "key": 5,
+                        "value": {
+                          "nodetype": "binning",
+                          "input": "abseta",
+                          "edges": [
+                            0.0,
+                            2.5
+                          ],
+                          "content": [
+                            {
+                              "nodetype": "binning",
+                              "input": "pt",
+                              "edges": [
+                                20.0,
+                                30.0,
+                                50.0,
+                                70.0,
+                                100.0,
+                                140.0,
+                                200.0,
+                                300.0,
+                                600.0
+                              ],
+                              "content": [
+                                0.8307123740459037,
+                                0.8307103792798793,
+                                0.8757893887813859,
+                                0.874356953260758,
+                                0.8986586867712418,
+                                0.9173137202018546,
+                                0.5118227601051331,
+                                0.5118227601051331
+                              ],
+                              "flow": "clamp"
+                            }
+                          ],
+                          "flow": "error"
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "key": "up_hdamp",
+            "value": {
+              "nodetype": "category",
+              "input": "working_point",
+              "content": [
+                {
+                  "key": "L",
+                  "value": {
+                    "nodetype": "category",
+                    "input": "flavor",
+                    "content": [
+                      {
+                        "key": 5,
+                        "value": {
+                          "nodetype": "binning",
+                          "input": "abseta",
+                          "edges": [
+                            0.0,
+                            2.5
+                          ],
+                          "content": [
+                            {
+                              "nodetype": "binning",
+                              "input": "pt",
+                              "edges": [
+                                20.0,
+                                30.0,
+                                50.0,
+                                70.0,
+                                100.0,
+                                140.0,
+                                200.0,
+                                300.0,
+                                600.0
+                              ],
+                              "content": [
+                                1.0626322418672274,
+                                1.0626297786942338,
+                                1.0240653381003746,
+                                1.0011495983323044,
+                                1.000000042925933,
+                                0.994047689965627,
+                                0.9947512559865013,
+                                1.0093326977487358
+                              ],
+                              "flow": "clamp"
+                            }
+                          ],
+                          "flow": "error"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "key": "M",
+                  "value": {
+                    "nodetype": "category",
+                    "input": "flavor",
+                    "content": [
+                      {
+                        "key": 5,
+                        "value": {
+                          "nodetype": "binning",
+                          "input": "abseta",
+                          "edges": [
+                            0.0,
+                            2.5
+                          ],
+                          "content": [
+                            {
+                              "nodetype": "binning",
+                              "input": "pt",
+                              "edges": [
+                                20.0,
+                                30.0,
+                                50.0,
+                                70.0,
+                                100.0,
+                                140.0,
+                                200.0,
+                                300.0,
+                                600.0
+                              ],
+                              "content": [
+                                0.9540765614072928,
+                                0.9540718362113063,
+                                0.9658336434676045,
+                                0.9586656920422039,
+                                0.969872210051542,
+                                0.9720153108772402,
+                                0.9751302009336635,
+                                0.9777153431350598
+                              ],
+                              "flow": "clamp"
+                            }
+                          ],
+                          "flow": "error"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "key": "T",
+                  "value": {
+                    "nodetype": "category",
+                    "input": "flavor",
+                    "content": [
+                      {
+                        "key": 5,
+                        "value": {
+                          "nodetype": "binning",
+                          "input": "abseta",
+                          "edges": [
+                            0.0,
+                            2.5
+                          ],
+                          "content": [
+                            {
+                              "nodetype": "binning",
+                              "input": "pt",
+                              "edges": [
+                                20.0,
+                                30.0,
+                                50.0,
+                                70.0,
+                                100.0,
+                                140.0,
+                                200.0,
+                                300.0,
+                                600.0
+                              ],
+                              "content": [
+                                0.8996415550679178,
+                                0.8996358720049367,
+                                0.9267348409744613,
+                                0.9275212824718873,
+                                0.9496778934113843,
+                                0.9487684125795255,
+                                0.9602271268914286,
+                                0.9317014304469717
+                              ],
+                              "flow": "clamp"
+                            }
+                          ],
+                          "flow": "error"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "key": "XT",
+                  "value": {
+                    "nodetype": "category",
+                    "input": "flavor",
+                    "content": [
+                      {
+                        "key": 5,
+                        "value": {
+                          "nodetype": "binning",
+                          "input": "abseta",
+                          "edges": [
+                            0.0,
+                            2.5
+                          ],
+                          "content": [
+                            {
+                              "nodetype": "binning",
+                              "input": "pt",
+                              "edges": [
+                                20.0,
+                                30.0,
+                                50.0,
+                                70.0,
+                                100.0,
+                                140.0,
+                                200.0,
+                                300.0,
+                                600.0
+                              ],
+                              "content": [
+                                0.8839265460674426,
+                                0.8839214024396966,
+                                0.915888282515855,
+                                0.9168850328552622,
+                                0.9381550078149425,
+                                0.9419719792498462,
+                                0.951162390247962,
+                                0.9072770375365167
+                              ],
+                              "flow": "clamp"
+                            }
+                          ],
+                          "flow": "error"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "key": "XXT",
+                  "value": {
+                    "nodetype": "category",
+                    "input": "flavor",
+                    "content": [
+                      {
+                        "key": 5,
+                        "value": {
+                          "nodetype": "binning",
+                          "input": "abseta",
+                          "edges": [
+                            0.0,
+                            2.5
+                          ],
+                          "content": [
+                            {
+                              "nodetype": "binning",
+                              "input": "pt",
+                              "edges": [
+                                20.0,
+                                30.0,
+                                50.0,
+                                70.0,
+                                100.0,
+                                140.0,
+                                200.0,
+                                300.0,
+                                600.0
+                              ],
+                              "content": [
+                                0.8307115612785214,
+                                0.8307099728961882,
+                                0.8757947762555354,
+                                0.8743585912948797,
+                                0.8986612796764213,
+                                0.9173180620875252,
+                                0.6715563239136495,
+                                0.6495777497489712
+                              ],
+                              "flow": "clamp"
+                            }
+                          ],
+                          "flow": "error"
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "key": "up_isrdef",
+            "value": {
+              "nodetype": "category",
+              "input": "working_point",
+              "content": [
+                {
+                  "key": "L",
+                  "value": {
+                    "nodetype": "category",
+                    "input": "flavor",
+                    "content": [
+                      {
+                        "key": 5,
+                        "value": {
+                          "nodetype": "binning",
+                          "input": "abseta",
+                          "edges": [
+                            0.0,
+                            2.5
+                          ],
+                          "content": [
+                            {
+                              "nodetype": "binning",
+                              "input": "pt",
+                              "edges": [
+                                20.0,
+                                30.0,
+                                50.0,
+                                70.0,
+                                100.0,
+                                140.0,
+                                200.0,
+                                300.0,
+                                600.0
+                              ],
+                              "content": [
+                                1.0626415420399837,
+                                1.062634428780612,
+                                1.0240658041845485,
+                                1.0011503843290521,
+                                1.0,
+                                0.9940479826827735,
+                                0.9947271108579665,
+                                1.0092894542580702
+                              ],
+                              "flow": "clamp"
+                            }
+                          ],
+                          "flow": "error"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "key": "M",
+                  "value": {
+                    "nodetype": "category",
+                    "input": "flavor",
+                    "content": [
+                      {
+                        "key": 5,
+                        "value": {
+                          "nodetype": "binning",
+                          "input": "abseta",
+                          "edges": [
+                            0.0,
+                            2.5
+                          ],
+                          "content": [
+                            {
+                              "nodetype": "binning",
+                              "input": "pt",
+                              "edges": [
+                                20.0,
+                                30.0,
+                                50.0,
+                                70.0,
+                                100.0,
+                                140.0,
+                                200.0,
+                                300.0,
+                                600.0
+                              ],
+                              "content": [
+                                0.9540819275832764,
+                                0.9540745192992981,
+                                0.9658327145219596,
+                                0.9586666653225535,
+                                0.9698711937887561,
+                                0.9720142310490907,
+                                0.9750640056004727,
+                                0.9776999223435974
+                              ],
+                              "flow": "clamp"
+                            }
+                          ],
+                          "flow": "error"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "key": "T",
+                  "value": {
+                    "nodetype": "category",
+                    "input": "flavor",
+                    "content": [
+                      {
+                        "key": 5,
+                        "value": {
+                          "nodetype": "binning",
+                          "input": "abseta",
+                          "edges": [
+                            0.0,
+                            2.5
+                          ],
+                          "content": [
+                            {
+                              "nodetype": "binning",
+                              "input": "pt",
+                              "edges": [
+                                20.0,
+                                30.0,
+                                50.0,
+                                70.0,
+                                100.0,
+                                140.0,
+                                200.0,
+                                300.0,
+                                600.0
+                              ],
+                              "content": [
+                                0.8996434862348224,
+                                0.899636837588389,
+                                0.9267330049124212,
+                                0.9275221890017855,
+                                0.9496771672925526,
+                                0.9487665936112535,
+                                0.9601640703826639,
+                                0.9316967995374492
+                              ],
+                              "flow": "clamp"
+                            }
+                          ],
+                          "flow": "error"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "key": "XT",
+                  "value": {
+                    "nodetype": "category",
+                    "input": "flavor",
+                    "content": [
+                      {
+                        "key": 5,
+                        "value": {
+                          "nodetype": "binning",
+                          "input": "abseta",
+                          "edges": [
+                            0.0,
+                            2.5
+                          ],
+                          "content": [
+                            {
+                              "nodetype": "binning",
+                              "input": "pt",
+                              "edges": [
+                                20.0,
+                                30.0,
+                                50.0,
+                                70.0,
+                                100.0,
+                                140.0,
+                                200.0,
+                                300.0,
+                                600.0
+                              ],
+                              "content": [
+                                0.8839297371494172,
+                                0.883922997980684,
+                                0.9158864944159868,
+                                0.9168857432677591,
+                                0.93815434426023,
+                                0.9419695211293551,
+                                0.9511158539293696,
+                                0.9072456574600096
+                              ],
+                              "flow": "clamp"
+                            }
+                          ],
+                          "flow": "error"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "key": "XXT",
+                  "value": {
+                    "nodetype": "category",
+                    "input": "flavor",
+                    "content": [
+                      {
+                        "key": 5,
+                        "value": {
+                          "nodetype": "binning",
+                          "input": "abseta",
+                          "edges": [
+                            0.0,
+                            2.5
+                          ],
+                          "content": [
+                            {
+                              "nodetype": "binning",
+                              "input": "pt",
+                              "edges": [
+                                20.0,
+                                30.0,
+                                50.0,
+                                70.0,
+                                100.0,
+                                140.0,
+                                200.0,
+                                300.0,
+                                600.0
+                              ],
+                              "content": [
+                                0.8307207866327406,
+                                0.8307145855732978,
+                                0.8757912329122206,
+                                0.874359075144107,
+                                0.8986600946747245,
+                                0.91731195234079,
+                                0.5118227601051331,
+                                0.5118227601051331
+                              ],
+                              "flow": "clamp"
+                            }
+                          ],
+                          "flow": "error"
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "key": "up_jer",
+            "value": {
+              "nodetype": "category",
+              "input": "working_point",
+              "content": [
+                {
+                  "key": "L",
+                  "value": {
+                    "nodetype": "category",
+                    "input": "flavor",
+                    "content": [
+                      {
+                        "key": 5,
+                        "value": {
+                          "nodetype": "binning",
+                          "input": "abseta",
+                          "edges": [
+                            0.0,
+                            2.5
+                          ],
+                          "content": [
+                            {
+                              "nodetype": "binning",
+                              "input": "pt",
+                              "edges": [
+                                20.0,
+                                30.0,
+                                50.0,
+                                70.0,
+                                100.0,
+                                140.0,
+                                200.0,
+                                300.0,
+                                600.0
+                              ],
+                              "content": [
+                                1.0626888536520553,
+                                1.0626580845866478,
+                                1.0240894646744643,
+                                1.0011529624600053,
+                                1.0000000083819032,
+                                0.9940508692072436,
+                                0.9947277836363355,
+                                1.0092824358273589
+                              ],
+                              "flow": "clamp"
+                            }
+                          ],
+                          "flow": "error"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "key": "M",
+                  "value": {
+                    "nodetype": "category",
+                    "input": "flavor",
+                    "content": [
+                      {
+                        "key": 5,
+                        "value": {
+                          "nodetype": "binning",
+                          "input": "abseta",
+                          "edges": [
+                            0.0,
+                            2.5
+                          ],
+                          "content": [
+                            {
+                              "nodetype": "binning",
+                              "input": "pt",
+                              "edges": [
+                                20.0,
+                                30.0,
+                                50.0,
+                                70.0,
+                                100.0,
+                                140.0,
+                                200.0,
+                                300.0,
+                                600.0
+                              ],
+                              "content": [
+                                0.9542760890911399,
+                                0.9541716000532299,
+                                0.9658928916673091,
+                                0.9586936775269601,
+                                0.9698862030418818,
+                                0.9720143944290136,
+                                0.975067426536925,
+                                0.9777108485855592
+                              ],
+                              "flow": "clamp"
+                            }
+                          ],
+                          "flow": "error"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "key": "T",
+                  "value": {
+                    "nodetype": "category",
+                    "input": "flavor",
+                    "content": [
+                      {
+                        "key": 5,
+                        "value": {
+                          "nodetype": "binning",
+                          "input": "abseta",
+                          "edges": [
+                            0.0,
+                            2.5
+                          ],
+                          "content": [
+                            {
+                              "nodetype": "binning",
+                              "input": "pt",
+                              "edges": [
+                                20.0,
+                                30.0,
+                                50.0,
+                                70.0,
+                                100.0,
+                                140.0,
+                                200.0,
+                                300.0,
+                                600.0
+                              ],
+                              "content": [
+                                0.8998715720374832,
+                                0.8997508804897194,
+                                0.9268131273502149,
+                                0.9275620902747912,
+                                0.9497034429725524,
+                                0.9487777048196273,
+                                0.96016408907062,
+                                0.9316955854911777
+                              ],
+                              "flow": "clamp"
+                            }
+                          ],
+                          "flow": "error"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "key": "XT",
+                  "value": {
+                    "nodetype": "category",
+                    "input": "flavor",
+                    "content": [
+                      {
+                        "key": 5,
+                        "value": {
+                          "nodetype": "binning",
+                          "input": "abseta",
+                          "edges": [
+                            0.0,
+                            2.5
+                          ],
+                          "content": [
+                            {
+                              "nodetype": "binning",
+                              "input": "pt",
+                              "edges": [
+                                20.0,
+                                30.0,
+                                50.0,
+                                70.0,
+                                100.0,
+                                140.0,
+                                200.0,
+                                300.0,
+                                600.0
+                              ],
+                              "content": [
+                                0.8841594078873598,
+                                0.8840378333496552,
+                                0.9159728634788884,
+                                0.9169295054427415,
+                                0.9381721023920022,
+                                0.941984425607651,
+                                0.9511166590502995,
+                                0.9072516442284604
+                              ],
+                              "flow": "clamp"
+                            }
+                          ],
+                          "flow": "error"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "key": "XXT",
+                  "value": {
+                    "nodetype": "category",
+                    "input": "flavor",
+                    "content": [
+                      {
+                        "key": 5,
+                        "value": {
+                          "nodetype": "binning",
+                          "input": "abseta",
+                          "edges": [
+                            0.0,
+                            2.5
+                          ],
+                          "content": [
+                            {
+                              "nodetype": "binning",
+                              "input": "pt",
+                              "edges": [
+                                20.0,
+                                30.0,
+                                50.0,
+                                70.0,
+                                100.0,
+                                140.0,
+                                200.0,
+                                300.0,
+                                600.0
+                              ],
+                              "content": [
+                                0.8310389275986001,
+                                0.8308736560562275,
+                                0.8758891926332888,
+                                0.8744157495874854,
+                                0.8987051768461676,
+                                0.9173469671763002,
+                                0.5118227601051331,
+                                0.5118227601051331
+                              ],
+                              "flow": "clamp"
+                            }
+                          ],
+                          "flow": "error"
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "key": "up_jes",
+            "value": {
+              "nodetype": "category",
+              "input": "working_point",
+              "content": [
+                {
+                  "key": "L",
+                  "value": {
+                    "nodetype": "category",
+                    "input": "flavor",
+                    "content": [
+                      {
+                        "key": 5,
+                        "value": {
+                          "nodetype": "binning",
+                          "input": "abseta",
+                          "edges": [
+                            0.0,
+                            2.5
+                          ],
+                          "content": [
+                            {
+                              "nodetype": "binning",
+                              "input": "pt",
+                              "edges": [
+                                20.0,
+                                30.0,
+                                50.0,
+                                70.0,
+                                100.0,
+                                140.0,
+                                200.0,
+                                300.0,
+                                600.0
+                              ],
+                              "content": [
+                                1.0626785834053933,
+                                1.0626529494633168,
+                                1.0240901962610316,
+                                1.001151738015583,
+                                1.0000000000000222,
+                                0.9940492724902876,
+                                0.9947288080833268,
+                                1.0092829813792292
+                              ],
+                              "flow": "clamp"
+                            }
+                          ],
+                          "flow": "error"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "key": "M",
+                  "value": {
+                    "nodetype": "category",
+                    "input": "flavor",
+                    "content": [
+                      {
+                        "key": 5,
+                        "value": {
+                          "nodetype": "binning",
+                          "input": "abseta",
+                          "edges": [
+                            0.0,
+                            2.5
+                          ],
+                          "content": [
+                            {
+                              "nodetype": "binning",
+                              "input": "pt",
+                              "edges": [
+                                20.0,
+                                30.0,
+                                50.0,
+                                70.0,
+                                100.0,
+                                140.0,
+                                200.0,
+                                300.0,
+                                600.0
+                              ],
+                              "content": [
+                                0.9542375447837532,
+                                0.9541523278995365,
+                                0.9658877226149096,
+                                0.9586905081126957,
+                                0.969883768931262,
+                                0.9720155327141891,
+                                0.9750695001113749,
+                                0.9777180791193736
+                              ],
+                              "flow": "clamp"
+                            }
+                          ],
+                          "flow": "error"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "key": "T",
+                  "value": {
+                    "nodetype": "category",
+                    "input": "flavor",
+                    "content": [
+                      {
+                        "key": 5,
+                        "value": {
+                          "nodetype": "binning",
+                          "input": "abseta",
+                          "edges": [
+                            0.0,
+                            2.5
+                          ],
+                          "content": [
+                            {
+                              "nodetype": "binning",
+                              "input": "pt",
+                              "edges": [
+                                20.0,
+                                30.0,
+                                50.0,
+                                70.0,
+                                100.0,
+                                140.0,
+                                200.0,
+                                300.0,
+                                600.0
+                              ],
+                              "content": [
+                                0.8998346079505399,
+                                0.8997323984462477,
+                                0.9268053202185378,
+                                0.9275568821910491,
+                                0.9497014448493388,
+                                0.9487779739322884,
+                                0.9601646403075828,
+                                0.9316962198296928
+                              ],
+                              "flow": "clamp"
+                            }
+                          ],
+                          "flow": "error"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "key": "XT",
+                  "value": {
+                    "nodetype": "category",
+                    "input": "flavor",
+                    "content": [
+                      {
+                        "key": 5,
+                        "value": {
+                          "nodetype": "binning",
+                          "input": "abseta",
+                          "edges": [
+                            0.0,
+                            2.5
+                          ],
+                          "content": [
+                            {
+                              "nodetype": "binning",
+                              "input": "pt",
+                              "edges": [
+                                20.0,
+                                30.0,
+                                50.0,
+                                70.0,
+                                100.0,
+                                140.0,
+                                200.0,
+                                300.0,
+                                600.0
+                              ],
+                              "content": [
+                                0.8841219706172367,
+                                0.8840191147145937,
+                                0.9159633369457802,
+                                0.9169236688637881,
+                                0.9381705674800322,
+                                0.9419850847391444,
+                                0.9511166930296646,
+                                0.9072499132488909
+                              ],
+                              "flow": "clamp"
+                            }
+                          ],
+                          "flow": "error"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "key": "XXT",
+                  "value": {
+                    "nodetype": "category",
+                    "input": "flavor",
+                    "content": [
+                      {
+                        "key": 5,
+                        "value": {
+                          "nodetype": "binning",
+                          "input": "abseta",
+                          "edges": [
+                            0.0,
+                            2.5
+                          ],
+                          "content": [
+                            {
+                              "nodetype": "binning",
+                              "input": "pt",
+                              "edges": [
+                                20.0,
+                                30.0,
+                                50.0,
+                                70.0,
+                                100.0,
+                                140.0,
+                                200.0,
+                                300.0,
+                                600.0
+                              ],
+                              "content": [
+                                0.8309128264217023,
+                                0.8308106054677786,
+                                0.8758780472240426,
+                                0.8744102976395789,
+                                0.8987001972628015,
+                                0.9173483765086452,
+                                0.5118227601051331,
+                                0.5118227601051331
+                              ],
+                              "flow": "clamp"
+                            }
+                          ],
+                          "flow": "error"
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "key": "up_mass",
+            "value": {
+              "nodetype": "category",
+              "input": "working_point",
+              "content": [
+                {
+                  "key": "L",
+                  "value": {
+                    "nodetype": "category",
+                    "input": "flavor",
+                    "content": [
+                      {
+                        "key": 5,
+                        "value": {
+                          "nodetype": "binning",
+                          "input": "abseta",
+                          "edges": [
+                            0.0,
+                            2.5
+                          ],
+                          "content": [
+                            {
+                              "nodetype": "binning",
+                              "input": "pt",
+                              "edges": [
+                                20.0,
+                                30.0,
+                                50.0,
+                                70.0,
+                                100.0,
+                                140.0,
+                                200.0,
+                                300.0,
+                                600.0
+                              ],
+                              "content": [
+                                1.062633783086568,
+                                1.062630549303904,
+                                1.0240683702391493,
+                                1.0011489097801736,
+                                1.0,
+                                0.9940498092595584,
+                                0.9947411874007495,
+                                1.0092829471283302
+                              ],
+                              "flow": "clamp"
+                            }
+                          ],
+                          "flow": "error"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "key": "M",
+                  "value": {
+                    "nodetype": "category",
+                    "input": "flavor",
+                    "content": [
+                      {
+                        "key": 5,
+                        "value": {
+                          "nodetype": "binning",
+                          "input": "abseta",
+                          "edges": [
+                            0.0,
+                            2.5
+                          ],
+                          "content": [
+                            {
+                              "nodetype": "binning",
+                              "input": "pt",
+                              "edges": [
+                                20.0,
+                                30.0,
+                                50.0,
+                                70.0,
+                                100.0,
+                                140.0,
+                                200.0,
+                                300.0,
+                                600.0
+                              ],
+                              "content": [
+                                0.9540707188573254,
+                                0.9540689149363226,
+                                0.9658315664523549,
+                                0.9586648053611952,
+                                0.9698707906515915,
+                                0.9720142943099432,
+                                0.9750880432652735,
+                                0.9777329575820994
+                              ],
+                              "flow": "clamp"
+                            }
+                          ],
+                          "flow": "error"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "key": "T",
+                  "value": {
+                    "nodetype": "category",
+                    "input": "flavor",
+                    "content": [
+                      {
+                        "key": 5,
+                        "value": {
+                          "nodetype": "binning",
+                          "input": "abseta",
+                          "edges": [
+                            0.0,
+                            2.5
+                          ],
+                          "content": [
+                            {
+                              "nodetype": "binning",
+                              "input": "pt",
+                              "edges": [
+                                20.0,
+                                30.0,
+                                50.0,
+                                70.0,
+                                100.0,
+                                140.0,
+                                200.0,
+                                300.0,
+                                600.0
+                              ],
+                              "content": [
+                                0.8996336795901545,
+                                0.899631934266055,
+                                0.9267323072493676,
+                                0.9275210807633734,
+                                0.949677517521966,
+                                0.9487654626393578,
+                                0.9601906296852611,
+                                0.9317217621784488
+                              ],
+                              "flow": "clamp"
+                            }
+                          ],
+                          "flow": "error"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "key": "XT",
+                  "value": {
+                    "nodetype": "category",
+                    "input": "flavor",
+                    "content": [
+                      {
+                        "key": 5,
+                        "value": {
+                          "nodetype": "binning",
+                          "input": "abseta",
+                          "edges": [
+                            0.0,
+                            2.5
+                          ],
+                          "content": [
+                            {
+                              "nodetype": "binning",
+                              "input": "pt",
+                              "edges": [
+                                20.0,
+                                30.0,
+                                50.0,
+                                70.0,
+                                100.0,
+                                140.0,
+                                200.0,
+                                300.0,
+                                600.0
+                              ],
+                              "content": [
+                                0.8839196789501518,
+                                0.8839179688810512,
+                                0.9158850047751663,
+                                0.9168849643707029,
+                                0.9381543385593574,
+                                0.9419686370024607,
+                                0.9511369205225861,
+                                0.9072660629432825
+                              ],
+                              "flow": "clamp"
+                            }
+                          ],
+                          "flow": "error"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "key": "XXT",
+                  "value": {
+                    "nodetype": "category",
+                    "input": "flavor",
+                    "content": [
+                      {
+                        "key": 5,
+                        "value": {
+                          "nodetype": "binning",
+                          "input": "abseta",
+                          "edges": [
+                            0.0,
+                            2.5
+                          ],
+                          "content": [
+                            {
+                              "nodetype": "binning",
+                              "input": "pt",
+                              "edges": [
+                                20.0,
+                                30.0,
+                                50.0,
+                                70.0,
+                                100.0,
+                                140.0,
+                                200.0,
+                                300.0,
+                                600.0
+                              ],
+                              "content": [
+                                0.8307707153779536,
+                                0.8307395499459043,
+                                0.8757901663622656,
+                                0.8743589404097074,
+                                0.8986620205701144,
+                                0.9173127033560746,
+                                0.668661914234292,
+                                0.6535800224248982
+                              ],
+                              "flow": "clamp"
+                            }
+                          ],
+                          "flow": "error"
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "key": "up_statistic",
+            "value": {
+              "nodetype": "category",
+              "input": "working_point",
+              "content": [
+                {
+                  "key": "L",
+                  "value": {
+                    "nodetype": "category",
+                    "input": "flavor",
+                    "content": [
+                      {
+                        "key": 5,
+                        "value": {
+                          "nodetype": "binning",
+                          "input": "abseta",
+                          "edges": [
+                            0.0,
+                            2.5
+                          ],
+                          "content": [
+                            {
+                              "nodetype": "binning",
+                              "input": "pt",
+                              "edges": [
+                                20.0,
+                                30.0,
+                                50.0,
+                                70.0,
+                                100.0,
+                                140.0,
+                                200.0,
+                                300.0,
+                                600.0
+                              ],
+                              "content": [
+                                1.0690509132109582,
+                                1.0658391143660992,
+                                1.0269877349492162,
+                                1.003792414208874,
+                                1.0036761562805623,
+                                0.998804263304919,
+                                1.0027276501059532,
+                                1.0217302162200212
+                              ],
+                              "flow": "clamp"
+                            }
+                          ],
+                          "flow": "error"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "key": "M",
+                  "value": {
+                    "nodetype": "category",
+                    "input": "flavor",
+                    "content": [
+                      {
+                        "key": 5,
+                        "value": {
+                          "nodetype": "binning",
+                          "input": "abseta",
+                          "edges": [
+                            0.0,
+                            2.5
+                          ],
+                          "content": [
+                            {
+                              "nodetype": "binning",
+                              "input": "pt",
+                              "edges": [
+                                20.0,
+                                30.0,
+                                50.0,
+                                70.0,
+                                100.0,
+                                140.0,
+                                200.0,
+                                300.0,
+                                600.0
+                              ],
+                              "content": [
+                                0.9615374393761158,
+                                0.9578022751957178,
+                                0.9694193983450532,
+                                0.9621092020533979,
+                                0.9739168710075319,
+                                0.9771839962340891,
+                                0.9836766580119729,
+                                0.9992980509996414
+                              ],
+                              "flow": "clamp"
+                            }
+                          ],
+                          "flow": "error"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "key": "T",
+                  "value": {
+                    "nodetype": "category",
+                    "input": "flavor",
+                    "content": [
+                      {
+                        "key": 5,
+                        "value": {
+                          "nodetype": "binning",
+                          "input": "abseta",
+                          "edges": [
+                            0.0,
+                            2.5
+                          ],
+                          "content": [
+                            {
+                              "nodetype": "binning",
+                              "input": "pt",
+                              "edges": [
+                                20.0,
+                                30.0,
+                                50.0,
+                                70.0,
+                                100.0,
+                                140.0,
+                                200.0,
+                                300.0,
+                                600.0
+                              ],
+                              "content": [
+                                0.9080646401271224,
+                                0.903847414534539,
+                                0.9308602176606655,
+                                0.9312645320314914,
+                                0.9540036995895207,
+                                0.9544464014470577,
+                                0.96959990542382,
+                                0.956984693184495
+                              ],
+                              "flow": "clamp"
+                            }
+                          ],
+                          "flow": "error"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "key": "XT",
+                  "value": {
+                    "nodetype": "category",
+                    "input": "flavor",
+                    "content": [
+                      {
+                        "key": 5,
+                        "value": {
+                          "nodetype": "binning",
+                          "input": "abseta",
+                          "edges": [
+                            0.0,
+                            2.5
+                          ],
+                          "content": [
+                            {
+                              "nodetype": "binning",
+                              "input": "pt",
+                              "edges": [
+                                20.0,
+                                30.0,
+                                50.0,
+                                70.0,
+                                100.0,
+                                140.0,
+                                200.0,
+                                300.0,
+                                600.0
+                              ],
+                              "content": [
+                                0.8928710939362645,
+                                0.8883936763741076,
+                                0.920145264826715,
+                                0.9208479193039238,
+                                0.9427789207547903,
+                                0.9475287916138768,
+                                0.9599467422813177,
+                                0.933944009244442
+                              ],
+                              "flow": "clamp"
+                            }
+                          ],
+                          "flow": "error"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "key": "XXT",
+                  "value": {
+                    "nodetype": "category",
+                    "input": "flavor",
+                    "content": [
+                      {
+                        "key": 5,
+                        "value": {
+                          "nodetype": "binning",
+                          "input": "abseta",
+                          "edges": [
+                            0.0,
+                            2.5
+                          ],
+                          "content": [
+                            {
+                              "nodetype": "binning",
+                              "input": "pt",
+                              "edges": [
+                                20.0,
+                                30.0,
+                                50.0,
+                                70.0,
+                                100.0,
+                                140.0,
+                                200.0,
+                                300.0,
+                                600.0
+                              ],
+                              "content": [
+                                0.841910838149488,
+                                0.8363096113316715,
+                                0.881235065869987,
+                                0.8793728756718338,
+                                0.904602468945086,
+                                0.9247979987412691,
+                                1.0,
+                                1.0
+                              ],
+                              "flow": "clamp"
+                            }
+                          ],
+                          "flow": "error"
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "key": "up_tune",
+            "value": {
+              "nodetype": "category",
+              "input": "working_point",
+              "content": [
+                {
+                  "key": "L",
+                  "value": {
+                    "nodetype": "category",
+                    "input": "flavor",
+                    "content": [
+                      {
+                        "key": 5,
+                        "value": {
+                          "nodetype": "binning",
+                          "input": "abseta",
+                          "edges": [
+                            0.0,
+                            2.5
+                          ],
+                          "content": [
+                            {
+                              "nodetype": "binning",
+                              "input": "pt",
+                              "edges": [
+                                20.0,
+                                30.0,
+                                50.0,
+                                70.0,
+                                100.0,
+                                140.0,
+                                200.0,
+                                300.0,
+                                600.0
+                              ],
+                              "content": [
+                                1.0626304861290237,
+                                1.062628900825132,
+                                1.0240663207605145,
+                                1.0011490677025137,
+                                1.0000000001309672,
+                                0.9940505054662623,
+                                0.9947490453778869,
+                                1.0092932209368541
+                              ],
+                              "flow": "clamp"
+                            }
+                          ],
+                          "flow": "error"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "key": "M",
+                  "value": {
+                    "nodetype": "category",
+                    "input": "flavor",
+                    "content": [
+                      {
+                        "key": 5,
+                        "value": {
+                          "nodetype": "binning",
+                          "input": "abseta",
+                          "edges": [
+                            0.0,
+                            2.5
+                          ],
+                          "content": [
+                            {
+                              "nodetype": "binning",
+                              "input": "pt",
+                              "edges": [
+                                20.0,
+                                30.0,
+                                50.0,
+                                70.0,
+                                100.0,
+                                140.0,
+                                200.0,
+                                300.0,
+                                600.0
+                              ],
+                              "content": [
+                                0.9540702513763861,
+                                0.954068681195853,
+                                0.9658299058744655,
+                                0.9586641258644244,
+                                0.9698715408516456,
+                                0.9720156425910318,
+                                0.9751059862663363,
+                                0.9777662853292748
+                              ],
+                              "flow": "clamp"
+                            }
+                          ],
+                          "flow": "error"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "key": "T",
+                  "value": {
+                    "nodetype": "category",
+                    "input": "flavor",
+                    "content": [
+                      {
+                        "key": 5,
+                        "value": {
+                          "nodetype": "binning",
+                          "input": "abseta",
+                          "edges": [
+                            0.0,
+                            2.5
+                          ],
+                          "content": [
+                            {
+                              "nodetype": "binning",
+                              "input": "pt",
+                              "edges": [
+                                20.0,
+                                30.0,
+                                50.0,
+                                70.0,
+                                100.0,
+                                140.0,
+                                200.0,
+                                300.0,
+                                600.0
+                              ],
+                              "content": [
+                                0.8996333415639128,
+                                0.8996317652529342,
+                                0.9267302415446332,
+                                0.9275196492402564,
+                                0.9496767423912198,
+                                0.94876610153461,
+                                0.9602023877295416,
+                                0.9317233569218821
+                              ],
+                              "flow": "clamp"
+                            }
+                          ],
+                          "flow": "error"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "key": "XT",
+                  "value": {
+                    "nodetype": "category",
+                    "input": "flavor",
+                    "content": [
+                      {
+                        "key": 5,
+                        "value": {
+                          "nodetype": "binning",
+                          "input": "abseta",
+                          "edges": [
+                            0.0,
+                            2.5
+                          ],
+                          "content": [
+                            {
+                              "nodetype": "binning",
+                              "input": "pt",
+                              "edges": [
+                                20.0,
+                                30.0,
+                                50.0,
+                                70.0,
+                                100.0,
+                                140.0,
+                                200.0,
+                                300.0,
+                                600.0
+                              ],
+                              "content": [
+                                0.8839206633633854,
+                                0.883918461087668,
+                                0.9158834217831222,
+                                0.9168833791477278,
+                                0.9381532447802243,
+                                0.9419687156452463,
+                                0.9511459154951041,
+                                0.9072618128548848
+                              ],
+                              "flow": "clamp"
+                            }
+                          ],
+                          "flow": "error"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "key": "XXT",
+                  "value": {
+                    "nodetype": "category",
+                    "input": "flavor",
+                    "content": [
+                      {
+                        "key": 5,
+                        "value": {
+                          "nodetype": "binning",
+                          "input": "abseta",
+                          "edges": [
+                            0.0,
+                            2.5
+                          ],
+                          "content": [
+                            {
+                              "nodetype": "binning",
+                              "input": "pt",
+                              "edges": [
+                                20.0,
+                                30.0,
+                                50.0,
+                                70.0,
+                                100.0,
+                                140.0,
+                                200.0,
+                                300.0,
+                                600.0
+                              ],
+                              "content": [
+                                0.8307140422496389,
+                                0.8307112133817469,
+                                0.8757885106499543,
+                                0.8743570414172019,
+                                0.8986589883969112,
+                                0.9173106311308779,
+                                0.6710888500321568,
+                                0.6528256463052466
+                              ],
+                              "flow": "clamp"
+                            }
+                          ],
+                          "flow": "error"
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

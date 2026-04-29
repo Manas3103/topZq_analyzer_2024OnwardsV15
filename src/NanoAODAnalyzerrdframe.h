@@ -56,7 +56,14 @@ public:
 	void setupCorrections(
 			string goodjsonfname, string pufname, 
 			string putag, string btvfname, 
-			string btvtype, string muon_roch_fname, 
+			string btvtype,string fname_btagEff,
+			string hname_Loose_btagEff_bcflav,
+			string hname_Loose_btagEff_lflav,
+			string hname_Medium_btagEff_bcflav,
+			string hname_Medium_btagEff_lflav,
+			string hname_Tight_btagEff_bcflav,
+			string hname_Tight_btagEff_lflav,
+		        string muon_roch_fname, 
 			string muon_fname, string muon_hlt_type, 
 			string muon_id_type, string muon_iso_type, 
 			string electron_fname, string electronHlt_fname, 
@@ -89,9 +96,8 @@ public:
 	void addCuts(string cut, string idx);
 	void add1DHist(TH1DModel histdef, string variable, string weight, string mincutstep="");
 	void add2DHist(TH2DModel histdef, string variable1, string variable2, string weight, string mincutstep="");
-	// double getBTaggingEff(double hadflav, double eta, double pt);
-//	ROOT::RDF::RNode calculateBTagSF(RNode _rlm, std::vector<std::string> Jets_vars, int _case, const double btag_cut, std::string _BTaggingWP = "M", std::string output_var = "btag_SF_");
-	ROOT::RDF::RNode calculateBTagSF(RNode _rlm, std::vector<std::string> Jets_vars_names, int _case, std::string output_var = "btag_SF_");
+	double getBTaggingEff(double hadflav, double eta, double pt, std::string _BTaggingWP);
+	ROOT::RDF::RNode calculateBTagSF(ROOT::RDF::RNode &_rlm, std::vector<std::string> Jets_vars,const int&_case, const double btag_cut, std::string _BTaggingWP = "M", std::string output_var = "btag_SF_", const int& redefine=0);
 	ROOT::RDF::RNode calculateMuSF(RNode _rlm, std::vector<std::string> Muon_vars, std::string output_var = "muon_SF_");
 	ROOT::RDF::RNode calculateEleSF(RNode _rlm, std::vector<std::string> Ele_vars, std::string output_var = "ele_SF_");
 	ROOT::RDF::RNode applyPrefiringWeight(RNode _rlm, std::string output_var="prefiring_SF_");
@@ -108,6 +114,7 @@ public:
 	int _year;
 	string _runtype;
 	int _datatype;
+	bool _doBtagEff =false;
 	bool _isPreEE =false;
 	bool _isPostEE = false;
 	bool _isPreBPix = false;
@@ -225,9 +232,14 @@ public:
 
 	// btag correction
 	std::unique_ptr<correction::CorrectionSet> _correction_btag1;
-//	TFile *f_btagEff;
-//	TH2D *hist_btagEff_bcflav;
-//	TH2D *hist_btagEff_lflav;
+	TFile *f_btagEff;
+	TH2D *hist_Loose_btagEff_bcflav;
+	TH2D *hist_Loose_btagEff_lflav;
+	TH2D *hist_Medium_btagEff_bcflav;
+	TH2D *hist_Medium_btagEff_lflav;
+	TH2D *hist_Tight_btagEff_bcflav;
+	TH2D *hist_Tight_btagEff_lflav;
+
 
 	RNodeTree _rnt;
 

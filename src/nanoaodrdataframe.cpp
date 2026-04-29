@@ -33,8 +33,15 @@ int main(void) {
 	string goodjsonfname = "data/GoldenJSON/Cert_Collisions2024_378981_386951_Golden.json";
 	string pileupfname = "data/LUM/2024/puWeights_BCDEFGHI.json";
 	string pileuptag = "Collisions24_BCDEFGHI_goldenJSON";
-	string btvfname = "data/BTV/2022_Summer22/btagging.json";
-	string btvtype = "deepJet_shape";
+	string btvfname = "data/BTV/2024_Summer24/btagging.json";
+	string btvtype = "UParTAK4_comb";
+	string fname_btagEff = "BTag/btag_efficiency_2024_UParT.root";
+	string hname_Loose_btagEff_bcflav = "hist_Loose_btagEff_bcflav";
+	string hname_Loose_btagEff_lflav = "hist_Loose_btagEff_lflav";
+	string hname_Medium_btagEff_bcflav = "hist_Medium_btagEff_bcflav";
+	string hname_Medium_btagEff_lflav = "hist_Medium_btagEff_lflav";
+	string hname_Tight_btagEff_bcflav = "hist_Tight_btagEff_bcflav";
+	string hname_Tight_btagEff_lflav = "hist_Tight_btagEff_lflav";
 	string jercfname = "data/JERC/2024_Summer24/jet_jerc.json";
 	string jerctag = "Summer24Prompt24_V2_DATA_L1L2L3Res_AK4PFPuppi";
 	string jettagMC = "Summer24Prompt24_V2_MC_L1L2L3Res_AK4PFPuppi";
@@ -64,7 +71,14 @@ int main(void) {
 // The below line is commented out because it causes some problem while loading the DATA file and the code unable to load all the entries need to fix that some how
 
 	nanoaodrdf.setupCorrections(goodjsonfname, pileupfname, pileuptag,
-		       	btvfname, btvtype, muon_roch_fname, muon_fname,
+		       	btvfname, btvtype,fname_btagEff,
+			hname_Loose_btagEff_bcflav,
+			hname_Loose_btagEff_lflav,
+			hname_Medium_btagEff_bcflav,
+			hname_Medium_btagEff_lflav,
+			hname_Tight_btagEff_bcflav,
+			hname_Tight_btagEff_lflav,
+			muon_roch_fname, muon_fname,
 		       	muonHLTtype, muonIDtype, muonISOtype, electron_fname,
 			electronHlt_fname,electronHlt_type, electron_reco_type1,
 			electron_reco_type2,electron_reco_type3, electron_id_type,

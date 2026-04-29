@@ -894,7 +894,7 @@ void BaseAnalyser::removeOverlaps()
 void BaseAnalyser::calculateEvWeight(){
 
 
-
+/*
   //Scale Factors for BTag ID	
   int _case = 1;
   std::vector<std::string> Jets_vars_names = {"Selected_jethadflav", "Selected_jeteta",  "Selected_jetpt", "Selected_jetbtag"};  
@@ -903,6 +903,80 @@ void BaseAnalyser::calculateEvWeight(){
   }
   std::string output_btag_column_name = "btag_SF_";
   _rlm = calculateBTagSF(_rlm, Jets_vars_names, 0.3040,output_btag_column_name);
+*/
+
+
+ 
+    int _case = 1;
+    int _redefine = 0; 
+    //std::vector<std::string> Jets_vars_names = {"goodJets_hadFlav", "goodJets_eta", "goodJets_pt", "goodJets_btag"};
+    std::vector<std::string> Jets_vars_names = {"Selected_jethadflav", "Selected_jeteta",  "Selected_jetpt", "Selected_jetbtag"};  
+    if (_case != 1)
+    {
+        Jets_vars_names.emplace_back("Selected_jetbtag");
+    }
+
+    std::string output_btag_medium_column_name = "btag_SF_";
+
+    float btag_cut;
+
+    if (_year == 2024)
+    {
+        btag_cut = 0.1272;  // UParTAK4 Medium WP for 2024
+        std::cout << "Btag Cut for year " << _year << ", Era: " << " -> " << btag_cut << " applied" << std::endl;
+    }
+    else
+    {
+        std::cerr << "[ERROR] Unsupported year or era combination: " << _year << ", " << std::endl;
+        return;
+    }
+
+    
+    // _rlm = calculateBTagSF(_rlm, Jets_vars_names, _case, output_btag_column_name);
+    _rlm = calculateBTagSF(_rlm, Jets_vars_names, _case, btag_cut, "M", output_btag_medium_column_name, _redefine);
+
+    _rlm = _rlm.Define("btag_SF_bcflav_vector", [](float central, float up, float down
+        // float up_corr, float down_corr,float up_uncorr, float down_uncorr
+        ) {
+        return std::vector<float>{
+        central,        // 0
+        up,             // 1
+        down,           // 2
+        // up_corr,        // 3
+        // down_corr,      // 4
+        // up_uncorr,      // 5
+        // down_uncorr,    // 6
+        
+        };
+        }, {
+        "btag_SF_bcflav_central",
+        "btag_SF_bcflav_up", "btag_SF_bcflav_down",
+        //"btag_SF_bcflav_up_correlated", "btag_SF_bcflav_down_correlated",
+        //"btag_SF_bcflav_up_uncorrelated", "btag_SF_bcflav_down_uncorrelated"
+        
+        });
+
+
+    _rlm = _rlm.Define("btag_SF_lflav_vector", [](float central, float up, float down,
+        float up_corr, float down_corr,float up_uncorr, float down_uncorr
+        ) {
+        return std::vector<float>{
+        central,        // 0
+        up,             // 1
+        down,           // 2
+        up_corr,        // 3
+        down_corr,      // 4
+        up_uncorr,      // 5
+        down_uncorr,    // 6
+        
+        };
+        }, {
+        "btag_SF_lflav_central",
+        "btag_SF_lflav_up", "btag_SF_lflav_down",
+        "btag_SF_lflav_up_correlated", "btag_SF_lflav_down_correlated",
+        "btag_SF_lflav_up_uncorrelated", "btag_SF_lflav_down_uncorrelated"
+        });
+
 
 
   //Scale Factors for Muon HLT, RECO, ID and ISO
