@@ -38,5 +38,6 @@ rm -f logs/*
 
 echo "Submitting Condor jobs..."
 condor_submit job_hist.submit 
+condor_submit job_hist_data.submit 
 
 echo "Done."

@@ -1395,7 +1395,7 @@ ROOT::RDF::RNode NanoAODAnalyzerrdframe::calculateBTagSF(ROOT::RDF::RNode &_rlm,
       double btagWeight_bcflav = 1.0;
       for (std::size_t i = 0; i < pts.size(); i++) 
 	  	{
-			if (std::abs(etas[i]) > 2.4999 || pts[i] < 30.000001 || hadflav[i] == 0) continue;
+			if (std::abs(etas[i]) > 2.4999 || pts[i] < 25.000001 || hadflav[i] == 0) continue;
 			try 
 			{
 				if (btag_scores[i] >= btag_cut) 
@@ -1414,8 +1414,8 @@ ROOT::RDF::RNode NanoAODAnalyzerrdframe::calculateBTagSF(ROOT::RDF::RNode &_rlm,
 					}
 					else if (_year == 2024) {
 					// UParTAK4_kinfit expects flavor: 0=light, 5=bc combined
-					int flavor_code = (hadflav[i] == 4 || hadflav[i] == 5) ? 5 : int(hadflav[i]);
-					double bcjets_weights = _correction_btag1->at("UParTAK4_comb")->evaluate({variation, _BTagWP, flavor_code, std::fabs(etas[i]), pts[i]});
+					//int flavor_code = (hadflav[i] == 4 || hadflav[i] == 5) ? 5 : int(hadflav[i]);
+					double bcjets_weights = _correction_btag1->at("UParTAK4_comb")->evaluate({variation, _BTagWP, int(hadflav[i]), std::fabs(etas[i]), pts[i]});
 					btagWeight_bcflav *= bcjets_weights;
 					// std::cout<<"BTag SF for bc-flavor jet " << i << " with pt = " << pts[i] << " and eta = " << etas[i] << " is applied with weight: " << bcjets_weights << std::endl;
 					}
@@ -1437,8 +1437,8 @@ ROOT::RDF::RNode NanoAODAnalyzerrdframe::calculateBTagSF(ROOT::RDF::RNode &_rlm,
 					}
 					else if (_year == 2024) {
 					// UParTAK4_kinfit expects flavor: 0=light, 5=bc combined
-					int flavor_code = (hadflav[i] == 4 || hadflav[i] == 5) ? 5 : int(hadflav[i]);
-					double bcjets_weights = _correction_btag1->at("UParTAK4_comb")->evaluate({variation, _BTagWP, flavor_code, std::fabs(etas[i]), pts[i]});
+					//int flavor_code = (hadflav[i] == 4 || hadflav[i] == 5) ? 5 : int(hadflav[i]);
+					double bcjets_weights = _correction_btag1->at("UParTAK4_comb")->evaluate({variation, _BTagWP, int(hadflav[i]), std::fabs(etas[i]), pts[i]});
 					double eff = getBTaggingEff(hadflav[i], etas[i], pts[i], _BTagWP);
 					btagWeight_bcflav *= (1 - bcjets_weights*eff)/(1-eff);
 					}
@@ -1463,8 +1463,7 @@ ROOT::RDF::RNode NanoAODAnalyzerrdframe::calculateBTagSF(ROOT::RDF::RNode &_rlm,
                                                   const std::string& variation) -> float {
       double btagWeight_lflav = 1.0;
       for (std::size_t i = 0; i < pts.size(); i++) {
-        if (std::abs(etas[i]) > 2.4999 || pts[i] < 30.000001 || hadflav[i] != 0) continue;
-		// 2024: mistag SFs not available yet -> do nothing (weight = 1)
+        if (std::abs(etas[i]) > 2.4999 || pts[i] < 25.000001 || hadflav[i] != 0) continue;
     	if (_year == 2016) continue;
         try {
           if (btag_scores[i] >= btag_cut) {
@@ -2290,7 +2289,9 @@ std::string NanoAODAnalyzerrdframe::setHLT(std::string str_HLT){
                 bool ctrl_HLT = isDefined(HLTGlobalNames[i]);
                 if(ctrl_HLT){
                     V_output.push_back(HLTGlobalNames[i]);
-                }
+                }else{
+    		    std::cout << "HLT NOT FOUND: " << HLTGlobalNames[i] << std::endl;
+		}
 
             }
             std::string output_HLT;

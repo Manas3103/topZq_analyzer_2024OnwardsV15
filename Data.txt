@@ -1,9 +1,3 @@
-/store/user/msahoo/2022EE/Era_f/EGamma  Data_EGamma_fromEOS_f.root  Data_EGamma_fromEOS_f.out
-/store/user/msahoo/2024/Muon0 Muon0_EOS.root Muon0_EOS.out
-/store/user/msahoo/2024/Muon1 Muon1_EOS.root Muon1_EOS.out
-/store/user/msahoo/2024/EGamma0 EGamma0_EOS.root EGamma0_EOS.out
-/store/user/msahoo/2024/EGamma1 EGamma1_EOS.root EGamma1_EOS.out
-/store/user/msahoo/2024/MuonEG MuonEG_EOS.root MuonEG_EOS.out
 /EGamma0/Run2024H-MINIv6NANOv15-v2/NANOAOD Data_EGamma0.root Data_EGamma0.out
 /EGamma1/Run2024H-MINIv6NANOv15-v1/NANOAOD Data_EGamma1.root Data_EGamma1.out
 /Muon0/Run2024H-MINIv6NANOv15-v1/NANOAOD Data_Muon0.root Data_Muon0.out

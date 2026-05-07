@@ -1,5 +1,0 @@
-/store/user/msahoo/2024/Muon0 Muon0_EOS.root Muon0_EOS.out
-/store/user/msahoo/2024/Muon1 Muon1_EOS.root Muon1_EOS.out
-/store/user/msahoo/2024/EGamma0 EGamma0_EOS.root EGamma0_EOS.out
-/store/user/msahoo/2024/EGamma1 EGamma1_EOS.root EGamma1_EOS.out
-/store/user/msahoo/2024/MuonEG MuonEG_EOS.root MuonEG_EOS.out
