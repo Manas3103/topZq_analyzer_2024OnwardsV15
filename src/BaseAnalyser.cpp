@@ -1047,16 +1047,16 @@ void BaseAnalyser::DefineGoodLeptonGroups()
     // ============================
     // Good Leptons: 3-lepton case
     // ============================
-    _rlm = _rlm.Define("isptonEvent", "NgoodLepton == 3");
+    _rlm = _rlm.Define("is3LeptonEvent", "NgoodLepton == 3");
 
-    _rlm = _rlm.Define("goodLepton3_pt", "isptonEvent ? goodLepton_pt : ROOT::VecOps::RVec<float>{}")
-               .Define("goodLepton3_eta", "isptonEvent ? goodLepton_eta : ROOT::VecOps::RVec<float>{}")
-               .Define("goodLepton3_phi", "isptonEvent ? goodLepton_phi : ROOT::VecOps::RVec<float>{}")
-               .Define("goodLepton3_charge", "isptonEvent ? goodLepton_charge : ROOT::VecOps::RVec<int>{}")
-               .Define("goodLepton3_flavor", "isptonEvent ? goodLepton_flavor : ROOT::VecOps::RVec<int>{}")
-               .Define("goodLepton3_isPrompt", "isptonEvent ? goodLepton_isPrompt : ROOT::VecOps::RVec<int>{}")
-               .Define("goodLepton3_4Vecs", "isptonEvent ? goodLepton_4Vecs : std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>{}")
-               .Define("goodLepton3_TL4Vecs", "isptonEvent ? goodLepton_TL4Vecs : ROOT::VecOps::RVec<TLorentzVector>{}");
+    _rlm = _rlm.Define("goodLepton3_pt", "is3LeptonEvent ? goodLepton_pt : ROOT::VecOps::RVec<float>{}")
+               .Define("goodLepton3_eta", "is3LeptonEvent ? goodLepton_eta : ROOT::VecOps::RVec<float>{}")
+               .Define("goodLepton3_phi", "is3LeptonEvent ? goodLepton_phi : ROOT::VecOps::RVec<float>{}")
+               .Define("goodLepton3_charge", "is3LeptonEvent ? goodLepton_charge : ROOT::VecOps::RVec<int>{}")
+               .Define("goodLepton3_flavor", "is3LeptonEvent ? goodLepton_flavor : ROOT::VecOps::RVec<int>{}")
+               .Define("goodLepton3_isPrompt", "is3LeptonEvent ? goodLepton_isPrompt : ROOT::VecOps::RVec<int>{}")
+               .Define("goodLepton3_4Vecs", "is3LeptonEvent ? goodLepton_4Vecs : std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>{}")
+               .Define("goodLepton3_TL4Vecs", "is3LeptonEvent ? goodLepton_TL4Vecs : ROOT::VecOps::RVec<TLorentzVector>{}");
 
     // ============================
     // Good Leptons: 4-lepton case
@@ -1727,7 +1727,7 @@ void BaseAnalyser::defineSignalRegion()
 	    .Define("ThreeLRegion_leadingLepton_pt","threeLRegion && leadingLepton_pt > 0 ? leadingLepton_pt : -999.f")
 	    .Define("ThreeLRegion_subleadingLepton_pt","threeLRegion && subleadingLepton_pt > 0 ? subleadingLepton_pt : -999.f")
 	    .Define("ThreeLRegion_trailingLepton_pt","threeLRegion && TrailingLepton_pt > 0 ? TrailingLepton_pt : -999.f")
-	    .Define("ThreeLRegion_topLepton_pt","threeLRegion && topLepton_pt_new > 0 ? topLepton_pt_new : -999.f")
+	    /* .Define("ThreeLRegion_topLepton_pt","threeLRegion && topLepton_pt_new > 0 ? topLepton_pt_new : -999.f") */
 	    .Define("ThreeLRegion_leadingLepton_eta","threeLRegion && leadingLepton_pt > 0 ? leadingLepton_eta : -999.f")
 	    .Define("ThreeLRegion_subleadingLepton_eta","threeLRegion && subleadingLepton_pt > 0 ? subleadingLepton_eta : -999.f")
 	    .Define("ThreeLRegion_trailingLepton_eta","threeLRegion && TrailingLepton_pt > 0 ? TrailingLepton_eta : -999.f")
@@ -1743,7 +1743,7 @@ void BaseAnalyser::defineSignalRegion()
 	    .Define("uuu_ThreeLRegion_leadingLepton_pt","uuu_Region && leadingLepton_pt > 0 ? leadingLepton_pt : -999.f")
 	    .Define("uuu_ThreeLRegion_subleadingLepton_pt","uuu_Region && subleadingLepton_pt > 0 ? subleadingLepton_pt : -999.f")
 	    .Define("uuu_ThreeLRegion_trailingLepton_pt","uuu_Region && TrailingLepton_pt > 0 ? TrailingLepton_pt : -999.f")
-	    .Define("uuu_ThreeLRegion_topLepton_pt","uuu_Region && topLepton_pt_new > 0 ? topLepton_pt_new : -999.f")
+	    /* .Define("uuu_ThreeLRegion_topLepton_pt","uuu_Region && topLepton_pt_new > 0 ? topLepton_pt_new : -999.f") */
 	    .Define("uuu_ThreeLRegion_leadingLepton_eta","uuu_Region && leadingLepton_pt > 0 ? leadingLepton_eta : -999.f")
 	    .Define("uuu_ThreeLRegion_subleadingLepton_eta","uuu_Region && subleadingLepton_pt > 0 ? subleadingLepton_eta : -999.f")
 	    .Define("uuu_ThreeLRegion_trailingLepton_eta","uuu_Region && TrailingLepton_pt > 0 ? TrailingLepton_eta : -999.f")
@@ -1760,7 +1760,7 @@ void BaseAnalyser::defineSignalRegion()
 	    .Define("uue_ThreeLRegion_leadingLepton_pt","uue_Region && leadingLepton_pt > 0 ? leadingLepton_pt : -999.f")
 	    .Define("uue_ThreeLRegion_subleadingLepton_pt","uue_Region && subleadingLepton_pt > 0 ? subleadingLepton_pt : -999.f")
 	    .Define("uue_ThreeLRegion_trailingLepton_pt","uue_Region && TrailingLepton_pt > 0 ? TrailingLepton_pt : -999.f")
-	    .Define("uue_ThreeLRegion_topLepton_pt","uue_Region && topLepton_pt_new > 0 ? topLepton_pt_new : -999.f")
+	    /* .Define("uue_ThreeLRegion_topLepton_pt","uue_Region && topLepton_pt_new > 0 ? topLepton_pt_new : -999.f") */
 	    .Define("uue_ThreeLRegion_leadingLepton_eta","uue_Region && leadingLepton_pt > 0 ? leadingLepton_eta : -999.f")
 	    .Define("uue_ThreeLRegion_subleadingLepton_eta","uue_Region && subleadingLepton_pt > 0 ? subleadingLepton_eta : -999.f")
 	    .Define("uue_ThreeLRegion_trailingLepton_eta","uue_Region && TrailingLepton_pt > 0 ? TrailingLepton_eta : -999.f")
@@ -1777,7 +1777,7 @@ void BaseAnalyser::defineSignalRegion()
 	    .Define("eeu_ThreeLRegion_leadingLepton_pt","eeu_Region && leadingLepton_pt > 0 ? leadingLepton_pt : -999.f")
 	    .Define("eeu_ThreeLRegion_subleadingLepton_pt","eeu_Region && subleadingLepton_pt > 0 ? subleadingLepton_pt : -999.f")
 	    .Define("eeu_ThreeLRegion_trailingLepton_pt","eeu_Region && TrailingLepton_pt > 0 ? TrailingLepton_pt : -999.f")
-	    .Define("eeu_ThreeLRegion_topLepton_pt","eeu_Region && topLepton_pt_new > 0 ? topLepton_pt_new : -999.f")
+	    /* .Define("eeu_ThreeLRegion_topLepton_pt","eeu_Region && topLepton_pt_new > 0 ? topLepton_pt_new : -999.f") */
 	    .Define("eeu_ThreeLRegion_leadingLepton_eta","eeu_Region && leadingLepton_pt > 0 ? leadingLepton_eta : -999.f")
 	    .Define("eeu_ThreeLRegion_subleadingLepton_eta","eeu_Region && subleadingLepton_pt > 0 ? subleadingLepton_eta : -999.f")
 	    .Define("eeu_ThreeLRegion_trailingLepton_eta","eeu_Region && TrailingLepton_pt > 0 ? TrailingLepton_eta : -999.f")
@@ -1794,7 +1794,7 @@ void BaseAnalyser::defineSignalRegion()
 	    .Define("eee_ThreeLRegion_leadingLepton_pt","eee_Region && leadingLepton_pt > 0 ? leadingLepton_pt : -999.f")
 	    .Define("eee_ThreeLRegion_subleadingLepton_pt","eee_Region && subleadingLepton_pt > 0 ? subleadingLepton_pt : -999.f")
 	    .Define("eee_ThreeLRegion_trailingLepton_pt","eee_Region && TrailingLepton_pt > 0 ? TrailingLepton_pt : -999.f")
-	    .Define("eee_ThreeLRegion_topLepton_pt","eee_Region && topLepton_pt_new > 0 ? topLepton_pt_new : -999.f")
+	    /* .Define("eee_ThreeLRegion_topLepton_pt","eee_Region && topLepton_pt_new > 0 ? topLepton_pt_new : -999.f") */
 	    .Define("eee_ThreeLRegion_leadingLepton_eta","eee_Region && leadingLepton_pt > 0 ? leadingLepton_eta : -999.f")
 	    .Define("eee_ThreeLRegion_subleadingLepton_eta","eee_Region && subleadingLepton_pt > 0 ? subleadingLepton_eta : -999.f")
 	    .Define("eee_ThreeLRegion_trailingLepton_eta","eee_Region && TrailingLepton_pt > 0 ? TrailingLepton_eta : -999.f")
@@ -1807,7 +1807,7 @@ void BaseAnalyser::defineSignalRegion()
 	    .Define("eee_ThreeLRegion_nbJets","eee_Region ? int(Selected_bjetpt.size()) : -1");
 
 
-
+/*
 
 //    _rlm = _rlm.Define("ThreeLSignalRegion", " NgoodLepton==3 && ncleanbjetspass >= 1 && All_good_tightLeptons && abs(Sum(goodLepton_charge)) == 1")
     _rlm = _rlm.Define("ThreeLSignalRegion", " NgoodLepton==3 && ncleanbjetspass >= 1 && abs(Sum(goodLepton_charge)) == 1")
@@ -1823,7 +1823,7 @@ void BaseAnalyser::defineSignalRegion()
 
 
 //    _rlm = _rlm.Define("baseRegion", " NgoodLepton==3 && All_good_tightLeptons && goodMET_pt>20")
-    _rlm = _rlm.Define("baseRegion", " isptonEvent && goodMET_pt>20")
+    _rlm = _rlm.Define("baseRegion", " NgoodLepton==3 && goodMET_pt>20")
 	       .Define("SignalRegion", "baseRegion && ncleanjetspass >= 2 && ncleanbjetspass >= 1 && OSSF_category ==1")
 	       .Define("SignalRegion_tzq", "SignalRegion && nCentral_jet < 4")
 	       .Define("SignalRegion_ttz", "SignalRegion && nCentral_jet >= 4")
@@ -2065,6 +2065,9 @@ void BaseAnalyser::defineSignalRegion()
 	// ttZ 4L Region
 	.Define("ttZ4L_goodMET_pt",  "ttZ_Region ? goodMET_pt  : std::numeric_limits<float>::quiet_NaN()")
 	.Define("ttZ4L_goodMET_phi", "ttZ_Region ? goodMET_phi : std::numeric_limits<float>::quiet_NaN()");
+
+
+*/
 /////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////BDT VARIABLE IN DIFFERENT REGION/////////////////////////////////////
@@ -2924,12 +2927,12 @@ void BaseAnalyser::setupObjects()
 	selectMET();
 	removeOverlaps();
 	mergeLeptons();
-	DefineGoodLeptonGroups();
+	/* DefineGoodLeptonGroups(); */
 //	mergeTrailingLeptons(); not required to turn on Outdated 
 //	search_for_OSSFPairs();  not required to turn on Outdated not required to turn on Outdated
-	processOSSFPairs();
-	reconstructWboson();
-	reconstructTop();
+	/* processOSSFPairs(); */
+	/* reconstructWboson(); */
+	/* reconstructTop(); */
 //	BDT_variables();
 	defineSignalRegion();
 
