@@ -1,0 +1,994 @@
+{
+  "top_mass": {
+    "bins": 50,
+    "xmin": 5,
+    "xmax": 700,
+    "xtitle": "Top mass [GeV]",
+    "ytitle": "Events",
+    "title": "Top mass"
+  },
+  "leadingLepton_pt": {
+    "bins": 25,
+    "xmin": 0,
+    "xmax": 250,
+    "xtitle": "LeadingLepton p_{T} [GeV]",
+    "ytitle": "Events",
+    "title": "LeadingLepton p_{T}"
+  },
+  "subleadingLepton_pt": {
+    "bins": 20,
+    "xmin": 0,
+    "xmax": 150,
+    "xtitle": "SubleadingLepton p_{T} [GeV]",
+    "ytitle": "Events",
+    "title": "SubleadingLepton p_{T}"
+  },
+  "trailingLepton_pt": {
+    "bins": 20,
+    "xmin": 0,
+    "xmax": 100,
+    "xtitle": "TrailingLepton p_{T} [GeV]",
+    "ytitle": "Events",
+    "title": "TrailingLepton p_{T}"
+  },
+  "TR_leadingLepton_pt": {
+    "bins": 25,
+    "xmin": 0,
+    "xmax": 250,
+    "xtitle": "LeadingLepton p_{T} [GeV]",
+    "ytitle": "Events",
+    "title": "LeadingLepton p_{T} (Transfer Region)"
+  },
+  "TR_subleadingLepton_pt": {
+    "bins": 20,
+    "xmin": 0,
+    "xmax": 150,
+    "xtitle": "SubleadingLepton p_{T} [GeV]",
+    "ytitle": "Events",
+    "title": "SubleadingLepton p_{T} (Transfer Region)"
+  },
+  "TR_trailingLepton_pt": {
+    "bins": 20,
+    "xmin": 0,
+    "xmax": 100,
+    "xtitle": "TrailingLepton p_{T} [GeV]",
+    "ytitle": "Events",
+    "title": "TrailingLepton p_{T} (Transfer Region)"
+  },
+  "TR_leadingLepton_eta": {
+    "bins": 24,
+    "xmin": -3,
+    "xmax": 3,
+    "xtitle": "LeadingLepton \u03b7",
+    "ytitle": "Events",
+    "title": "LeadingLepton \u03b7 (Transfer Region)"
+  },
+  "TR_subleadingLepton_eta": {
+    "bins": 24,
+    "xmin": -3,
+    "xmax": 3,
+    "xtitle": "SubleadingLepton \u03b7",
+    "ytitle": "Events",
+    "title": "SubleadingLepton \u03b7 (Transfer Region)"
+  },
+  "TR_trailingLepton_eta": {
+    "bins": 24,
+    "xmin": -3,
+    "xmax": 3,
+    "xtitle": "TrailingLepton \u03b7",
+    "ytitle": "Events",
+    "title": "TrailingLepton \u03b7 (Transfer Region)"
+  },
+  "Wboson_transversMass": {
+    "bins": 35,
+    "xmin": 5,
+    "xmax": 300,
+    "xtitle": "Transverse mass M_{T} [GeV]",
+    "ytitle": "Events",
+    "title": "Transverse mass M_{T}"
+  },
+  "OSSF_ZPair_mass": {
+    "bins": 35,
+    "xmin": 70,
+    "xmax": 130,
+    "xtitle": "OSSF ZPair mass [GeV]",
+    "ytitle": "Events",
+    "title": "OSSF ZPair mass"
+  },
+  "ncleanjetspass_SignalRegion": {
+    "bins": 7,
+    "xmin": -0.5,
+    "xmax": 7.5,
+    "xtitle": "Number of clean jets",
+    "ytitle": "Events",
+    "title": "Number of clean jets"
+  },
+  "ncleanbjetspass_SignalRegion": {
+    "bins": 5,
+    "xmin": -0.5,
+    "xmax": 5.5,
+    "xtitle": "Number of clean b-jets",
+    "ytitle": "Events",
+    "title": "Number of clean b-jets"
+  },
+  "ncleanjetspass_WZ_Region": {
+    "bins": 7,
+    "xmin": -0.5,
+    "xmax": 7.5,
+    "xtitle": "Number of clean jets",
+    "ytitle": "Events",
+    "title": "Number of clean jets"
+  },
+  "Wboson_transversMass_WZ_Region": {
+    "bins": 10,
+    "xmin": 5,
+    "xmax": 175,
+    "xtitle": "Transverse mass M_{T} [GeV]",
+    "ytitle": "Events",
+    "title": "Transverse mass M_{T}"
+  },
+  "ncleanjetspass_X_gamma_Region": {
+    "bins": 7,
+    "xmin": -0.5,
+    "xmax": 7.5,
+    "xtitle": "Number of clean jets",
+    "ytitle": "Events",
+    "title": "Number of clean jets"
+  },
+  "ncleanbjetspass_X_gamma_Region": {
+    "bins": 5,
+    "xmin": -0.5,
+    "xmax": 5.5,
+    "xtitle": "Number of clean b-jets",
+    "ytitle": "Events",
+    "title": "Number of clean b-jets"
+  },
+  "ncleanjetspass_NP_2_Region": {
+    "bins": 7,
+    "xmin": -0.5,
+    "xmax": 7.5,
+    "xtitle": "Number of clean jets",
+    "ytitle": "Events",
+    "title": "Number of clean jets"
+  },
+  "ncleanbjetspass_NP_2_Region": {
+    "bins": 5,
+    "xmin": -0.5,
+    "xmax": 5.5,
+    "xtitle": "Number of clean b-jets",
+    "ytitle": "Events",
+    "title": "Number of clean b-jets"
+  },
+  "ncleanjetspass_NP_1_Region": {
+    "bins": 7,
+    "xmin": -0.5,
+    "xmax": 7.5,
+    "xtitle": "Number of clean jets",
+    "ytitle": "Events",
+    "title": "Number of clean jets"
+  },
+  "ncleanbjetspass_NP_1_Region": {
+    "bins": 5,
+    "xmin": -0.5,
+    "xmax": 5.5,
+    "xtitle": "Number of clean b-jets",
+    "ytitle": "Events",
+    "title": "Number of clean b-jets"
+  },
+  "ncleanjetspass_ZZ_Region": {
+    "bins": 7,
+    "xmin": -0.5,
+    "xmax": 7.5,
+    "xtitle": "Number of clean jets",
+    "ytitle": "Events",
+    "title": "Number of clean jets"
+  },
+  "mass_of_4L_ZZ_Region": {
+    "bins": 25,
+    "xmin": 0,
+    "xmax": 450,
+    "xtitle": "Mass of 4L ZZ Region",
+    "ytitle": "Events",
+    "title": "Mass of 4L ZZ Region"
+  },
+  "Z_mass1_ZZ_Region": {
+    "bins": 15,
+    "xmin": 75,
+    "xmax": 105,
+    "xtitle": "Z1 ZZ Region mass [GeV]",
+    "ytitle": "Events",
+    "title": "Z1 ZZ Region mass"
+  },
+  "Z_mass2_ZZ_Region": {
+    "bins": 15,
+    "xmin": 75,
+    "xmax": 105,
+    "xtitle": "Z2 ZZ Region mass [GeV]",
+    "ytitle": "Events",
+    "title": "Z2 ZZ Region mass"
+  },
+  "ncleanjetspass_ttZ_Region": {
+    "bins": 7,
+    "xmin": -0.5,
+    "xmax": 7.5,
+    "xtitle": "Number of clean jets",
+    "ytitle": "Events",
+    "title": "Number of clean jets"
+  },
+  "ncleanbjetspass_ttZ_Region": {
+    "bins": 5,
+    "xmin": -0.5,
+    "xmax": 5.5,
+    "xtitle": "Number of clean b-jets",
+    "ytitle": "Events",
+    "title": "Number of clean b-jets"
+  },
+  "goodMET_pt": {
+    "bins": 30,
+    "xmin": 0,
+    "xmax": 300,
+    "xtitle": "Missing transverse momentum p_{T}^{miss} [GeV]",
+    "ytitle": "Events",
+    "title": "Missing transverse momentum p_{T}^{miss}"
+  },
+  "goodMET_phi": {
+    "bins": 32,
+    "xmin": -3.2,
+    "xmax": 3.2,
+    "xtitle": "Missing transverse momentum \u03c6",
+    "ytitle": "Events",
+    "title": "Missing transverse momentum \u03c6"
+  },
+  "SR_goodMET_pt": {
+    "bins": 30,
+    "xmin": 0,
+    "xmax": 300,
+    "xtitle": "Missing transverse momentum p_{T}^{miss} [GeV]",
+    "ytitle": "Events",
+    "title": "Missing transverse momentum p_{T}^{miss} (Signal Region)"
+  },
+  "SR_goodMET_phi": {
+    "bins": 32,
+    "xmin": -3.2,
+    "xmax": 3.2,
+    "xtitle": "Missing transverse momentum \u03c6",
+    "ytitle": "Events",
+    "title": "Missing transverse momentum \u03c6 (Signal Region)"
+  },
+  "SR_tzq_goodMET_pt": {
+    "bins": 30,
+    "xmin": 0,
+    "xmax": 300,
+    "xtitle": "Missing transverse momentum p_{T}^{miss} [GeV]",
+    "ytitle": "Events",
+    "title": "Missing transverse momentum p_{T}^{miss} (Signal Region)"
+  },
+  "SR_tzq_goodMET_phi": {
+    "bins": 20,
+    "xmin": -3.2,
+    "xmax": 3.2,
+    "xtitle": "Missing transverse momentum \u03c6",
+    "ytitle": "Events",
+    "title": "Missing transverse momentum \u03c6 (Signal Region)"
+  },
+  "SR_ttz_goodMET_pt": {
+    "bins": 30,
+    "xmin": 0,
+    "xmax": 300,
+    "xtitle": "Missing transverse momentum p_{T}^{miss} [GeV]",
+    "ytitle": "Events",
+    "title": "Missing transverse momentum p_{T}^{miss} (Signal Region)"
+  },
+  "SR_ttz_goodMET_phi": {
+    "bins": 32,
+    "xmin": -3.2,
+    "xmax": 3.2,
+    "xtitle": "Missing transverse momentum \u03c6",
+    "ytitle": "Events",
+    "title": "Missing transverse momentum \u03c6 (Signal Region)"
+  },
+  "WZ_goodMET_pt": {
+    "bins": 30,
+    "xmin": 0,
+    "xmax": 300,
+    "xtitle": "Missing transverse momentum p_{T}^{miss} [GeV]",
+    "ytitle": "Events",
+    "title": "Missing transverse momentum p_{T}^{miss} (WZ Control Region)"
+  },
+  "WZ_goodMET_phi": {
+    "bins": 20,
+    "xmin": -3.2,
+    "xmax": 3.2,
+    "xtitle": "Missing transverse momentum \u03c6",
+    "ytitle": "Events",
+    "title": "Missing transverse momentum \u03c6 (WZ Control Region)"
+  },
+  "XG_goodMET_pt": {
+    "bins": 30,
+    "xmin": 0,
+    "xmax": 300,
+    "xtitle": "Missing transverse momentum p_{T}^{miss} [GeV]",
+    "ytitle": "Events",
+    "title": "Missing transverse momentum p_{T}^{miss} (X\u03b3 Region)"
+  },
+  "XG_goodMET_phi": {
+    "bins": 32,
+    "xmin": -3.2,
+    "xmax": 3.2,
+    "xtitle": "Missing transverse momentum \u03c6",
+    "ytitle": "Events",
+    "title": "Missing transverse momentum \u03c6 (X\u03b3 Region)"
+  },
+  "NP2_goodMET_pt": {
+    "bins": 30,
+    "xmin": 0,
+    "xmax": 300,
+    "xtitle": "Missing transverse momentum p_{T}^{miss} [GeV]",
+    "ytitle": "Events",
+    "title": "Missing transverse momentum p_{T}^{miss} (Nonprompt-2 Region)"
+  },
+  "NP2_goodMET_phi": {
+    "bins": 32,
+    "xmin": -3.2,
+    "xmax": 3.2,
+    "xtitle": "Missing transverse momentum \u03c6",
+    "ytitle": "Events",
+    "title": "Missing transverse momentum \u03c6 (Nonprompt-2 Region)"
+  },
+  "NP1_goodMET_pt": {
+    "bins": 30,
+    "xmin": 0,
+    "xmax": 300,
+    "xtitle": "Missing transverse momentum p_{T}^{miss} [GeV]",
+    "ytitle": "Events",
+    "title": "Missing transverse momentum p_{T}^{miss} (Nonprompt-1 Region)"
+  },
+  "NP1_goodMET_phi": {
+    "bins": 32,
+    "xmin": -3.2,
+    "xmax": 3.2,
+    "xtitle": "Missing transverse momentum \u03c6",
+    "ytitle": "Events",
+    "title": "Missing transverse momentum \u03c6 (Nonprompt-1 Region)"
+  },
+  "ZZ_goodMET_pt": {
+    "bins": 10,
+    "xmin": 0,
+    "xmax": 100,
+    "xtitle": "Missing transverse momentum p_{T}^{miss} [GeV]",
+    "ytitle": "Events",
+    "title": "Missing transverse momentum p_{T}^{miss} (ZZ Control Region)"
+  },
+  "ZZ_goodMET_phi": {
+    "bins": 15,
+    "xmin": -3.2,
+    "xmax": 3.2,
+    "xtitle": "Missing transverse momentum \u03c6",
+    "ytitle": "Events",
+    "title": "Missing transverse momentum \u03c6 (ZZ Control Region)"
+  },
+  "ttZ4L_goodMET_pt": {
+    "bins": 30,
+    "xmin": 0,
+    "xmax": 300,
+    "xtitle": "Missing transverse momentum p_{T}^{miss} [GeV]",
+    "ytitle": "Events",
+    "title": "Missing transverse momentum p_{T}^{miss} (ttZ (4\u2113) Region)"
+  },
+  "ttZ4L_goodMET_phi": {
+    "bins": 32,
+    "xmin": -3.2,
+    "xmax": 3.2,
+    "xtitle": "Missing transverse momentum \u03c6",
+    "ytitle": "Events",
+    "title": "Missing transverse momentum \u03c6 (ttZ (4\u2113) Region)"
+  },
+  "leadingJet_pt": {
+    "bins": 25,
+    "xmin": 0,
+    "xmax": 500,
+    "xtitle": "LeadingJet p_{T} [GeV]",
+    "ytitle": "Events",
+    "title": "LeadingJet p_{T}"
+  },
+  "leadingJet_eta": {
+    "bins": 20,
+    "xmin": -5,
+    "xmax": 5,
+    "xtitle": "LeadingJet \u03b7",
+    "ytitle": "Events",
+    "title": "LeadingJet \u03b7"
+  },
+  "SR_leadingJet_pt": {
+    "bins": 20,
+    "xmin": 0,
+    "xmax": 300,
+    "xtitle": "LeadingJet p_{T} [GeV]",
+    "ytitle": "Events",
+    "title": "LeadingJet p_{T} (Signal Region)"
+  },
+  "SR_leadingJet_eta": {
+    "bins": 20,
+    "xmin": -5,
+    "xmax": 5,
+    "xtitle": "LeadingJet \u03b7",
+    "ytitle": "Events",
+    "title": "LeadingJet \u03b7 (Signal Region)"
+  },
+  "SR_tzq_leadingJet_pt": {
+    "bins": 25,
+    "xmin": 0,
+    "xmax": 500,
+    "xtitle": "Tzq leadingJet p_{T} [GeV]",
+    "ytitle": "Events",
+    "title": "Tzq leadingJet p_{T} (Signal Region)"
+  },
+  "SR_tzq_leadingJet_eta": {
+    "bins": 20,
+    "xmin": -5,
+    "xmax": 5,
+    "xtitle": "Tzq leadingJet \u03b7",
+    "ytitle": "Events",
+    "title": "Tzq leadingJet \u03b7 (Signal Region)"
+  },
+  "SR_ttz_leadingJet_pt": {
+    "bins": 25,
+    "xmin": 0,
+    "xmax": 500,
+    "xtitle": "Ttz leadingJet p_{T} [GeV]",
+    "ytitle": "Events",
+    "title": "Ttz leadingJet p_{T} (Signal Region)"
+  },
+  "SR_ttz_leadingJet_eta": {
+    "bins": 20,
+    "xmin": -5,
+    "xmax": 5,
+    "xtitle": "Ttz leadingJet \u03b7",
+    "ytitle": "Events",
+    "title": "Ttz leadingJet \u03b7 (Signal Region)"
+  },
+  "WZ_leadingJet_pt": {
+    "bins": 25,
+    "xmin": 0,
+    "xmax": 500,
+    "xtitle": "LeadingJet p_{T} [GeV]",
+    "ytitle": "Events",
+    "title": "LeadingJet p_{T} (WZ Control Region)"
+  },
+  "WZ_leadingJet_eta": {
+    "bins": 20,
+    "xmin": -5,
+    "xmax": 5,
+    "xtitle": "LeadingJet \u03b7",
+    "ytitle": "Events",
+    "title": "LeadingJet \u03b7 (WZ Control Region)"
+  },
+  "XG_leadingJet_pt": {
+    "bins": 25,
+    "xmin": 0,
+    "xmax": 500,
+    "xtitle": "LeadingJet p_{T} [GeV]",
+    "ytitle": "Events",
+    "title": "LeadingJet p_{T} (X\u03b3 Region)"
+  },
+  "XG_leadingJet_eta": {
+    "bins": 20,
+    "xmin": -5,
+    "xmax": 5,
+    "xtitle": "LeadingJet \u03b7",
+    "ytitle": "Events",
+    "title": "LeadingJet \u03b7 (X\u03b3 Region)"
+  },
+  "NP2_leadingJet_pt": {
+    "bins": 25,
+    "xmin": 0,
+    "xmax": 500,
+    "xtitle": "LeadingJet p_{T} [GeV]",
+    "ytitle": "Events",
+    "title": "LeadingJet p_{T} (Nonprompt-2 Region)"
+  },
+  "NP2_leadingJet_eta": {
+    "bins": 20,
+    "xmin": -5,
+    "xmax": 5,
+    "xtitle": "LeadingJet \u03b7",
+    "ytitle": "Events",
+    "title": "LeadingJet \u03b7 (Nonprompt-2 Region)"
+  },
+  "NP1_leadingJet_pt": {
+    "bins": 25,
+    "xmin": 0,
+    "xmax": 500,
+    "xtitle": "LeadingJet p_{T} [GeV]",
+    "ytitle": "Events",
+    "title": "LeadingJet p_{T} (Nonprompt-1 Region)"
+  },
+  "NP1_leadingJet_eta": {
+    "bins": 20,
+    "xmin": -5,
+    "xmax": 5,
+    "xtitle": "LeadingJet \u03b7",
+    "ytitle": "Events",
+    "title": "LeadingJet \u03b7 (Nonprompt-1 Region)"
+  },
+  "ZZ_leadingJet_pt": {
+    "bins": 25,
+    "xmin": 0,
+    "xmax": 500,
+    "xtitle": "LeadingJet p_{T} [GeV]",
+    "ytitle": "Events",
+    "title": "LeadingJet p_{T} (ZZ Control Region)"
+  },
+  "ZZ_leadingJet_eta": {
+    "bins": 20,
+    "xmin": -5,
+    "xmax": 5,
+    "xtitle": "LeadingJet \u03b7",
+    "ytitle": "Events",
+    "title": "LeadingJet \u03b7 (ZZ Control Region)"
+  },
+  "ttZ4L_leadingJet_pt": {
+    "bins": 25,
+    "xmin": 0,
+    "xmax": 500,
+    "xtitle": "LeadingJet p_{T} [GeV]",
+    "ytitle": "Events",
+    "title": "LeadingJet p_{T} (ttZ (4\u2113) Region)"
+  },
+  "ttZ4L_leadingJet_eta": {
+    "bins": 20,
+    "xmin": -5,
+    "xmax": 5,
+    "xtitle": "LeadingJet \u03b7",
+    "ytitle": "Events",
+    "title": "LeadingJet \u03b7 (ttZ (4\u2113) Region)"
+  },
+  "SR_leadLepton_pt": {
+    "bins": 15,
+    "xmin": 0,
+    "xmax": 250,
+    "xtitle": "LeadLepton p_{T} [GeV]",
+    "ytitle": "Events",
+    "title": "LeadLepton p_{T} (Signal Region)"
+  },
+  "SR_leadLepton_eta": {
+    "bins": 15,
+    "xmin": -2.5,
+    "xmax": 2.5,
+    "xtitle": "LeadLepton \u03b7",
+    "ytitle": "Events",
+    "title": "LeadLepton \u03b7 (Signal Region)"
+  },
+  "SR_subleadLepton_pt": {
+    "bins": 15,
+    "xmin": 0,
+    "xmax": 200,
+    "xtitle": "SubleadLepton p_{T} [GeV]",
+    "ytitle": "Events",
+    "title": "SubleadLepton p_{T} (Signal Region)"
+  },
+  "SR_subleadLepton_eta": {
+    "bins": 15,
+    "xmin": -2.5,
+    "xmax": 2.5,
+    "xtitle": "SubleadLepton \u03b7",
+    "ytitle": "Events",
+    "title": "SubleadLepton \u03b7 (Signal Region)"
+  },
+  "SR_trailLepton_pt": {
+    "bins": 10,
+    "xmin": 0,
+    "xmax": 150,
+    "xtitle": "TrailLepton p_{T} [GeV]",
+    "ytitle": "Events",
+    "title": "TrailLepton p_{T} (Signal Region)"
+  },
+  "SR_trailLepton_eta": {
+    "bins": 10,
+    "xmin": -2.5,
+    "xmax": 2.5,
+    "xtitle": "TrailLepton \u03b7",
+    "ytitle": "Events",
+    "title": "TrailLepton \u03b7 (Signal Region)"
+  },
+  "SR_ttz_leadLepton_pt": {
+    "bins": 10,
+    "xmin": 20,
+    "xmax": 250,
+    "xtitle": "Ttz leadLepton p_{T} [GeV]",
+    "ytitle": "Events",
+    "title": "Ttz leadLepton p_{T} (Signal Region)"
+  },
+  "SR_ttz_leadLepton_eta": {
+    "bins": 15,
+    "xmin": -2.5,
+    "xmax": 2.5,
+    "xtitle": "Ttz leadLepton \u03b7",
+    "ytitle": "Events",
+    "title": "Ttz leadLepton \u03b7 (Signal Region)"
+  },
+  "SR_ttz_subleadLepton_pt": {
+    "bins": 10,
+    "xmin": 10,
+    "xmax": 200,
+    "xtitle": "Ttz subleadLepton p_{T} [GeV]",
+    "ytitle": "Events",
+    "title": "Ttz subleadLepton p_{T} (Signal Region)"
+  },
+  "SR_ttz_subleadLepton_eta": {
+    "bins": 15,
+    "xmin": -2.5,
+    "xmax": 2.5,
+    "xtitle": "Ttz subleadLepton \u03b7",
+    "ytitle": "Events",
+    "title": "Ttz subleadLepton \u03b7 (Signal Region)"
+  },
+  "SR_ttz_trailLepton_pt": {
+    "bins": 10,
+    "xmin": 10,
+    "xmax": 150,
+    "xtitle": "Ttz trailLepton p_{T} [GeV]",
+    "ytitle": "Events",
+    "title": "Ttz trailLepton p_{T} (Signal Region)"
+  },
+  "SR_ttz_trailLepton_eta": {
+    "bins": 10,
+    "xmin": -2.5,
+    "xmax": 2.5,
+    "xtitle": "Ttz trailLepton \u03b7",
+    "ytitle": "Events",
+    "title": "Ttz trailLepton \u03b7 (Signal Region)"
+  },
+  "WZ_leadLepton_pt": {
+    "bins": 30,
+    "xmin": 0,
+    "xmax": 300,
+    "xtitle": "LeadLepton p_{T} [GeV]",
+    "ytitle": "Events",
+    "title": "LeadLepton p_{T} (WZ Control Region)"
+  },
+  "WZ_leadLepton_eta": {
+    "bins": 20,
+    "xmin": -2.5,
+    "xmax": 2.5,
+    "xtitle": "LeadLepton \u03b7",
+    "ytitle": "Events",
+    "title": "LeadLepton \u03b7 (WZ Control Region)"
+  },
+  "WZ_subleadLepton_pt": {
+    "bins": 30,
+    "xmin": 0,
+    "xmax": 300,
+    "xtitle": "SubleadLepton p_{T} [GeV]",
+    "ytitle": "Events",
+    "title": "SubleadLepton p_{T} (WZ Control Region)"
+  },
+  "WZ_subleadLepton_eta": {
+    "bins": 20,
+    "xmin": -2.5,
+    "xmax": 2.5,
+    "xtitle": "SubleadLepton \u03b7",
+    "ytitle": "Events",
+    "title": "SubleadLepton \u03b7 (WZ Control Region)"
+  },
+  "WZ_trailLepton_pt": {
+    "bins": 30,
+    "xmin": 0,
+    "xmax": 300,
+    "xtitle": "TrailLepton p_{T} [GeV]",
+    "ytitle": "Events",
+    "title": "TrailLepton p_{T} (WZ Control Region)"
+  },
+  "WZ_trailLepton_eta": {
+    "bins": 20,
+    "xmin": -2.5,
+    "xmax": 2.5,
+    "xtitle": "TrailLepton \u03b7",
+    "ytitle": "Events",
+    "title": "TrailLepton \u03b7 (WZ Control Region)"
+  },
+  "XG_leadLepton_pt": {
+    "bins": 30,
+    "xmin": 0,
+    "xmax": 300,
+    "xtitle": "LeadLepton p_{T} [GeV]",
+    "ytitle": "Events",
+    "title": "LeadLepton p_{T} (X\u03b3 Region)"
+  },
+  "XG_leadLepton_eta": {
+    "bins": 20,
+    "xmin": -2.5,
+    "xmax": 2.5,
+    "xtitle": "LeadLepton \u03b7",
+    "ytitle": "Events",
+    "title": "LeadLepton \u03b7 (X\u03b3 Region)"
+  },
+  "XG_subleadLepton_pt": {
+    "bins": 30,
+    "xmin": 0,
+    "xmax": 300,
+    "xtitle": "SubleadLepton p_{T} [GeV]",
+    "ytitle": "Events",
+    "title": "SubleadLepton p_{T} (X\u03b3 Region)"
+  },
+  "XG_subleadLepton_eta": {
+    "bins": 20,
+    "xmin": -2.5,
+    "xmax": 2.5,
+    "xtitle": "SubleadLepton \u03b7",
+    "ytitle": "Events",
+    "title": "SubleadLepton \u03b7 (X\u03b3 Region)"
+  },
+  "XG_trailLepton_pt": {
+    "bins": 30,
+    "xmin": 0,
+    "xmax": 300,
+    "xtitle": "TrailLepton p_{T} [GeV]",
+    "ytitle": "Events",
+    "title": "TrailLepton p_{T} (X\u03b3 Region)"
+  },
+  "XG_trailLepton_eta": {
+    "bins": 20,
+    "xmin": -2.5,
+    "xmax": 2.5,
+    "xtitle": "TrailLepton \u03b7",
+    "ytitle": "Events",
+    "title": "TrailLepton \u03b7 (X\u03b3 Region)"
+  },
+  "NP2_leadLepton_pt": {
+    "bins": 50,
+    "xmin": 0,
+    "xmax": 500,
+    "xtitle": "LeadLepton p_{T} [GeV]",
+    "ytitle": "Events",
+    "title": "LeadLepton p_{T} (Nonprompt-2 Region)"
+  },
+  "NP2_leadLepton_eta": {
+    "bins": 25,
+    "xmin": -2.5,
+    "xmax": 2.5,
+    "xtitle": "LeadLepton \u03b7",
+    "ytitle": "Events",
+    "title": "LeadLepton \u03b7 (Nonprompt-2 Region)"
+  },
+  "NP2_subleadLepton_pt": {
+    "bins": 50,
+    "xmin": 0,
+    "xmax": 500,
+    "xtitle": "SubleadLepton p_{T} [GeV]",
+    "ytitle": "Events",
+    "title": "SubleadLepton p_{T} (Nonprompt-2 Region)"
+  },
+  "NP2_subleadLepton_eta": {
+    "bins": 25,
+    "xmin": -2.5,
+    "xmax": 2.5,
+    "xtitle": "SubleadLepton \u03b7",
+    "ytitle": "Events",
+    "title": "SubleadLepton \u03b7 (Nonprompt-2 Region)"
+  },
+  "NP2_trailLepton_pt": {
+    "bins": 50,
+    "xmin": 0,
+    "xmax": 500,
+    "xtitle": "TrailLepton p_{T} [GeV]",
+    "ytitle": "Events",
+    "title": "TrailLepton p_{T} (Nonprompt-2 Region)"
+  },
+  "NP2_trailLepton_eta": {
+    "bins": 25,
+    "xmin": -2.5,
+    "xmax": 2.5,
+    "xtitle": "TrailLepton \u03b7",
+    "ytitle": "Events",
+    "title": "TrailLepton \u03b7 (Nonprompt-2 Region)"
+  },
+  "NP1_leadLepton_pt": {
+    "bins": 50,
+    "xmin": 0,
+    "xmax": 500,
+    "xtitle": "LeadLepton p_{T} [GeV]",
+    "ytitle": "Events",
+    "title": "LeadLepton p_{T} (Nonprompt-1 Region)"
+  },
+  "NP1_leadLepton_eta": {
+    "bins": 25,
+    "xmin": -2.5,
+    "xmax": 2.5,
+    "xtitle": "LeadLepton \u03b7",
+    "ytitle": "Events",
+    "title": "LeadLepton \u03b7 (Nonprompt-1 Region)"
+  },
+  "NP1_subleadLepton_pt": {
+    "bins": 50,
+    "xmin": 0,
+    "xmax": 500,
+    "xtitle": "SubleadLepton p_{T} [GeV]",
+    "ytitle": "Events",
+    "title": "SubleadLepton p_{T} (Nonprompt-1 Region)"
+  },
+  "NP1_subleadLepton_eta": {
+    "bins": 25,
+    "xmin": -2.5,
+    "xmax": 2.5,
+    "xtitle": "SubleadLepton \u03b7",
+    "ytitle": "Events",
+    "title": "SubleadLepton \u03b7 (Nonprompt-1 Region)"
+  },
+  "NP1_trailLepton_pt": {
+    "bins": 50,
+    "xmin": 0,
+    "xmax": 500,
+    "xtitle": "TrailLepton p_{T} [GeV]",
+    "ytitle": "Events",
+    "title": "TrailLepton p_{T} (Nonprompt-1 Region)"
+  },
+  "NP1_trailLepton_eta": {
+    "bins": 25,
+    "xmin": -2.5,
+    "xmax": 2.5,
+    "xtitle": "TrailLepton \u03b7",
+    "ytitle": "Events",
+    "title": "TrailLepton \u03b7 (Nonprompt-1 Region)"
+  },
+  "ZZ_leadLepton_pt": {
+    "bins": 30,
+    "xmin": 0,
+    "xmax": 300,
+    "xtitle": "LeadLepton p_{T} [GeV]",
+    "ytitle": "Events",
+    "title": "LeadLepton p_{T} (ZZ Control Region)"
+  },
+  "ZZ_leadLepton_eta": {
+    "bins": 20,
+    "xmin": -2.5,
+    "xmax": 2.5,
+    "xtitle": "LeadLepton \u03b7",
+    "ytitle": "Events",
+    "title": "LeadLepton \u03b7 (ZZ Control Region)"
+  },
+  "ZZ_subleadLepton_pt": {
+    "bins": 30,
+    "xmin": 0,
+    "xmax": 300,
+    "xtitle": "SubleadLepton p_{T} [GeV]",
+    "ytitle": "Events",
+    "title": "SubleadLepton p_{T} (ZZ Control Region)"
+  },
+  "ZZ_subleadLepton_eta": {
+    "bins": 20,
+    "xmin": -2.5,
+    "xmax": 2.5,
+    "xtitle": "SubleadLepton \u03b7",
+    "ytitle": "Events",
+    "title": "SubleadLepton \u03b7 (ZZ Control Region)"
+  },
+  "ZZ_trailLepton_pt": {
+    "bins": 30,
+    "xmin": 0,
+    "xmax": 300,
+    "xtitle": "TrailLepton p_{T} [GeV]",
+    "ytitle": "Events",
+    "title": "TrailLepton p_{T} (ZZ Control Region)"
+  },
+  "ZZ_trailLepton_eta": {
+    "bins": 20,
+    "xmin": -2.5,
+    "xmax": 2.5,
+    "xtitle": "TrailLepton \u03b7",
+    "ytitle": "Events",
+    "title": "TrailLepton \u03b7 (ZZ Control Region)"
+  },
+  "ttZ4L_leadLepton_pt": {
+    "bins": 50,
+    "xmin": 0,
+    "xmax": 500,
+    "xtitle": "LeadLepton p_{T} [GeV]",
+    "ytitle": "Events",
+    "title": "LeadLepton p_{T} (ttZ (4\u2113) Region)"
+  },
+  "ttZ4L_leadLepton_eta": {
+    "bins": 25,
+    "xmin": -2.5,
+    "xmax": 2.5,
+    "xtitle": "LeadLepton \u03b7",
+    "ytitle": "Events",
+    "title": "LeadLepton \u03b7 (ttZ (4\u2113) Region)"
+  },
+  "ttZ4L_subleadLepton_pt": {
+    "bins": 50,
+    "xmin": 0,
+    "xmax": 500,
+    "xtitle": "SubleadLepton p_{T} [GeV]",
+    "ytitle": "Events",
+    "title": "SubleadLepton p_{T} (ttZ (4\u2113) Region)"
+  },
+  "ttZ4L_subleadLepton_eta": {
+    "bins": 25,
+    "xmin": -2.5,
+    "xmax": 2.5,
+    "xtitle": "SubleadLepton \u03b7",
+    "ytitle": "Events",
+    "title": "SubleadLepton \u03b7 (ttZ (4\u2113) Region)"
+  },
+  "ttZ4L_trailLepton_pt": {
+    "bins": 50,
+    "xmin": 0,
+    "xmax": 500,
+    "xtitle": "TrailLepton p_{T} [GeV]",
+    "ytitle": "Events",
+    "title": "TrailLepton p_{T} (ttZ (4\u2113) Region)"
+  },
+  "ttZ4L_trailLepton_eta": {
+    "bins": 25,
+    "xmin": -2.5,
+    "xmax": 2.5,
+    "xtitle": "TrailLepton \u03b7",
+    "ytitle": "Events",
+    "title": "TrailLepton \u03b7 (ttZ (4\u2113) Region)"
+  },
+  "muon_multiplicity_SignalRegion": {
+    "bins": 6,
+    "xmin": -0.5,
+    "xmax": 5.5,
+    "xtitle": "Multiplicity",
+    "ytitle": "Events",
+    "title": "Multiplicity"
+  },
+  "muon_multiplicity_WZ_Region": {
+    "bins": 6,
+    "xmin": -0.5,
+    "xmax": 5.5,
+    "xtitle": "Multiplicity",
+    "ytitle": "Events",
+    "title": "Multiplicity"
+  },
+  "muon_multiplicity_WZ_Region_modified": {
+    "bins": 6,
+    "xmin": -0.5,
+    "xmax": 5.5,
+    "xtitle": "Multiplicity",
+    "ytitle": "Events",
+    "title": "Multiplicity"
+  },
+  "muon_multiplicity_X_gamma_Region": {
+    "bins": 6,
+    "xmin": -0.5,
+    "xmax": 5.5,
+    "xtitle": "Multiplicity",
+    "ytitle": "Events",
+    "title": "Multiplicity"
+  },
+  "muon_multiplicity_NP_2_Region": {
+    "bins": 6,
+    "xmin": -0.5,
+    "xmax": 5.5,
+    "xtitle": "Multiplicity",
+    "ytitle": "Events",
+    "title": "Multiplicity"
+  },
+  "muon_multiplicity_NP_1_Region": {
+    "bins": 6,
+    "xmin": -0.5,
+    "xmax": 5.5,
+    "xtitle": "Multiplicity",
+    "ytitle": "Events",
+    "title": "Multiplicity"
+  },
+  "muon_multiplicity_ZZ_Region": {
+    "bins": 6,
+    "xmin": -0.5,
+    "xmax": 5.5,
+    "xtitle": "Multiplicity",
+    "ytitle": "Events",
+    "title": "Multiplicity"
+  },
+  "muon_multiplicity_ttZ_Region": {
+    "bins": 6,
+    "xmin": -0.5,
+    "xmax": 5.5,
+    "xtitle": "Multiplicity",
+    "ytitle": "Events",
+    "title": "Multiplicity"
+  }
+}

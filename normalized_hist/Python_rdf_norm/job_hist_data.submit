@@ -4,7 +4,6 @@ arguments= $(filename) $(crossection)
 
 # Extract clean file name (without path and .root)
 filetag = $Fnx(filename)
-filetag = $(filetag:.root=)
 
 output = logs/$(filetag)_$(ClusterId)_$(Process).out
 error  = logs/$(filetag)_$(ClusterId)_$(Process).err
