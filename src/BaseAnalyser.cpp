@@ -138,19 +138,25 @@ void BaseAnalyser::selectElectrons()
     // =====================================================================
     // baselineElectrons_isPromptBaseline Electron Selection
     // =====================================================================
-    _rlm = _rlm.Define("baselineElectrons", 
-                       "Electron_pt_corr > 15.0 && abs(Electron_eta) < 2.5 &&  Electron_cutBased >=4 &&"
-		       "!(abs(Electron_eta) > 1.442 && abs(Electron_eta) < 1.566) && "
-                       "Electron_miniPFRelIso_all < 0.40 && abs(Electron_dxy) < 0.05 && "
-                       "abs(Electron_dz) < 0.10 && Electron_lostHits <= 1 && "
-                       "Electron_hoe < 0.10 && Electron_convVeto &&"
-		       "((abs(Electron_eta) < 1.479 && Electron_sieie < 0.011) || " // Barrel cut
-                       "(abs(Electron_eta) >= 1.479 && abs(Electron_eta) < 2.5 && Electron_sieie < 0.030)) &&" // Endcap cut
-		       "Electron_sip3d < 8 && Electron_eInvMinusPInv > -0.04"
-		       );
+    /* _rlm = _rlm.Define("baselineElectrons", */ 
+    /*                    "Electron_pt_corr > 15.0 && abs(Electron_eta) < 2.5 &&  Electron_cutBased >=4 &&" */
+		       /* "!(abs(Electron_eta) > 1.442 && abs(Electron_eta) < 1.566) && " */
+    /*                    "Electron_miniPFRelIso_all < 0.40 && abs(Electron_dxy) < 0.05 && " */
+    /*                    "abs(Electron_dz) < 0.10 && Electron_lostHits <= 1 && " */
+    /*                    "Electron_hoe < 0.10 && Electron_convVeto &&" */
+		       /* "((abs(Electron_eta) < 1.479 && Electron_sieie < 0.011) || " // Barrel cut */
+    /*                    "(abs(Electron_eta) >= 1.479 && abs(Electron_eta) < 2.5 && Electron_sieie < 0.030)) &&" // Endcap cut */
+		       /* "Electron_sip3d < 8 && Electron_eInvMinusPInv > -0.04" */
+		       /* ); */
+
+    _rlm = _rlm.Define("baselineElectrons", "Electron_pt > 15.0 && abs(Electron_eta) < 2.4 && !(abs(Electron_eta) > 1.442 && abs(Electron_eta) < 1.566) && Electron_cutBased>=2");  //loose ID
+
 
     // Additional variables for baseline electrons
-    _rlm = _rlm.Define("A_baselineElectrons_pt", "Electron_pt_corr[baselineElectrons]")
+    /* _rlm = _rlm.Define("A_baselineElectrons_pt", "Electron_pt_corr[baselineElectrons]") */
+
+
+    _rlm = _rlm.Define("A_baselineElectrons_pt", "Electron_pt[baselineElectrons]")
                 .Define("A_baselineElectrons_eta", "Electron_eta[baselineElectrons]")
                 .Define("A_baselineElectrons_phi", "Electron_phi[baselineElectrons]")
                 .Define("A_baselineElectrons_mass", "Electron_mass[baselineElectrons]")
@@ -223,15 +229,21 @@ void BaseAnalyser::selectMuons()
     // ====================================================================
     // Baseline Muon Selection
     // // =====================================================================
-    _rlm = _rlm.Define("baselineMuons",
-		       "Muon_pt_corr > 15.0 && abs(Muon_eta) < 2.4 && "
-	       	       "Muon_miniPFRelIso_all < 0.4 && abs(Muon_dxy) < 0.05 && "
-		       "abs(Muon_dz) < 0.10 && Muon_sip3d < 8.0 && "
-		       "Muon_tightId && Muon_isPFcand"
-		       "&& (Muon_isGlobal || Muon_isTracker)");
+    /* _rlm = _rlm.Define("baselineMuons", */
+		       /* "Muon_pt_corr > 15.0 && abs(Muon_eta) < 2.4 && " */
+	       	       /* "Muon_miniPFRelIso_all < 0.4 && abs(Muon_dxy) < 0.05 && " */
+		       /* "abs(Muon_dz) < 0.10 && Muon_sip3d < 8.0 && " */
+		       /* "Muon_tightId && Muon_isPFcand" */
+		       /* "&& (Muon_isGlobal || Muon_isTracker)"); */
+
+    _rlm = _rlm.Define("baselineMuons", "Muon_pt > 15 && abs(Muon_eta) < 2.4 && Muon_miniPFRelIso_all < 0.40 && goodMuonsID");
+
 
 	// Additional variables for baseline muons  the value of pt has to be >15 because correction is lot avalaible below 15 
-    _rlm = _rlm.Define("baselineMuons_pt", "Muon_pt_corr[baselineMuons]")
+    /* _rlm = _rlm.Define("baselineMuons_pt", "Muon_pt_corr[baselineMuons]") */
+
+
+    _rlm = _rlm.Define("baselineMuons_pt", "Muon_pt[baselineMuons]")
 	       .Define("baselineMuons_eta", "Muon_eta[baselineMuons]")
 	       .Define("baselineMuons_phi", "Muon_phi[baselineMuons]")
 	       .Define("baselineMuons_mass", "Muon_mass[baselineMuons]")
@@ -342,10 +354,10 @@ void BaseAnalyser::selectJets()
 
 	    return mask;
 	},
-	{"Jet_neMultiplicity", "Jet_chMultiplicity", "Jet_pt_corr",
+	{"Jet_neMultiplicity", "Jet_chMultiplicity", "Jet_pt",
 	 "Jet_neEmEF", "Jet_chEmEF", "Jet_chHEF", "Jet_neHEF",
 	 "Jet_muEF", "Jet_eta"});
-
+// Here i have changed the Jet_pt_corr to Jet_pt. change it back when use the Jet_pt
 
 	// =====================================================
 	// 1. GOOD JET SELECTION
@@ -354,16 +366,30 @@ void BaseAnalyser::selectJets()
 	//It will be updated ASAP the Jet id will work as json
 	//Also PU JetID is also not applied since it's not present in the NanoAOD v15
 	
-	
+		
+	/* _rlm = _rlm.Define( */
+	/*     "goodJets", */
+	/*     "goodJetsID && (" */
+	/* 	"(" */
+	/* 	    "abs(Jet_eta) > 2.65 && abs(Jet_eta) < 3.139 && Jet_pt_corr > 50.0" */
+	/* 	") || (" */
+	/* 	    "abs(Jet_eta) > 3.139 && abs(Jet_eta) < 5.0 && Jet_pt_corr > 25.0" */
+	/* 	") || (" */
+	/* 	    "abs(Jet_eta) > 0.0 && abs(Jet_eta) < 2.65 && Jet_pt_corr > 25.0" */
+	/* 	")" */
+	/*     ") && abs(Jet_eta) < 5.0" */
+	/* ); */
+
+
 	_rlm = _rlm.Define(
 	    "goodJets",
 	    "goodJetsID && ("
 		"("
-		    "abs(Jet_eta) > 2.65 && abs(Jet_eta) < 3.139 && Jet_pt_corr > 50.0"
+		    "abs(Jet_eta) > 2.5 && abs(Jet_eta) < 3.0 && Jet_pt > 50.0"
 		") || ("
-		    "abs(Jet_eta) > 3.139 && abs(Jet_eta) < 5.0 && Jet_pt_corr > 25.0"
+		    "abs(Jet_eta) > 3.0 && abs(Jet_eta) < 5.0 && Jet_pt > 25.0"
 		") || ("
-		    "abs(Jet_eta) > 0.0 && abs(Jet_eta) < 2.65 && Jet_pt_corr > 25.0"
+		    "abs(Jet_eta) > 0.0 && abs(Jet_eta) < 2.5 && Jet_pt > 25.0"
 		")"
 	    ") && abs(Jet_eta) < 5.0"
 	);
@@ -373,7 +399,8 @@ void BaseAnalyser::selectJets()
 	// 2. EXTRACT GOOD JET VARIABLES
 	// =====================================================
 
-	_rlm = _rlm.Define("goodJets_pt",   "Jet_pt_corr[goodJets]")
+	/* _rlm = _rlm.Define("goodJets_pt",   "Jet_pt_corr[goodJets]") */
+	_rlm = _rlm.Define("goodJets_pt",   "Jet_pt[goodJets]")
 		   .Define("goodJets_eta",  "Jet_eta[goodJets]")
 		   .Define("goodJets_phi",  "Jet_phi[goodJets]")
 		   .Define("goodJets_mass", "Jet_mass[goodJets]")
