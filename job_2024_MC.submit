@@ -23,5 +23,5 @@ request_disk= 50 GB
 
 
 
-#queue input_dir, output_file, stderr_file from DataMC_txt/2024_summer/2024_MC_v15_inUse.txt
-queue input_dir, output_file, stderr_file from DataMC_txt/2024_summer/2024_Pure_MC.txt
+queue input_dir, output_file, stderr_file from DataMC_txt/2024_summer/2024_MC_v15_inUse.txt
+#queue input_dir, output_file, stderr_file from DataMC_txt/2024_summer/2024_Pure_MC.txt
