@@ -1,6 +1,6 @@
 // Do NOT change. Changes will be lost next time file is generated
 
-#define R__DICTIONARY_FILENAME srcdIrootdict
+#define R__DICTIONARY_FILENAME srcdIsrcdIrootdict
 #define R__NO_DEPRECATION
 
 /*******************************************************************/
@@ -35,8 +35,8 @@
 #include "TDataMember.h"
 
 // Header files passed as explicit arguments
-#include "src/NanoAODAnalyzerrdframe.h"
-#include "src/BaseAnalyser.h"
+#include "src/include/NanoAODAnalyzerrdframe.h"
+#include "src/include/BaseAnalyser.h"
 
 // Header files passed via #pragma extra_include
 
@@ -806,13 +806,16 @@ namespace ROOT {
 namespace {
   void TriggerDictionaryInitialization_rootdict_Impl() {
     static const char* headers[] = {
-"src/NanoAODAnalyzerrdframe.h",
-"src/BaseAnalyser.h",
+"src/include/NanoAODAnalyzerrdframe.h",
+"src/include/BaseAnalyser.h",
 nullptr
     };
     static const char* includePaths[] = {
+"src/include",
+"src/external",
+"src/external/json",
+"src/external/roccor",
 "/cvmfs/cms.cern.ch/el9_amd64_gcc12/external/py3-correctionlib/2.2.2-4f091fd2adcff55f05f1d262b3254c25/lib/python3.9/site-packages/correctionlib/include",
-"src",
 "/cvmfs/cms.cern.ch/el9_amd64_gcc12/lcg/root/6.26.11-bf905b525ba08330833d2acc7f29dee0/include/",
 "/uscms_data/d3/msahoo/Project_tzq/CMSSW_13_3_3/src/single_top_analyser/",
 nullptr
@@ -823,14 +826,14 @@ nullptr
 #pragma clang diagnostic ignored "-Wignored-attributes"
 #pragma clang diagnostic ignored "-Wreturn-type-c-linkage"
 extern int __Cling_AutoLoading_Map;
-namespace ROOT{namespace Math{template <typename T> class __attribute__((annotate("$clingAutoload$Math/Vector4Dfwd.h")))  __attribute__((annotate("$clingAutoload$src/NanoAODAnalyzerrdframe.h")))  PtEtaPhiM4D;
+namespace ROOT{namespace Math{template <typename T> class __attribute__((annotate("$clingAutoload$Math/Vector4Dfwd.h")))  __attribute__((annotate("$clingAutoload$src/include/NanoAODAnalyzerrdframe.h")))  PtEtaPhiM4D;
 }}
-namespace ROOT{namespace Math{template <class CoordSystem> class __attribute__((annotate("$clingAutoload$Math/Vector4Dfwd.h")))  __attribute__((annotate("$clingAutoload$src/NanoAODAnalyzerrdframe.h")))  LorentzVector;
+namespace ROOT{namespace Math{template <class CoordSystem> class __attribute__((annotate("$clingAutoload$Math/Vector4Dfwd.h")))  __attribute__((annotate("$clingAutoload$src/include/NanoAODAnalyzerrdframe.h")))  LorentzVector;
 }}
 namespace std{template <typename _Tp> class __attribute__((annotate("$clingAutoload$bits/allocator.h")))  __attribute__((annotate("$clingAutoload$string")))  allocator;
 }
-class __attribute__((annotate("$clingAutoload$src/NanoAODAnalyzerrdframe.h")))  NanoAODAnalyzerrdframe;
-class __attribute__((annotate("$clingAutoload$src/BaseAnalyser.h")))  BaseAnalyser;
+class __attribute__((annotate("$clingAutoload$src/include/NanoAODAnalyzerrdframe.h")))  NanoAODAnalyzerrdframe;
+class __attribute__((annotate("$clingAutoload$src/include/BaseAnalyser.h")))  BaseAnalyser;
 )DICTFWDDCLS";
     static const char* payloadCode = R"DICTPAYLOAD(
 #line 1 "rootdict dictionary payload"
@@ -838,8 +841,8 @@ class __attribute__((annotate("$clingAutoload$src/BaseAnalyser.h")))  BaseAnalys
 
 #define _BACKWARD_BACKWARD_WARNING_H
 // Inline headers
-#include "src/NanoAODAnalyzerrdframe.h"
-#include "src/BaseAnalyser.h"
+#include "src/include/NanoAODAnalyzerrdframe.h"
+#include "src/include/BaseAnalyser.h"
 
 #undef  _BACKWARD_BACKWARD_WARNING_H
 )DICTPAYLOAD";
