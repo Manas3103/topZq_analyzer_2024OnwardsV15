@@ -114,3 +114,13 @@
 /store/user/msahoo/2024_processed/DYto_2Tau2Jet_part8_skimed.root 372500
 /store/user/msahoo/2024_processed/DYto_2Tau2Jet_part9_skimed.root 372500
 /store/user/msahoo/2024_processed/DYto_2Tau2Jet_part10_skimed.root 372500
+/store/user/msahoo/2024_processed/TTH-HtoNon2B_part1_skimed.root 574.2
+/store/user/msahoo/2024_processed/TTH-HtoNon2B_part2_skimed.root 574.2
+/store/user/msahoo/2024_processed/TTH-HtoNon2B_part3_skimed.root 574.2
+/store/user/msahoo/2024_processed/TTH-HtoNon2B_part4_skimed.root 574.2
+/store/user/msahoo/2024_processed/TTH-HtoNon2B_part5_skimed.root 574.2
+/store/user/msahoo/2024_processed/TTH-HtoNon2B_part6_skimed.root 574.2
+/store/user/msahoo/2024_processed/TTH-HtoNon2B_part7_skimed.root 574.2
+/store/user/msahoo/2024_processed/TTH-HtoNon2B_part8_skimed.root 574.2
+/store/user/msahoo/2024_processed/TTH-HtoNon2B_part9_skimed.root 574.2
+/store/user/msahoo/2024_processed/TTH-HtoNon2B_part10_skimed.root 574.2

@@ -1,5 +1,1 @@
-/store/user/msahoo/2024/ttbar_dilepton/part3 ttbar_dilepton_part3_skimed.root ttbar_dilepton_part3_skimmed.out
-/store/user/msahoo/2024/ttbar_dilepton/part4 ttbar_dilepton_part4_skimed.root ttbar_dilepton_part4_skimmed.out
-/store/user/msahoo/2024/ttbar_dilepton/part5 ttbar_dilepton_part5_skimed.root ttbar_dilepton_part5_skimmed.out
-/store/user/msahoo/2024/ttbar_semilep/part8 ttbar_semilep_part8_skimed.root ttbar_semilep_part8_skimmed.out
-/store/user/msahoo/2024/wz_3lnu/part1 wz_3lnu_part1_skimed.root wz_3lnu_part1_skimmed.out
+/ZZZ-5F_TuneCP5_13p6TeV_amcatnlo-pythia8/RunIII2024Summer24NanoAODv15-150X_mcRun3_2024_realistic_v2-v2/NANOAODSIM zzz.root zzz.out

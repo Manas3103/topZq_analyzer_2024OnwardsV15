@@ -1,8 +1,8 @@
 universe=vanilla
 executable=runjob_24.sh
 +JobFlavour = "nextweek"
-stream_output = True
-stream_error  = True
+#stream_output = True
+#stream_error  = True
 
 jobconfmod = jobconfiganalysis_2024
 
