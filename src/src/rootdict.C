@@ -56,7 +56,7 @@ namespace ROOT {
       ::NanoAODAnalyzerrdframe *ptr = nullptr;
       static ::TVirtualIsAProxy* isa_proxy = new ::TIsAProxy(typeid(::NanoAODAnalyzerrdframe));
       static ::ROOT::TGenericClassInfo 
-         instance("NanoAODAnalyzerrdframe", "NanoAODAnalyzerrdframe.h", 39,
+         instance("NanoAODAnalyzerrdframe", "NanoAODAnalyzerrdframe.h", 38,
                   typeid(::NanoAODAnalyzerrdframe), ::ROOT::Internal::DefineBehavior(ptr, ptr),
                   &NanoAODAnalyzerrdframe_Dictionary, isa_proxy, 4,
                   sizeof(::NanoAODAnalyzerrdframe) );
@@ -812,6 +812,7 @@ nullptr
     };
     static const char* includePaths[] = {
 "src/include",
+"src/include/modules",
 "src/external",
 "src/external/json",
 "src/external/roccor",

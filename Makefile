@@ -1,5 +1,5 @@
 # =========================
-# Compiler and ROOT setup
+# ROOT + correctionlib setup
 # =========================
 
 rootlibs := $(shell root-config --libs)
@@ -9,37 +9,37 @@ CORRECTION_INCDIR := $(shell correction config --incdir)
 CORRECTION_LIBDIR := $(shell correction config --libdir)
 
 # =========================
-# Directory structure
+# Project structure
 # =========================
 
-SRCDIR  = src/src
-INCDIR  = src/include
-APPDIR  = src/app
-EXTDIR  = src/external
-OBJDIR  = src/obj
+SRCDIR   = src/src
+INCDIR   = src/include
+EXTDIR   = src/external
+OBJDIR   = src/obj
+APPDIR   = src/app
 
-TARGET  = nanoaodrdataframe
+TARGET   = nanoaodrdataframe
 
 # =========================
-# Compiler settings
+# Compiler
 # =========================
 
-CXX      = g++
-LD       = g++ -m64 -g -Wall
-SOFLAGS  = -shared
+CXX     = g++
+LD      = g++ -m64 -g -Wall
+SOFLAGS = -shared
 
-CXXFLAGS = -O0 -g -Wall -fmessage-length=0 \
-$(rootflags) \
--fPIC \
--I$(INCDIR) \
--I$(EXTDIR) \
--I$(EXTDIR)/json \
--I$(EXTDIR)/roccor \
--I$(CORRECTION_INCDIR) \
--I.
+CXXFLAGS = -O0 -g -Wall -fPIC \
+    $(rootflags) \
+    -I$(INCDIR) \
+    -I$(INCDIR)/modules \
+    -I$(EXTDIR) \
+    -I$(EXTDIR)/json \
+    -I$(EXTDIR)/roccor \
+    -I$(CORRECTION_INCDIR) \
+    -I.
 
 LIBS_EXE = $(rootlibs) -lMathMore -lGenVector \
--lcorrectionlib -L$(CORRECTION_LIBDIR)
+           -lcorrectionlib -L$(CORRECTION_LIBDIR)
 
 LIBS = $(rootlibs)
 
@@ -47,60 +47,44 @@ LIBS = $(rootlibs)
 # Source files
 # =========================
 
-SRCS := $(wildcard $(SRCDIR)/*.cpp)
-SRCS += $(wildcard $(EXTDIR)/roccor/*.cpp)
-SRCS += $(wildcard $(EXTDIR)/roccor/*.cc)
-
-# >>> IMPORTANT: ADD APP (main executable)
-APPSRCS := $(wildcard $(APPDIR)/*.cpp)
+SRCS  := $(wildcard $(SRCDIR)/*.cpp)
+SRCS  += $(wildcard $(SRCDIR)/modules/*.cpp)
+SRCS  += $(wildcard $(EXTDIR)/roccor/*.cpp)
+SRCS  += $(wildcard $(EXTDIR)/roccor/*.cc)
+SRCS  += $(APPDIR)/nanoaodrdataframe.cpp
 
 # =========================
 # Object files
 # =========================
 
-OBJS := $(patsubst %.cpp,$(OBJDIR)/%.o,$(filter %.cpp,$(SRCS)))
-OBJS += $(patsubst %.cc,$(OBJDIR)/%.o,$(filter %.cc,$(SRCS)))
-OBJS += $(patsubst %.cpp,$(OBJDIR)/%.o,$(filter %.cpp,$(APPSRCS)))
+OBJS := $(SRCS:.cpp=.o)
+OBJS := $(OBJS:.cc=.o)
+
+OBJS := $(patsubst src/%, $(OBJDIR)/src/%, $(OBJS))
 OBJS += $(OBJDIR)/rootdict.o
 
 # =========================
-# Create object directories
+# Create directories
 # =========================
 
-$(shell mkdir -p $(OBJDIR))
 $(shell mkdir -p $(OBJDIR)/src)
-$(shell mkdir -p $(OBJDIR)/src/src)
-$(shell mkdir -p $(OBJDIR)/src/app)
+$(shell mkdir -p $(OBJDIR)/src/modules)
 $(shell mkdir -p $(OBJDIR)/src/external/roccor)
+$(shell mkdir -p $(OBJDIR)/src/app)
 
 # =========================
-# Main targets
+# Default target
 # =========================
 
 all: $(TARGET) libnanoadrdframe.so
-
 	@echo ""
-	@echo "*********************************"
-	@echo ""
-	@echo "     Compilation finished :)"
-	@echo ""
-	@echo "*********************************"
+	@echo "================================="
+	@echo " Build complete"
+	@echo "================================="
 	@echo ""
 
 # =========================
-# Clean
-# =========================
-
-clean:
-	rm -rf $(OBJDIR)
-	rm -f $(TARGET)
-	rm -f libnanoadrdframe.so
-	rm -f $(SRCDIR)/rootdict.C
-	rm -f rootdict_rdict.pcm
-	rm -rf .nfs*
-
-# =========================
-# ROOT dictionary generation
+# ROOT dictionary
 # =========================
 
 $(SRCDIR)/rootdict.C: \
@@ -109,28 +93,20 @@ $(INCDIR)/BaseAnalyser.h \
 src/Linkdef.h
 
 	rm -f $@
-
 	rootcling \
-	-I$(INCDIR) \
-	-I$(EXTDIR) \
-	-I$(EXTDIR)/json \
-	-I$(EXTDIR)/roccor \
-	-I$(CORRECTION_INCDIR) \
-	$@ $^
+	    -I$(INCDIR) \
+	    -I$(INCDIR)/modules \
+	    -I$(EXTDIR) \
+	    -I$(EXTDIR)/json \
+	    -I$(EXTDIR)/roccor \
+	    -I$(CORRECTION_INCDIR) \
+	    $@ $^
 
 	rm -f rootdict_rdict.pcm
 	ln -sf $(SRCDIR)/rootdict_rdict.pcm .
 
 # =========================
-# ROOT dictionary object
-# =========================
-
-$(OBJDIR)/rootdict.o: $(SRCDIR)/rootdict.C
-	@mkdir -p $(dir $@)
-	$(CXX) -c -o $@ $(CXXFLAGS) $<
-
-# =========================
-# Generic compilation rules
+# Compile rules
 # =========================
 
 $(OBJDIR)/%.o: %.cpp
@@ -138,6 +114,10 @@ $(OBJDIR)/%.o: %.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) $<
 
 $(OBJDIR)/%.o: %.cc
+	@mkdir -p $(dir $@)
+	$(CXX) -c -o $@ $(CXXFLAGS) $<
+
+$(OBJDIR)/rootdict.o: $(SRCDIR)/rootdict.C
 	@mkdir -p $(dir $@)
 	$(CXX) -c -o $@ $(CXXFLAGS) $<
 
@@ -154,3 +134,15 @@ libnanoadrdframe.so: $(OBJS)
 
 $(TARGET): $(OBJS)
 	$(CXX) -o $(TARGET) $(OBJS) $(LIBS_EXE)
+
+# =========================
+# Clean
+# =========================
+
+clean:
+	rm -rf $(OBJDIR)
+	rm -f $(TARGET)
+	rm -f libnanoadrdframe.so
+	rm -f $(SRCDIR)/rootdict.C
+	rm -f rootdict_rdict.pcm
+	rm -rf .nfs*

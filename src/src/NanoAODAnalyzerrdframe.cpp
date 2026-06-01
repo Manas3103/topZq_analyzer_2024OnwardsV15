@@ -101,301 +101,54 @@ void NanoAODAnalyzerrdframe::setupAnalysis()
 
 bool NanoAODAnalyzerrdframe::readgoodjson(string goodjsonfname)
 {
-	auto isgoodjsonevent = [this](unsigned int runnumber, unsigned int lumisection)
-		{
-			auto key = std::to_string(runnumber).c_str();
-
-			bool goodeventflag = false;
-
-
-			if (jsonroot.contains(key))
-			{
-				for (auto &v: jsonroot[key])
-				{
-					if (v[0]<=lumisection && lumisection <=v[1]) goodeventflag = true;
-				}
-			}
-			return goodeventflag;
-		};
-
-	if (goodjsonfname != "")
-	{
-		std::ifstream jsoninfile;
-		jsoninfile.open(goodjsonfname);
-
-		if (jsoninfile.good())
-		{
-			//using rapidjson
-			//rapidjson::IStreamWrapper s(jsoninfile);
-			//jsonroot.ParseStream(s);
-
-			//using jsoncpp
-			jsoninfile >> jsonroot;
-			_rlm = _rlm.Define("goodjsonevent", isgoodjsonevent, {"run", "luminosityBlock"}).Filter("goodjsonevent");
-			_jsonOK = true;
-			return true;
-		}
-		else
-		{
-			cout << "Problem reading json file " << goodjsonfname << endl;
-			return false;
-		}
-	}
-	else
-	{
-		cout << "no JSON file given" << endl;
-		return true;
-	}
-}
-
-void NanoAODAnalyzerrdframe::selectFatJets()
-{
-	_rlm = _rlm.Define("fatjetcuts", "FatJet_pt>400.0 && abs(FatJet_eta)<2.4 && FatJet_tau1>0.0 && FatJet_tau2>0.0 && FatJet_tau3>0.0 && FatJet_tau3/FatJet_tau2<0.5")
-				.Define("Sel_fatjetpt", "FatJet_pt[fatjetcuts]")
-				.Define("Sel_fatjeteta", "FatJet_eta[fatjetcuts]")
-				.Define("Sel_fatjetphi", "FatJet_phi[fatjetcuts]")
-				.Define("Sel_fatjetmass", "FatJet_mass[fatjetcuts]")
-				.Define("nfatjetspass", "int(Sel_fatjetpt.size())")
-				.Define("Sel_fatjetweight", "std::vector<double>(nfatjetspass, evWeight)")
-				.Define("Sel_fatjet4vecs", ::generate_4vec, {"Sel_fatjetpt", "Sel_fatjeteta", "Sel_fatjetphi", "Sel_fatjetmass"});
-}
-/*
-void NanoAODAnalyzerrdframe::setupJetMETCorrection(string fname, string jettag,string jettagMC) //data
-{
-
-    cout << "SETUP JETMET correction" << endl;
-	// read from file 
-	_correction_jerc = correction::CorrectionSet::from_file(fname);//jercfname=json
-	assert(_correction_jerc->validate()); //the assert functionality : check if the parameters passed to a function are valid =1:true
-	cout<<"JERC JSON file : " << fname<<endl;
-    if (_isData){
-        _jetCorrector = _correction_jerc->compound().at(jettag);//jerctag#JSON (JEC,compound)compoundLevel="L1L2L3Res"
-    }
-    else {
-        cout<<"JERC JSON file : " << fname<<endl;
-        _jetCorrector = _correction_jerc->compound().at(jettagMC);
-    }
-	cout<< "JET tag in JSON : " << jettag << endl;
-	_jetCorrectionUnc = _correction_jerc->at(_jercunctag);
-	cout<< "JET uncertainity tag in JSON  : " << _jercunctag << endl;
-	std::cout<< "================================//=================================" << std::endl;
-}
-
-void NanoAODAnalyzerrdframe::applyJetMETCorrections() //data
-{
-    cout << "apply JETMET correction" << endl;
-
-	auto appcorrlambdaf = [this](floats jetpts, floats jetetas, floats jetAreas, floats jetrawf, float rho)->floats
-	{
-		floats corrfactors;
-		corrfactors.reserve(jetpts.size());
-		for (auto i =0; i<int(jetpts.size()); i++)
-		{
-			float rawjetpt = jetpts[i]*(1.0-jetrawf[i]);
-			//std::cout<<"jetpt===="<< jetpts[i] <<std::endl;
-			//float jet_rawmass = jet_mass * (1 - jet.rawFactor)
-			//std::cout<<"rawjetpt===="<< rawjetpt <<std::endl;
-			float corrfactor = _jetCorrector->evaluate({jetAreas[i], jetetas[i], rawjetpt, rho});
-			//std::cout<<"correction factor===="<< corrfactor <<std::endl;
-			corrfactors.emplace_back(rawjetpt * corrfactor);
-			//std::cout<<"rawjetpt* corrfactor ===="<< rawjetpt * corrfactor <<std::endl;
-
-		}
-        //std::cout<<"Facsss===="<< corrfactors <<std::endl;
-		return corrfactors;
-		
-	};
-
-	auto jecuncertaintylambdaf= [this](floats jetpts, floats jetetas, floats jetAreas, floats jetrawf, float rho)->floats
-		{
-			floats uncertainties;
-			uncertainties.reserve(jetpts.size());
-			for (auto i =0; i<int(jetpts.size()); i++)
-			{
-				float rawjetpt = jetpts[i]*(1.0-jetrawf[i]);
-                
-				float corrfactor = _jetCorrector->evaluate({jetAreas[i], jetetas[i], rawjetpt, rho});
-				//print("\njet SF for shape correction:")
-				//print(f"SF: {corrfactor}")
-                
-				float unc = _jetCorrectionUnc->evaluate({corrfactor*rawjetpt, jetetas[i]});
-				uncertainties.emplace_back(unc);
-
-			}
-			return uncertainties;
-		};
-
-	auto metcorrlambdaf = [](float met, float metphi, floats jetptsbefore, floats jetptsafter, floats jetphis)->float
-	{
-		auto metx = met * cos(metphi);
-		auto mety = met * sin(metphi);
-		for (auto i=0; i<int(jetphis.size()); i++)
-		{
-			if (jetptsafter[i]>15.0)
-			{
-				metx -= (jetptsafter[i] - jetptsbefore[i])*cos(jetphis[i]);
-				mety -= (jetptsafter[i] - jetptsbefore[i])*sin(jetphis[i]);
-			}
-		}
-		return float(sqrt(metx*metx + mety*mety));
-	};
-
-	auto metphicorrlambdaf = [](float met, float metphi, floats jetptsbefore, floats jetptsafter, floats jetphis)->float
-	{
-		auto metx = met * cos(metphi);
-		auto mety = met * sin(metphi);
-		for (auto i=0; i<int(jetphis.size()); i++)
-		{
-			if (jetptsafter[i]>15.0)
-			{
-				metx -= (jetptsafter[i] - jetptsbefore[i])*cos(jetphis[i]);
-				mety -= (jetptsafter[i] - jetptsbefore[i])*sin(jetphis[i]);
-			}
-		}
-		return float(atan2(mety, metx));
-	};
-
-	if (_jetCorrector != 0)
-	{
-           cout << "jetcorrector==" <<_jetCorrector << endl;
-
-		_rlm = _rlm.Define("Jet_pt_corr", appcorrlambdaf, {"Jet_pt", "Jet_eta", "Jet_area", "Jet_rawFactor", "Rho_fixedGridRhoFastjetAll"});
-		_rlm = _rlm.Define("Jet_pt_relerror", jecuncertaintylambdaf, {"Jet_pt", "Jet_eta", "Jet_area", "Jet_rawFactor", "Rho_fixedGridRhoFastjetAll"});
-		_rlm = _rlm.Define("Jet_pt_corr_up", "Jet_pt_corr*(1.0f + Jet_pt_relerror)");
-		_rlm = _rlm.Define("Jet_pt_corr_down", "Jet_pt_corr*(1.0f - Jet_pt_relerror)");
-		_rlm = _rlm.Define("MET_pt_corr", metcorrlambdaf, {"PuppiMET_pt", "PuppiMET_phi", "Jet_pt", "Jet_pt_corr", "Jet_phi"});
-		_rlm = _rlm.Define("MET_phi_corr", metphicorrlambdaf, {"PuppiMET_pt", "PuppiMET_phi", "Jet_pt", "Jet_pt_corr", "Jet_phi"});
-		_rlm = _rlm.Define("MET_pt_corr_up", metcorrlambdaf, {"PuppiMET_pt", "PuppiMET_phi", "Jet_pt", "Jet_pt_corr_up", "Jet_phi"});
-		_rlm = _rlm.Define("MET_phi_corr_up", metphicorrlambdaf, {"PuppiMET_pt", "PuppiMET_phi", "Jet_pt", "Jet_pt_corr_up", "Jet_phi"});
-		_rlm = _rlm.Define("MET_pt_corr_down", metcorrlambdaf, {"PuppiMET_pt", "PuppiMET_phi", "Jet_pt", "Jet_pt_corr_down", "Jet_phi"});
-		_rlm = _rlm.Define("MET_phi_corr_down", metphicorrlambdaf, {"PuppiMET_pt", "PuppiMET_phi", "Jet_pt", "Jet_pt_corr_down", "Jet_phi"});
-	}
-
-}
-
-
-
-void NanoAODAnalyzerrdframe::setupJetMETCorrection(string fname, string jettag,string jettagMC,string JER_tag) //data
-{
-
-    cout << "SETUP JETMET correction" << endl;
-	// read from file 
-	_correction_jerc = correction::CorrectionSet::from_file(fname);//jercfname=json
-	assert(_correction_jerc->validate()); //the assert functionality : check if the parameters passed to a function are valid =1:true
-	cout<<"JERC JSON file : " << fname<<endl;
-
-        if (_isData){
-            _jetCorrector = _correction_jerc->compound().at(jettag);//jerctag#JSON (JEC,compound)compoundLevel="L1L2L3Res"
-        }
-        else {
-            cout<<"JERC JSON file : " << fname<<endl;
-            _jetCorrector = _correction_jerc->compound().at(jettagMC);
-        }
-
-	cout<< "JET tag in JSON : " << jettag << endl;
-	_jetCorrectionUnc = _correction_jerc->at(_jercunctag);
-
-	cout<< "JET uncertainity tag in JSON  : " << _jercunctag << endl;
-        cout<< "JER tag in json: " << JER_tag << endl;
-
-        _jer_corrector = _correction_jerc->at(JER_tag);
-	std::cout<< "================================//=================================" << std::endl;
-}
-
-void NanoAODAnalyzerrdframe::applyJetMETCorrections()
-{
-    std::cout << "Applying JET/MET corrections" << std::endl;
-
-    using ROOT::VecOps::RVec;
-    using floats = RVec<float>;
-
-    //------------------------------------------------------------------
-    // 1. Create a vectorized run branch (needed only for Data)
-    //------------------------------------------------------------------
-    if (_isData)
+    auto isgoodjsonevent = [this](unsigned int runnumber, unsigned int lumisection)
     {
-        _rlm = _rlm.Define("run_f",
-            [](unsigned int run, const floats &jetpts) {
-                return floats(jetpts.size(), float(run));
-            },
-            {"run", "Jet_pt"}
-        );
-    }
+        std::string key = std::to_string(runnumber);
 
-    //------------------------------------------------------------------
-    // 2. Define branches in RDF
-    //------------------------------------------------------------------
-    if (_jetCorrector != nullptr)
-    {
-        if (_isData)
+        if (!cfg.contains(key))
+            return false;
+
+        for (auto &v : cfg.getVector(key))
         {
-            // Lambda for Data (with run)
-            auto jetCorrLambda_Data =[this](floats jetpts, floats jetetas, floats jetAreas, floats jetrawf, float rho, floats jetphis, floats run_f) -> floats
-            {
-                floats out;
-                out.reserve(jetpts.size());
-
-                for (size_t i = 0; i < jetpts.size(); i++)
-                {
-                    float rawpt = jetpts[i] * (1.f - jetrawf[i]);
-                    float corr = _jetCorrector->evaluate({jetAreas[i], jetetas[i], rawpt, rho, jetphis[i] , run_f[i]});
-                    out.emplace_back(rawpt * corr);
-                }
-
-                   return out;
-            };
-
-            _rlm = _rlm.Define("Jet_pt_corr",
-                jetCorrLambda_Data,
-                {"Jet_pt", "Jet_eta", "Jet_area", "Jet_rawFactor",
-                 "Rho_fixedGridRhoFastjetAll","Jet_phi","run_f"});
-             
+            if (v[0] <= lumisection && lumisection <= v[1])
+                return true;
         }
-        else
-        {
-            // for MC pt correction  (without run)
-            auto jetCorrLambda_MC =[this](floats jetpts, floats jetetas, floats jetAreas, floats jetrawf, floats jetphis, float rho) -> floats
-            {
-                floats out;
-                out.reserve(jetpts.size());
 
-                for (size_t i = 0; i < jetpts.size(); i++)
-                {
-                     float rawpt = jetpts[i] * (1.f - jetrawf[i]);
-                     float corr = _jetCorrector->evaluate({jetAreas[i], jetetas[i], rawpt, rho, jetphis[i]});
+        return false;
+    };
 
-                    out.emplace_back(rawpt * corr);
-                }
-                return out;
-            };
-             
-	    //This is for the JER correction 
-            auto jerCorrLambda_MC =[this](floats jetpts, floats jetetas ) -> floats
-            {
-                floats out;
-                out.reserve(jetpts.size());
-
-                for (size_t i=0; i<jetpts.size(); i++)
-                {
-                    float corr = _jer_corrector->evaluate({jetetas[i],jetpts[i],"nom"});
-                    out.emplace_back(jetpts[i] * corr);
-                }
-                return out;
-            };
-
-            _rlm = _rlm.Define("Jet_pt_temp_corr",
-                jetCorrLambda_MC,
-                {"Jet_pt", "Jet_eta", "Jet_area", "Jet_rawFactor","Jet_phi",
-                 "Rho_fixedGridRhoFastjetAll"});
-                  
-            _rlm = _rlm.Define("Jet_pt_corr",
-                jerCorrLambda_MC,
-                {"Jet_pt_temp_corr", "Jet_eta"});
-
-      }
+    if (goodjsonfname.empty())
+    {
+        std::cout << "no JSON file given" << std::endl;
+        return true;
     }
+
+    if (!cfg.load(goodjsonfname))
+    {
+        std::cout << "Problem reading json file " << goodjsonfname << std::endl;
+        return false;
+    }
+
+    _rlm = _rlm.Define("goodjsonevent", isgoodjsonevent,
+                       {"run", "luminosityBlock"})
+               .Filter("goodjsonevent");
+
+    _jsonOK = true;
+    return true;
 }
-*/
+
+// void NanoAODAnalyzerrdframe::selectFatJets()
+// {
+// 	_rlm = _rlm.Define("fatjetcuts", "FatJet_pt>400.0 && abs(FatJet_eta)<2.4 && FatJet_tau1>0.0 && FatJet_tau2>0.0 && FatJet_tau3>0.0 && FatJet_tau3/FatJet_tau2<0.5")
+// 				.Define("Sel_fatjetpt", "FatJet_pt[fatjetcuts]")
+// 				.Define("Sel_fatjeteta", "FatJet_eta[fatjetcuts]")
+// 				.Define("Sel_fatjetphi", "FatJet_phi[fatjetcuts]")
+// 				.Define("Sel_fatjetmass", "FatJet_mass[fatjetcuts]")
+// 				.Define("nfatjetspass", "int(Sel_fatjetpt.size())")
+// 				.Define("Sel_fatjetweight", "std::vector<double>(nfatjetspass, evWeight)")
+// 				.Define("Sel_fatjet4vecs", ::generate_4vec, {"Sel_fatjetpt", "Sel_fatjeteta", "Sel_fatjetphi", "Sel_fatjetmass"});
+// }
+
 
 void NanoAODAnalyzerrdframe::setupJetMETCorrection(string fname, string jettag,string jettagMC,string JER_tag,string JER_tag_res) //data
 {
@@ -633,7 +386,7 @@ void NanoAODAnalyzerrdframe::applyJetMETCorrections()
        }
     }
 }
-
+/*
 void NanoAODAnalyzerrdframe::applyMuPtCorrection()
 {
     cout << "Applying Muon Pt correction using correctionlib" << endl;
@@ -800,6 +553,85 @@ void NanoAODAnalyzerrdframe::applyMuPtCorrection()
     }
 
     cout << "Muon Pt correction applied successfully" << endl;
+}*/
+
+
+void NanoAODAnalyzerrdframe::applyMuPtCorrection()
+{
+    std::cout << "Applying Muon Pt correction using correctionlib\n";
+
+    using rvf = ROOT::VecOps::RVec<float>;
+    using rvi = ROOT::VecOps::RVec<int>;
+
+    auto helper = std::make_shared<MuonCorrectionHelper>(_muon_scalsmear_corrector.get());
+
+    // ---- Data: scale only ----
+    if (_isData) {
+        _rlm = _rlm.Define("Muon_pt_corr",
+            [helper](const rvi& charges, const rvf& pts, const rvf& etas, const rvf& phis) -> rvf {
+                rvf out; out.reserve(pts.size());
+                for (size_t i = 0; i < pts.size(); ++i)
+                    out.emplace_back(helper->pt_scale(true, pts[i], etas[i], phis[i], charges[i]));
+                return out;
+            }, {"Muon_charge", "Muon_pt", "Muon_eta", "Muon_phi"});
+
+        std::cout << "Muon Pt correction applied successfully\n";
+        return;
+    }
+
+    // ---- MC: scale + resolution smearing ----
+    std::cout << "Adding Muon Pt correction uncertainties for MC\n";
+
+    // Muon_pt_corr  (scale → resol)
+    _rlm = _rlm.Define("Muon_pt_corr",
+        [helper](const rvi& charges, const rvf& pts, const rvf& etas, const rvf& phis,
+                 const ROOT::VecOps::RVec<UChar_t>& nls, ULong64_t event, UInt_t lumi) -> rvf {
+            rvf out; out.reserve(pts.size());
+            for (size_t i = 0; i < pts.size(); ++i) {
+                float pt_sc = helper->pt_scale(false, pts[i], etas[i], phis[i], charges[i]);
+                out.emplace_back(helper->pt_resol(pt_sc, etas[i], phis[i],
+                                                  float(nls[i]), int(event), int(lumi)));
+            }
+            return out;
+        }, {"Muon_charge", "Muon_pt", "Muon_eta", "Muon_phi",
+            "Muon_nTrackerLayers", "event", "luminosityBlock"});
+
+    // Muon_pt_scaled  (needed by resol variations)
+    _rlm = _rlm.Define("Muon_pt_scaled",
+        [helper](const rvi& charges, const rvf& pts, const rvf& etas, const rvf& phis) -> rvf {
+            rvf out; out.reserve(pts.size());
+            for (size_t i = 0; i < pts.size(); ++i)
+                out.emplace_back(helper->pt_scale(false, pts[i], etas[i], phis[i], charges[i]));
+            return out;
+        }, {"Muon_charge", "Muon_pt", "Muon_eta", "Muon_phi"});
+
+    // Helper: define a scale or resol variation in one call
+    auto defineScaleVar = [&](const std::string& col, const std::string& dir) {
+        _rlm = _rlm.Define(col,
+            [helper, dir](const rvf& pts, const rvf& etas, const rvf& phis, const rvi& charges) -> rvf {
+                rvf out; out.reserve(pts.size());
+                for (size_t i = 0; i < pts.size(); ++i)
+                    out.emplace_back(helper->pt_scale_var(pts[i], etas[i], phis[i], charges[i], dir));
+                return out;
+            }, {"Muon_pt_corr", "Muon_eta", "Muon_phi", "Muon_charge"});
+    };
+
+    auto defineResolVar = [&](const std::string& col, const std::string& dir) {
+        _rlm = _rlm.Define(col,
+            [helper, dir](const rvf& pt_sc, const rvf& pt_corr, const rvf& etas) -> rvf {
+                rvf out; out.reserve(pt_corr.size());
+                for (size_t i = 0; i < pt_corr.size(); ++i)
+                    out.emplace_back(helper->pt_resol_var(pt_sc[i], pt_corr[i], etas[i], dir));
+                return out;
+            }, {"Muon_pt_scaled", "Muon_pt_corr", "Muon_eta"});
+    };
+
+    defineScaleVar("Muon_pt_corr_scaleUp", "up");
+    defineScaleVar("Muon_pt_corr_scaleDn", "dn");
+    defineResolVar("Muon_pt_corr_resolUp", "up");
+    defineResolVar("Muon_pt_corr_resolDn", "dn");
+
+    std::cout << "Muon Pt correction applied successfully\n";
 }
 
 

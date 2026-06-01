@@ -21,9 +21,9 @@
 #include <string>
 #include <vector>
 #include <map>
-//#include "rapidjson/document.h"
-#include "nlohmann/json.hpp"
-
+// #include "nlohmann/json.hpp"
+// using json = nlohmann::json;
+#include "modules/ConfigManager.h"
 #include "utility.h" // floats, etc are defined here
 #include "RNodeTree.h"
 #include "TCut.h"
@@ -34,11 +34,11 @@ using namespace std;
 
 class TH1D;
 
-using json = nlohmann::json;
 
 class NanoAODAnalyzerrdframe {
 	using RDF1DHist = RResultPtr<TH1D>;
 	using RDF2DHist = RResultPtr<TH2D>;
+    ConfigManager cfg;
 public:
 	NanoAODAnalyzerrdframe(string infilename, string intreename, string outfilename);
 	NanoAODAnalyzerrdframe(TTree *t, string outfilename);
@@ -195,7 +195,7 @@ public:
 	vector<string> _varstostore;
 	map<string, vector<std::string>> _varstostorepertree;
 
-	json jsonroot;
+	// json jsonroot;
 	// pile up weights
 	std::unique_ptr<correction::CorrectionSet> _correction_pu;
 
