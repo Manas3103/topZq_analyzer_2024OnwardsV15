@@ -134,14 +134,15 @@ void BaseAnalyser::selectElectrons()
     // baselineElectrons_isPromptBaseline Electron Selection
     // =====================================================================
     _rlm = _rlm.Define("baselineElectrons", 
-                "Electron_pt_corr > 15.0 && abs(Electron_eta) < 2.5 &&  Electron_cutBased >=4 &&" 
+                "Electron_pt_corr > 15.0 && abs(Electron_eta) < 2.5 &&  Electron_cutBased >=2 &&" 
                 "!(abs(Electron_eta) > 1.442 && abs(Electron_eta) < 1.566) && " 
                 "Electron_miniPFRelIso_all < 0.40 && abs(Electron_dxy) < 0.05 && " 
                 "abs(Electron_dz) < 0.10 && Electron_lostHits <= 1 && " 
                 "Electron_hoe < 0.10 && Electron_convVeto &&" 
                 "((abs(Electron_eta) < 1.479 && Electron_sieie < 0.011) || " // Barrel cut 
                 "(abs(Electron_eta) >= 1.479 && abs(Electron_eta) < 2.5 && Electron_sieie < 0.030)) &&" // Endcap cut 
-                "Electron_sip3d < 8 && Electron_eInvMinusPInv > -0.04" 
+                "Electron_sip3d < 8 && Electron_eInvMinusPInv > -0.04 &&"
+                "Electron_promptMVA > 0.90"
                 ); 
 
     // _rlm = _rlm.Define("baselineElectrons", "Electron_pt > 15.0 && abs(Electron_eta) < 2.4 && !(abs(Electron_eta) > 1.442 && abs(Electron_eta) < 1.566) && Electron_cutBased>=4");  //Tight ID
@@ -191,7 +192,7 @@ void BaseAnalyser::selectMuons()
 
 
     // Define good muons based on ID and additional criteria
-    _rlm = _rlm.Define("goodMuonsID", MuonID(4)); // tight muons
+    _rlm = _rlm.Define("goodMuonsID", MuonID(2)); // tight muons
     // ====================================================================
     // Baseline Muon Selection
     // // =====================================================================
@@ -200,7 +201,7 @@ void BaseAnalyser::selectMuons()
                 "Muon_miniPFRelIso_all < 0.4 && abs(Muon_dxy) < 0.05 && " 
 		        "abs(Muon_dz) < 0.10 && Muon_sip3d < 8.0 && " 
 		        "Muon_tightId && Muon_isPFcand" 
-		        "&& (Muon_isGlobal || Muon_isTracker)"); 
+		        "&& (Muon_isGlobal || Muon_isTracker) && Muon_promptMVA > 0.64"); 
 
     // _rlm = _rlm.Define("baselineMuons", "Muon_pt > 15 && abs(Muon_eta) < 2.4 && Muon_miniPFRelIso_all < 0.40 && goodMuonsID");
     // _rlm = _rlm.Define("baselineMuons", "Muon_pt > 15 && abs(Muon_eta) < 2.4 && Muon_promptMVA > 0.64 && goodMuonsID");
