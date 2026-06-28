@@ -25,6 +25,12 @@ using FourVector = ROOT::Math::PtEtaPhiMVector;
 using FourVectorVec = std::vector<FourVector>;
 using FourVectorRVec = ROOT::VecOps::RVec<FourVector>;
 
+// generates vectors of 4 vectors given vectors of pt, eta, phi, mass
+FourVectorRVec generate_4vec(floats &pt, floats &eta, floats &phi, floats &mass);
+
+
+
+
 ints pTcounter(floats vec);
 
 struct hist1dinfo
@@ -60,9 +66,6 @@ struct cutinfo
 	std::string idx;
 };
 
-
-// generates vectors of 4 vectors given vectors of pt, eta, phi, mass
-FourVectorVec generate_4vec(floats &pt, floats &eta, floats &phi, floats &mass);
 
 // return a vector size equal to length of x all filled with evWeight value
 floats weightv(floats &x, float evWeight);
@@ -136,6 +139,15 @@ TLorentzVector get_neutrino_TL4vec(float met_pt, float met_phi, float met_pz, fl
 /* -------------- W boson Reconstruction for SingleTop t-channel ------------------------*/
 
 TLorentzVector reconstructWboson_TL4vec(TLorentzVector &lepton, TLorentzVector &neutrino);
+
+ROOT::VecOps::RVec<TLorentzVector>
+buildTLorentzVectors(
+    const ROOT::VecOps::RVec<float>& pt,
+    const ROOT::VecOps::RVec<float>& eta,
+    const ROOT::VecOps::RVec<float>& phi,
+    const ROOT::VecOps::RVec<float>& mass);
+
+bool hasExactlyOneOSSFZPair(const FourVectorRVec& leptons,const ints& pdgId); 
 
 
 #endif /* UTILITY_H_ */

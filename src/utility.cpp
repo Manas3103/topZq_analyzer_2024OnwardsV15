@@ -22,7 +22,8 @@
 
 using namespace std;
 
-FourVectorVec generate_4vec(floats &pt, floats &eta, floats &phi, floats &mass)
+// FourVectorVec generate_4vec(floats &pt, floats &eta, floats &phi, floats &mass)  //so this function type has been changed i want to see what else is being changed
+FourVectorRVec generate_4vec(floats &pt, floats &eta, floats &phi, floats &mass)
 {
 	const int nsize = pt.size();
 	FourVectorVec fourvecs;
@@ -674,3 +675,51 @@ TLorentzVector reconstructWboson_TL4vec(TLorentzVector &lepton, TLorentzVector &
 	TLorentzVector Wboson_TL4vec = lepton + neutrino;
 	return Wboson_TL4vec;
 }
+
+
+
+ROOT::VecOps::RVec<TLorentzVector>
+buildTLorentzVectors(
+    const ROOT::VecOps::RVec<float>& pt,
+    const ROOT::VecOps::RVec<float>& eta,
+    const ROOT::VecOps::RVec<float>& phi,
+    const ROOT::VecOps::RVec<float>& mass)
+{
+    ROOT::VecOps::RVec<TLorentzVector> vecs;
+    vecs.reserve(pt.size());
+
+    for (size_t i = 0; i < pt.size(); ++i)
+    {
+        TLorentzVector v;
+        v.SetPtEtaPhiM(pt[i], eta[i], phi[i], mass[i]);
+        vecs.emplace_back(v);
+    }
+
+    return vecs;
+}
+
+
+bool hasExactlyOneOSSFZPair(const FourVectorRVec& leptons,
+                            const ints& pdgId)
+{
+    int nZPairs = 0;
+    const size_t n = leptons.size();
+
+    for (size_t i = 0; i < n; ++i) {
+        for (size_t j = i + 1; j < n; ++j) {
+            const bool os = (pdgId[i] * pdgId[j] < 0);
+            const bool sf = (std::abs(pdgId[i]) == std::abs(pdgId[j]));
+
+            if (!(os && sf)) continue;
+
+            const float mll = (leptons[i] + leptons[j]).M();
+
+            if (mll >= 76.f && mll <= 106.f) {
+                ++nZPairs;
+            }
+        }
+    }
+
+    return nZPairs == 1;
+}
+

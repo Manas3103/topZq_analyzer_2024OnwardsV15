@@ -33,7 +33,6 @@ NanoAODAnalyzerrdframe::NanoAODAnalyzerrdframe(TTree *atree, std::string outfile
 	_atree=atree;
 	//cout<< " run year=====" << _year <<endl;
 	// if genWeight column exists, then it is not real data
-	//
 
 }
 
@@ -104,7 +103,6 @@ bool NanoAODAnalyzerrdframe::readgoodjson(string goodjsonfname)
 	auto isgoodjsonevent = [this](unsigned int runnumber, unsigned int lumisection)
 		{
 			auto key = std::to_string(runnumber).c_str();
-
 			bool goodeventflag = false;
 
 
@@ -125,11 +123,6 @@ bool NanoAODAnalyzerrdframe::readgoodjson(string goodjsonfname)
 
 		if (jsoninfile.good())
 		{
-			//using rapidjson
-			//rapidjson::IStreamWrapper s(jsoninfile);
-			//jsonroot.ParseStream(s);
-
-			//using jsoncpp
 			jsoninfile >> jsonroot;
 			_rlm = _rlm.Define("goodjsonevent", isgoodjsonevent, {"run", "luminosityBlock"}).Filter("goodjsonevent");
 			_jsonOK = true;
@@ -148,28 +141,13 @@ bool NanoAODAnalyzerrdframe::readgoodjson(string goodjsonfname)
 	}
 }
 
-void NanoAODAnalyzerrdframe::selectFatJets()
-{
-	_rlm = _rlm.Define("fatjetcuts", "FatJet_pt>400.0 && abs(FatJet_eta)<2.4 && FatJet_tau1>0.0 && FatJet_tau2>0.0 && FatJet_tau3>0.0 && FatJet_tau3/FatJet_tau2<0.5")
-				.Define("Sel_fatjetpt", "FatJet_pt[fatjetcuts]")
-				.Define("Sel_fatjeteta", "FatJet_eta[fatjetcuts]")
-				.Define("Sel_fatjetphi", "FatJet_phi[fatjetcuts]")
-				.Define("Sel_fatjetmass", "FatJet_mass[fatjetcuts]")
-				.Define("nfatjetspass", "int(Sel_fatjetpt.size())")
-				.Define("Sel_fatjetweight", "std::vector<double>(nfatjetspass, evWeight)")
-				.Define("Sel_fatjet4vecs", ::generate_4vec, {"Sel_fatjetpt", "Sel_fatjeteta", "Sel_fatjetphi", "Sel_fatjetmass"});
-}
-
-
 
 void NanoAODAnalyzerrdframe::setupJetMETCorrection(string fname, string jettag,string jettagMC,string JER_tag,string JER_tag_res) //data
 {
 
     cout << "SETUP JETMET correction" << endl;
-	// read from file 
 	_correction_jerc = correction::CorrectionSet::from_file(fname);//jercfname=json
-	assert(_correction_jerc->validate()); //the assert functionality : check if the parameters passed to a function are valid =1:true
-	// correction type(jobconfiganalysis.py)
+	assert(_correction_jerc->validate()); 
 	cout<<"JERC JSON file : " << fname<<endl;
     if (_isData){
         _jetCorrector = _correction_jerc->compound().at(jettag);//jerctag#JSON (JEC,compound)compoundLevel="L1L2L3Res"
@@ -190,215 +168,7 @@ void NanoAODAnalyzerrdframe::setupJetMETCorrection(string fname, string jettag,s
     _jer_resolution = _correction_jerc->at(JER_tag_res);
 	std::cout<< "================================//=================================" << std::endl;
 }
-/*
-void NanoAODAnalyzerrdframe::applyJetMETCorrections()
-{
-    std::cout << "Applying JET/MET corrections" << std::endl;
 
-    using ROOT::VecOps::RVec;
-    using floats = RVec<float>;
-
-    //------------------------------------------------------------------
-    // 1. Create a vectorized run branch (needed only for Data)
-    //------------------------------------------------------------------
-    if (_isData)
-    {
-        _rlm = _rlm.Define("run_f",
-            [](unsigned int run, const floats &jetpts) {
-                return floats(jetpts.size(), float(run));
-            },
-            {"run", "Jet_pt"}
-        );
-    }
-
-    //------------------------------------------------------------------
-    // 2. Define branches in RDF
-    //------------------------------------------------------------------
-    if (_jetCorrector != nullptr)
-    {
-        if (_isData)
-        {
-            // Lambda for Data (with run)
-            auto jetCorrLambda_Data =
-                [this](floats jetpts,
-                       floats jetetas,
-                       floats jetAreas,
-                       floats jetrawf,
-                       float rho,
-                       floats jetphis,
-                       floats run_f) -> floats
-            {
-                floats out;
-                out.reserve(jetpts.size());
-
-                for (size_t i = 0; i < jetpts.size(); i++)
-                {
-                    float rawpt = jetpts[i] * (1.f - jetrawf[i]);
-                    float corr = (_year == 2023) ? _jetCorrector->evaluate({jetAreas[i], jetetas[i], rawpt, rho, run_f[i]}) : (_year == 2024) ? _jetCorrector->evaluate({jetAreas[i], jetetas[i], rawpt, rho, jetphis[i] , run_f[i]}) : _jetCorrector->evaluate({jetAreas[i], jetetas[i], rawpt, rho});
-                    out.emplace_back(rawpt * corr);
-                }
-
-                   return out;
-            };
-
-            _rlm = _rlm.Define("Jet_pt_corr",
-                jetCorrLambda_Data,
-                {"Jet_pt", "Jet_eta", "Jet_area", "Jet_rawFactor",
-                 "Rho_fixedGridRhoFastjetAll","Jet_phi","run_f"});
-             
-        }
-        else
-        {
-            // ------------------------------------------
-            // 1. Apply JEC first
-            // ------------------------------------------
-            auto jetCorrLambda_MC =
-                [this](floats jetpts,
-                        floats jetetas,
-                        floats jetAreas,
-                        floats jetrawf,
-                        floats jetphis,
-                        float rho) -> floats
-                {
-                    floats out;
-                    out.reserve(jetpts.size());
-
-                    for (size_t i = 0; i < jetpts.size(); i++)
-                    {
-                        float rawpt = jetpts[i] * (1.f - jetrawf[i]);
-
-                        float corr = (_year == 2024) ?
-                            _jetCorrector->evaluate({jetAreas[i], jetetas[i], rawpt, rho, jetphis[i]}) :
-                            _jetCorrector->evaluate({jetAreas[i], jetetas[i], rawpt, rho});
-
-                        out.emplace_back(rawpt * corr);
-                    }
-                    return out;
-                };
-
-            _rlm = _rlm.Define("Jet_pt_JEC",
-                    jetCorrLambda_MC,
-                    {"Jet_pt", "Jet_eta", "Jet_area", "Jet_rawFactor",
-                    "Jet_phi", "Rho_fixedGridRhoFastjetAll"});
-
-            // ------------------------------------------
-            // 2. Apply JER Smearing (Correct Way)
-            // ------------------------------------------
-            auto jerSmearLambda =
-                [this](floats jetpts,
-                        floats jetetas,
-                        floats jetgenpt,
-                        float rho) -> floats
-                {
-                    floats out;
-                    out.reserve(jetpts.size());
-
-                    TRandom3 rand(0);
-
-                    for (size_t i = 0; i < jetpts.size(); i++)
-                    {
-                        float pt  = jetpts[i];
-                        float eta = jetetas[i];
-                        float genpt = jetgenpt[i];
-
-                        // Get resolution
-                        float resolution = _jer_resolution->evaluate({eta, pt, rho});
-
-                        // Get scale factor
-                        float sf = _jer_corrector->evaluate({eta, pt , "nom"});
-
-                        float smeared_pt = pt;
-
-                        if (genpt > 0) // matched
-                        {
-                            smeared_pt = std::max(0.f,
-                                    genpt + sf * (pt - genpt));
-                        }
-                        else // stochastic smearing
-                        {
-                            float sigma = resolution * std::sqrt(std::max(sf*sf - 1.f, 0.f));
-                            float gauss = rand.Gaus(0., sigma);
-                            smeared_pt = pt * (1.f + gauss);
-                        }
-
-                        out.emplace_back(smeared_pt);
-                    }
-
-                    return out;
-                };
-            _rlm = _rlm.Define("Jet_genJetPt",
-                    [](const ROOT::VecOps::RVec<float>& GenJet_pt,
-                        const ROOT::VecOps::RVec<short>& Jet_genJetIdx)
-                    {
-                    ROOT::VecOps::RVec<float> out;
-                    out.reserve(Jet_genJetIdx.size());
-
-                    for (size_t i = 0; i < Jet_genJetIdx.size(); i++)
-                    {
-                    int idx = Jet_genJetIdx[i];
-
-                    if (idx >= 0 && idx < (int)GenJet_pt.size())
-                    out.emplace_back(GenJet_pt[idx]);
-                    else
-                    out.emplace_back(-1.f);  // unmatched
-                    }
-
-                    return out;
-    },
-    {"GenJet_pt", "Jet_genJetIdx"});
-
-            _rlm = _rlm.Define("Jet_pt_corr",
-                    jerSmearLambda,
-                    {"Jet_pt_JEC", "Jet_eta", "Jet_genJetPt",
-                    "Rho_fixedGridRhoFastjetAll"});
-            for (const auto& [tag, unc] : _jetCorrectionUnc) {
-
-                // Make safe column name: "Summer22_22Sep2023_V2_MC_Total_AK4PFPuppi"
-                // becomes: "Jet_pt_corr_Summer22_22Sep2023_V2_MC_Total_AK4PFPuppi_up"
-                string colBase = tag;
-                std::replace_if(colBase.begin(), colBase.end(),
-                        [](char c){ return !std::isalnum(c); }, '_');
-
-                string colUp   = "Jet_pt_corr_" + colBase + "_up";
-                string colDown = "Jet_pt_corr_" + colBase + "_down";
-
-                // Capture this iteration's corrector by value (CRITICAL - loop variable changes)
-                auto unc_copy = unc;
-
-                // UP variation
-                _rlm = _rlm.Define(colUp,
-                        [unc_copy](floats jetpts, floats jetetas) -> floats {
-                        floats out;
-                        out.reserve(jetpts.size());
-                        for (size_t i = 0; i < jetpts.size(); i++) {
-                        float unc_val = unc_copy->evaluate({jetetas[i], jetpts[i]});
-                        out.emplace_back(jetpts[i] * (1.f + unc_val));
-                        }
-                        return out;
-                        },
-                        {"Jet_pt_JEC", "Jet_eta"}
-                        );
-
-                // DOWN variation
-                _rlm = _rlm.Define(colDown,
-                        [unc_copy](floats jetpts, floats jetetas) -> floats {
-                        floats out;
-                        out.reserve(jetpts.size());
-                        for (size_t i = 0; i < jetpts.size(); i++) {
-                        float unc_val = unc_copy->evaluate({jetetas[i], jetpts[i]});
-                        out.emplace_back(jetpts[i] * (1.f - unc_val));
-                        }
-                        return out;
-                        },
-                        {"Jet_pt_JEC", "Jet_eta"}
-                        );
-
-                cout << "Defined uncertainty columns: " << colUp << ", " << colDown << endl;
-            }
-       }
-    }
-}
-*/
 
 
 void NanoAODAnalyzerrdframe::applyJetMETCorrections()
@@ -913,12 +683,8 @@ void NanoAODAnalyzerrdframe::applyElectronPtCorrection()
 
     using ROOT::VecOps::RVec;
     using floats = RVec<float>;
-    cout << "Works fine till her" << endl;
     auto smear_corr = _correction_electronss->at("SmearAndSyst");
-    cout << "Works fine till her" << endl;
-
     auto scale_corr = _correction_electronss->compound().at("Scale");
-    cout << "Works fine till her" << endl;
     _rlm = _rlm.Define("Electron_eta_supercluster",
                    "Electron_eta + Electron_deltaEtaSC");
 
@@ -1145,7 +911,6 @@ void NanoAODAnalyzerrdframe::applyMETPtPhiCorrection() //data and MC
   }
 }
 
-
 void NanoAODAnalyzerrdframe::setupCorrections(
 		string goodjsonfname, 
 		string pufname, 
@@ -1185,17 +950,16 @@ void NanoAODAnalyzerrdframe::setupCorrections(
 		string JER_tag_res)
 //In this function the correction is evaluated for each jet, Muon, Electron and MET. The correction depends on the momentum, pseudorapidity, energy, and cone area of the jet, as well as the value of rho(the average momentum per area) and number of interactions in the event. The correction is used to scale the momentum of the jet.
 {
-         cout << "set up Corrections!" << endl;
-         _correction_electronss = correction::CorrectionSet::from_file(electron_SSF);
-	 cout<< "Electron scaling and smearing filename   : " << electron_SSF << endl;
-         _electron_SSF=electron_SSF;
+        cout << "set up Corrections!" << endl;
+        _correction_electronss = correction::CorrectionSet::from_file(electron_SSF);
+        cout<< "Electron scaling and smearing filename   : " << electron_SSF << endl;
+        _electron_SSF=electron_SSF;
 
-         cout<< "Segment violation comming    : " << endl;
 
-         _correction_MET_pt_corrector = correction::CorrectionSet::from_file(metpt_fname);
-	 cout<< "met pt correction file name    : " << metpt_fname<< endl;
-         _metpt_fname=metpt_fname;
-         assert(_correction_MET_pt_corrector->validate());
+        // _correction_MET_pt_corrector = correction::CorrectionSet::from_file(metpt_fname);
+	    // cout<< "met pt correction file name    : " << metpt_fname<< endl;
+        // _metpt_fname=metpt_fname;
+        // assert(_correction_MET_pt_corrector->validate());
 
 	   _muon_scalsmear_corrector = correction::CorrectionSet::from_file(muon_roch_fname);
 	    cout<<"muon scaling and smearing filename :"<< muon_roch_fname<<endl;
@@ -1204,84 +968,82 @@ void NanoAODAnalyzerrdframe::setupCorrections(
 
 
 	if (_isData) _jsonOK = readgoodjson(goodjsonfname); // read golden json file
-          _correction_jetveto = correction::CorrectionSet::from_file(jet_veto_f_name);
-	  cout<< "Jrt veto JSON FILE : " <<  jet_veto_f_name << endl;
-          assert(_correction_jetveto->validate());
-          _jet_veto_tag = jet_veto_tag;
+        _correction_jetveto = correction::CorrectionSet::from_file(jet_veto_f_name);
+        cout<< "Jrt veto JSON FILE : " <<  jet_veto_f_name << endl;
+        assert(_correction_jetveto->validate());
+        _jet_veto_tag = jet_veto_tag;
 
 
 	if (!_isData) {
-	  // using correctionlib
-	  //Muon corrections
-	  _correction_muon = correction::CorrectionSet::from_file(muon_fname);
-	  _muon_hlt_type = muonhlttype;
-	 // _muon_reco_type = muonrecotype;
-	  _muon_id_type = muonidtype;
-	  _muon_iso_type = muonisotype;
-	  std::cout<< "================================//=================================" << std::endl;
-	  cout<< "MUON JSON FILE : " <<  muon_fname << endl;
-	  cout<< "MUON HLT type in JSON  : " << _muon_hlt_type << endl;
-//	  cout<< "MUON RECO type in JSON  : " << _muon_reco_type << endl;
-	  cout<< "MUON ID type in JSON  : " << _muon_id_type << endl;
-	  cout<< "MUON ISO type in JSON  : " << _muon_iso_type << endl;
-	  assert(_correction_muon->validate());
+        // using correctionlib
+        //Muon corrections
+        _correction_muon = correction::CorrectionSet::from_file(muon_fname);
+        _muon_hlt_type = muonhlttype;
+        // _muon_reco_type = muonrecotype;
+        _muon_id_type = muonidtype;
+        _muon_iso_type = muonisotype;
+        std::cout<< "================================//=================================" << std::endl;
+        cout<< "MUON JSON FILE : " <<  muon_fname << endl;
+        cout<< "MUON HLT type in JSON  : " << _muon_hlt_type << endl;
+        cout<< "MUON ID type in JSON  : " << _muon_id_type << endl;
+        cout<< "MUON ISO type in JSON  : " << _muon_iso_type << endl;
+        assert(_correction_muon->validate());
+  
+	    //Electron corrections
+	    _correction_electron = correction::CorrectionSet::from_file(electron_fname);
+        cout<< "above line has problem" << endl;
+        _correction_electronHlt = correction::CorrectionSet::from_file(electronHlt_fname);
+
+    //  _electron_reco_type = electron_reco_type;
+        _electron_reco_type1=electron_reco_type1;
+        _electron_reco_type2=electron_reco_type2;
+        _electron_reco_type3=electron_reco_type3;
+        _electron_id_type = electron_id_type;
+        _electronHlt_type =electronHlt_type;
+        std::cout<< "================================//=================================" << std::endl;
+        cout<< "ELECTRON JSON FILE : " << electron_fname << endl;
+        cout<< "ELECTRON RECO type in JSON  : " << _electron_reco_type1 << endl;
+        cout<< "ELECTRONID type in JSON  : " << _electron_id_type << endl;
+        assert(_correction_electron->validate());
+        assert(_correction_electronHlt->validate());
 	  
-	  cout<< "uptothis is completed  ok  " << endl;
-	  //Electron corrections
-	  _correction_electron = correction::CorrectionSet::from_file(electron_fname);
-          cout<< "above line has problem" << endl;
-          _correction_electronHlt = correction::CorrectionSet::from_file(electronHlt_fname);
+        // btag corrections
+        _correction_btag1 = correction::CorrectionSet::from_file(btvfname);
+        _btvtype = btvtype;
+        assert(_correction_btag1->validate());
 
-	//  _electron_reco_type = electron_reco_type;
-	  _electron_reco_type1=electron_reco_type1;
-	  _electron_reco_type2=electron_reco_type2;
-	  _electron_reco_type3=electron_reco_type3;
-	  _electron_id_type = electron_id_type;
-          _electronHlt_type =electronHlt_type;
-	  std::cout<< "================================//=================================" << std::endl;
-	  cout<< "ELECTRON JSON FILE : " << electron_fname << endl;
-	  cout<< "ELECTRON RECO type in JSON  : " << _electron_reco_type1 << endl;
-	  cout<< "ELECTRONID type in JSON  : " << _electron_id_type << endl;
-	  assert(_correction_electron->validate());
-	  assert(_correction_electronHlt->validate());
-	  
-	  // btag corrections
-	  _correction_btag1 = correction::CorrectionSet::from_file(btvfname);
-	  _btvtype = btvtype;
-	  assert(_correction_btag1->validate());
+        // btag corrections
+        _correction_btag1 = correction::CorrectionSet::from_file(btvfname);
+        _btvtype = btvtype;
+        assert(_correction_btag1->validate());
+        std::cout << "================================//=================================" << std::endl;
+        cout << "BTag JSON FILE : " << btvfname << endl;
+        cout << "BTag type in JSON  : " << _btvtype << endl;
+        std::cout << "================================//=================================" << std::endl;
 
-	  // btag corrections
-	  _correction_btag1 = correction::CorrectionSet::from_file(btvfname);
-	  _btvtype = btvtype;
-	  assert(_correction_btag1->validate());
-	  std::cout << "================================//=================================" << std::endl;
-	  cout << "BTag JSON FILE : " << btvfname << endl;
-	  cout << "BTag type in JSON  : " << _btvtype << endl;
-	  std::cout << "================================//=================================" << std::endl;
-
-	  // btagging efficiency
-	  if(!_doBtagEff){
-	  f_btagEff = new TFile(fname_btagEff.c_str(), "READ");
-	  hist_Loose_btagEff_bcflav = dynamic_cast<TH2D*>(f_btagEff->Get(hname_Loose_btagEff_bcflav.c_str()));
-	  hist_Loose_btagEff_lflav = dynamic_cast<TH2D*>(f_btagEff->Get(hname_Loose_btagEff_lflav.c_str()));
-	  hist_Medium_btagEff_bcflav = dynamic_cast<TH2D*>(f_btagEff->Get(hname_Medium_btagEff_bcflav.c_str()));
-	  hist_Medium_btagEff_lflav = dynamic_cast<TH2D*>(f_btagEff->Get(hname_Medium_btagEff_lflav.c_str()));
-	  hist_Tight_btagEff_bcflav = dynamic_cast<TH2D*>(f_btagEff->Get(hname_Tight_btagEff_bcflav.c_str()));
-	  hist_Tight_btagEff_lflav = dynamic_cast<TH2D*>(f_btagEff->Get(hname_Tight_btagEff_lflav.c_str()));
-	  }
+        // btagging efficiency
+        if(!_doBtagEff){
+        f_btagEff = new TFile(fname_btagEff.c_str(), "READ");
+        hist_Loose_btagEff_bcflav = dynamic_cast<TH2D*>(f_btagEff->Get(hname_Loose_btagEff_bcflav.c_str()));
+        hist_Loose_btagEff_lflav = dynamic_cast<TH2D*>(f_btagEff->Get(hname_Loose_btagEff_lflav.c_str()));
+        hist_Medium_btagEff_bcflav = dynamic_cast<TH2D*>(f_btagEff->Get(hname_Medium_btagEff_bcflav.c_str()));
+        hist_Medium_btagEff_lflav = dynamic_cast<TH2D*>(f_btagEff->Get(hname_Medium_btagEff_lflav.c_str()));
+        hist_Tight_btagEff_bcflav = dynamic_cast<TH2D*>(f_btagEff->Get(hname_Tight_btagEff_bcflav.c_str()));
+        hist_Tight_btagEff_lflav = dynamic_cast<TH2D*>(f_btagEff->Get(hname_Tight_btagEff_lflav.c_str()));
+        }
 
 
-	  // pile up weights
-	  _correction_pu = correction::CorrectionSet::from_file(pufname);
-	  assert(_correction_pu->validate());
-	  _putag = putag;
-	  auto punominal = [this](float x) { return pucorrection(_correction_pu, _putag, "nominal", x); };
-	  auto puplus = [this](float x) { return pucorrection(_correction_pu, _putag, "up", x); };
-	  auto puminus = [this](float x) { return pucorrection(_correction_pu, _putag, "down", x); };
-	  
-	  if (!isDefined("puWeight")) _rlm = _rlm.Define("puWeight", punominal, {"Pileup_nTrueInt"});
-	  if (!isDefined("puWeight_plus")) _rlm = _rlm.Define("puWeight_plus", puplus, {"Pileup_nTrueInt"});
-	  if (!isDefined("puWeight_minus")) _rlm = _rlm.Define("puWeight_minus", puminus, {"Pileup_nTrueInt"});
+        // pile up weights
+        _correction_pu = correction::CorrectionSet::from_file(pufname);
+        assert(_correction_pu->validate());
+        _putag = putag;
+        auto punominal = [this](float x) { return pucorrection(_correction_pu, _putag, "nominal", x); };
+        auto puplus = [this](float x) { return pucorrection(_correction_pu, _putag, "up", x); };
+        auto puminus = [this](float x) { return pucorrection(_correction_pu, _putag, "down", x); };
+
+        if (!isDefined("puWeight")) _rlm = _rlm.Define("puWeight", punominal, {"Pileup_nTrueInt"});
+        if (!isDefined("puWeight_plus")) _rlm = _rlm.Define("puWeight_plus", puplus, {"Pileup_nTrueInt"});
+        if (!isDefined("puWeight_minus")) _rlm = _rlm.Define("puWeight_minus", puminus, {"Pileup_nTrueInt"});
 	  
 	  
 	  if (!isDefined("pugenWeight"))
@@ -1320,9 +1082,10 @@ void NanoAODAnalyzerrdframe::setupCorrections(
 	_jetid_mask_defined = false;
 	applyJetMETCorrections();
 	applyElectronPtCorrection();
-	applyMETPtPhiCorrection();
 	applyMuPtCorrection();
+	// applyMETPtPhiCorrection();
 }
+
 
 
 double NanoAODAnalyzerrdframe::getBTaggingEff(double hadflav, double eta, double pt, std::string _BTaggingWP){
@@ -1603,7 +1366,6 @@ ROOT::RDF::RNode NanoAODAnalyzerrdframe::calculateMuSF(RNode _rlm, std::vector<s
     //Muon MediumID ISO UL type: NUM_TightRelIso_DEN_MediumID && thightID:NUM_TightRelIso_DEN_TightIDandIPCut --> the type can be found in json file
     //--> As an example Medium wp is used 
     //===============================================================================================================================================//
-    //cout<<"muon HLT SF for MC "<<endl;
   auto muon_weightgenerator = [this](const std::string& muon_type, const ROOT::VecOps::RVec<float>& etas, const ROOT::VecOps::RVec<float>& pts, const std::string& variation) -> float {
       double muonHLT_w = 1.0;
 
@@ -2021,77 +1783,6 @@ void NanoAODAnalyzerrdframe::addCuts(string cut, string idx)
 {
 	_cutinfovector.push_back({cut, idx});
 }
-
-/*
-void NanoAODAnalyzerrdframe::run(bool saveAll, string outtreename)
-{
-
-
-	vector<RNodeTree *> rntends;
-	_rnt.getRNodeLeafs(rntends);
-	_rnt.Print();
-    cout << rntends.size() << endl;
-
-
-	for (auto arnt: rntends)
-	{
-		string nodename = arnt->getIndex();
-		string outname = _outfilename;
-		if (rntends.size()>1) outname.replace(outname.find(".root"), 5, "_"+nodename+".root");
-		_outrootfilenames.push_back(outname);
-		RNode *arnode = arnt->getRNode();
-		std::cout<< "-------------------------------------------------------------------" << std::endl;
-                cout<<"cut : " ;
-                cout << arnt->getIndex();
-		if (saveAll) {
-			arnode->Snapshot(outtreename, outname);
-		}
-		else {
-            cout << " --writing branches" << endl;
-			std::cout<< "-------------------------------------------------------------------" << std::endl;
-			for (auto bname: _varstostorepertree[nodename])
-			{
-				cout << bname << endl;
-			}
-			arnode->Snapshot(outtreename, outname, _varstostorepertree[nodename]);
-		}
-		std::cout<< "-------------------------------------------------------------------" << std::endl;
-		cout << "Creating output root file :  " << endl;
-		cout << outname << " ";
-		cout<<endl;
-		std::cout<< "-------------------------------------------------------------------" << std::endl;
-		_outrootfile = new TFile(outname.c_str(), "UPDATE");
-		cout << "Writing histograms...   " << endl;
-		std::cout<< "-------------------------------------------------------------------" << std::endl;
-		for (auto &h : _th1dhistos)
-		{
-			if (h.second.GetPtr() != nullptr) {
-				h.second.GetPtr()->Print();
-				h.second.GetPtr()->Write();
-			}
-		}
-		//for 2D histograms
-		for (auto &h : _th2dhistos)
-		{
-			if (h.second.GetPtr() != nullptr) {
-				h.second.GetPtr()->Print();
-				h.second.GetPtr()->Write();
-			}
-		}
-
-
-		/*TH1F* hPDFWeights = new TH1F("LHEPdfWeightSum", "LHEPdfWeightSum", 103, 0, 1);
-        for (size_t i=0; i<PDFWeights.size(); i++){
-            hPDFWeights->SetBinContent(i+1, PDFWeights[i]);
-		}*/
-/*		_outrootfile->Write(0, TObject::kOverwrite);
-		_outrootfile->Close();
-	}
-    std::cout<< "-------------------------------------------------------------------" << std::endl;
-    std::cout << "END...  :) " << std::endl; 
-
-}
-*/
 
 
 void NanoAODAnalyzerrdframe::run(bool saveAll, string outtreename)

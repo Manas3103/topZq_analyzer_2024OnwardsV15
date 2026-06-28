@@ -12,6 +12,10 @@
 #include <fstream>
 #include "correction.h"
 using correction::CorrectionSet;
+using RVecF   = ROOT::VecOps::RVec<float>;
+using RVecI   = ROOT::VecOps::RVec<int>;
+using RVec4Vec = ROOT::VecOps::RVec<ROOT::Math::PtEtaPhiMVector>;
+
 
 BaseAnalyser::BaseAnalyser(TTree *t, std::string outfilename)
 :NanoAODAnalyzerrdframe(t, outfilename)
@@ -42,8 +46,6 @@ BaseAnalyser::BaseAnalyser(TTree *t, std::string outfilename)
             "HLT_DiMu9_Ele9_CaloIdL_TrackIdL_DZ",
             "HLT_Mu8_DiEle12_CaloIdL_TrackIdL",
             "HLT_Mu8_DiEle12_CaloIdL_TrackIdL_DZ",
-            "HLT_Ele27_WPTight_Gsf",
-            "HLT_Ele28_WPTight_Gsf",
             "HLT_Ele30_WPTight_Gsf",
             "HLT_Ele32_WPTight_Gsf",
             "HLT_Ele35_WPTight_Gsf",
@@ -52,12 +54,10 @@ BaseAnalyser::BaseAnalyser(TTree *t, std::string outfilename)
             "HLT_Ele115_CaloIdVT_GsfTrkIdT",
             "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL",
             "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ",
-            "HLT_Ele27_Ele37_CaloIdL_MW",
             "HLT_DoubleEle33_CaloIdL_MW",
             "HLT_DoubleEle25_CaloIdL_MW",
             "HLT_DoubleEle27_CaloIdL_MW",
             "HLT_Ele16_Ele12_Ele8_CaloIdL_TrackIdL",
-            "HLT_IsoMu30",
             "HLT_IsoMu24",
             "HLT_IsoMu24_eta2p1",
             "HLT_IsoMu27",
@@ -72,33 +72,6 @@ BaseAnalyser::BaseAnalyser(TTree *t, std::string outfilename)
 
 }
 
-// Define your cuts here
-void BaseAnalyser::defineCuts()
-{
-	if (debug){
-        std::cout<< "================================//=================================" << std::endl;
-        std::cout<< "Line : "<< __LINE__ << " Function : " << __FUNCTION__ << std::endl;
-        std::cout<< "================================//=================================" << std::endl;
-    }
-	auto Nentry = _rlm.Count();
-	// This is how you can express a range of the first 100 entries
-	//_rlm = _rlm.Range(0, 100000);
-        auto Nentry_100 = _rlm.Count();
-	std::cout<< "-------------------------------------------------------------------" << std::endl;
-        cout << "Usage of ranges:\n"
-        << " - All entries: " << *Nentry << endl;
-		//<< " - Entries from 0 to 100: " << *Nentr
-	std::cout<< "-------------------------------------------------------------------" << std::endl;
-
-	//MinimalSelection to filter events
-	addCuts("NgoodLepton >= 3 && PV_npvsGood >= 1 ", "0");//not for drellyan
-	addCuts("Flag_goodVertices && Flag_globalSuperTightHalo2016Filter && Flag_EcalDeadCellTriggerPrimitiveFilter && Flag_BadPFMuonFilter && Flag_BadPFMuonDzFilter && Flag_hfNoisyHitsFilter && Flag_eeBadScFilter && Flag_ecalBadCalibFilter", "00");
-	addCuts(setHLT(),"000");
-}
-
-
-
-/*
 void BaseAnalyser::defineCuts()
 {
     if (debug) {
@@ -139,7 +112,6 @@ void BaseAnalyser::defineCuts()
     addCuts(metFilters, "00");
     addCuts(setHLT(), "000");
 }
-*/
 
 
 
@@ -156,86 +128,48 @@ void BaseAnalyser::selectElectrons()
         std::cout << "================================//=================================" << std::endl;
     }
 
-    // Define good electrons based on ID and additional criteria
-    _rlm = _rlm.Define("looseElect_ID", ElectronID(2)) // ID level 2
-	       .Define("mediumElect_ID", ElectronID(3))
-	       .Define("tightElect_ID", ElectronID(4))
-               .Define("goodElectronsID", "looseElect_ID || mediumElect_ID || tightElect_ID");
-    _rlm = _rlm.Define("goodElectrons", "Electron_pt > 15.0 && abs(Electron_eta) < 2.4 && Electron_miniPFRelIso_all < 0.40 && goodElectronsID");
-
-    // Define additional variables for good electrons
-    _rlm = _rlm.Define("goodElectrons_pt", "Electron_pt[goodElectrons]")
-                .Define("goodElectrons_eta", "Electron_eta[goodElectrons]")
-                .Define("goodElectrons_phi", "Electron_phi[goodElectrons]")
-                .Define("goodElectrons_mass", "Electron_mass[goodElectrons]")
-                .Define("goodElectrons_idx", ::good_idx, {"goodElectrons"})
-                .Define("NgoodElectrons", "int(goodElectrons_pt.size())");
-
-
-    //-------------------------------------------------------
-    // Generate electron 4-vector from selected good electrons
-    //-------------------------------------------------------
-    _rlm = _rlm.Define("goodElectron_4Vecs", ::generate_4vec, {"goodElectrons_pt", "goodElectrons_eta", "goodElectrons_phi", "goodElectrons_mass"});
-
 
 
     // =====================================================================
     // baselineElectrons_isPromptBaseline Electron Selection
     // =====================================================================
-    /* _rlm = _rlm.Define("baselineElectrons", */ 
-    /*                    "Electron_pt_corr > 15.0 && abs(Electron_eta) < 2.5 &&  Electron_cutBased >=4 &&" */
-		       /* "!(abs(Electron_eta) > 1.442 && abs(Electron_eta) < 1.566) && " */
-    /*                    "Electron_miniPFRelIso_all < 0.40 && abs(Electron_dxy) < 0.05 && " */
-    /*                    "abs(Electron_dz) < 0.10 && Electron_lostHits <= 1 && " */
-    /*                    "Electron_hoe < 0.10 && Electron_convVeto &&" */
-		       /* "((abs(Electron_eta) < 1.479 && Electron_sieie < 0.011) || " // Barrel cut */
-    /*                    "(abs(Electron_eta) >= 1.479 && abs(Electron_eta) < 2.5 && Electron_sieie < 0.030)) &&" // Endcap cut */
-		       /* "Electron_sip3d < 8 && Electron_eInvMinusPInv > -0.04" */
-		       /* ); */
+    _rlm = _rlm.Define("baselineElectrons", 
+                "Electron_pt_corr > 15.0 && abs(Electron_eta) < 2.5 &&  Electron_cutBased >=4 &&" 
+                "!(abs(Electron_eta) > 1.442 && abs(Electron_eta) < 1.566) && " 
+                "Electron_miniPFRelIso_all < 0.40 && abs(Electron_dxy) < 0.05 && " 
+                "abs(Electron_dz) < 0.10 && Electron_lostHits <= 1 && " 
+                "Electron_hoe < 0.10 && Electron_convVeto &&" 
+                "((abs(Electron_eta) < 1.479 && Electron_sieie < 0.011) || " // Barrel cut 
+                "(abs(Electron_eta) >= 1.479 && abs(Electron_eta) < 2.5 && Electron_sieie < 0.030)) &&" // Endcap cut 
+                "Electron_sip3d < 8 && Electron_eInvMinusPInv > -0.04" 
+                ); 
 
-    _rlm = _rlm.Define("baselineElectrons", "Electron_pt > 15.0 && abs(Electron_eta) < 2.4 && !(abs(Electron_eta) > 1.442 && abs(Electron_eta) < 1.566) && Electron_cutBased>=4");  //Tight ID
+    // _rlm = _rlm.Define("baselineElectrons", "Electron_pt > 15.0 && abs(Electron_eta) < 2.4 && !(abs(Electron_eta) > 1.442 && abs(Electron_eta) < 1.566) && Electron_cutBased>=4");  //Tight ID
 
 
     // Additional variables for baseline electrons
     /* _rlm = _rlm.Define("A_baselineElectrons_pt", "Electron_pt_corr[baselineElectrons]") */
 
 
-    _rlm = _rlm.Define("A_baselineElectrons_pt", "Electron_pt[baselineElectrons]")
+    _rlm = _rlm.Define("A_baselineElectrons_pt", "Electron_pt_corr[baselineElectrons]")
                 .Define("A_baselineElectrons_eta", "Electron_eta[baselineElectrons]")
                 .Define("A_baselineElectrons_phi", "Electron_phi[baselineElectrons]")
                 .Define("A_baselineElectrons_mass", "Electron_mass[baselineElectrons]")
                 .Define("A_baselineElectrons_charge", "Electron_charge[baselineElectrons]")
                 .Define("A_baselineElectrons_idx", ::good_idx, {"baselineElectrons"})
+                .Define("A_baselineElectrons_pdgId", "Electron_pdgId[baselineElectrons]")
                 .Define("A_NbaselineElectrons", "int(A_baselineElectrons_pt.size())");
 
     // Define tight and fakable electrons based on MVA score
     _rlm = _rlm.Define("TightElectrons", "baselineElectrons && Electron_promptMVA > 0.90")
-	       .Define("TightElectrons_pt", "Electron_pt[TightElectrons]")
-	       .Define("N_TightElectrons", "int(TightElectrons_pt.size())")
-               .Define("A_baselineElectrons_mvaTTH", "Electron_promptMVA[baselineElectrons]")
-               .Define("A_tight_baselineElectrons", "Electron_promptMVA[baselineElectrons] > 0.90");
+                .Define("A_baselineElectrons_mvaTTH", "Electron_promptMVA[baselineElectrons]")
+                .Define("A_tight_baselineElectrons", "Electron_promptMVA[baselineElectrons] > 0.90");
 
 
     // Generate 4-vectors for baseline electrons
     _rlm = _rlm.Define("A_baselineElectron_4Vecs", ::generate_4vec, {"A_baselineElectrons_pt", "A_baselineElectrons_eta", "A_baselineElectrons_phi", "A_baselineElectrons_mass"});
+    _rlm = _rlm.Define("A_baselineElectron_TL4Vecs", ::buildTLorentzVectors, {"A_baselineElectrons_pt", "A_baselineElectrons_eta", "A_baselineElectrons_phi", "A_baselineElectrons_mass"});
     
-/*
-    _rlm = _rlm.Define("A_baselineElectrons_TL4Vecs",
-    [](const ROOT::VecOps::RVec<float>& pt,
-       const ROOT::VecOps::RVec<float>& eta,
-       const ROOT::VecOps::RVec<float>& phi,
-       const ROOT::VecOps::RVec<float>& mass) -> ROOT::VecOps::RVec<TLorentzVector> {
-        ROOT::VecOps::RVec<TLorentzVector> vecs;
-        for (size_t i = 0; i < pt.size(); ++i) {
-            TLorentzVector vec;
-            vec.SetPtEtaPhiM(pt[i], eta[i], phi[i], mass[i]);
-            vecs.emplace_back(vec);
-        }
-        return vecs;
-    },
-    {"A_baselineElectrons_pt", "A_baselineElectrons_eta", "A_baselineElectrons_phi", "A_baselineElectrons_mass"});
-    
-*/   
 }
 
 
@@ -258,42 +192,31 @@ void BaseAnalyser::selectMuons()
 
     // Define good muons based on ID and additional criteria
     _rlm = _rlm.Define("goodMuonsID", MuonID(4)); // tight muons
-    _rlm = _rlm.Define("goodMuons", "Muon_pt > 30 && abs(Muon_eta) < 2.4 && Muon_miniPFRelIso_all < 0.40 && goodMuonsID");
-
-
-    // Define additional variables for good muons
-    _rlm = _rlm.Define("goodMuons_pt", "Muon_pt[goodMuons]")
-                .Define("goodMuons_eta", "Muon_eta[goodMuons]")
-                .Define("goodMuons_phi", "Muon_phi[goodMuons]")
-                .Define("goodMuons_mass", "Muon_mass[goodMuons]")
-                .Define("goodMuons_charge", "Muon_charge[goodMuons]")
-                .Define("goodMuons_idx", ::good_idx, {"goodMuons"})
-                .Define("NgoodMuons", "int(goodMuons_pt.size())");
-
     // ====================================================================
     // Baseline Muon Selection
     // // =====================================================================
-    /* _rlm = _rlm.Define("baselineMuons", */
-		       /* "Muon_pt_corr > 15.0 && abs(Muon_eta) < 2.4 && " */
-	       	       /* "Muon_miniPFRelIso_all < 0.4 && abs(Muon_dxy) < 0.05 && " */
-		       /* "abs(Muon_dz) < 0.10 && Muon_sip3d < 8.0 && " */
-		       /* "Muon_tightId && Muon_isPFcand" */
-		       /* "&& (Muon_isGlobal || Muon_isTracker)"); */
+     _rlm = _rlm.Define("baselineMuons", 
+		        "Muon_pt_corr > 15.0 && abs(Muon_eta) < 2.4 && " 
+                "Muon_miniPFRelIso_all < 0.4 && abs(Muon_dxy) < 0.05 && " 
+		        "abs(Muon_dz) < 0.10 && Muon_sip3d < 8.0 && " 
+		        "Muon_tightId && Muon_isPFcand" 
+		        "&& (Muon_isGlobal || Muon_isTracker)"); 
 
     // _rlm = _rlm.Define("baselineMuons", "Muon_pt > 15 && abs(Muon_eta) < 2.4 && Muon_miniPFRelIso_all < 0.40 && goodMuonsID");
-    _rlm = _rlm.Define("baselineMuons", "Muon_pt > 15 && abs(Muon_eta) < 2.4 && Muon_promptMVA > 0.64 && goodMuonsID");
+    // _rlm = _rlm.Define("baselineMuons", "Muon_pt > 15 && abs(Muon_eta) < 2.4 && Muon_promptMVA > 0.64 && goodMuonsID");
 
 
 	// Additional variables for baseline muons  the value of pt has to be >15 because correction is lot avalaible below 15 
     /* _rlm = _rlm.Define("baselineMuons_pt", "Muon_pt_corr[baselineMuons]") */
 
 
-    _rlm = _rlm.Define("baselineMuons_pt", "Muon_pt[baselineMuons]")
+    _rlm = _rlm.Define("baselineMuons_pt", "Muon_pt_corr[baselineMuons]")
 	       .Define("baselineMuons_eta", "Muon_eta[baselineMuons]")
 	       .Define("baselineMuons_phi", "Muon_phi[baselineMuons]")
 	       .Define("baselineMuons_mass", "Muon_mass[baselineMuons]")
 	       .Define("baselineMuons_charge", "Muon_charge[baselineMuons]")
-               .Define("baselineMuons_idx", ::good_idx, {"baselineMuons"})
+           .Define("baselineMuons_idx", ::good_idx, {"baselineMuons"})
+	       .Define("baselineMuons_pdgId", "Muon_pdgId[baselineMuons]")
 	       .Define("NbaselineMuons", "int(baselineMuons_pt.size())");
          
 	_rlm = _rlm
@@ -306,32 +229,14 @@ void BaseAnalyser::selectMuons()
         .Define("trailingMuon_eta",   "baselineMuons_eta.size() == 3 ? baselineMuons_eta[2] : -999.f");
 
 
-    // Generate 4-vectors for baseline muons
-    _rlm = _rlm.Define("baselineMuon_4Vecs", ::generate_4vec, {"baselineMuons_pt", "baselineMuons_eta", "baselineMuons_phi", "baselineMuons_mass"});
-    
-    _rlm = _rlm.Define("baselineMuons_TL4Vecs",
-    [](const ROOT::VecOps::RVec<float>& pts,
-       const ROOT::VecOps::RVec<float>& etas,
-       const ROOT::VecOps::RVec<float>& phis,
-       const ROOT::VecOps::RVec<float>& masses) -> ROOT::VecOps::RVec<TLorentzVector> {
-        ROOT::VecOps::RVec<TLorentzVector> vecs;
-        for (size_t i = 0; i < pts.size(); ++i) {
-            TLorentzVector vec;
-            vec.SetPtEtaPhiM(pts[i], etas[i], phis[i], masses[i]);
-            vecs.emplace_back(vec);
-        }
-        return vecs;
-    },
-    {"baselineMuons_pt", "baselineMuons_eta", "baselineMuons_phi", "baselineMuons_mass"});
-    
-    _rlm = _rlm.Define("tight_Muons", "Muon_promptMVA[baselineMuons] > 0.64");
-
-    
-
     //-------------------------------------------------------
     // Generate muon 4-vector from selected good muons
     //-------------------------------------------------------
-    _rlm = _rlm.Define("goodMuons_4vecs", ::generate_4vec, {"goodMuons_pt", "goodMuons_eta", "goodMuons_phi", "goodMuons_mass"});
+    _rlm = _rlm.Define("baselineMuon_4Vecs", ::generate_4vec, {"baselineMuons_pt", "baselineMuons_eta", "baselineMuons_phi", "baselineMuons_mass"});
+    _rlm = _rlm.Define("baselineMuon_TL4Vecs",::buildTLorentzVectors, {"baselineMuons_pt", "baselineMuons_eta", "baselineMuons_phi", "baselineMuons_mass"});
+    _rlm = _rlm.Define("tight_Muons", "Muon_promptMVA[baselineMuons] > 0.64");
+
+    
 }
 
 //=================================Select Jets=================================================//
@@ -351,7 +256,7 @@ void BaseAnalyser::selectJets()
     }
 
     //_rlm = _rlm.Define("goodJetsID", JetID(6)); //without pt-eta cuts here i have to add other cuts since its NanoAODv12
-
+    // Tight + TightLeptonVeto cut
     _rlm = _rlm.Define("goodJetsID",
 	[](const ROOT::VecOps::RVec<UChar_t>& neMult,
 	   const ROOT::VecOps::RVec<UChar_t>& chMult,
@@ -412,7 +317,6 @@ void BaseAnalyser::selectJets()
 	{"Jet_neMultiplicity", "Jet_chMultiplicity", "Jet_pt_corr",
 	 "Jet_neEmEF", "Jet_chEmEF", "Jet_chHEF", "Jet_neHEF",
 	 "Jet_muEF", "Jet_eta"});
-// Here i have changed the Jet_pt_corr to Jet_pt. change it back when use the Jet_pt
 
 	// =====================================================
 	// 1. GOOD JET SELECTION
@@ -484,84 +388,6 @@ void BaseAnalyser::selectJets()
 		   .Define("goodJets_UparTjetbtag",
 			   "Jet_btagUParTAK4B[goodJets]");
 
-/*
-	// =====================================================
-	// 5. SELECT GOOD BJETS (TIGHT WP)
-	// =====================================================
-
-	// DeepJet tight ~0.7
-	// UParT tight ~0.4648 Medium ID
-
-	_rlm = _rlm.Define("btagcuts",
-			   "goodJets_UparTjetbtag > 0.4648")
-
-		   .Define("good_bjetpt",   "goodJets_pt[btagcuts]")
-		   .Define("good_bjeteta",  "goodJets_eta[btagcuts]")
-		   .Define("good_bjetphi",  "goodJets_phi[btagcuts]")
-		   .Define("good_bjetmass", "goodJets_mass[btagcuts]");
-
-	if (!_isData) {
-	    _rlm = _rlm.Define("good_bjethadflav",
-			       "goodJets_hadflav[btagcuts]");
-	}
-
-	_rlm = _rlm.Define("Ngood_bjets",
-			   "int(good_bjetpt.size())")
-		   .Define("good_bjet4vecs", ::generate_4vec,
-			   {"good_bjetpt",
-			    "good_bjeteta",
-			    "good_bjetphi",
-			    "good_bjetmass"});
-
-
-             _rlm = _rlm.Define("good_bjet_leading_pt", "int(good_bjetpt.size()) > 0 ? static_cast<double>(good_bjetpt[0]) : -999.9")
-             		.Define("good_bjet_leading_eta", "int(good_bjeteta.size()) > 0 ? static_cast<double>(good_bjeteta[0]) : -999.9")
-             		.Define("good_bjet_leading_phi", "int(good_bjetphi.size()) > 0 ? static_cast<double>(good_bjetphi[0]) : -999.9")
-             		.Define("good_bjet_leading_mass", "int(good_bjetmass.size()) > 0 ? static_cast<double>(good_bjetmass[0]) : -999.9");     
-
-	// =====================================================
-	// 6. BTAGGING EFFICIENCY STUDIES (MC ONLY)
-	// =====================================================
-
-	if (!_isData) {
-
-	    // ----------------------------
-	    // b/c flavour (hadflav != 0)
-	    // ----------------------------
-
-	    _rlm = _rlm.Define("btagpass_bcflav_goodJets",
-			       "goodJets_deepjetbtag > 0.2783 && goodJets_hadflav != 0")
-		       .Define("goodJets_btagpass_bcflav_pt",
-			       "goodJets_pt[btagpass_bcflav_goodJets]")
-		       .Define("goodJets_btagpass_bcflav_eta",
-			       "goodJets_eta[btagpass_bcflav_goodJets]");
-
-	    _rlm = _rlm.Define("all_bcflav_goodJets",
-			       "goodJets_hadflav != 0")
-		       .Define("goodJets_all_bcflav_pt",
-			       "goodJets_pt[all_bcflav_goodJets]")
-		       .Define("goodJets_all_bcflav_eta",
-			       "goodJets_eta[all_bcflav_goodJets]");
-
-
-	    // ----------------------------
-	    // light flavour (hadflav == 0)
-	    // ----------------------------
-
-	    _rlm = _rlm.Define("btagpass_lflav_goodJets",
-			       "goodJets_deepjetbtag > 0.2783 && goodJets_hadflav == 0")
-		       .Define("goodJets_btagpass_lflav_pt",
-			       "goodJets_pt[btagpass_lflav_goodJets]")
-		       .Define("goodJets_btagpass_lflav_eta",
-			       "goodJets_eta[btagpass_lflav_goodJets]");
-
-	    _rlm = _rlm.Define("all_lflav_goodJets",
-			       "goodJets_hadflav == 0")
-		       .Define("goodJets_all_lflav_pt",
-			       "goodJets_pt[all_lflav_goodJets]")
-		       .Define("goodJets_all_lflav_eta",
-			       "goodJets_eta[all_lflav_goodJets]");
-	}*/
 }
 
 void BaseAnalyser::removeOverlaps()
@@ -591,8 +417,8 @@ void BaseAnalyser::removeOverlaps()
     // ================================================================
     
 
-    auto buildDeltaRMask = [](const FourVectorVec &collection1,
-			      const FourVectorVec &collection2,
+    auto buildDeltaRMask = [](const FourVectorRVec &collection1,
+			      const FourVectorRVec &collection2,
 			      double minDeltaR)
     {
 	ROOT::VecOps::RVec<int> mask;
@@ -615,33 +441,12 @@ void BaseAnalyser::removeOverlaps()
     };
 
     // =====================================================
-    // Common TLorentzVector builder
-    // =====================================================
-    auto buildTLorentzVectors =
-    [](const ROOT::VecOps::RVec<float>& pt,
-       const ROOT::VecOps::RVec<float>& eta,
-       const ROOT::VecOps::RVec<float>& phi,
-       const ROOT::VecOps::RVec<float>& mass)
-    {
-	ROOT::VecOps::RVec<TLorentzVector> vecs;
-	vecs.reserve(pt.size());
-
-	for (size_t i = 0; i < pt.size(); ++i)
-	{
-	    TLorentzVector v;
-	    v.SetPtEtaPhiM(pt[i], eta[i], phi[i], mass[i]);
-	    vecs.emplace_back(v);
-	}
-	return vecs;
-    };
-
-    // =====================================================
     // 1 ELECTRO AND MUON OVERLAP CLEANING (dR > 0.05)
     // =====================================================
 
     _rlm = _rlm.Define("ElectronMuonCleanMask",
-                       [buildDeltaRMask](const FourVectorVec &ele,
-                                         const FourVectorVec &mu)
+                       [buildDeltaRMask](const FourVectorRVec &ele,
+                                         const FourVectorRVec &mu)
                        { return buildDeltaRMask(ele, mu, 0.05); },
                        {"A_baselineElectron_4Vecs", "baselineMuon_4Vecs"})
 
@@ -650,6 +455,7 @@ void BaseAnalyser::removeOverlaps()
                .Define("baselineElectrons_phi",  "A_baselineElectrons_phi[ElectronMuonCleanMask]")
                .Define("baselineElectrons_mass", "A_baselineElectrons_mass[ElectronMuonCleanMask]")
                .Define("baselineElectrons_charge", "A_baselineElectrons_charge[ElectronMuonCleanMask]")
+               .Define("baselineElectrons_pdgId", "A_baselineElectrons_pdgId[ElectronMuonCleanMask]")
                .Define("baselineElectrons_mvaTTH", "A_baselineElectrons_mvaTTH[ElectronMuonCleanMask]")
                .Define("tight_baselineElectrons", "A_tight_baselineElectrons[ElectronMuonCleanMask]")
                .Define("NbaselineElectrons", "int(baselineElectrons_pt.size())");
@@ -667,14 +473,14 @@ void BaseAnalyser::removeOverlaps()
     // =====================================================
 
     _rlm = _rlm.Define("JetMuonCleanMask",
-                       [buildDeltaRMask](const FourVectorVec &jets,
-                                         const FourVectorVec &mu)
+                       [buildDeltaRMask](const FourVectorRVec &jets,
+                                         const FourVectorRVec &mu)
                        { return buildDeltaRMask(jets, mu, 0.4); },
                        {"goodJets_4vecs", "baselineMuon_4Vecs"})
 
                .Define("JetElectronCleanMask",
-                       [buildDeltaRMask](const FourVectorVec &jets,
-                                         const FourVectorVec &ele)
+                       [buildDeltaRMask](const FourVectorRVec &jets,
+                                         const FourVectorRVec &ele)
                        { return buildDeltaRMask(jets, ele, 0.4); },
                        {"goodJets_4vecs", "baselineElectron_4Vecs"})
 
@@ -761,7 +567,7 @@ void BaseAnalyser::removeOverlaps()
 
 	// ---- Baseline Electrons ----
 	.Define("baselineElectrons_TL4Vecs",
-		buildTLorentzVectors,
+		::buildTLorentzVectors,
 		{"baselineElectrons_pt",
 		 "baselineElectrons_eta",
 		 "baselineElectrons_phi",
@@ -769,7 +575,7 @@ void BaseAnalyser::removeOverlaps()
 
 	// ---- Clean Jets ----
 	.Define("cleanjet_TL4Vecs",
-		buildTLorentzVectors,
+		::buildTLorentzVectors,
 		{"Selected_jetpt",
 		 "Selected_jeteta",
 		 "Selected_jetphi",
@@ -777,7 +583,7 @@ void BaseAnalyser::removeOverlaps()
 
 	// ---- Clean b-Jets ----
 	.Define("cleanbjet_TL4Vecs",
-		buildTLorentzVectors,
+		::buildTLorentzVectors,
 		{"Selected_bjetpt",
 		 "Selected_bjeteta",
 		 "Selected_bjetphi",
@@ -785,12 +591,35 @@ void BaseAnalyser::removeOverlaps()
 
     _rlm = _rlm
 	  .Define("Topquark_Bjet_TL4Vecs",
-	   buildTLorentzVectors,
+	   ::buildTLorentzVectors,
 	   {"Selected_bjetpt",
 	    "Selected_bjeteta",
 	    "Selected_bjetphi",
 	    "Selected_bjetmass"});
 
+}
+
+
+//MET
+
+void BaseAnalyser::selectMET()
+{
+    if (debug){
+        std::cout<< "================================//=================================" << std::endl;
+        std::cout<< "Line : "<< __LINE__ << " Function : " << __FUNCTION__ << std::endl;
+        std::cout<< "================================//=================================" << std::endl;
+    }
+
+//    _rlm = _rlm.Define("goodMET_pt","PuppiMET_pt_corr>20 ? PuppiMET_pt_corr : std::numeric_limits<float>::quiet_NaN()")
+//	       .Define("goodMET_phi","PuppiMET_pt_corr > 20 ? PuppiMET_phi_corr : std::numeric_limits<float>::quiet_NaN()");
+//    _rlm = _rlm.Define("goodMET_pt","PuppiMET_pt>20 ? PuppiMET_pt : std::numeric_limits<float>::quiet_NaN()")
+//	       .Define("goodMET_phi","PuppiMET_pt > 20 ? PuppiMET_phi : std::numeric_limits<float>::quiet_NaN()");
+
+    _rlm =  _rlm.Define("goodMET_pt",  "PuppiMET_pt_corr")
+                .Define("goodMET_phi", "PuppiMET_phi_corr");
+    std::cout<< "================================//=================================" << std::endl;
+    std::cout<< "==================CORRECT MET HAS BEEN SELECTED====================" << std::endl;
+    std::cout<< "================================//=================================" << std::endl;
 }
 
 void BaseAnalyser::calculateEvWeight(){
@@ -880,8 +709,8 @@ void BaseAnalyser::calculateEvWeight(){
 
   //Total event Weight:
 
-// _rlm = _rlm.Define("evWeight", " pugenWeight * btag_SF_bcflav_central * btag_SF_lflav_central * muon_SF_central * ele_SF_central"); 
-  _rlm = _rlm.Define("evWeight", " pugenWeight * muon_SF_central * ele_SF_central"); 
+    _rlm = _rlm.Define("evWeight", " pugenWeight * btag_SF_bcflav_central * btag_SF_lflav_central * muon_SF_central * ele_SF_central"); 
+    _rlm = _rlm.Define("evWeight_with_em_SF_Only", " pugenWeight * muon_SF_central * ele_SF_central"); 
 //  _rlm = _rlm.Define("evWeight", " pugenWeight * muon_SF_central "); 
 }
 
@@ -903,224 +732,86 @@ void BaseAnalyser::mergeLeptons() {
     //-------------------------------------------------------
     // Combine lepton pt, eta, phi properties
     //-------------------------------------------------------
-	_rlm = _rlm.Define("combinedLeptonPt","ROOT::VecOps::Concatenate(baselineMuons_pt, baselineElectrons_pt)")
-		   .Define("combinedLeptonEta", "ROOT::VecOps::Concatenate(baselineMuons_eta, baselineElectrons_eta)")
-		   .Define("combinedLeptonPhi", "ROOT::VecOps::Concatenate(baselineMuons_phi, baselineElectrons_phi)")
-		   .Define("combinedLepton_isPrompt", "ROOT::VecOps::Concatenate(tight_Muons, tight_baselineElectrons)")
-		   .Define("combinedLeptonMass", "ROOT::VecOps::Concatenate(baselineMuons_mass, baselineElectrons_mass)")
-		   .Define("totalLeptonCount","int(combinedLeptonPt.size())")
-		   .Define("combinedLepton4Vecs", ::generate_4vec, {"combinedLeptonPt", "combinedLeptonEta", "combinedLeptonPhi", "combinedLeptonMass"}) 
-		   .Define("combinedLeptonCharge", "ROOT::VecOps::Concatenate(baselineMuons_charge, baselineElectrons_charge)");
+	_rlm = _rlm.Define("Lepton_pt","ROOT::VecOps::Concatenate(baselineMuons_pt, baselineElectrons_pt)")
+		   .Define("Lepton_eta", "ROOT::VecOps::Concatenate(baselineMuons_eta, baselineElectrons_eta)")
+		   .Define("Lepton_phi", "ROOT::VecOps::Concatenate(baselineMuons_phi, baselineElectrons_phi)")
+		   .Define("Lepton_mass", "ROOT::VecOps::Concatenate(baselineMuons_mass, baselineElectrons_mass)")
+		   .Define("Lepton_pdgId", "ROOT::VecOps::Concatenate(baselineMuons_pdgId, baselineElectrons_pdgId)")
+		   .Define("Lepton_isPrompt", "ROOT::VecOps::Concatenate(tight_Muons, tight_baselineElectrons)")
+		   .Define("NLepton","int(Lepton_pt.size())")
+		   .Define("Lepton_charge", "ROOT::VecOps::Concatenate(baselineMuons_charge, baselineElectrons_charge)");
+
+
 	_rlm = _rlm.Define(
-	    "combinedLeptonFlavor",
+	    "Lepton_flavor",
 	    "ROOT::VecOps::Concatenate("
 	    "ROOT::VecOps::RVec<int>(baselineMuons_charge.size(), 1), "
 	    "ROOT::VecOps::RVec<int>(baselineElectrons_charge.size(), 0))"
 	);
-        _rlm = _rlm.Define("mass_of_3lepton","combinedLepton4Vecs.size() == 3 ? (combinedLepton4Vecs[0] + combinedLepton4Vecs[1] + combinedLepton4Vecs[2]).M() : -1.0");
 
 	// 1. All prompt leptons
-	_rlm = _rlm.Define("allTightLeptons",
-			   "ROOT::VecOps::All(combinedLepton_isPrompt == 1)");
-
-	// 2. Count 4-vectors
-	_rlm = _rlm.Define("numCombinedLepton4Vecs",
-			   "int(combinedLepton4Vecs.size())");
+	_rlm = _rlm.Define("allTightLeptons", "ROOT::VecOps::All(Lepton_isPrompt == 1)");
 
 	// 3. Merge TLorentzVectors (muons + electrons)
-	_rlm = _rlm.Define("combinedLeptonTLorentzVecs",
-			   "ROOT::VecOps::Concatenate(baselineMuons_TL4Vecs, baselineElectrons_TL4Vecs)");
+	_rlm = _rlm.Define("Lepton4Vecs", ::generate_4vec, {"Lepton_pt", "Lepton_eta", "Lepton_phi", "Lepton_mass"}) 
+            .Define("LeptonTLorentzVecs", "ROOT::VecOps::Concatenate(baselineMuon_TL4Vecs, baselineElectrons_TL4Vecs)");
 
+    _rlm = _rlm.Define("mass_of_3lepton","Lepton4Vecs.size() == 3 ? (Lepton4Vecs[0] + Lepton4Vecs[1] + Lepton4Vecs[2]).M() : -1.0");
 
+    // 2. Single index vector: sort + cut
+    _rlm = _rlm.Define("goodLepton_idx",
+        [](const RVecF& pt) -> ROOT::VecOps::RVec<size_t> {
+            if (pt.size() < 3) return {};
+            ROOT::VecOps::RVec<size_t> idx(pt.size());
+            std::iota(idx.begin(), idx.end(), 0);
+            std::sort(idx.begin(), idx.end(), [&](size_t i, size_t j){ return pt[i] > pt[j]; });
+            if (pt[idx[0]] <= 25.f || pt[idx[1]] <= 15.f || pt[idx[2]] <= 15.f) return {};
+            return idx;
+        }, {"Lepton_pt"});
 
+    auto takeF = [](const ROOT::VecOps::RVec<float>& vec, const ROOT::VecOps::RVec<size_t>& idx) {
+        return ROOT::VecOps::Take(vec, idx);
+    };
+    auto takeI = [](const ROOT::VecOps::RVec<int>& vec, const ROOT::VecOps::RVec<size_t>& idx) {
+        return ROOT::VecOps::Take(vec, idx);
+    };
 
-/*
-    _rlm = _rlm.Define("allTightLeptons",
-    [](const ROOT::VecOps::RVec<int>& combinedLepton_isPrompt) {
-        // Return true if ALL elements are 1 (prompt)
-        return ROOT::VecOps::All(combinedLepton_isPrompt == 1);
-    },
-    {"combinedLepton_isPrompt"}
-    );
-    
-    //-------------------------------------------------------
-    // Define the number of combined 4-vectors in each event
-    //-------------------------------------------------------
-    _rlm = _rlm.Define("numCombinedLepton4Vecs", [](const std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>& combined4Vecs) {
-        return int(combined4Vecs.size());
-    }, {"combinedLepton4Vecs"});
-
-    //-------------------------------------------------------
-    // Merge muons and electrons into a ROOT::VecOps::RVec<TLorentzVector>
-    //-------------------------------------------------------
-    _rlm = _rlm.Define("combinedLeptonTLorentzVecs",
-                       [](const ROOT::VecOps::RVec<TLorentzVector>& muonTLVectors,
-                          const ROOT::VecOps::RVec<TLorentzVector>& electronTLVectors) {
-                           return ROOT::VecOps::Concatenate(muonTLVectors, electronTLVectors);
-                       },
-                       {"baselineMuons_TL4Vecs", "baselineElectrons_TL4Vecs"});
-*/
-	// ==============================================
-	// Define sorted indices with pT cuts
-	// ==============================================
-	_rlm = _rlm.Define("goodLepton_sorted_indices",
-	    [](const ROOT::VecOps::RVec<float>& ptVec, int nLeptons) {
-		if (nLeptons < 3) return ROOT::VecOps::RVec<size_t>{};
-
-		// Create vector of indices [0, 1, 2, ...]
-		ROOT::VecOps::RVec<size_t> indices(ptVec.size());
-		std::iota(indices.begin(), indices.end(), 0);
-
-		// Sort indices based on pt (descending)
-		std::sort(indices.begin(), indices.end(),
-			[&ptVec](size_t i, size_t j) { return ptVec[i] > ptVec[j]; });
-
-		// Apply pT cuts: pt[0]>25, pt[1]>15, pt[2]>10
-		if (ptVec[indices[0]] <= 25.f || ptVec[indices[1]] <= 15.f || ptVec[indices[2]] <= 10.f) {
-		    return ROOT::VecOps::RVec<size_t>{}; // Reject event if cuts fail
-		}
-
-		return indices;
-	    }, {"combinedLeptonPt", "numCombinedLepton4Vecs"});
-
-	// ==============================================
-	// Define all goodLepton properties with pT cuts
-	// ==============================================
-
-	// 1. Transverse momentum (pt)
-	_rlm = _rlm.Define("goodLepton_pt",
-	    [](const ROOT::VecOps::RVec<float>& ptVec,
-	       const ROOT::VecOps::RVec<size_t>& indices,
-	       int nLeptons) {
-		return (nLeptons >= 3 && indices.size() >= 3) 
-		       ? ROOT::VecOps::Take(ptVec, indices) 
-		       : ROOT::VecOps::RVec<float>{};
-	    }, {"combinedLeptonPt", "goodLepton_sorted_indices", "numCombinedLepton4Vecs"});
-        _rlm = _rlm.Define("NgoodLepton", "int(goodLepton_pt.size())");
-	// 2. Pseudorapidity (eta)
-	_rlm = _rlm.Define("goodLepton_eta",
-	    [](const ROOT::VecOps::RVec<float>& etaVec,
-	       const ROOT::VecOps::RVec<size_t>& indices,
-	       int nLeptons) {
-		return (nLeptons >= 3 && indices.size() >= 3) 
-		       ? ROOT::VecOps::Take(etaVec, indices) 
-		       : ROOT::VecOps::RVec<float>{};
-	    }, {"combinedLeptonEta", "goodLepton_sorted_indices", "numCombinedLepton4Vecs"});
-
-	// 3. Azimuthal angle (phi)
-	_rlm = _rlm.Define("goodLepton_phi",
-	    [](const ROOT::VecOps::RVec<float>& phiVec,
-	       const ROOT::VecOps::RVec<size_t>& indices,
-	       int nLeptons) {
-		return (nLeptons >= 3 && indices.size() >= 3) 
-		       ? ROOT::VecOps::Take(phiVec, indices) 
-		       : ROOT::VecOps::RVec<float>{};
-	    }, {"combinedLeptonPhi", "goodLepton_sorted_indices", "numCombinedLepton4Vecs"});
-
-	// 4. Prompt status (isPrompt)
-	_rlm = _rlm.Define("goodLepton_isPrompt",
-	    [](const ROOT::VecOps::RVec<int>& promptVec,
-	       const ROOT::VecOps::RVec<size_t>& indices,
-	       int nLeptons) {
-		return (nLeptons >= 3 && indices.size() >= 3) 
-		       ? ROOT::VecOps::Take(promptVec, indices) 
-		       : ROOT::VecOps::RVec<int>{};
-	    }, {"combinedLepton_isPrompt", "goodLepton_sorted_indices", "numCombinedLepton4Vecs"});
-
-	// 5. Electric charge
-	_rlm = _rlm.Define("goodLepton_charge",
-	    [](const ROOT::VecOps::RVec<int>& chargeVec,
-	       const ROOT::VecOps::RVec<size_t>& indices,
-	       int nLeptons) {
-		return (nLeptons >= 3 && indices.size() >= 3) 
-		       ? ROOT::VecOps::Take(chargeVec, indices) 
-		       : ROOT::VecOps::RVec<int>{};
-	    }, {"combinedLeptonCharge", "goodLepton_sorted_indices", "numCombinedLepton4Vecs"});
-
-	// 6. Flavor (e.g., 0 for electron, 1 for muon)
-	_rlm = _rlm.Define("goodLepton_flavor",
-	    [](const ROOT::VecOps::RVec<int>& flavorVec,
-	       const ROOT::VecOps::RVec<size_t>& indices,
-	       int nLeptons) {
-		if (nLeptons < 3 || indices.size() < 3) return ROOT::VecOps::RVec<int>{};
-		
-		ROOT::VecOps::RVec<int> sortedFlavor;
-		sortedFlavor.reserve(indices.size());
-		for (auto i : indices) sortedFlavor.push_back(flavorVec[i]);
-		return sortedFlavor;
-	    }, {"combinedLeptonFlavor", "goodLepton_sorted_indices", "numCombinedLepton4Vecs"});
+    _rlm = _rlm
+        .Define("goodLepton_pt",       takeF, {"Lepton_pt",         "goodLepton_idx"})
+        .Define("goodLepton_eta",      takeF, {"Lepton_eta",        "goodLepton_idx"})
+        .Define("goodLepton_phi",      takeF, {"Lepton_phi",        "goodLepton_idx"})
+        .Define("goodLepton_mass",     takeF, {"Lepton_mass",       "goodLepton_idx"})
+        .Define("goodLepton_pdgId",    takeI, {"Lepton_pdgId",     "goodLepton_idx"})
+        .Define("goodLepton_charge",   takeI, {"Lepton_charge",     "goodLepton_idx"})
+        .Define("goodLepton_flavor",   takeI, {"Lepton_flavor",     "goodLepton_idx"})
+        .Define("goodLepton_isPrompt", takeI, {"Lepton_isPrompt",  "goodLepton_idx"})
+        .Define("NgoodLepton",         "int(goodLepton_pt.size())")
+        .Define("goodLepton4Vecs",     ::generate_4vec, {"goodLepton_pt", "goodLepton_eta", "goodLepton_phi", "goodLepton_mass"})
+        .Define("channel_code",
+                "Lepton_pdgId.size() >= 3 ? "
+                "(abs(Lepton_pdgId[0]) + abs(Lepton_pdgId[1]) + abs(Lepton_pdgId[2]) - 33)/2 "
+                ": -1")
+        .Define("allTightgoodLeptons",     "ROOT::VecOps::All(goodLepton_isPrompt == 1)")
+        .Define("goodlepton_m3",
+            [](const RVec4Vec& vecs) {
+                return vecs.size() == 3
+                    ? (vecs[0] + vecs[1] + vecs[2]).M()
+                    : -1.0;
+            }, {"Lepton4Vecs"});
 
 	_rlm = _rlm.Define("sum_goodLepton_flavor","ROOT::VecOps::Sum(goodLepton_flavor)");	
 
-	// 7. LorentzVectors (ROOT::Math::PtEtaPhiM4D)
-	_rlm = _rlm.Define("goodLepton_4Vecs",
-	    [](const std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>& vecs,
-	       const ROOT::VecOps::RVec<size_t>& indices,
-	       int nLeptons) {
-		if (nLeptons < 3 || indices.size() < 3) 
-		    return std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>{};
-		
-		std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>> sortedVecs;
-		sortedVecs.reserve(indices.size());
-		for (auto i : indices) sortedVecs.push_back(vecs[i]);
-		return sortedVecs;
-	    }, {"combinedLepton4Vecs", "goodLepton_sorted_indices", "numCombinedLepton4Vecs"});
+    auto getLepton = [](const RVecF& vec, int idx) -> float {
+        return vec.size() == 3 ? vec[idx] : -999.f;
+    };
 
-	// 8. TLorentzVectors
-	_rlm = _rlm.Define("goodLepton_TL4Vecs",
-	    [](const ROOT::VecOps::RVec<TLorentzVector>& vecs,
-	       const ROOT::VecOps::RVec<size_t>& indices,
-	       int nLeptons) {
-		return (nLeptons >= 3 && indices.size() >= 3) 
-		       ? ROOT::VecOps::Take(vecs, indices) 
-		       : ROOT::VecOps::RVec<TLorentzVector>{};
-	    }, {"combinedLeptonTLorentzVecs", "goodLepton_sorted_indices", "numCombinedLepton4Vecs"});
-
-	_rlm = _rlm.Define("All_good_tightLeptons",
-	    [](const ROOT::VecOps::RVec<int>& goodLepton_isPrompt) {
-		// Only check if there are exactly 3 good leptons
-		if (goodLepton_isPrompt.size() != 3) return false;
-		
-		// Return true if ALL 3 leptons are prompt (isPrompt == 1)
-		return ROOT::VecOps::All(goodLepton_isPrompt == 1);
-	    },
-	    {"goodLepton_isPrompt"}  // Uses the *already-selected* good leptons
-	);
-
-	_rlm = _rlm.Define("leadingLepton_pt", 
-	    [](const ROOT::VecOps::RVec<float>& ptVec) {
-		return ptVec.size() == 3 ? ptVec[0] : -999.f;  // -999 as default if no leptons
-	    }, {"goodLepton_pt"});
-
-	_rlm = _rlm.Define("leadingLepton_eta", 
-	    [](const ROOT::VecOps::RVec<float>& etaVec) {
-		return etaVec.size() == 3 ? etaVec[0] : -999.f;
-	    }, {"goodLepton_eta"});
-
-
-        _rlm = _rlm.Define("subleadingLepton_pt",
-            [](const ROOT::VecOps::RVec<float>& ptVec) {
-                return ptVec.size() == 3 ? ptVec[1] : -999.f;  // -999 as default if no leptons
-            }, {"goodLepton_pt"});
-
-        _rlm = _rlm.Define("subleadingLepton_eta",
-            [](const ROOT::VecOps::RVec<float>& etaVec) {
-                return etaVec.size() == 3 ? etaVec[1] : -999.f;
-            }, {"goodLepton_eta"});
-
-
-        _rlm = _rlm.Define("TrailingLepton_pt",
-            [](const ROOT::VecOps::RVec<float>& ptVec) {
-                return ptVec.size() == 3 ? ptVec[2] : -999.f;  // -999 as default if no leptons
-            }, {"goodLepton_pt"});
-
-        _rlm = _rlm.Define("TrailingLepton_eta",
-            [](const ROOT::VecOps::RVec<float>& etaVec) {
-                return etaVec.size() == 3 ? etaVec[2] : -999.f;
-            }, {"goodLepton_eta"});
-
-
-
+    _rlm = _rlm
+        .Define("leadingLepton_pt",     [getLepton](const RVecF& v){ return getLepton(v, 0); }, {"goodLepton_pt"})
+        .Define("leadingLepton_eta",    [getLepton](const RVecF& v){ return getLepton(v, 0); }, {"goodLepton_eta"})
+        .Define("subleadingLepton_pt",  [getLepton](const RVecF& v){ return getLepton(v, 1); }, {"goodLepton_pt"})
+        .Define("subleadingLepton_eta", [getLepton](const RVecF& v){ return getLepton(v, 1); }, {"goodLepton_eta"})
+        .Define("trailingLepton_pt",    [getLepton](const RVecF& v){ return getLepton(v, 2); }, {"goodLepton_pt"})
+        .Define("trailingLepton_eta",   [getLepton](const RVecF& v){ return getLepton(v, 2); }, {"goodLepton_eta"});
 }
 
 
@@ -1156,6 +847,20 @@ void BaseAnalyser::DefineGoodLeptonGroups()
 }
 
 
+void BaseAnalyser::defineInZPeak() {
+    cout << "Define inzpeak" << endl;
+    if (debug) {
+        std::cout << "================================//=================================" << std::endl;
+        std::cout << "Line : " << __LINE__ << " Function : " << __FUNCTION__ << std::endl;
+        std::cout << "================================//=================================" << std::endl;
+    }
+
+    _rlm = _rlm.Define(
+        "inzpeak",
+        hasExactlyOneOSSFZPair,
+        {"goodLepton4Vecs", "goodLepton_pdgId"}
+    );
+}
 
 
 
@@ -1430,27 +1135,7 @@ void BaseAnalyser::processOSSFPairs() {
 
 
 
-//MET
 
-void BaseAnalyser::selectMET()
-{
-    if (debug){
-        std::cout<< "================================//=================================" << std::endl;
-        std::cout<< "Line : "<< __LINE__ << " Function : " << __FUNCTION__ << std::endl;
-        std::cout<< "================================//=================================" << std::endl;
-    }
-
-//    _rlm = _rlm.Define("goodMET_pt","PuppiMET_pt_corr>20 ? PuppiMET_pt_corr : std::numeric_limits<float>::quiet_NaN()")
-//	       .Define("goodMET_phi","PuppiMET_pt_corr > 20 ? PuppiMET_phi_corr : std::numeric_limits<float>::quiet_NaN()");
-//    _rlm = _rlm.Define("goodMET_pt","PuppiMET_pt>20 ? PuppiMET_pt : std::numeric_limits<float>::quiet_NaN()")
-//	       .Define("goodMET_phi","PuppiMET_pt > 20 ? PuppiMET_phi : std::numeric_limits<float>::quiet_NaN()");
-
-    _rlm =  _rlm.Define("goodMET_pt",  "PuppiMET_pt_corr")
-                .Define("goodMET_phi", "PuppiMET_phi_corr");
-    std::cout<< "================================//=================================" << std::endl;
-    std::cout<< "==================CORRECT MET HAS BEEN SELECTED====================" << std::endl;
-    std::cout<< "================================//=================================" << std::endl;
-}
 
 
 void BaseAnalyser::reconstructWboson()
@@ -1501,30 +1186,6 @@ void BaseAnalyser::reconstructTop()
         std::cout << "Line : " << __LINE__ << " Function : " << __FUNCTION__ << std::endl;
         std::cout << "================================//=================================" << std::endl;
     }
-
-    //-------------------------------------------------------
-    // Reconstruct the top quark by combining W boson and b-jet 4-vectors
-    //-------------------------------------------------------
-/*    _rlm = _rlm.Define("topQuark_TL4vec",
-        [](const ROOT::VecOps::RVec<TLorentzVector>& bjet_vecs, const TLorentzVector& w_boson_4vec) -> TLorentzVector {
-            TLorentzVector best_top;
-            double min_mass_diff = std::numeric_limits<double>::max(); // Set an initial large value for min mass difference
-
-            const double top_mass = 172.76; // Mass of top quark in GeV (can be adjusted as needed)
-
-            for (const auto& bjet : bjet_vecs) {
-                TLorentzVector candidate_top = w_boson_4vec + bjet;
-                double mass_diff = std::abs(candidate_top.M() - top_mass); // Calculate mass difference from the top quark mass
-
-                // Update the best_top if this candidate has a smaller mass difference
-                if (mass_diff < min_mass_diff) {
-                    best_top = candidate_top;
-                    min_mass_diff = mass_diff;
-                }
-            }
-
-            return best_top; // Return the 4-vector of the best top candidate
-        }, {"Topquark_Bjet_TL4Vecs", "Wboson_4vec"});*/
     _rlm = _rlm.Define("topQuark_info",
 	    [](const ROOT::VecOps::RVec<TLorentzVector>& bjet_vecs, const TLorentzVector& w_boson_4vec) {
 		TLorentzVector best_top;
@@ -1549,7 +1210,7 @@ void BaseAnalyser::reconstructTop()
 
     // Now split the pair into separate columns
     _rlm = _rlm.Define("topQuark_TL4vec", "topQuark_info.first")
-	      .Define("topQuark_bjet_TL4vec", "topQuark_info.second");
+    	      .Define("topQuark_bjet_TL4vec", "topQuark_info.second");
 
     //-------------------------------------------------------
     // Calculate the top mass and filter the events based on it
@@ -1559,10 +1220,10 @@ void BaseAnalyser::reconstructTop()
                .Define("top_phi", "topQuark_TL4vec.Phi()")
                .Define("top_eta", "topQuark_TL4vec.Eta()");
     _rlm = _rlm.Define("top_bjet_mass", "topQuark_bjet_TL4vec.M()")
-	       .Define("top_bjet_pt", "topQuark_bjet_TL4vec.Pt()")
-	       .Define("top_bjet_phi", "topQuark_bjet_TL4vec.Phi()")
-	       .Define("top_bjet_eta", "topQuark_bjet_TL4vec.Eta()");
-}
+               .Define("top_bjet_pt", "topQuark_bjet_TL4vec.Pt()")
+               .Define("top_bjet_phi", "topQuark_bjet_TL4vec.Phi()")
+               .Define("top_bjet_eta", "topQuark_bjet_TL4vec.Eta()");
+    }
 
 
 void BaseAnalyser::BDT_variables()
@@ -1797,35 +1458,42 @@ void BaseAnalyser::defineSignalRegion()
 
 
   // _rlm = _rlm.Define("threeLRegion", " NgoodLepton==3 && ncleanjetspass >= 2 && ncleanbjetspass >= 1 && abs(Sum(goodLepton_charge)) == 1");
-   _rlm = _rlm.Define("threeLRegion", " NgoodLepton==3");
-   _rlm = _rlm.Define("uuu_Region", " NbaselineMuons==3 && NbaselineElectrons==0 ");
-   _rlm = _rlm.Define("uue_Region", " sum_goodLepton_flavor ==2 && threeLRegion");
-   _rlm = _rlm.Define("eeu_Region", " sum_goodLepton_flavor ==1 && threeLRegion");
-   _rlm = _rlm.Define("eee_Region", " NbaselineMuons==0 && NbaselineElectrons==3");
+   // _rlm = _rlm.Define("threeLRegion", " NgoodLepton==3");
+   // _rlm = _rlm.Define("uuu_Region", " NbaselineMuons==3 && NbaselineElectrons==0 ");
+   // _rlm = _rlm.Define("uue_Region", " sum_goodLepton_flavor ==2 && threeLRegion");
+   // _rlm = _rlm.Define("eeu_Region", " sum_goodLepton_flavor ==1 && threeLRegion");
+   // _rlm = _rlm.Define("eee_Region", " NbaselineMuons==0 && NbaselineElectrons==3");
+
+    _rlm = _rlm
+        .Define("eee_Region", "channel_code == 0 && NgoodLepton == 3 && inzpeak")
+        .Define("eeu_Region", "channel_code == 1 && NgoodLepton == 3 && inzpeak")
+        .Define("uue_Region", "channel_code == 2 && NgoodLepton == 3 && inzpeak")
+        .Define("uuu_Region", "channel_code == 3 && NgoodLepton == 3 && inzpeak")
+        .Define("threeLRegion", "channel_code >= 0 && NgoodLepton == 3 && inzpeak");
 
 	_rlm = _rlm
 	    .Define("ThreeLRegion_leadingLepton_pt","threeLRegion && leadingLepton_pt > 0 ? leadingLepton_pt : -999.f")
 	    .Define("ThreeLRegion_subleadingLepton_pt","threeLRegion && subleadingLepton_pt > 0 ? subleadingLepton_pt : -999.f")
-	    .Define("ThreeLRegion_trailingLepton_pt","threeLRegion && TrailingLepton_pt > 0 ? TrailingLepton_pt : -999.f")
+	    .Define("ThreeLRegion_trailingLepton_pt","threeLRegion && trailingLepton_pt > 0 ? trailingLepton_pt : -999.f")
 	    /* .Define("ThreeLRegion_topLepton_pt","threeLRegion && topLepton_pt_new > 0 ? topLepton_pt_new : -999.f") */
 	    .Define("ThreeLRegion_leadingLepton_eta","threeLRegion && leadingLepton_pt > 0 ? leadingLepton_eta : -999.f")
 	    .Define("ThreeLRegion_subleadingLepton_eta","threeLRegion && subleadingLepton_pt > 0 ? subleadingLepton_eta : -999.f")
-	    .Define("ThreeLRegion_trailingLepton_eta","threeLRegion && TrailingLepton_pt > 0 ? TrailingLepton_eta : -999.f")
+	    .Define("ThreeLRegion_trailingLepton_eta","threeLRegion && trailingLepton_pt > 0 ? trailingLepton_eta : -999.f")
 	    .Define("ThreeLRegion_nJets","threeLRegion ? int(Selected_jetpt.size()) : -1")
 	    .Define("ThreeLRegion_muon_multiplicity","threeLRegion ? sum_goodLepton_flavor : -1")
-            .Define("ThreeLRegion_leadingJet_pt",  "threeLRegion ? leadingJet_pt  : -999.f")
-            .Define("ThreeLRegion_leadingJet_eta", "threeLRegion ? leadingJet_eta : -999.f")
-            .Define("ThreeLRegion_goodMET_pt",  "threeLRegion ? goodMET_pt  : std::numeric_limits<float>::quiet_NaN()")
-            .Define("ThreeLRegion_goodMET_phi", "threeLRegion ? goodMET_phi : std::numeric_limits<float>::quiet_NaN()")
+        .Define("ThreeLRegion_leadingJet_pt",  "threeLRegion ? leadingJet_pt  : -999.f")
+        .Define("ThreeLRegion_leadingJet_eta", "threeLRegion ? leadingJet_eta : -999.f")
+        .Define("ThreeLRegion_goodMET_pt",  "threeLRegion ? goodMET_pt  : std::numeric_limits<float>::quiet_NaN()")
+        .Define("ThreeLRegion_goodMET_phi", "threeLRegion ? goodMET_phi : std::numeric_limits<float>::quiet_NaN()")
 	    .Define("ThreeLRegion_nbJets","threeLRegion ? int(Selected_bjetpt.size()) : -1");
 
 	_rlm = _rlm
 	    .Define("uuu_ThreeLRegion_leadingLepton_pt","uuu_Region && leadingLepton_pt > 0 ? leadingLepton_pt : -999.f")
 	    .Define("uuu_ThreeLRegion_subleadingLepton_pt","uuu_Region && subleadingLepton_pt > 0 ? subleadingLepton_pt : -999.f")
-	    .Define("uuu_ThreeLRegion_trailingLepton_pt","uuu_Region && TrailingLepton_pt > 0 ? TrailingLepton_pt : -999.f")
+	    .Define("uuu_ThreeLRegion_trailingLepton_pt","uuu_Region && trailingLepton_pt > 0 ? trailingLepton_pt : -999.f")
 	    .Define("uuu_ThreeLRegion_leadingLepton_eta","uuu_Region && leadingLepton_pt > 0 ? leadingLepton_eta : -999.f")
 	    .Define("uuu_ThreeLRegion_subleadingLepton_eta","uuu_Region && subleadingLepton_pt > 0 ? subleadingLepton_eta : -999.f")
-	    .Define("uuu_ThreeLRegion_trailingLepton_eta","uuu_Region && TrailingLepton_pt > 0 ? TrailingLepton_eta : -999.f")
+	    .Define("uuu_ThreeLRegion_trailingLepton_eta","uuu_Region && trailingLepton_pt > 0 ? trailingLepton_eta : -999.f")
         .Define("uuu_ThreeLRegion_leadingMuon_pt", "uuu_Region && leadingMuon_pt > 0 ? leadingMuon_pt : -999.f")
         .Define("uuu_ThreeLRegion_subleadingMuon_pt", "uuu_Region && subleadingMuon_pt > 0 ? subleadingMuon_pt : -999.f")
         .Define("uuu_ThreeLRegion_trailingMuon_pt", "uuu_Region && trailingMuon_pt > 0 ? trailingMuon_pt : -999.f")
@@ -1844,52 +1512,74 @@ void BaseAnalyser::defineSignalRegion()
 	_rlm = _rlm
 	    .Define("uue_ThreeLRegion_leadingLepton_pt","uue_Region && leadingLepton_pt > 0 ? leadingLepton_pt : -999.f")
 	    .Define("uue_ThreeLRegion_subleadingLepton_pt","uue_Region && subleadingLepton_pt > 0 ? subleadingLepton_pt : -999.f")
-	    .Define("uue_ThreeLRegion_trailingLepton_pt","uue_Region && TrailingLepton_pt > 0 ? TrailingLepton_pt : -999.f")
+	    .Define("uue_ThreeLRegion_trailingLepton_pt","uue_Region && trailingLepton_pt > 0 ? trailingLepton_pt : -999.f")
 	    /* .Define("uue_ThreeLRegion_topLepton_pt","uue_Region && topLepton_pt_new > 0 ? topLepton_pt_new : -999.f") */
 	    .Define("uue_ThreeLRegion_leadingLepton_eta","uue_Region && leadingLepton_pt > 0 ? leadingLepton_eta : -999.f")
 	    .Define("uue_ThreeLRegion_subleadingLepton_eta","uue_Region && subleadingLepton_pt > 0 ? subleadingLepton_eta : -999.f")
-	    .Define("uue_ThreeLRegion_trailingLepton_eta","uue_Region && TrailingLepton_pt > 0 ? TrailingLepton_eta : -999.f")
+	    .Define("uue_ThreeLRegion_trailingLepton_eta","uue_Region && trailingLepton_pt > 0 ? trailingLepton_eta : -999.f")
 	    .Define("uue_ThreeLRegion_nJets","uue_Region ? int(Selected_jetpt.size()) : -1")
 	    .Define("uue_ThreeLRegion_muon_multiplicity","uue_Region ? sum_goodLepton_flavor : -1")
-            .Define("uue_ThreeLRegion_leadingJet_pt",  "uue_Region ? leadingJet_pt  : -999.f")
-            .Define("uue_ThreeLRegion_leadingJet_eta", "uue_Region ? leadingJet_eta : -999.f")
-            .Define("uue_ThreeLRegion_goodMET_pt",  "uue_Region ? goodMET_pt  : std::numeric_limits<float>::quiet_NaN()")
-            .Define("uue_ThreeLRegion_goodMET_phi", "uue_Region ? goodMET_phi : std::numeric_limits<float>::quiet_NaN()")
+        .Define("uue_ThreeLRegion_leadingJet_pt",  "uue_Region ? leadingJet_pt  : -999.f")
+        .Define("uue_ThreeLRegion_leadingJet_eta", "uue_Region ? leadingJet_eta : -999.f")
+        .Define("uue_ThreeLRegion_goodMET_pt",  "uue_Region ? goodMET_pt  : std::numeric_limits<float>::quiet_NaN()")
+        .Define("uue_ThreeLRegion_goodMET_phi", "uue_Region ? goodMET_phi : std::numeric_limits<float>::quiet_NaN()")
 	    .Define("uue_ThreeLRegion_nbJets","uue_Region ? int(Selected_bjetpt.size()) : -1");
 
 
 	_rlm = _rlm
 	    .Define("eeu_ThreeLRegion_leadingLepton_pt","eeu_Region && leadingLepton_pt > 0 ? leadingLepton_pt : -999.f")
 	    .Define("eeu_ThreeLRegion_subleadingLepton_pt","eeu_Region && subleadingLepton_pt > 0 ? subleadingLepton_pt : -999.f")
-	    .Define("eeu_ThreeLRegion_trailingLepton_pt","eeu_Region && TrailingLepton_pt > 0 ? TrailingLepton_pt : -999.f")
+	    .Define("eeu_ThreeLRegion_trailingLepton_pt","eeu_Region && trailingLepton_pt > 0 ? trailingLepton_pt : -999.f")
 	    /* .Define("eeu_ThreeLRegion_topLepton_pt","eeu_Region && topLepton_pt_new > 0 ? topLepton_pt_new : -999.f") */
 	    .Define("eeu_ThreeLRegion_leadingLepton_eta","eeu_Region && leadingLepton_pt > 0 ? leadingLepton_eta : -999.f")
 	    .Define("eeu_ThreeLRegion_subleadingLepton_eta","eeu_Region && subleadingLepton_pt > 0 ? subleadingLepton_eta : -999.f")
-	    .Define("eeu_ThreeLRegion_trailingLepton_eta","eeu_Region && TrailingLepton_pt > 0 ? TrailingLepton_eta : -999.f")
+	    .Define("eeu_ThreeLRegion_trailingLepton_eta","eeu_Region && trailingLepton_pt > 0 ? trailingLepton_eta : -999.f")
 	    .Define("eeu_ThreeLRegion_nJets","eeu_Region ? int(Selected_jetpt.size()) : -1")
 	    .Define("eeu_ThreeLRegion_muon_multiplicity","eeu_Region ? sum_goodLepton_flavor : -1")
-            .Define("eeu_ThreeLRegion_leadingJet_pt",  "eeu_Region ? leadingJet_pt  : -999.f")
-            .Define("eeu_ThreeLRegion_leadingJet_eta", "eeu_Region ? leadingJet_eta : -999.f")
-            .Define("eeu_ThreeLRegion_goodMET_pt",  "eeu_Region ? goodMET_pt  : std::numeric_limits<float>::quiet_NaN()")
-            .Define("eeu_ThreeLRegion_goodMET_phi", "eeu_Region ? goodMET_phi : std::numeric_limits<float>::quiet_NaN()")
+        .Define("eeu_ThreeLRegion_leadingJet_pt",  "eeu_Region ? leadingJet_pt  : -999.f")
+        .Define("eeu_ThreeLRegion_leadingJet_eta", "eeu_Region ? leadingJet_eta : -999.f")
+        .Define("eeu_ThreeLRegion_goodMET_pt",  "eeu_Region ? goodMET_pt  : std::numeric_limits<float>::quiet_NaN()")
+        .Define("eeu_ThreeLRegion_goodMET_phi", "eeu_Region ? goodMET_phi : std::numeric_limits<float>::quiet_NaN()")
 	    .Define("eeu_ThreeLRegion_nbJets","eeu_Region ? int(Selected_bjetpt.size()) : -1");
 
 
 	_rlm = _rlm
 	    .Define("eee_ThreeLRegion_leadingLepton_pt","eee_Region && leadingLepton_pt > 0 ? leadingLepton_pt : -999.f")
 	    .Define("eee_ThreeLRegion_subleadingLepton_pt","eee_Region && subleadingLepton_pt > 0 ? subleadingLepton_pt : -999.f")
-	    .Define("eee_ThreeLRegion_trailingLepton_pt","eee_Region && TrailingLepton_pt > 0 ? TrailingLepton_pt : -999.f")
+	    .Define("eee_ThreeLRegion_trailingLepton_pt","eee_Region && trailingLepton_pt > 0 ? trailingLepton_pt : -999.f")
 	    /* .Define("eee_ThreeLRegion_topLepton_pt","eee_Region && topLepton_pt_new > 0 ? topLepton_pt_new : -999.f") */
 	    .Define("eee_ThreeLRegion_leadingLepton_eta","eee_Region && leadingLepton_pt > 0 ? leadingLepton_eta : -999.f")
 	    .Define("eee_ThreeLRegion_subleadingLepton_eta","eee_Region && subleadingLepton_pt > 0 ? subleadingLepton_eta : -999.f")
-	    .Define("eee_ThreeLRegion_trailingLepton_eta","eee_Region && TrailingLepton_pt > 0 ? TrailingLepton_eta : -999.f")
+	    .Define("eee_ThreeLRegion_trailingLepton_eta","eee_Region && trailingLepton_pt > 0 ? trailingLepton_eta : -999.f")
 	    .Define("eee_ThreeLRegion_nJets","eee_Region ? int(Selected_jetpt.size()) : -1")
 	    .Define("eee_ThreeLRegion_muon_multiplicity","eee_Region ? sum_goodLepton_flavor : -1")
-            .Define("eee_ThreeLRegion_leadingJet_pt",  "eee_Region ? leadingJet_pt  : -999.f")
-            .Define("eee_ThreeLRegion_leadingJet_eta", "eee_Region ? leadingJet_eta : -999.f")
-            .Define("eee_ThreeLRegion_goodMET_pt",  "eee_Region ? goodMET_pt  : std::numeric_limits<float>::quiet_NaN()")
-            .Define("eee_ThreeLRegion_goodMET_phi", "eee_Region ? goodMET_phi : std::numeric_limits<float>::quiet_NaN()")
+        .Define("eee_ThreeLRegion_leadingJet_pt",  "eee_Region ? leadingJet_pt  : -999.f")
+        .Define("eee_ThreeLRegion_leadingJet_eta", "eee_Region ? leadingJet_eta : -999.f")
+        .Define("eee_ThreeLRegion_goodMET_pt",  "eee_Region ? goodMET_pt  : std::numeric_limits<float>::quiet_NaN()")
+        .Define("eee_ThreeLRegion_goodMET_phi", "eee_Region ? goodMET_phi : std::numeric_limits<float>::quiet_NaN()")
 	    .Define("eee_ThreeLRegion_nbJets","eee_Region ? int(Selected_bjetpt.size()) : -1");
+
+
+
+
+    _rlm = _rlm.Define("WZ_Region", "threeLRegion && ncleanbjetspass == 0 && goodMET_pt > 50 ");
+
+
+    _rlm = _rlm
+        .Define("WZ_Region_leadingLepton_pt",     "WZ_Region && leadingLepton_pt > 0 ? leadingLepton_pt : -999.f")
+        .Define("WZ_Region_subleadingLepton_pt",  "WZ_Region && subleadingLepton_pt > 0 ? subleadingLepton_pt : -999.f")
+        .Define("WZ_Region_trailingLepton_pt",    "WZ_Region && trailingLepton_pt > 0 ? trailingLepton_pt : -999.f")
+        .Define("WZ_Region_leadingLepton_eta",    "WZ_Region && leadingLepton_pt > 0 ? leadingLepton_eta : -999.f")
+        .Define("WZ_Region_subleadingLepton_eta", "WZ_Region && subleadingLepton_pt > 0 ? subleadingLepton_eta : -999.f")
+        .Define("WZ_Region_trailingLepton_eta",   "WZ_Region && trailingLepton_pt > 0 ? trailingLepton_eta : -999.f")
+        .Define("WZ_Region_nJets",               "WZ_Region ? int(Selected_jetpt.size()) : -1")
+        .Define("WZ_Region_muon_multiplicity",   "WZ_Region ? sum_goodLepton_flavor : -1")
+        .Define("WZ_Region_leadingJet_pt",       "WZ_Region ? leadingJet_pt  : -999.f")
+        .Define("WZ_Region_leadingJet_eta",      "WZ_Region ? leadingJet_eta : -999.f")
+        .Define("WZ_Region_goodMET_pt",          "WZ_Region ? goodMET_pt  : std::numeric_limits<float>::quiet_NaN()")
+        .Define("WZ_Region_goodMET_phi",         "WZ_Region ? goodMET_phi : std::numeric_limits<float>::quiet_NaN()")
+        .Define("WZ_Region_nbJets",              "WZ_Region ? int(Selected_bjetpt.size()) : -1");
+
 
 
 /*
@@ -1990,56 +1680,56 @@ void BaseAnalyser::defineSignalRegion()
 	.Define("SR_leadLepton_eta", "SignalRegion ? leadingLepton_eta : -999.f")
 	.Define("SR_subleadLepton_pt",  "SignalRegion ? subleadingLepton_pt  : -999.f")
 	.Define("SR_subleadLepton_eta", "SignalRegion ? subleadingLepton_eta : -999.f")
-	.Define("SR_trailLepton_pt",  "SignalRegion ? TrailingLepton_pt  : -999.f")
-	.Define("SR_trailLepton_eta", "SignalRegion ? TrailingLepton_eta : -999.f")
+	.Define("SR_trailLepton_pt",  "SignalRegion ? trailingLepton_pt  : -999.f")
+	.Define("SR_trailLepton_eta", "SignalRegion ? trailingLepton_eta : -999.f")
 
 	// -------- tZq SR
 	.Define("SR_tzq_leadLepton_pt",  "SignalRegion_tzq ? leadingLepton_pt  : -999.f")
 	.Define("SR_tzq_leadLepton_eta", "SignalRegion_tzq ? leadingLepton_eta : -999.f")
 	.Define("SR_tzq_subleadLepton_pt",  "SignalRegion_tzq ? subleadingLepton_pt  : -999.f")
 	.Define("SR_tzq_subleadLepton_eta", "SignalRegion_tzq ? subleadingLepton_eta : -999.f")
-	.Define("SR_tzq_trailLepton_pt",  "SignalRegion_tzq ? TrailingLepton_pt  : -999.f")
-	.Define("SR_tzq_trailLepton_eta", "SignalRegion_tzq ? TrailingLepton_eta : -999.f")
+	.Define("SR_tzq_trailLepton_pt",  "SignalRegion_tzq ? trailingLepton_pt  : -999.f")
+	.Define("SR_tzq_trailLepton_eta", "SignalRegion_tzq ? trailingLepton_eta : -999.f")
 
 	// -------- ttZ SR
 	.Define("SR_ttz_leadLepton_pt",  "SignalRegion_ttz ? leadingLepton_pt  : -999.f")
 	.Define("SR_ttz_leadLepton_eta", "SignalRegion_ttz ? leadingLepton_eta : -999.f")
 	.Define("SR_ttz_subleadLepton_pt",  "SignalRegion_ttz ? subleadingLepton_pt  : -999.f")
 	.Define("SR_ttz_subleadLepton_eta", "SignalRegion_ttz ? subleadingLepton_eta : -999.f")
-	.Define("SR_ttz_trailLepton_pt",  "SignalRegion_ttz ? TrailingLepton_pt  : -999.f")
-	.Define("SR_ttz_trailLepton_eta", "SignalRegion_ttz ? TrailingLepton_eta : -999.f")
+	.Define("SR_ttz_trailLepton_pt",  "SignalRegion_ttz ? trailingLepton_pt  : -999.f")
+	.Define("SR_ttz_trailLepton_eta", "SignalRegion_ttz ? trailingLepton_eta : -999.f")
 
 	// -------- WZ Region
 	.Define("WZ_leadLepton_pt",  "WZ_Region ? leadingLepton_pt  : -999.f")
 	.Define("WZ_leadLepton_eta", "WZ_Region ? leadingLepton_eta : -999.f")
 	.Define("WZ_subleadLepton_pt",  "WZ_Region ? subleadingLepton_pt  : -999.f")
 	.Define("WZ_subleadLepton_eta", "WZ_Region ? subleadingLepton_eta : -999.f")
-	.Define("WZ_trailLepton_pt",  "WZ_Region ? TrailingLepton_pt  : -999.f")
-	.Define("WZ_trailLepton_eta", "WZ_Region ? TrailingLepton_eta : -999.f")
+	.Define("WZ_trailLepton_pt",  "WZ_Region ? trailingLepton_pt  : -999.f")
+	.Define("WZ_trailLepton_eta", "WZ_Region ? trailingLepton_eta : -999.f")
 
 	// -------- Xγ Region
 	.Define("XG_leadLepton_pt",  "X_gamma_Region ? leadingLepton_pt  : -999.f")
 	.Define("XG_leadLepton_eta", "X_gamma_Region ? leadingLepton_eta : -999.f")
 	.Define("XG_subleadLepton_pt",  "X_gamma_Region ? subleadingLepton_pt  : -999.f")
 	.Define("XG_subleadLepton_eta", "X_gamma_Region ? subleadingLepton_eta : -999.f")
-	.Define("XG_trailLepton_pt",  "X_gamma_Region ? TrailingLepton_pt  : -999.f")
-	.Define("XG_trailLepton_eta", "X_gamma_Region ? TrailingLepton_eta : -999.f")
+	.Define("XG_trailLepton_pt",  "X_gamma_Region ? trailingLepton_pt  : -999.f")
+	.Define("XG_trailLepton_eta", "X_gamma_Region ? trailingLepton_eta : -999.f")
 
 	// -------- NP_2
 	.Define("NP2_leadLepton_pt",  "NP_2_Region ? leadingLepton_pt  : -999.f")
 	.Define("NP2_leadLepton_eta", "NP_2_Region ? leadingLepton_eta : -999.f")
 	.Define("NP2_subleadLepton_pt",  "NP_2_Region ? subleadingLepton_pt  : -999.f")
 	.Define("NP2_subleadLepton_eta", "NP_2_Region ? subleadingLepton_eta : -999.f")
-	.Define("NP2_trailLepton_pt",  "NP_2_Region ? TrailingLepton_pt  : -999.f")
-	.Define("NP2_trailLepton_eta", "NP_2_Region ? TrailingLepton_eta : -999.f")
+	.Define("NP2_trailLepton_pt",  "NP_2_Region ? trailingLepton_pt  : -999.f")
+	.Define("NP2_trailLepton_eta", "NP_2_Region ? trailingLepton_eta : -999.f")
 
 	// -------- NP_1
 	.Define("NP1_leadLepton_pt",  "NP_1_Region ? leadingLepton_pt  : -999.f")
 	.Define("NP1_leadLepton_eta", "NP_1_Region ? leadingLepton_eta : -999.f")
 	.Define("NP1_subleadLepton_pt",  "NP_1_Region ? subleadingLepton_pt  : -999.f")
 	.Define("NP1_subleadLepton_eta", "NP_1_Region ? subleadingLepton_eta : -999.f")
-	.Define("NP1_trailLepton_pt",  "NP_1_Region ? TrailingLepton_pt  : -999.f")
-	.Define("NP1_trailLepton_eta", "NP_1_Region ? TrailingLepton_eta : -999.f")
+	.Define("NP1_trailLepton_pt",  "NP_1_Region ? trailingLepton_pt  : -999.f")
+	.Define("NP1_trailLepton_eta", "NP_1_Region ? trailingLepton_eta : -999.f")
 
 	// =======================
 	// 4L REGIONS
@@ -2281,113 +1971,31 @@ void BaseAnalyser::defineMoreVars()
     addVartoStore("luminosityBlock");
     addVartoStore("event");
     addVartoStore("evWeight");
-    //electron
-    addVartoStore("nElectron");
-    addVartoStore("NgoodElectrons");
-    addVartoStore("baselineElectrons_idx");
-    //addVartoStore("ngoodElectrons");
-    addVartoStore("Electron_charge");
-    addVartoStore("Electron_pt");
-   ////BDT VARIABLES FOR ELECTRONS///////////
+
+
+    addVartoStore("A_baselineElectrons_.*");
     addVartoStore("A_NbaselineElectrons");
     addVartoStore("A_tight_baselineElectrons");
-    addVartoStore("tight_baselineElectrons");
-    addVartoStore("Tight_baselineElectrons");
-    addVartoStore("N_TightElectrons");
-    addVartoStore("A_TightNbaselineElectrons");
-    //addVartoStore("baselineElectrons_isPrompt");  // this is decided using genPartFlav
-
-    addVartoStore("baselineElectrons_pt");
-    addVartoStore("baselineElectrons_eta");
-    addVartoStore("baselineElectrons_phi");
-    addVartoStore("NbaselineElectrons");
-    addVartoStore("baselineElectrons_charge");
+   
 
 
-    //muon
-    addVartoStore("nMuon");
-    addVartoStore("NgoodMuons");
-    addVartoStore("Muon_charge");
-    addVartoStore("Muon_mass");
-    addVartoStore("Muon_pt");
-    ////BDT VARIABLES FOR MUONS///////////
-    addVartoStore("baselineMuons_isPrompt");
+    addVartoStore("baselineMuons_.*");
     addVartoStore("NbaselineMuons");
-    addVartoStore("baselineMuons_pt");
-    addVartoStore("baselineMuons_eta");
-    addVartoStore("baselineMuons_phi");
-    addVartoStore("baselineMuons_charge");
-    addVartoStore("tight_Muons");
 
- 
-    
 
-    //jet
-    addVartoStore("nJet");
-    addVartoStore("Jet_pt");
-    addVartoStore("NgoodJets");
-    addVartoStore("goodJets_pt");
-    addVartoStore("Selected_jetpt");
-    addVartoStore("Selected_jeteta");
-    addVartoStore("Selected_jetphi");
-    addVartoStore("Selected_jetbtag");
-    addVartoStore("Ngood_bjets");
-    addVartoStore("good_bjetpt");
-    addVartoStore("good_bjeteta"); 
-    addVartoStore("good_bjetphi");
-    addVartoStore("good_bjetmass");
-    addVartoStore("good_bjetdeepjet");
-
-    addVartoStore("top_bjetpt");
-    addVartoStore("top_bjeteta");
-    addVartoStore("top_bjetphi");
-//    addVartoStore("top_bjetmass");
-
-    
     //jetmet corr
-    addVartoStore("Jet_pt_corr");
-    addVartoStore("Jet_pt_corr_Summer24Prompt24_V2_MC_Total_AK4PFPuppi_up");
-    addVartoStore("Jet_pt_corr_Summer24Prompt24_V2_MC_Total_AK4PFPuppi_down");
-//    addVartoStore("Jet_pt_relerror");
-//    addVartoStore("MET_pt_corr");
-    addVartoStore("PuppiMET_pt");
-    addVartoStore("PuppiMET_phi");
+    addVartoStore("Jet_pt_corr.*");
+
+
+    addVartoStore("PuppiMET_pt_corr.*");
+    addVartoStore("PuppiMET_phi_corr.*");
     addVartoStore("goodMET_pt");
     addVartoStore("goodMET_phi");
 
-
-//new funciton variable for merged lepton
-    addVartoStore("totalLeptonCount");
-    addVartoStore("mass_of_3lepton");
-    addVartoStore("combinedLeptonPt");
-    addVartoStore("combinedLeptonPt_new");
-    addVartoStore("combinedLeptonEta");
-    addVartoStore("combinedLeptonPhi");
-    addVartoStore("combinedLepton_isPrompt");
-    addVartoStore("allTightLeptons");
-    addVartoStore("numCombinedLepton4Vecs");
-    addVartoStore("combinedLeptonCharge");
-    addVartoStore("combinedLeptonFlavor");
-    addVartoStore("combinedLeptonCharge_new");
-    addVartoStore("combinedLeptonFlavor_new");
-
-   // addVartoStore("combinedLeptonTLorentzVecs");
-    
-    addVartoStore("sum_goodLepton_flavor");
-    addVartoStore("goodLepton_pt");
-    addVartoStore("All_good_tightLeptons");
+    addVartoStore("NLepton");
+    addVartoStore("Lepton_.*");
     addVartoStore("NgoodLepton");
-    addVartoStore("goodLepton_eta");
-    addVartoStore("goodLepton_phi");
-    addVartoStore("goodLepton_isPrompt");
-    addVartoStore("goodLepton_charge");
-    addVartoStore("goodLepton_flavor");
-    addVartoStore("leadingLepton_pt");
-    addVartoStore("leadingLepton_eta");
-    addVartoStore("subleadingLepton_pt");
-    addVartoStore("subleadingLepton_eta");
-    addVartoStore("TrailingLepton_pt");
-    addVartoStore("TrailingLepton_eta");
+    addVartoStore("goodLepton_.*");
 
     addVartoStore("ThreeLSignal_leadingLepton_pt");
     addVartoStore("ThreeLSignalRegion_nElectron");
@@ -2398,21 +2006,13 @@ void BaseAnalyser::defineMoreVars()
     addVartoStore("nElectron_T3E_TR");
 
     // 3-lepton case
-    addVartoStore("goodLepton3_pt");
-    addVartoStore("goodLepton3_eta");
-    addVartoStore("goodLepton3_phi");
-    addVartoStore("goodLepton3_charge");
-    addVartoStore("goodLepton3_flavor");
-    addVartoStore("goodLepton3_isPrompt");
-
-
+    addVartoStore("goodLepton3_.*");
     // 4-lepton case
-    addVartoStore("goodLepton4_pt");
-    addVartoStore("goodLepton4_eta");
-    addVartoStore("goodLepton4_phi");
-    addVartoStore("goodLepton4_charge");
-    addVartoStore("goodLepton4_flavor");
-    addVartoStore("goodLepton4_isPrompt");
+    addVartoStore("goodLepton4_.*");
+
+
+
+
    /////////////////////////////////
    //////////BDT variable///////////
     addVartoStore("sum_selectedJet_pt");
@@ -2420,88 +2020,15 @@ void BaseAnalyser::defineMoreVars()
     addVartoStore("Selected_jeteta_maxAbs");
     addVartoStore("RecoilingJet_pt");
     addVartoStore("RecoilingJet_eta");
+ 
 
+    addVartoStore("ThreeLRegion_.*");
+    addVartoStore("uuu_ThreeLRegion_.*");
+    addVartoStore("uue_ThreeLRegion_.*");
+    addVartoStore("eeu_ThreeLRegion_.*");
+    addVartoStore("eee_ThreeLRegion_.*");
 
-    addVartoStore("ThreeLRegion_leadingLepton_pt");
-    addVartoStore("ThreeLRegion_subleadingLepton_pt");
-    addVartoStore("ThreeLRegion_trailingLepton_pt");
-    addVartoStore("ThreeLRegion_topLepton_pt");
-    addVartoStore("ThreeLRegion_leadingLepton_eta");
-    addVartoStore("ThreeLRegion_subleadingLepton_eta");
-    addVartoStore("ThreeLRegion_trailingLepton_eta");
-    addVartoStore("ThreeLRegion_nJets");
-    addVartoStore("ThreeLRegion_muon_multiplicity");
-    addVartoStore("ThreeLRegion_leadingJet_pt");
-    addVartoStore("ThreeLRegion_leadingJet_eta");
-    addVartoStore("ThreeLRegion_goodMET_pt");
-    addVartoStore("ThreeLRegion_goodMET_phi");
-    addVartoStore("ThreeLRegion_nbJets");
-
-    addVartoStore("uuu_ThreeLRegion_leadingLepton_pt");
-    addVartoStore("uuu_ThreeLRegion_subleadingLepton_pt");
-    addVartoStore("uuu_ThreeLRegion_trailingLepton_pt");
-    addVartoStore("uuu_ThreeLRegion_topLepton_pt");
-    addVartoStore("uuu_ThreeLRegion_leadingLepton_eta");
-    addVartoStore("uuu_ThreeLRegion_subleadingLepton_eta");
-    addVartoStore("uuu_ThreeLRegion_trailingLepton_eta");
-    addVartoStore("uuu_ThreeLRegion_leadingMuon_pt");
-    addVartoStore("uuu_ThreeLRegion_subleadingMuon_pt");
-    addVartoStore("uuu_ThreeLRegion_trailingMuon_pt");
-    addVartoStore("uuu_ThreeLRegion_leadingMuon_eta");
-    addVartoStore("uuu_ThreeLRegion_subleadingMuon_eta");
-    addVartoStore("uuu_ThreeLRegion_trailingMuon_eta");
-    addVartoStore("uuu_ThreeLRegion_nJets");
-    addVartoStore("uuu_ThreeLRegion_muon_multiplicity");
-    addVartoStore("uuu_ThreeLRegion_leadingJet_pt");
-    addVartoStore("uuu_ThreeLRegion_leadingJet_eta");
-    addVartoStore("uuu_ThreeLRegion_goodMET_pt");
-    addVartoStore("uuu_ThreeLRegion_goodMET_phi");
-    addVartoStore("uuu_ThreeLRegion_nbJets");
-
-    addVartoStore("uue_ThreeLRegion_leadingLepton_pt");
-    addVartoStore("uue_ThreeLRegion_subleadingLepton_pt");
-    addVartoStore("uue_ThreeLRegion_trailingLepton_pt");
-    addVartoStore("uue_ThreeLRegion_topLepton_pt");
-    addVartoStore("uue_ThreeLRegion_leadingLepton_eta");
-    addVartoStore("uue_ThreeLRegion_subleadingLepton_eta");
-    addVartoStore("uue_ThreeLRegion_trailingLepton_eta");
-    addVartoStore("uue_ThreeLRegion_nJets");
-    addVartoStore("uue_ThreeLRegion_muon_multiplicity");
-    addVartoStore("uue_ThreeLRegion_leadingJet_pt");
-    addVartoStore("uue_ThreeLRegion_leadingJet_eta");
-    addVartoStore("uue_ThreeLRegion_goodMET_pt");
-    addVartoStore("uue_ThreeLRegion_goodMET_phi");
-    addVartoStore("uue_ThreeLRegion_nbJets");
-
-    addVartoStore("eeu_ThreeLRegion_leadingLepton_pt");
-    addVartoStore("eeu_ThreeLRegion_subleadingLepton_pt");
-    addVartoStore("eeu_ThreeLRegion_trailingLepton_pt");
-    addVartoStore("eeu_ThreeLRegion_topLepton_pt");
-    addVartoStore("eeu_ThreeLRegion_leadingLepton_eta");
-    addVartoStore("eeu_ThreeLRegion_subleadingLepton_eta");
-    addVartoStore("eeu_ThreeLRegion_trailingLepton_eta");
-    addVartoStore("eeu_ThreeLRegion_nJets");
-    addVartoStore("eeu_ThreeLRegion_muon_multiplicity");
-    addVartoStore("eeu_ThreeLRegion_leadingJet_pt");
-    addVartoStore("eeu_ThreeLRegion_leadingJet_eta");
-    addVartoStore("eeu_ThreeLRegion_goodMET_pt");
-    addVartoStore("eeu_ThreeLRegion_goodMET_phi");
-    addVartoStore("eeu_ThreeLRegion_nbJets");
-
-    addVartoStore("eee_ThreeLRegion_leadingLepton_pt");
-    addVartoStore("eee_ThreeLRegion_subleadingLepton_pt");
-    addVartoStore("eee_ThreeLRegion_trailingLepton_pt");
-    addVartoStore("eee_ThreeLRegion_topLepton_pt");
-    addVartoStore("eee_ThreeLRegion_leadingLepton_eta");
-    addVartoStore("eee_ThreeLRegion_subleadingLepton_eta");
-    addVartoStore("eee_ThreeLRegion_trailingLepton_eta");
-    addVartoStore("eee_ThreeLRegion_nJets");
-    addVartoStore("eee_ThreeLRegion_muon_multiplicity");
-    addVartoStore("eee_ThreeLRegion_leadingJet_pt");
-    addVartoStore("eee_ThreeLRegion_leadingJet_eta");
-    addVartoStore("eee_ThreeLRegion_goodMET_pt");
-    addVartoStore("eee_ThreeLRegion_goodMET_phi");
-    addVartoStore("eee_ThreeLRegion_nbJets");
+    addVartoStore("WZ_Region_.*");
 
 
     // 3-lepton region variables
@@ -3019,6 +2546,7 @@ void BaseAnalyser::setupObjects()
 	selectMET();
 	removeOverlaps();
 	mergeLeptons();
+    defineInZPeak();
 	/* DefineGoodLeptonGroups(); */
 //	mergeTrailingLeptons(); not required to turn on Outdated 
 //	search_for_OSSFPairs();  not required to turn on Outdated not required to turn on Outdated

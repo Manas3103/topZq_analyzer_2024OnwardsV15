@@ -7,7 +7,7 @@ stderr_file=$3  # Log file
 jobconfmod=$4
 
 # Configuration variables
-#jobconfmod="jobconfiganalysis_2022"
+jobconfmod="jobconfiganalysis_2024"
 eos_output_dir="/eos/uscms/store/user/msahoo/2024_processed/"
 
 echo "==================== JOB STARTED ===================="
