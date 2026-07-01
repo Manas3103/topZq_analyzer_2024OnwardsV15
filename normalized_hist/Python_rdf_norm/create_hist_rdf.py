@@ -49,13 +49,15 @@ def create_normalized_histogram_rdf(filename,
         has_pu   = "pugenWeight" in columns
         has_gen   = "genWeight" in columns
         has_ev   = "evWeight" in columns
+        has_muon_sf = "muon_SF_central" in columns
+        has_ev_new = "evWeight_with_em_SF_Only" in columns
         has_sumw = "sumGenWeight" in columns or "genEventSumw" in columns
 
-        if has_pu and has_sumw and has_ev and has_gen:
+        if has_pu and has_sumw and has_ev and has_gen and has_muon_sf:
             sumw_branch = "sumGenWeight" if "sumGenWeight" in columns else "genEventSumw"
             df = df.Define(
                 "total_weight",
-                f"(pugenWeight/{sumw_branch}) * {normalization_factor}"  
+                f"((pugenWeight * muon_SF_central)/{sumw_branch}) * {normalization_factor}"  
             )#has done with evWeight
         else:
             print("Warning: weight branches missing, using normalization only")

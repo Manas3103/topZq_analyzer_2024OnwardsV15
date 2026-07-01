@@ -360,7 +360,9 @@ void NanoAODAnalyzerrdframe::applyJetMETCorrections()
                 std::mt19937_64 gen(seed);
 
                 float resolution = _jer_resolution->evaluate({eta, pt, rho});
-                float sf         = _jer_corrector->evaluate({eta, pt, variation});
+                float sf = (_year == 2024)
+                    ? _jer_corrector->evaluate({eta, pt})
+                    : _jer_corrector->evaluate({eta, pt, variation});
                 float smeared_pt = pt;
 
                 if (genpt > 0)

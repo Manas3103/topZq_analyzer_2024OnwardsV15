@@ -134,15 +134,15 @@ void BaseAnalyser::selectElectrons()
     // baselineElectrons_isPromptBaseline Electron Selection
     // =====================================================================
     _rlm = _rlm.Define("baselineElectrons", 
-                "Electron_pt_corr > 15.0 && abs(Electron_eta) < 2.5 &&  Electron_cutBased >=2 &&" 
+                "Electron_pt_corr > 15.0 && abs(Electron_eta) < 2.5 &&  Electron_cutBased >=4 &&" 
                 "!(abs(Electron_eta) > 1.442 && abs(Electron_eta) < 1.566) && " 
                 "Electron_miniPFRelIso_all < 0.40 && abs(Electron_dxy) < 0.05 && " 
                 "abs(Electron_dz) < 0.10 && Electron_lostHits <= 1 && " 
                 "Electron_hoe < 0.10 && Electron_convVeto &&" 
                 "((abs(Electron_eta) < 1.479 && Electron_sieie < 0.011) || " // Barrel cut 
                 "(abs(Electron_eta) >= 1.479 && abs(Electron_eta) < 2.5 && Electron_sieie < 0.030)) &&" // Endcap cut 
-                "Electron_sip3d < 8 && Electron_eInvMinusPInv > -0.04 &&"
-                "Electron_promptMVA > 0.90"
+                "Electron_sip3d < 8 && Electron_eInvMinusPInv > -0.04 "
+                // "&& Electron_promptMVA > 0.90"
                 ); 
 
     // _rlm = _rlm.Define("baselineElectrons", "Electron_pt > 15.0 && abs(Electron_eta) < 2.4 && !(abs(Electron_eta) > 1.442 && abs(Electron_eta) < 1.566) && Electron_cutBased>=4");  //Tight ID
@@ -201,7 +201,9 @@ void BaseAnalyser::selectMuons()
                 "Muon_miniPFRelIso_all < 0.4 && abs(Muon_dxy) < 0.05 && " 
 		        "abs(Muon_dz) < 0.10 && Muon_sip3d < 8.0 && " 
 		        "Muon_tightId && Muon_isPFcand" 
-		        "&& (Muon_isGlobal || Muon_isTracker) && Muon_promptMVA > 0.64"); 
+		        "&& (Muon_isGlobal || Muon_isTracker)"
+                // "&& Muon_promptMVA > 0.64"
+                ); 
 
     // _rlm = _rlm.Define("baselineMuons", "Muon_pt > 15 && abs(Muon_eta) < 2.4 && Muon_miniPFRelIso_all < 0.40 && goodMuonsID");
     // _rlm = _rlm.Define("baselineMuons", "Muon_pt > 15 && abs(Muon_eta) < 2.4 && Muon_promptMVA > 0.64 && goodMuonsID");
@@ -760,13 +762,24 @@ void BaseAnalyser::mergeLeptons() {
     _rlm = _rlm.Define("mass_of_3lepton","Lepton4Vecs.size() == 3 ? (Lepton4Vecs[0] + Lepton4Vecs[1] + Lepton4Vecs[2]).M() : -1.0");
 
     // 2. Single index vector: sort + cut
+    // _rlm = _rlm.Define("goodLepton_idx",
+    //     [](const RVecF& pt) -> ROOT::VecOps::RVec<size_t> {
+    //         if (pt.size() < 3) return {};
+    //         ROOT::VecOps::RVec<size_t> idx(pt.size());
+    //         std::iota(idx.begin(), idx.end(), 0);
+    //         std::sort(idx.begin(), idx.end(), [&](size_t i, size_t j){ return pt[i] > pt[j]; });
+    //         if (pt[idx[0]] <= 25.f || pt[idx[1]] <= 15.f || pt[idx[2]] <= 15.f) return {};
+    //         return idx;
+    //     }, {"Lepton_pt"});
+
+
+    // 2. Single index vector: sort only, no pt threshold cut
     _rlm = _rlm.Define("goodLepton_idx",
         [](const RVecF& pt) -> ROOT::VecOps::RVec<size_t> {
-            if (pt.size() < 3) return {};
+            if (pt.size() < 1) return {};
             ROOT::VecOps::RVec<size_t> idx(pt.size());
             std::iota(idx.begin(), idx.end(), 0);
             std::sort(idx.begin(), idx.end(), [&](size_t i, size_t j){ return pt[i] > pt[j]; });
-            if (pt[idx[0]] <= 25.f || pt[idx[1]] <= 15.f || pt[idx[2]] <= 15.f) return {};
             return idx;
         }, {"Lepton_pt"});
 
@@ -801,6 +814,16 @@ void BaseAnalyser::mergeLeptons() {
             }, {"Lepton4Vecs"});
 
 	_rlm = _rlm.Define("sum_goodLepton_flavor","ROOT::VecOps::Sum(goodLepton_flavor)");	
+
+
+    // 3. Boolean mask: pt threshold cuts on sorted leptons
+    _rlm = _rlm.Define("goodLepton_ptCut",
+        [](const RVecF& pt, const ROOT::VecOps::RVec<size_t>& idx) -> bool {
+            if (idx.size() < 3) return false;
+            return pt[idx[0]] > 25.f && pt[idx[1]] > 15.f && pt[idx[2]] > 15.f;
+        }, {"goodLepton_pt", "goodLepton_idx"});
+
+
 
     auto getLepton = [](const RVecF& vec, int idx) -> float {
         return vec.size() == 3 ? vec[idx] : -999.f;
@@ -1466,11 +1489,30 @@ void BaseAnalyser::defineSignalRegion()
    // _rlm = _rlm.Define("eee_Region", " NbaselineMuons==0 && NbaselineElectrons==3");
 
     _rlm = _rlm
-        .Define("eee_Region", "channel_code == 0 && NgoodLepton == 3 && inzpeak")
-        .Define("eeu_Region", "channel_code == 1 && NgoodLepton == 3 && inzpeak")
-        .Define("uue_Region", "channel_code == 2 && NgoodLepton == 3 && inzpeak")
-        .Define("uuu_Region", "channel_code == 3 && NgoodLepton == 3 && inzpeak")
-        .Define("threeLRegion", "channel_code >= 0 && NgoodLepton == 3 && inzpeak");
+        .Define("eee_Region", "channel_code == 0 && NgoodLepton == 3 && inzpeak && goodLepton_ptCut")
+        .Define("eeu_Region", "channel_code == 1 && NgoodLepton == 3 && inzpeak && goodLepton_ptCut")
+        .Define("uue_Region", "channel_code == 2 && NgoodLepton == 3 && inzpeak && goodLepton_ptCut")
+        .Define("uuu_Region", "channel_code == 3 && NgoodLepton == 3 && inzpeak && goodLepton_ptCut")
+        .Define("threeLRegion", "channel_code >= 0 && NgoodLepton == 3 && inzpeak && goodLepton_ptCut")
+        .Define("BaseRegion", "threeLRegion && ncleanjetspass >= 2 && ncleanbjetspass >= 1");
+
+
+	_rlm = _rlm
+	    .Define("BaseRegion_leadingLepton_pt","BaseRegion && leadingLepton_pt > 0 ? leadingLepton_pt : -999.f")
+	    .Define("BaseRegion_subleadingLepton_pt","BaseRegion && subleadingLepton_pt > 0 ? subleadingLepton_pt : -999.f")
+	    .Define("BaseRegion_trailingLepton_pt","BaseRegion && trailingLepton_pt > 0 ? trailingLepton_pt : -999.f")
+	    /* .Define("BaseRegion_topLepton_pt","BaseRegion && topLepton_pt_new > 0 ? topLepton_pt_new : -999.f") */
+	    .Define("BaseRegion_leadingLepton_eta","BaseRegion && leadingLepton_pt > 0 ? leadingLepton_eta : -999.f")
+	    .Define("BaseRegion_subleadingLepton_eta","BaseRegion && subleadingLepton_pt > 0 ? subleadingLepton_eta : -999.f")
+	    .Define("BaseRegion_trailingLepton_eta","BaseRegion && trailingLepton_pt > 0 ? trailingLepton_eta : -999.f")
+	    .Define("BaseRegion_nJets","BaseRegion ? int(Selected_jetpt.size()) : -1")
+	    .Define("BaseRegion_muon_multiplicity","BaseRegion ? sum_goodLepton_flavor : -1")
+        .Define("BaseRegion_leadingJet_pt",  "BaseRegion ? leadingJet_pt  : -999.f")
+        .Define("BaseRegion_leadingJet_eta", "BaseRegion ? leadingJet_eta : -999.f")
+        .Define("BaseRegion_goodMET_pt",  "BaseRegion ? goodMET_pt  : std::numeric_limits<float>::quiet_NaN()")
+        .Define("BaseRegion_goodMET_phi", "BaseRegion ? goodMET_phi : std::numeric_limits<float>::quiet_NaN()")
+	    .Define("BaseRegion_nbJets","BaseRegion ? int(Selected_bjetpt.size()) : -1");
+
 
 	_rlm = _rlm
 	    .Define("ThreeLRegion_leadingLepton_pt","threeLRegion && leadingLepton_pt > 0 ? leadingLepton_pt : -999.f")
@@ -2030,6 +2072,7 @@ void BaseAnalyser::defineMoreVars()
     addVartoStore("eee_ThreeLRegion_.*");
 
     addVartoStore("WZ_Region_.*");
+    addVartoStore("BaseRegion_.*");
 
 
     // 3-lepton region variables

@@ -65,12 +65,12 @@ int main(void) {
     string jetidfname          = "data/JERC/2024_Summer24/jetid.json"; // not working in NanoAODv15
     string jetid_workingpoint  = "AK4PUPPI_TightLeptonVeto";
     string jercfname           = "data/JERC/2024_Summer24/jet_jerc.json";
-    string jerctag             = "Summer24Prompt24_V2_DATA_L1L2L3Res_AK4PFPuppi";
-    string jettagMC            = "Summer24Prompt24_V2_MC_L1L2L3Res_AK4PFPuppi";
-    vector<string> jercunctag  = {"Summer24Prompt24_V2_MC_Total_AK4PFPuppi"};
+    string jerctag             = "Summer24Prompt24_V3_DATA_L1L2L3Res_AK4PFPuppi";
+    string jettagMC            = "Summer24Prompt24_V3_MC_L1L2L3Res_AK4PFPuppi";
+    vector<string> jercunctag  = {"Summer24Prompt24_V3_MC_Total_AK4PFPuppi"};
     string metpt_fname         = "data/JERC/2023_Summer23BPix/met_xyCorrections_2023_2023BPix.json";
-    string JER_tag             = "Summer23BPixPrompt23_RunD_JRV1_MC_ScaleFactor_AK4PFPuppi";
-    string JER_tag_res         = "Summer23BPixPrompt23_RunD_JRV1_MC_PtResolution_AK4PFPuppi";
+    string JER_tag             = "Summer24Prompt24_JRV1_MC_ScaleFactor_AK4PFPuppi";
+    string JER_tag_res         = "Summer24Prompt24_JRV1_MC_PtResolution_AK4PFPuppi";
 
     // BTV
     string btvfname  = "data/BTV/2024_Summer24/btagging.json";
