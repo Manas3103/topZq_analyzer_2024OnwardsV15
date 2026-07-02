@@ -1437,7 +1437,8 @@ ROOT::RDF::RNode NanoAODAnalyzerrdframe::calculateMuSF(RNode _rlm, std::vector<s
       }
 
 	//std::string sf_definition = column_name_hlt+" * "+column_name_reco+" * "+column_name_id+" * "+column_name_iso;
-	std::string sf_definition = column_name_id+" * "+column_name_iso;
+	// std::string sf_definition = column_name_id+" * "+column_name_iso;
+	std::string sf_definition = column_name_id ;
 	_rlm = _rlm.Define(column_name, sf_definition);
 	std::cout<< "Muon SF column name: " << column_name << std::endl;
     }
