@@ -1438,7 +1438,7 @@ ROOT::RDF::RNode NanoAODAnalyzerrdframe::calculateMuSF(RNode _rlm, std::vector<s
 
 	//std::string sf_definition = column_name_hlt+" * "+column_name_reco+" * "+column_name_id+" * "+column_name_iso;
 	// std::string sf_definition = column_name_id+" * "+column_name_iso;
-	std::string sf_definition = column_name_id ;
+	std::string sf_definition = column_name_iso ;
 	_rlm = _rlm.Define(column_name, sf_definition);
 	std::cout<< "Muon SF column name: " << column_name << std::endl;
     }
@@ -1534,6 +1534,7 @@ ROOT::RDF::RNode NanoAODAnalyzerrdframe::calculateEleSF(
 		    if (pts[i] > 75.0) {
 			reco_type = _electron_reco_type1;
 		    }
+		    // else if ( pts[i] <= 75.0) {
 		    else if (pts[i] > 20.0 && pts[i] <= 75.0) {
 			reco_type = _electron_reco_type2;
 		    }

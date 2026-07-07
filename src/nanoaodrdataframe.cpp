@@ -42,19 +42,19 @@ int main(void) {
     // Muons
     string muon_roch_fname = "data/MUO/2024_Summer24/muon_scalesmearing.json";
     string muon_fname      = "data/MUO/2024_Summer24/muon_Z.json";
-    string muonHLTtype     = "NUM_IsoMu24_DEN_CutBasedIdTight_and_PFIsoTight";
+    string muonHLTtype     = "NUM_IsoMu24_DEN_CutBasedIdTight_and_PFIsoTight"; //not using 
     string muonRECOtype    = "NUM_TrackerMuons_DEN_genTracks"; // not required for Run3
-    string muonIDtype      = "NUM_TightID_DEN_TrackerMuons";
+    string muonIDtype      = "NUM_TightID_DEN_TrackerMuons"; // not using 
     string muonISOtype     = "NUM_TightPFIso_DEN_TightID";
 
     // Electrons
     string electron_fname      = "data/EGM/2024_Summer24/electron.json";
     string electronHlt_fname   = "data/EGM/2024_Summer24/electronHlt.json";
-    string electronHlt_type    = "HLT_SF_Ele30_TightID";
+    string electronHlt_type    = "HLT_SF_Ele30_TightID"; // not using 
     string electron_reco_type1 = "RecoAbove75";
     string electron_reco_type2 = "Reco20to75";
-    string electron_reco_type3 = "RecoBelow20";
-    string electron_id_type    = "PromptMVA-Tight";
+    string electron_reco_type3 = "RecoBelow20"; //not using
+    string electron_id_type    = "wp90iso";
     string electron_SSF        = "data/EGM/2024_Summer24/electronSS_EtDependent.json";
 
     // Jet veto
