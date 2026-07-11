@@ -144,7 +144,7 @@ public:
 	
 	//private:
 	ROOT::RDataFrame _rd;
-	
+    std::vector<std::tuple<std::string, std::string, ROOT::RDF::RResultPtr<ULong64_t>>> _cutCounts;
 	//bool _isData;
 	bool _jsonOK;
 	string _outfilename;

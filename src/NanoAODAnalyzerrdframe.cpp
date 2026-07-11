@@ -1437,8 +1437,7 @@ ROOT::RDF::RNode NanoAODAnalyzerrdframe::calculateMuSF(RNode _rlm, std::vector<s
       }
 
 	//std::string sf_definition = column_name_hlt+" * "+column_name_reco+" * "+column_name_id+" * "+column_name_iso;
-	// std::string sf_definition = column_name_id+" * "+column_name_iso;
-	std::string sf_definition = column_name_iso ;
+	std::string sf_definition = column_name_id+" * "+column_name_iso;
 	_rlm = _rlm.Define(column_name, sf_definition);
 	std::cout<< "Muon SF column name: " << column_name << std::endl;
     }
@@ -1534,7 +1533,6 @@ ROOT::RDF::RNode NanoAODAnalyzerrdframe::calculateEleSF(
 		    if (pts[i] > 75.0) {
 			reco_type = _electron_reco_type1;
 		    }
-		    // else if ( pts[i] <= 75.0) {
 		    else if (pts[i] > 20.0 && pts[i] <= 75.0) {
 			reco_type = _electron_reco_type2;
 		    }
@@ -1689,8 +1687,9 @@ void NanoAODAnalyzerrdframe::setupCuts_and_Hists()
 		std::string hpost = "_"+cutname;
 		RNode *r = _rnt.getParent(acut.idx)->getRNode();
 		auto rnext = new RNode(r->Define(cutname, acut.cutdefinition));
-		*rnext = rnext->Filter(cutname);
-
+        *rnext = rnext->Filter(cutname);
+        // _cutCounts.emplace_back(acut.idx, rnext->Count());
+        _cutCounts.emplace_back(acut.idx, acut.cutdefinition, rnext->Count());
 		for ( auto &c : _varinfovector)
 		{
 			if (acut.idx.compare(c.mincutstep)==0) *rnext = rnext->Define(c.varname, c.vardefinition);
@@ -1820,10 +1819,14 @@ void NanoAODAnalyzerrdframe::run(bool saveAll, string outtreename)
 				cout << bname << endl;
 			        cout << "-----branch stored" << endl;
 			}
-                        cout << "before snapshot" <<endl;       
 		  	arnode->Snapshot(outtreename, outname, _varstostorepertree[nodename]);
-		        cout << "after snapshot" <<endl;	
 		}
+        // <-- Add this here
+        std::cout << "\n========== Cutflow ==========\n";
+        for (auto &[idx, def, cnt] : _cutCounts)
+        {
+            std::cout << idx << "  [" << def << "]  : " << *cnt << '\n';
+        }
 		std::cout << "-------------------------------------------------------------------" << std::endl;
 		cout << "Creating output root file :  " << endl;
 		cout << outname << " ";
