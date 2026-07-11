@@ -219,6 +219,71 @@ namespace ROOT {
 } // end of namespace ROOT for class vector<varinfo>
 
 namespace ROOT {
+   static TClass *vectorlEtuplelEstringcOstringcOROOTcLcLRDFcLcLRResultPtrlEULong64_tgRsPgRsPgR_Dictionary();
+   static void vectorlEtuplelEstringcOstringcOROOTcLcLRDFcLcLRResultPtrlEULong64_tgRsPgRsPgR_TClassManip(TClass*);
+   static void *new_vectorlEtuplelEstringcOstringcOROOTcLcLRDFcLcLRResultPtrlEULong64_tgRsPgRsPgR(void *p = nullptr);
+   static void *newArray_vectorlEtuplelEstringcOstringcOROOTcLcLRDFcLcLRResultPtrlEULong64_tgRsPgRsPgR(Long_t size, void *p);
+   static void delete_vectorlEtuplelEstringcOstringcOROOTcLcLRDFcLcLRResultPtrlEULong64_tgRsPgRsPgR(void *p);
+   static void deleteArray_vectorlEtuplelEstringcOstringcOROOTcLcLRDFcLcLRResultPtrlEULong64_tgRsPgRsPgR(void *p);
+   static void destruct_vectorlEtuplelEstringcOstringcOROOTcLcLRDFcLcLRResultPtrlEULong64_tgRsPgRsPgR(void *p);
+
+   // Function generating the singleton type initializer
+   static TGenericClassInfo *GenerateInitInstanceLocal(const vector<tuple<string,string,ROOT::RDF::RResultPtr<ULong64_t> > >*)
+   {
+      vector<tuple<string,string,ROOT::RDF::RResultPtr<ULong64_t> > > *ptr = nullptr;
+      static ::TVirtualIsAProxy* isa_proxy = new ::TIsAProxy(typeid(vector<tuple<string,string,ROOT::RDF::RResultPtr<ULong64_t> > >));
+      static ::ROOT::TGenericClassInfo 
+         instance("vector<tuple<string,string,ROOT::RDF::RResultPtr<ULong64_t> > >", -2, "vector", 423,
+                  typeid(vector<tuple<string,string,ROOT::RDF::RResultPtr<ULong64_t> > >), ::ROOT::Internal::DefineBehavior(ptr, ptr),
+                  &vectorlEtuplelEstringcOstringcOROOTcLcLRDFcLcLRResultPtrlEULong64_tgRsPgRsPgR_Dictionary, isa_proxy, 0,
+                  sizeof(vector<tuple<string,string,ROOT::RDF::RResultPtr<ULong64_t> > >) );
+      instance.SetNew(&new_vectorlEtuplelEstringcOstringcOROOTcLcLRDFcLcLRResultPtrlEULong64_tgRsPgRsPgR);
+      instance.SetNewArray(&newArray_vectorlEtuplelEstringcOstringcOROOTcLcLRDFcLcLRResultPtrlEULong64_tgRsPgRsPgR);
+      instance.SetDelete(&delete_vectorlEtuplelEstringcOstringcOROOTcLcLRDFcLcLRResultPtrlEULong64_tgRsPgRsPgR);
+      instance.SetDeleteArray(&deleteArray_vectorlEtuplelEstringcOstringcOROOTcLcLRDFcLcLRResultPtrlEULong64_tgRsPgRsPgR);
+      instance.SetDestructor(&destruct_vectorlEtuplelEstringcOstringcOROOTcLcLRDFcLcLRResultPtrlEULong64_tgRsPgRsPgR);
+      instance.AdoptCollectionProxyInfo(TCollectionProxyInfo::Generate(TCollectionProxyInfo::Pushback< vector<tuple<string,string,ROOT::RDF::RResultPtr<ULong64_t> > > >()));
+
+      ::ROOT::AddClassAlternate("vector<tuple<string,string,ROOT::RDF::RResultPtr<ULong64_t> > >","std::vector<std::tuple<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, ROOT::RDF::RResultPtr<unsigned long long> >, std::allocator<std::tuple<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, ROOT::RDF::RResultPtr<unsigned long long> > > >");
+      return &instance;
+   }
+   // Static variable to force the class initialization
+   static ::ROOT::TGenericClassInfo *_R__UNIQUE_DICT_(Init) = GenerateInitInstanceLocal((const vector<tuple<string,string,ROOT::RDF::RResultPtr<ULong64_t> > >*)nullptr); R__UseDummy(_R__UNIQUE_DICT_(Init));
+
+   // Dictionary for non-ClassDef classes
+   static TClass *vectorlEtuplelEstringcOstringcOROOTcLcLRDFcLcLRResultPtrlEULong64_tgRsPgRsPgR_Dictionary() {
+      TClass* theClass =::ROOT::GenerateInitInstanceLocal((const vector<tuple<string,string,ROOT::RDF::RResultPtr<ULong64_t> > >*)nullptr)->GetClass();
+      vectorlEtuplelEstringcOstringcOROOTcLcLRDFcLcLRResultPtrlEULong64_tgRsPgRsPgR_TClassManip(theClass);
+   return theClass;
+   }
+
+   static void vectorlEtuplelEstringcOstringcOROOTcLcLRDFcLcLRResultPtrlEULong64_tgRsPgRsPgR_TClassManip(TClass* ){
+   }
+
+} // end of namespace ROOT
+
+namespace ROOT {
+   // Wrappers around operator new
+   static void *new_vectorlEtuplelEstringcOstringcOROOTcLcLRDFcLcLRResultPtrlEULong64_tgRsPgRsPgR(void *p) {
+      return  p ? ::new((::ROOT::Internal::TOperatorNewHelper*)p) vector<tuple<string,string,ROOT::RDF::RResultPtr<ULong64_t> > > : new vector<tuple<string,string,ROOT::RDF::RResultPtr<ULong64_t> > >;
+   }
+   static void *newArray_vectorlEtuplelEstringcOstringcOROOTcLcLRDFcLcLRResultPtrlEULong64_tgRsPgRsPgR(Long_t nElements, void *p) {
+      return p ? ::new((::ROOT::Internal::TOperatorNewHelper*)p) vector<tuple<string,string,ROOT::RDF::RResultPtr<ULong64_t> > >[nElements] : new vector<tuple<string,string,ROOT::RDF::RResultPtr<ULong64_t> > >[nElements];
+   }
+   // Wrapper around operator delete
+   static void delete_vectorlEtuplelEstringcOstringcOROOTcLcLRDFcLcLRResultPtrlEULong64_tgRsPgRsPgR(void *p) {
+      delete ((vector<tuple<string,string,ROOT::RDF::RResultPtr<ULong64_t> > >*)p);
+   }
+   static void deleteArray_vectorlEtuplelEstringcOstringcOROOTcLcLRDFcLcLRResultPtrlEULong64_tgRsPgRsPgR(void *p) {
+      delete [] ((vector<tuple<string,string,ROOT::RDF::RResultPtr<ULong64_t> > >*)p);
+   }
+   static void destruct_vectorlEtuplelEstringcOstringcOROOTcLcLRDFcLcLRResultPtrlEULong64_tgRsPgRsPgR(void *p) {
+      typedef vector<tuple<string,string,ROOT::RDF::RResultPtr<ULong64_t> > > current_t;
+      ((current_t*)p)->~current_t();
+   }
+} // end of namespace ROOT for class vector<tuple<string,string,ROOT::RDF::RResultPtr<ULong64_t> > >
+
+namespace ROOT {
    static TClass *vectorlEstringgR_Dictionary();
    static void vectorlEstringgR_TClassManip(TClass*);
    static void *new_vectorlEstringgR(void *p = nullptr);

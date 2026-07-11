@@ -108,9 +108,9 @@ void BaseAnalyser::defineCuts()
     // -----------------------------------------------------
     // Apply Cuts (ordered logically)
     // -----------------------------------------------------
-    addCuts(minimalSelection, "0");
+    addCuts(setHLT(), "0");
     addCuts(metFilters, "00");
-    addCuts(setHLT(), "000");
+    addCuts(minimalSelection, "000");
 }
 
 
@@ -357,39 +357,81 @@ void BaseAnalyser::selectJets()
 	);
 
 
-	// =====================================================
-	// 2. EXTRACT GOOD JET VARIABLES
-	// =====================================================
+// 	// =====================================================
+// 	// 2. EXTRACT GOOD JET VARIABLES
+// 	// =====================================================
 
-	 _rlm = _rlm.Define("goodJets_pt",   "Jet_pt_corr[goodJets]") 
-	// _rlm = _rlm.Define("goodJets_pt",   "Jet_pt[goodJets]")
-		   .Define("goodJets_eta",  "Jet_eta[goodJets]")
-		   .Define("goodJets_phi",  "Jet_phi[goodJets]")
-		   .Define("goodJets_mass", "Jet_mass[goodJets]")
-		   .Define("goodJets_idx",  ::good_idx, {"goodJets"})
-		   .Define("NgoodJets",     "int(goodJets_pt.size())")
-		   .Define("goodJets_4vecs", ::generate_4vec,
-			   {"goodJets_pt", "goodJets_eta", "goodJets_phi", "goodJets_mass"});
-
-
-	// =====================================================
-	// 3. MC-ONLY INFORMATION
-	// =====================================================
-
-	if (!_isData) {
-	    _rlm = _rlm.Define("goodJets_hadflav",
-			       "Jet_hadronFlavour[goodJets]");
-	}
+// 	 _rlm = _rlm.Define("goodJets_pt",   "Jet_pt_corr[goodJets]") 
+// 	// _rlm = _rlm.Define("goodJets_pt",   "Jet_pt[goodJets]")
+// 		   .Define("goodJets_eta",  "Jet_eta[goodJets]")
+// 		   .Define("goodJets_phi",  "Jet_phi[goodJets]")
+// 		   .Define("goodJets_mass", "Jet_mass[goodJets]")
+// 		   .Define("goodJets_idx",  ::good_idx, {"goodJets"})
+// 		   .Define("NgoodJets",     "int(goodJets_pt.size())")
+// 		   .Define("goodJets_4vecs", ::generate_4vec,
+// 			   {"goodJets_pt", "goodJets_eta", "goodJets_phi", "goodJets_mass"});
 
 
-	// =====================================================
-	// 4. BTAGGING VARIABLES
-	// =====================================================
+// 	// =====================================================
+// 	// 3. MC-ONLY INFORMATION
+// 	// =====================================================
 
-	_rlm = _rlm.Define("goodJets_deepjetbtag",
-			   "Jet_btagDeepFlavB[goodJets]")
-		   .Define("goodJets_UparTjetbtag",
-			   "Jet_btagUParTAK4B[goodJets]");
+// 	if (!_isData) {
+// 	    _rlm = _rlm.Define("goodJets_hadflav",
+// 			       "Jet_hadronFlavour[goodJets]");
+// 	}
+
+
+// 	// =====================================================
+// 	// 4. BTAGGING VARIABLES
+// 	// =====================================================
+
+// 	_rlm = _rlm.Define("goodJets_deepjetbtag",
+// 			   "Jet_btagDeepFlavB[goodJets]")
+// 		   .Define("goodJets_UparTjetbtag",
+// 			   "Jet_btagUParTAK4B[goodJets]");
+
+    // =====================================================
+    // 2. EXTRACT GOOD JET VARIABLES
+    // =====================================================
+    _rlm = _rlm.Define("goodJets_pt",   "Jet_pt_corr[goodJets]")
+            .Define("goodJets_eta",  "Jet_eta[goodJets]")
+            .Define("goodJets_phi",  "Jet_phi[goodJets]")
+            .Define("goodJets_mass", "Jet_mass[goodJets]");
+
+    // -----------------------------------------------------
+    // 2b. SORT GOOD JETS BY CORRECTED PT (DESCENDING)
+    // -----------------------------------------------------
+    _rlm = _rlm.Define("goodJetPtSortIdx", "ROOT::VecOps::Argsort(-goodJets_pt)");
+
+    _rlm = _rlm.Redefine("goodJets_pt",   "ROOT::VecOps::Take(goodJets_pt,   goodJetPtSortIdx)")
+           .Redefine("goodJets_eta",  "ROOT::VecOps::Take(goodJets_eta,  goodJetPtSortIdx)")
+           .Redefine("goodJets_phi",  "ROOT::VecOps::Take(goodJets_phi,  goodJetPtSortIdx)")
+           .Redefine("goodJets_mass", "ROOT::VecOps::Take(goodJets_mass, goodJetPtSortIdx)");
+
+    // -----------------------------------------------------
+    // 2c. INDEX / 4-VECTORS (must be built AFTER sorting so they match)
+    // -----------------------------------------------------
+    _rlm = _rlm.Define("goodJets_idx", ::good_idx, {"goodJets"})
+           .Redefine("goodJets_idx", "ROOT::VecOps::Take(goodJets_idx, goodJetPtSortIdx)")
+           .Define("NgoodJets", "int(goodJets_pt.size())")
+           .Define("goodJets_4vecs", ::generate_4vec, {"goodJets_pt", "goodJets_eta", "goodJets_phi", "goodJets_mass"});
+
+    // =====================================================
+    // 3. MC-ONLY INFORMATION
+    // =====================================================
+    if (!_isData) {
+       _rlm = _rlm.Define("goodJets_hadflav", "Jet_hadronFlavour[goodJets]")
+                  .Redefine("goodJets_hadflav", "ROOT::VecOps::Take(goodJets_hadflav, goodJetPtSortIdx)");
+    }
+
+    // =====================================================
+    // 4. BTAGGING VARIABLES
+    // =====================================================
+    _rlm = _rlm.Define("goodJets_deepjetbtag", "Jet_btagDeepFlavB[goodJets]")                                                                                                                                                                
+           .Redefine("goodJets_deepjetbtag", "ROOT::VecOps::Take(goodJets_deepjetbtag, goodJetPtSortIdx)")
+           .Define("goodJets_UparTjetbtag", "Jet_btagUParTAK4B[goodJets]")
+           .Redefine("goodJets_UparTjetbtag", "ROOT::VecOps::Take(goodJets_UparTjetbtag, goodJetPtSortIdx)");
 
 }
 
