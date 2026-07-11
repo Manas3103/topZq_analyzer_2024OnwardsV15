@@ -95,7 +95,7 @@ int main(void) {
             muon_roch_fname, muon_fname,
             muonHLTtype, muonIDtype, muonISOtype, electron_fname,
             electronHlt_fname,electronHlt_type, electron_reco_type1,
-            electron_reco_type2,electron_reco_type3, electron_id_type,
+            electron_reco_type2, electron_id_type,
             jercfname, jerctag, jettagMC, jercunctag, jet_veto_f_name,
             jet_veto_tag,electron_SSF, metpt_fname, jetidfname,
             jetid_workingpoint, JER_tag, JER_tag_res);

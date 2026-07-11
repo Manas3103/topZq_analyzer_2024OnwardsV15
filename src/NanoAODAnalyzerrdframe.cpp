@@ -936,7 +936,7 @@ void NanoAODAnalyzerrdframe::setupCorrections(
 		string electronHlt_type, 
 		string electron_reco_type1, 
 		string electron_reco_type2,
-		string electron_reco_type3, 
+		// string electron_reco_type3, 
 		string electron_id_type, 
 		string jercfname, 
 		string jerctag, 
@@ -999,7 +999,7 @@ void NanoAODAnalyzerrdframe::setupCorrections(
     //  _electron_reco_type = electron_reco_type;
         _electron_reco_type1=electron_reco_type1;
         _electron_reco_type2=electron_reco_type2;
-        _electron_reco_type3=electron_reco_type3;
+        // _electron_reco_type3=electron_reco_type3;
         _electron_id_type = electron_id_type;
         _electronHlt_type =electronHlt_type;
         std::cout<< "================================//=================================" << std::endl;
@@ -1533,11 +1533,8 @@ ROOT::RDF::RNode NanoAODAnalyzerrdframe::calculateEleSF(
 		    if (pts[i] > 75.0) {
 			reco_type = _electron_reco_type1;
 		    }
-		    else if (pts[i] > 20.0 && pts[i] <= 75.0) {
+		    else if (pts[i] <= 75.0) {
 			reco_type = _electron_reco_type2;
-		    }
-		    else {  // pts[i] <= 20.0
-			reco_type = _electron_reco_type3;
 		    }
 
 		    ROOT::VecOps::RVec<float> eta1 = {etas[i]};
