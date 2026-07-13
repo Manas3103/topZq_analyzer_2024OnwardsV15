@@ -134,7 +134,7 @@ void BaseAnalyser::selectElectrons()
     // baselineElectrons_isPromptBaseline Electron Selection
     // =====================================================================
     _rlm = _rlm.Define("baselineElectrons", 
-                "Electron_pt_corr > 15.0 && abs(Electron_eta) < 2.5 &&  Electron_cutBased >=4 &&" 
+                "Electron_pt_corr > 20.0 && abs(Electron_eta) < 2.5 &&  Electron_cutBased >=4 &&" 
                 "!(abs(Electron_eta) > 1.442 && abs(Electron_eta) < 1.566) && " 
                 "Electron_miniPFRelIso_all < 0.40 && abs(Electron_dxy) < 0.05 && " 
                 "abs(Electron_dz) < 0.10 && Electron_lostHits <= 1 && " 
@@ -197,7 +197,7 @@ void BaseAnalyser::selectMuons()
     // Baseline Muon Selection
     // // =====================================================================
      _rlm = _rlm.Define("baselineMuons", 
-		        "Muon_pt_corr > 15.0 && abs(Muon_eta) < 2.4 && " 
+		        "Muon_pt_corr > 20.0 && abs(Muon_eta) < 2.4 && " 
                 "Muon_miniPFRelIso_all < 0.4 && abs(Muon_dxy) < 0.05 && " 
 		        "abs(Muon_dz) < 0.10 && Muon_sip3d < 8.0 && " 
 		        "Muon_tightId && Muon_isPFcand" 
