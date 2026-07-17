@@ -244,5 +244,48 @@
   "eee_ThreeLRegion_leadingJet_eta": { "bins": 30, "xmin": -5, "xmax": 5 },
   "eee_ThreeLRegion_goodMET_pt": { "bins": 30, "xmin": 0, "xmax": 300 },
   "eee_ThreeLRegion_goodMET_phi": { "bins": 32, "xmin": -3.2, "xmax": 3.2 },
-  "eee_ThreeLRegion_nbJets": { "bins": 6, "xmin": 0, "xmax": 6 }
+  "eee_ThreeLRegion_nbJets": { "bins": 6, "xmin": 0, "xmax": 6 },
+
+  "eee_ThreeLRegion_subleadingJet_pt": { "bins": 30, "xmin": 0, "xmax": 200 },
+  "eee_ThreeLRegion_subleadingJet_eta": { "bins": 30, "xmin": -5, "xmax": 5 },
+  "eee_ThreeLRegion_leadingbJet_pt": { "bins": 40, "xmin": 0, "xmax": 400 },
+  "eee_ThreeLRegion_leadingbJet_eta": { "bins": 30, "xmin": -5, "xmax": 5 },
+  "eee_ThreeLRegion_subleadingbJet_pt": { "bins": 30, "xmin": 0, "xmax": 200 },
+  "eee_ThreeLRegion_subleadingbJet_eta": { "bins": 30, "xmin": -5, "xmax": 5 },
+
+  "eeu_ThreeLRegion_subleadingJet_pt": { "bins": 30, "xmin": 0, "xmax": 200 },
+  "eeu_ThreeLRegion_subleadingJet_eta": { "bins": 30, "xmin": -5, "xmax": 5 },
+  "eeu_ThreeLRegion_leadingbJet_pt": { "bins": 40, "xmin": 0, "xmax": 400 },
+  "eeu_ThreeLRegion_leadingbJet_eta": { "bins": 30, "xmin": -5, "xmax": 5 },
+  "eeu_ThreeLRegion_subleadingbJet_pt": { "bins": 30, "xmin": 0, "xmax": 200 },
+  "eeu_ThreeLRegion_subleadingbJet_eta": { "bins": 30, "xmin": -5, "xmax": 5 },
+
+  "uue_ThreeLRegion_subleadingJet_pt": { "bins": 30, "xmin": 0, "xmax": 200 },
+  "uue_ThreeLRegion_subleadingJet_eta": { "bins": 30, "xmin": -5, "xmax": 5 },
+  "uue_ThreeLRegion_leadingbJet_pt": { "bins": 40, "xmin": 0, "xmax": 400 },
+  "uue_ThreeLRegion_leadingbJet_eta": { "bins": 30, "xmin": -5, "xmax": 5 },
+  "uue_ThreeLRegion_subleadingbJet_pt": { "bins": 30, "xmin": 0, "xmax": 200 },
+  "uue_ThreeLRegion_subleadingbJet_eta": { "bins": 30, "xmin": -5, "xmax": 5 },
+
+  "uuu_ThreeLRegion_subleadingJet_pt": { "bins": 30, "xmin": 0, "xmax": 200 },
+  "uuu_ThreeLRegion_subleadingJet_eta": { "bins": 30, "xmin": -5, "xmax": 5 },
+  "uuu_ThreeLRegion_leadingbJet_pt": { "bins": 40, "xmin": 0, "xmax": 400 },
+  "uuu_ThreeLRegion_leadingbJet_eta": { "bins": 30, "xmin": -5, "xmax": 5 },
+  "uuu_ThreeLRegion_subleadingbJet_pt": { "bins": 30, "xmin": 0, "xmax": 200 },
+  "uuu_ThreeLRegion_subleadingbJet_eta": { "bins": 30, "xmin": -5, "xmax": 5 },
+
+  "ThreeLRegion_subleadingJet_pt": { "bins": 30, "xmin": 0, "xmax": 200 },
+  "ThreeLRegion_subleadingJet_eta": { "bins": 30, "xmin": -5, "xmax": 5 },
+  "ThreeLRegion_leadingbJet_pt": { "bins": 40, "xmin": 0, "xmax": 400 },
+  "ThreeLRegion_leadingbJet_eta": { "bins": 30, "xmin": -5, "xmax": 5 },
+  "ThreeLRegion_subleadingbJet_pt": { "bins": 30, "xmin": 0, "xmax": 200 },
+  "ThreeLRegion_subleadingbJet_eta": { "bins": 30, "xmin": -5, "xmax": 5 },
+
+  "BaseRegion_subleadingJet_pt": { "bins": 30, "xmin": 0, "xmax": 200 },
+  "BaseRegion_subleadingJet_eta": { "bins": 30, "xmin": -5, "xmax": 5 },
+  "BaseRegion_leadingbJet_pt": { "bins": 40, "xmin": 0, "xmax": 400 },
+  "BaseRegion_leadingbJet_eta": { "bins": 30, "xmin": -5, "xmax": 5 },
+  "BaseRegion_subleadingbJet_pt": { "bins": 30, "xmin": 0, "xmax": 200 },
+  "BaseRegion_subleadingbJet_eta": { "bins": 30, "xmin": -5, "xmax": 5 }
 }
+

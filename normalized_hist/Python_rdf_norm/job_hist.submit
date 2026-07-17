@@ -18,5 +18,5 @@ request_cpus=1
 request_memory=8 GB
 request_disk= 20 GB
 
-# queue filename, crossection from 2024_MC.txt 
-queue filename, crossection from General.txt
+queue filename, crossection from 2024_MC.txt 
+# queue filename, crossection from General.txt
