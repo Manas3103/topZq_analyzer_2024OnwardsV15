@@ -244,7 +244,8 @@ void btag_efficiency() {
 //     std::string output_file = "btag_hists_2024_UParTAK4.root";
 //     std::string year_tag = "2024";
 
-    std::string input_file_list = "2024_MC_file_list.txt";
+    // std::string input_file_list = "2024_MC_file_list.txt";
+    std::string input_file_list = "TZQB_files.txt";
     std::string output_file = "btag_hists_2024_UParT.root";
     std::string year_tag = "2024";
 

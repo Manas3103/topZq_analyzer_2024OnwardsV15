@@ -163,11 +163,21 @@ void BaseAnalyser::selectElectrons()
                 .Define("A_baselineElectrons_pdgId", "Electron_pdgId[baselineElectrons]")
                 .Define("A_NbaselineElectrons", "int(A_baselineElectrons_pt.size())");
 
-    // Define tight and fakable electrons based on MVA score
-    _rlm = _rlm.Define("TightElectrons", "baselineElectrons && Electron_promptMVA > 0.90")
-                .Define("A_baselineElectrons_mvaTTH", "Electron_promptMVA[baselineElectrons]")
-                .Define("A_tight_baselineElectrons", "Electron_promptMVA[baselineElectrons] > 0.90");
 
+    if (_year == 2024)
+    {
+        // Define tight and fakable electrons based on MVA score
+        _rlm = _rlm.Define("TightElectrons", "baselineElectrons && Electron_promptMVA > 0.90")
+                    .Define("A_baselineElectrons_mvaTTH", "Electron_promptMVA[baselineElectrons]")
+                    .Define("A_tight_baselineElectrons", "Electron_promptMVA[baselineElectrons] > 0.90");
+    }else
+    {
+        // Define tight and fakable electrons based on MVA score
+        _rlm = _rlm.Define("TightElectrons", "baselineElectrons && Electron_mvaTTH > 0.90")
+                    .Define("A_baselineElectrons_mvaTTH", "Electron_mvaTTH[baselineElectrons]")
+                    .Define("A_tight_baselineElectrons", "Electron_mvaTTH[baselineElectrons] > 0.90");
+
+    }
 
     // Generate 4-vectors for baseline electrons
     _rlm = _rlm.Define("A_baselineElectron_4Vecs", ::generate_4vec, {"A_baselineElectrons_pt", "A_baselineElectrons_eta", "A_baselineElectrons_phi", "A_baselineElectrons_mass"});
@@ -239,9 +249,13 @@ void BaseAnalyser::selectMuons()
     //-------------------------------------------------------
     _rlm = _rlm.Define("baselineMuon_4Vecs", ::generate_4vec, {"baselineMuons_pt", "baselineMuons_eta", "baselineMuons_phi", "baselineMuons_mass"});
     _rlm = _rlm.Define("baselineMuon_TL4Vecs",::buildTLorentzVectors, {"baselineMuons_pt", "baselineMuons_eta", "baselineMuons_phi", "baselineMuons_mass"});
+    if (_year == 2024)
+    {
     _rlm = _rlm.Define("tight_Muons", "Muon_promptMVA[baselineMuons] > 0.64");
-
-    
+    }else
+    {
+    _rlm = _rlm.Define("tight_Muons", "Muon_mvaTTH[baselineMuons] > 0.64");
+    }
 }
 
 //=================================Select Jets=================================================//
@@ -260,7 +274,9 @@ void BaseAnalyser::selectJets()
         std::cout<< "================================//=================================" << std::endl;
     }
 
-    //_rlm = _rlm.Define("goodJetsID", JetID(6)); //without pt-eta cuts here i have to add other cuts since its NanoAODv12
+
+    if (_year == 2024)
+    {
     // Tight + TightLeptonVeto cut
     _rlm = _rlm.Define("goodJetsID",
 	[](const ROOT::VecOps::RVec<UChar_t>& neMult,
@@ -322,7 +338,13 @@ void BaseAnalyser::selectJets()
 	{"Jet_neMultiplicity", "Jet_chMultiplicity", "Jet_pt_corr",
 	 "Jet_neEmEF", "Jet_chEmEF", "Jet_chHEF", "Jet_neHEF",
 	 "Jet_muEF", "Jet_eta"});
-
+    }
+    else
+    {
+    _rlm = _rlm.Define("goodJetsID", JetID(6)); //without pt-eta cuts here i have to add other cuts since its NanoAODv12
+    }
+   
+    
 	// =====================================================
 	// 1. GOOD JET SELECTION
 	// =====================================================
@@ -2616,8 +2638,11 @@ void BaseAnalyser::bookHists()
     //====================================================================================================//
     //}
 	
-    // add1DHist( {"hnevents", "Number of Events", 2, -0.5, 1.5}, "one", "evWeight", "");
-    // add1DHist( {"hnevents_no_weight", "Number of Events w/o", 2, -0.5, 1.5}, "one", "one", "");
+   if(!_isData && !isDefined("genWeight")){
+    add1DHist( {"hnevents", "Number of Events", 2, -0.5, 1.5}, "one", "genWeight", "");
+    add1DHist( {"hnevents_pugenweight", "Number of Events with pugenWeight", 2, -0.5, 1.5}, "one", "pugenWeight", "");
+   }
+    add1DHist( {"hnevents_no_weight", "Number of Events w/o", 2, -0.5, 1.5}, "one", "one", "");
     
   //  add1DHist( {"hNgoodElectrons", "NumberofGoodElectrons", 5, 0.0, 5.0}, "NgoodElectrons", "evWeight", "");
     
@@ -2630,6 +2655,7 @@ void BaseAnalyser::bookHists()
     // add1DHist( {"hselected_jet1pt", "SelectedJet_1 pt no weight" , 100, 0, 1000} , "Selected_jet1pt", "evWeight", "");
     // add1DHist( {"hselected_jetptWithweight", "clean-Jets with weight" , 100, 0, 2500} , "Selected_jetpt", "evWeight", "");
     add1DHist( {"hselected_jetptNoweight", "clean-Jets w/o weight" , 100, 0, 2500} , "Selected_jetpt", "one", "");
+    add1DHist( {"hNum_selected_Noweight", "Number of clean-Jets w/o weight" , 11, -0.5, 10.5} , "ncleanjetspass", "one", "");
 /*    if(!_isData){
       add1DHist( {"hbtag_SF_bcflav_central", "btag SF bcflav central" , 100, 0, 2} , "btag_SF_bcflav_central", "one", "");
       add1DHist( {"hbtag_SF_lflav_central", "btag SF lflav central" , 100, 0, 2} , "btag_SF_lflav_central", "one", "");
@@ -2689,7 +2715,6 @@ void BaseAnalyser::setupObjects()
 	if(!_isData){
 	  this->calculateEvWeight(); // PU, genweight and BTV and Mu and Ele
 	}
-	//selectMET();
 
 }
 

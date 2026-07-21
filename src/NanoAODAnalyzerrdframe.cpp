@@ -2160,7 +2160,7 @@ std::string NanoAODAnalyzerrdframe::JetID(int cutbasedID)
 
     std::string output;
 
-	if (_correction_jetid && cutbasedID == 6 && !_jetid_workingpoint.empty())
+	if (_correction_jetid && cutbasedID == 6 && !_jetid_workingpoint.empty() && _year==2024)
 	{
 		std::string column_name = "jetid_" + _jetid_workingpoint + "_mask";
 		if (!_jetid_mask_defined)

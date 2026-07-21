@@ -13,10 +13,10 @@ config = {
         'outtreename': "outputTree",
 
         #data year (2017,2022,2023,2024)
-        'year': 2024,
+        'year': 2023,
 
         # is ReReco or Ultra Legacy
-        'runtype': '',
+        'runtype': 'PreBPix',
 
         'datatype': -1, # 0=MC ; 1=DATA ; -1=Auto
 
@@ -24,11 +24,11 @@ config = {
         #for correction
         
         # good json file
-        'goodjson' : 'data/GoldenJSON/Cert_Collisions2024_378981_386951_Golden.json',
+        'goodjson' : 'data/GoldenJSON/golden_json_latest_2022.json',
 
         # pileup weight for MC
-        'pileupfname': 'data/LUM/2024/puWeights_BCDEFGHI.json',
-        'pileuptag': 'Collisions24_BCDEFGHI_goldenJSON',
+        'pileupfname': 'data/LUM/2022_Summer22EE/puWeights.json',
+        'pileuptag': 'Collisions2022_359022_362760_eraEFG_GoldenJson',
 
         # json filename for BTV correction
         'btvfname': 'data/BTV/2024_Summer24/btagging.json',
@@ -138,12 +138,9 @@ nanoaod_inputdir_outputdir_pairs = [
 
 '''
 nanoaod_inputdir_outputdir_pairs = [
-    # ['/TZQB-Zto2L-4FS_Bin-MLL-30_TuneCP5_13p6TeV_amcatnlo-pythia8/RunIII2024Summer24NanoAODv15-Madgraph_2_6_5_150X_mcRun3_2024_realistic_v2-v2/NANOAODSIM',
-    #  'tzq_3l.root',
-    #  'tzq_3l.out'],
-    ['/store/user/msahoo/2024/TTH-HtoNon2B/part9',
-     'TTH-HtoNon2B_part9_skimed.root',
-     'TTH-HtoNon2B_part9_skimmed.out']
+    ['/TZQB-Zto2L-4FS_MLL-30_TuneCP5_13p6TeV_amcatnlo-pythia8/Run3Summer22EENanoAODv12-130X_mcRun3_2022_realistic_postEE_v6-v2/NANOAODSIM',
+     'tzq_3l-22postEE.root',
+     'tzq_3l-22postEE.out']
 
 ]
 
