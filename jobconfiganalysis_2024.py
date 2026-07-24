@@ -46,8 +46,10 @@ config = {
         'muon_fname': 'data/MUO/2024_Summer24/muon_Z.json', 
         'muonHLTtype': 'NUM_IsoMu24_DEN_CutBasedIdTight_and_PFIsoTight', # not using this 
         'muonRECOtype': 'NUM_TrackerMuons_DEN_genTracks', # not using this 
-        'muonIDtype': 'NUM_TightID_DEN_TrackerMuons', # dont not use this 
-        'muonISOtype': 'NUM_TightPFIso_DEN_TightID',
+        # 'muonIDtype': 'NUM_TightID_DEN_TrackerMuons', # dont not use this
+        'muonIDtype': 'NUM_MediumID_DEN_TrackerMuons', # dont not use this 
+        # 'muonISOtype': 'NUM_TightPFIso_DEN_TightID',
+        'muonISOtype': 'NUM_promptMVA_WP64ID_DEN_MediumID',
 
         # Electron Correction 
         'electron_fname': 'data/EGM/2024_Summer24/electron.json',
@@ -56,7 +58,8 @@ config = {
         'electron_reco_type1': 'RecoAbove75',
         'electron_reco_type2' :  'Reco20to75',
         'electron_reco_type3' :  'RecoBelow20', #not using this 
-        'electron_id_type': 'wp90iso',
+        # 'electron_id_type': 'wp90iso',
+        'electron_id_type': 'PromptMVA-Tight',
 
         # json file name for JERC
         'jercfname': 'data/JERC/2024_Summer24/jet_jerc.json',

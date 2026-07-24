@@ -151,12 +151,13 @@ void NanoAODAnalyzerrdframe::setupJetMETCorrection(string fname, string jettag,s
 	cout<<"JERC JSON file : " << fname<<endl;
     if (_isData){
         _jetCorrector = _correction_jerc->compound().at(jettag);//jerctag#JSON (JEC,compound)compoundLevel="L1L2L3Res"
+	    cout<< "JET tag in JSON : " << jettag << endl;
     }
     else {
         cout<<"JERC JSON file : " << fname<<endl;
         _jetCorrector = _correction_jerc->compound().at(jettagMC);
+	    cout<< "JET tag in JSON : " << jettagMC << endl;
     }
-	cout<< "JET tag in JSON : " << jettag << endl;
     for (const auto& tag : _jercunctag){
         _jetCorrectionUnc.emplace_back(tag, _correction_jerc->at(tag));
     }

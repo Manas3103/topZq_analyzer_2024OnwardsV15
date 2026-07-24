@@ -5,6 +5,31 @@ import json
 import time
 
 
+# -----------------------------------
+# Branches that should NOT be histogrammed by value.
+# Instead: filter (branch > 0), then fill a "count" histogram
+# with a constant value of 1, weighted by total_weight.
+# This effectively gives the normalized yield (sum of weights)
+# of events where the branch is > 0.
+# -----------------------------------
+COUNT_ONLY_BRANCHES = [
+    "ThreeLRegion_leadingLepton_pt",
+    "uuu_ThreeLRegion_leadingLepton_pt",
+    "uue_ThreeLRegion_leadingLepton_pt",
+    "eeu_ThreeLRegion_leadingLepton_pt",
+    "eee_ThreeLRegion_leadingLepton_pt",
+]
+
+
+def get_yield_hist_name(branch):
+    """
+    Map a count-only branch name to its histogram name/title.
+    e.g. "ThreeLRegion_leadingLepton_pt"     -> "ThreeLRegion_Yield"
+         "uuu_ThreeLRegion_leadingLepton_pt" -> "uuu_ThreeLRegion_Yield"
+    """
+    return branch.replace("_leadingLepton_pt", "_Yield")
+
+
 def load_config(config_file):
     with open(config_file, "r") as f:
         return json.load(f)
@@ -58,8 +83,7 @@ def create_normalized_histogram_rdf(filename,
             df = df.Define(
                 "total_weight",
                 # f"((genWeight * ele_SF_central * muon_SF_central * btag_SF_lflav_vector[0] * btag_SF_bcflav_vector[0])/{sumw_branch}) * {normalization_factor}"  
-                # f"((genWeight * ele_SF_central * muon_SF_central * btag_SF_lflav_vector[0])/{sumw_branch}) * {normalization_factor}"  
-                f"((pugenWeight * ele_SF_central * muon_SF_central * btag_SF_lflav_vector[0])/{sumw_branch}) * {normalization_factor}"  
+                f"((genWeight * ele_SF_central * muon_SF_central * btag_SF_lflav_vector[0])/{sumw_branch}) * {normalization_factor}"  
             )#has done with evWeight
         else:
             print("Warning: weight branches missing, using normalization only")
@@ -90,6 +114,25 @@ def create_normalized_histogram_rdf(filename,
             print(f"Warning: Branch {branch} not found, skipping.")
             continue
 
+        if branch in COUNT_ONLY_BRANCHES:
+            # -------------------------------------------------
+            # Special handling: filter branch > 0, then fill a
+            # single-bin "count" histogram with value 1,
+            # weighted by total_weight (i.e. normalized yield).
+            # -------------------------------------------------
+            filtered_df = df.Filter(f"{branch} > 0", f"{branch}_gt0")
+
+            one_col = f"{branch}_one"
+            filtered_df = filtered_df.Define(one_col, "1.0")
+
+            hist_name = get_yield_hist_name(branch)
+            histograms[branch] = filtered_df.Histo1D(
+                (hist_name, hist_name, 1, 0.0, 2.0),
+                one_col,
+                "total_weight"
+            )
+            continue
+
         bins = int(config["bins"])
         xmin = float(config["xmin"])
         xmax = float(config["xmax"])
@@ -97,6 +140,29 @@ def create_normalized_histogram_rdf(filename,
         histograms[branch] = df.Histo1D(
             (branch, branch, bins, xmin, xmax),
             branch,
+            "total_weight"
+        )
+
+    # -----------------------------------
+    # Also handle count-only branches even if they are not
+    # listed in the JSON config (so you don't have to add
+    # bin/range entries for them there).
+    # -----------------------------------
+    for branch in COUNT_ONLY_BRANCHES:
+        if branch in histograms:
+            continue
+        if branch not in columns:
+            print(f"Warning: Branch {branch} not found, skipping.")
+            continue
+
+        filtered_df = df.Filter(f"{branch} > 0", f"{branch}_gt0")
+        one_col = f"{branch}_one"
+        filtered_df = filtered_df.Define(one_col, "1.0")
+
+        hist_name = get_yield_hist_name(branch)
+        histograms[branch] = filtered_df.Histo1D(
+            (hist_name, hist_name, 1, 0.0, 2.0),
+            one_col,
             "total_weight"
         )
 

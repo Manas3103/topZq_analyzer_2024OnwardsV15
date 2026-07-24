@@ -11,12 +11,12 @@ error  = logs/$(filetag)_$(ClusterId)_$(Process).err
 log    = logs/$(filetag)_$(ClusterId).log
 
 should_transfer_files=YES
-transfer_input_files= runjob_hist_py.sh, create_hist_rdf.py, 2024_MC.txt, hist_config.json, 2024_MC_file_modified.txt
+transfer_input_files= runjob_hist_py.sh, create_hist_rdf.py, 2024_MC.txt, hist_config.json, 2024_MC_file_modified.txt, create_hist_rdf_modified.py
 when_to_transfer_output=ON_EXIT_OR_EVICT
 
 request_cpus=1
 request_memory=8 GB
 request_disk= 20 GB
 
-queue filename, crossection from 2024_MC.txt 
-# queue filename, crossection from General.txt
+# queue filename, crossection from 2024_MC.txt 
+queue filename, crossection from General.txt

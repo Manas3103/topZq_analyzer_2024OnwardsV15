@@ -93,7 +93,9 @@ void BaseAnalyser::defineCuts()
     // Basic Event Quality
     // -----------------------------------------------------
     const std::string minimalSelection =
-        "NgoodLepton >= 3 && PV_npvsGood >= 1";
+        // "NgoodLepton >= 3 &&"
+        "PV_npvsGood >= 1 &&"
+        "threeLRegion ==1";
 
     const std::string metFilters =
         "Flag_goodVertices && "
@@ -135,19 +137,23 @@ void BaseAnalyser::selectElectrons()
     // =====================================================================
     // baselineElectrons_isPromptBaseline Electron Selection
     // =====================================================================
-    _rlm = _rlm.Define("baselineElectrons", 
-                "Electron_pt_corr > 20.0 && abs(Electron_eta) < 2.5 &&  Electron_cutBased >=4 &&" 
-                "!(abs(Electron_eta) > 1.442 && abs(Electron_eta) < 1.566) && " 
-                "Electron_miniPFRelIso_all < 0.40 && abs(Electron_dxy) < 0.05 && " 
-                "abs(Electron_dz) < 0.10 && Electron_lostHits <= 1 && " 
-                "Electron_hoe < 0.10 && Electron_convVeto &&" 
-                "((abs(Electron_eta) < 1.479 && Electron_sieie < 0.011) || " // Barrel cut 
-                "(abs(Electron_eta) >= 1.479 && abs(Electron_eta) < 2.5 && Electron_sieie < 0.030)) &&" // Endcap cut 
-                "Electron_sip3d < 8 && Electron_eInvMinusPInv > -0.04 "
-                // "&& Electron_promptMVA > 0.90"
-                ); 
+    // _rlm = _rlm.Define("baselineElectrons", 
+    //         "Electron_pt_corr > 20.0 && abs(Electron_eta) < 2.5 && "
+    //             "Electron_cutBased >=4 &&" 
+    //             "!(abs(Electron_eta) > 1.442 && abs(Electron_eta) < 1.566) && " 
+    //             "Electron_miniPFRelIso_all < 0.40 && abs(Electron_dxy) < 0.05 && " 
+    //             "abs(Electron_dz) < 0.10 && Electron_lostHits <= 1 && " 
+    //             "Electron_hoe < 0.10 && Electron_convVeto &&" 
+    //             "((abs(Electron_eta) < 1.479 && Electron_sieie < 0.011) || " // Barrel cut 
+    //             "(abs(Electron_eta) >= 1.479 && abs(Electron_eta) < 2.5 && Electron_sieie < 0.030)) &&" // Endcap cut 
+    //             "Electron_sip3d < 8 && Electron_eInvMinusPInv > -0.04 "
+    //             // "&& Electron_promptMVA > 0.90"
+    //             ); 
 
-    // _rlm = _rlm.Define("baselineElectrons", "Electron_pt > 15.0 && abs(Electron_eta) < 2.4 && !(abs(Electron_eta) > 1.442 && abs(Electron_eta) < 1.566) && Electron_cutBased>=4");  //Tight ID
+    _rlm = _rlm.Define("baselineElectrons", 
+            "Electron_pt_corr > 20.0 && abs(Electron_eta) < 2.4 && "
+            " !(abs(Electron_eta) > 1.442 && abs(Electron_eta) < 1.566)"
+            " && Electron_promptMVA > 0.90 && Electron_miniPFRelIso_all < 0.40");  //Tight ID
 
 
     // Additional variables for baseline electrons
@@ -208,21 +214,17 @@ void BaseAnalyser::selectMuons()
     // ====================================================================
     // Baseline Muon Selection
     // // =====================================================================
-     _rlm = _rlm.Define("baselineMuons", 
-		        "Muon_pt_corr > 20.0 && abs(Muon_eta) < 2.4 && " 
-                "Muon_miniPFRelIso_all < 0.4 && abs(Muon_dxy) < 0.05 && " 
-		        "abs(Muon_dz) < 0.10 && Muon_sip3d < 8.0 && " 
-		        "Muon_tightId && Muon_isPFcand" 
-		        "&& (Muon_isGlobal || Muon_isTracker)"
-                // "&& Muon_promptMVA > 0.64"
-                ); 
+     // _rlm = _rlm.Define("baselineMuons", 
+		        // "Muon_pt_corr > 20.0 && abs(Muon_eta) < 2.4 && " 
+     //            "Muon_miniPFRelIso_all < 0.4 && abs(Muon_dxy) < 0.05 && " 
+		        // "abs(Muon_dz) < 0.10 && Muon_sip3d < 8.0 && " 
+		        // "Muon_tightId && Muon_isPFcand" 
+		        // "&& (Muon_isGlobal || Muon_isTracker)"
+     //            // "&& Muon_promptMVA > 0.64"
+     //            ); 
 
-    // _rlm = _rlm.Define("baselineMuons", "Muon_pt > 15 && abs(Muon_eta) < 2.4 && Muon_miniPFRelIso_all < 0.40 && goodMuonsID");
-    // _rlm = _rlm.Define("baselineMuons", "Muon_pt > 15 && abs(Muon_eta) < 2.4 && Muon_promptMVA > 0.64 && goodMuonsID");
+    _rlm = _rlm.Define("baselineMuons", "Muon_pt > 20 && abs(Muon_eta) < 2.4 && Muon_miniPFRelIso_all < 0.40 && Muon_promptMVA > 0.64");
 
-
-	// Additional variables for baseline muons  the value of pt has to be >15 because correction is lot avalaible below 15 
-    /* _rlm = _rlm.Define("baselineMuons_pt", "Muon_pt_corr[baselineMuons]") */
 
 
     _rlm = _rlm.Define("baselineMuons_pt", "Muon_pt_corr[baselineMuons]")
@@ -411,6 +413,13 @@ void BaseAnalyser::selectJets()
            .Redefine("goodJets_idx", "ROOT::VecOps::Take(goodJets_idx, goodJetPtSortIdx)")
            .Define("NgoodJets", "int(goodJets_pt.size())")
            .Define("goodJets_4vecs", ::generate_4vec, {"goodJets_pt", "goodJets_eta", "goodJets_phi", "goodJets_mass"});
+
+_rlm = _rlm.Define("good_leadingJet_pt",      "goodJets_pt.size()  > 0 ? goodJets_pt[0]  : -999.f")
+           .Define("good_subleadingJet_pt",   "goodJets_pt.size()  > 1 ? goodJets_pt[1]  : -999.f")
+           .Define("good_leadingJet_eta",     "goodJets_eta.size()  > 0 ? goodJets_eta[0]  : -999.f")
+           .Define("good_subleadingJet_eta",  "goodJets_eta.size()  > 1 ? goodJets_eta[1]  : -999.f");
+
+
 
     // =====================================================
     // 3. MC-ONLY INFORMATION
@@ -1536,8 +1545,43 @@ void BaseAnalyser::defineSignalRegion()
         .Define("uue_Region", "channel_code == 2 && NgoodLepton == 3 && inzpeak && goodLepton_ptCut")
         .Define("uuu_Region", "channel_code == 3 && NgoodLepton == 3 && inzpeak && goodLepton_ptCut")
         .Define("threeLRegion", "channel_code >= 0 && NgoodLepton == 3 && inzpeak && goodLepton_ptCut")
+        .Define("one_muon_Region", "abs(Lepton_pdgId[0]) == 13 && NgoodLepton == 1")
+        .Define("one_electron_Region", "abs(Lepton_pdgId[0]) == 11 && NgoodLepton == 1 ")
         .Define("BaseRegion", "threeLRegion && ncleanjetspass >= 2 && ncleanbjetspass >= 1");
 
+    // _rlm = _rlm
+    //     .Define("one_muon_Region_leadingLepton_pt","one_muon_Region ? goodLepton_pt[0] : -999.f")
+    //     .Define("one_muon_Region_leadingLepton_eta","one_muon_Region ? goodLepton_eta[0] : -999.f")
+    //     .Define("one_muon_Region_nJets","one_muon_Region ? int(Selected_jetpt.size()) : -1")
+    //     .Define("one_muon_Region_muon_multiplicity","one_muon_Region ? sum_goodLepton_flavor : -1")
+    //     .Define("one_muon_Region_goodMET_pt","one_muon_Region ? goodMET_pt : std::numeric_limits<float>::quiet_NaN()")
+    //     .Define("one_muon_Region_goodMET_phi","one_muon_Region ? goodMET_phi : std::numeric_limits<float>::quiet_NaN()")
+    //     .Define("one_muon_Region_nbJets","one_muon_Region ? int(Selected_bjetpt.size()) : -1")
+    //     .Define("one_muon_Region_leadingJet_pt","one_muon_Region ? leadingJet_pt : -999.f")
+    //     .Define("one_muon_Region_subleadingJet_pt","one_muon_Region ? subleadingJet_pt : -999.f")
+    //     .Define("one_muon_Region_leadingbJet_pt","one_muon_Region ? leadingbJet_pt : -999.f")
+    //     .Define("one_muon_Region_subleadingbJet_pt","one_muon_Region ? subleadingbJet_pt : -999.f")
+    //     .Define("one_muon_Region_leadingJet_eta","one_muon_Region ? leadingJet_eta : -999.f")
+    //     .Define("one_muon_Region_subleadingJet_eta","one_muon_Region ? subleadingJet_eta : -999.f")
+    //     .Define("one_muon_Region_leadingbJet_eta","one_muon_Region ? leadingbJet_eta : -999.f")
+    //     .Define("one_muon_Region_subleadingbJet_eta","one_muon_Region ? subleadingbJet_eta : -999.f");
+
+    // _rlm = _rlm
+    //     .Define("one_electron_Region_leadingLepton_pt","one_electron_Region ? goodLepton_pt[0] : -999.f")
+    //     .Define("one_electron_Region_leadingLepton_eta","one_electron_Region ? goodLepton_eta[0] : -999.f")
+    //     .Define("one_electron_Region_nJets","one_electron_Region ? int(Selected_jetpt.size()) : -1")
+    //     .Define("one_electron_Region_muon_multiplicity","one_electron_Region ? sum_goodLepton_flavor : -1")
+    //     .Define("one_electron_Region_goodMET_pt","one_electron_Region ? goodMET_pt : std::numeric_limits<float>::quiet_NaN()")
+    //     .Define("one_electron_Region_goodMET_phi","one_electron_Region ? goodMET_phi : std::numeric_limits<float>::quiet_NaN()")
+    //     .Define("one_electron_Region_nbJets","one_electron_Region ? int(Selected_bjetpt.size()) : -1")
+    //     .Define("one_electron_Region_leadingJet_pt","one_electron_Region ? leadingJet_pt : -999.f")
+    //     .Define("one_electron_Region_subleadingJet_pt","one_electron_Region ? subleadingJet_pt : -999.f")
+    //     .Define("one_electron_Region_leadingbJet_pt","one_electron_Region ? leadingbJet_pt : -999.f")
+    //     .Define("one_electron_Region_subleadingbJet_pt","one_electron_Region ? subleadingbJet_pt : -999.f")
+    //     .Define("one_electron_Region_leadingJet_eta","one_electron_Region ? leadingJet_eta : -999.f")
+    //     .Define("one_electron_Region_subleadingJet_eta","one_electron_Region ? subleadingJet_eta : -999.f")
+    //     .Define("one_electron_Region_leadingbJet_eta","one_electron_Region ? leadingbJet_eta : -999.f")
+    //     .Define("one_electron_Region_subleadingbJet_eta","one_electron_Region ? subleadingbJet_eta : -999.f");
 
 	_rlm = _rlm
 	    .Define("BaseRegion_leadingLepton_pt","BaseRegion && leadingLepton_pt > 0 ? leadingLepton_pt : -999.f")
@@ -1565,11 +1609,13 @@ void BaseAnalyser::defineSignalRegion()
 	    .Define("ThreeLRegion_subleadingLepton_eta","threeLRegion && subleadingLepton_pt > 0 ? subleadingLepton_eta : -999.f")
 	    .Define("ThreeLRegion_trailingLepton_eta","threeLRegion && trailingLepton_pt > 0 ? trailingLepton_eta : -999.f")
 	    .Define("ThreeLRegion_nJets","threeLRegion ? int(Selected_jetpt.size()) : -1")
+	    .Define("ThreeLRegion_nJets_goodJet","threeLRegion ? int(goodJets_pt.size()) : -1")
+	    .Define("ThreeLRegion_nJets_from_JET","threeLRegion ? int(Jet_pt.size()) : -1")
 	    .Define("ThreeLRegion_muon_multiplicity","threeLRegion ? sum_goodLepton_flavor : -1")
-        // .Define("ThreeLRegion_leadingJet_pt",  "threeLRegion ? leadingJet_pt  : -999.f")
-        // .Define("ThreeLRegion_leadingJet_eta", "threeLRegion ? leadingJet_eta : -999.f")
         .Define("ThreeLRegion_goodMET_pt",  "threeLRegion ? goodMET_pt  : std::numeric_limits<float>::quiet_NaN()")
         .Define("ThreeLRegion_goodMET_phi", "threeLRegion ? goodMET_phi : std::numeric_limits<float>::quiet_NaN()")
+        .Define("ThreeLRegion_PuppiMET_pt",  "threeLRegion ? PuppiMET_pt: std::numeric_limits<float>::quiet_NaN()")
+        .Define("ThreeLRegion_PuppiMET_phi", "threeLRegion ? PuppiMET_phi: std::numeric_limits<float>::quiet_NaN()")
 	    .Define("ThreeLRegion_nbJets","threeLRegion ? int(Selected_bjetpt.size()) : -1");
 
 	_rlm = _rlm
@@ -2124,8 +2170,11 @@ void BaseAnalyser::defineMoreVars()
     //jetmet corr
     addVartoStore("Jet_pt_corr.*");
     addVartoStore("Selected_.*");
+    addVartoStore("good_.*");
 
 
+    addVartoStore("PuppiMET_pt.*");
+    addVartoStore("PuppiMET_phi.*");
     addVartoStore("PuppiMET_pt_corr.*");
     addVartoStore("PuppiMET_phi_corr.*");
     addVartoStore("goodMET_pt");
@@ -2161,14 +2210,14 @@ void BaseAnalyser::defineMoreVars()
     addVartoStore("RecoilingJet_eta");
  
 
-    addVartoStore("ThreeLRegion_.*");
-    addVartoStore("uuu_ThreeLRegion_.*");
-    addVartoStore("uue_ThreeLRegion_.*");
-    addVartoStore("eeu_ThreeLRegion_.*");
-    addVartoStore("eee_ThreeLRegion_.*");
+    addVartoStore("ThreeLRegion.*");
+    addVartoStore("uuu_ThreeLRegion.*");
+    addVartoStore("uue_ThreeLRegion.*");
+    addVartoStore("eeu_ThreeLRegion.*");
+    addVartoStore("eee_ThreeLRegion.*");
 
-    addVartoStore("WZ_Region_.*");
-    addVartoStore("BaseRegion_.*");
+    addVartoStore("WZ_Region.*");
+    addVartoStore("BaseRegion.*");
 
 
     // 3-lepton region variables
@@ -2638,11 +2687,17 @@ void BaseAnalyser::bookHists()
     //====================================================================================================//
     //}
 	
-   if(!_isData && !isDefined("genWeight")){
+   if(!_isData){
     add1DHist( {"hnevents", "Number of Events", 2, -0.5, 1.5}, "one", "genWeight", "");
     add1DHist( {"hnevents_pugenweight", "Number of Events with pugenWeight", 2, -0.5, 1.5}, "one", "pugenWeight", "");
+    add1DHist( {"hselected_jetpt_pugenweight", "clean-Jets w/o weight" , 100, 0, 2500} , "Selected_jetpt", "pugenWeight", "");
+    add1DHist( {"hNum_selectedjets_puweight", "Number of clean-Jets w/o weight" , 11, -0.5, 10.5} , "ncleanjetspass", "pugenWeight", "");
+    add1DHist( {"hNum_goodjets_puweight", "Number of clean-Jets w/o weight" , 11, -0.5, 10.5} , "NgoodJets", "pugenWeight", "");
    }
     add1DHist( {"hnevents_no_weight", "Number of Events w/o", 2, -0.5, 1.5}, "one", "one", "");
+    add1DHist( {"hselected_jetptNoweight", "clean-Jets w/o weight" , 100, 0, 2500} , "Selected_jetpt", "one", "");
+    add1DHist( {"hNum_selectedjets_Noweight", "Number of clean-Jets w/o weight" , 11, -0.5, 10.5} , "ncleanjetspass", "one", "");
+    add1DHist( {"hNum_goodjets_Noweight", "Number of clean-Jets w/o weight" , 11, -0.5, 10.5} , "NgoodJets", "one", "");
     
   //  add1DHist( {"hNgoodElectrons", "NumberofGoodElectrons", 5, 0.0, 5.0}, "NgoodElectrons", "evWeight", "");
     
@@ -2655,7 +2710,8 @@ void BaseAnalyser::bookHists()
     // add1DHist( {"hselected_jet1pt", "SelectedJet_1 pt no weight" , 100, 0, 1000} , "Selected_jet1pt", "evWeight", "");
     // add1DHist( {"hselected_jetptWithweight", "clean-Jets with weight" , 100, 0, 2500} , "Selected_jetpt", "evWeight", "");
     add1DHist( {"hselected_jetptNoweight", "clean-Jets w/o weight" , 100, 0, 2500} , "Selected_jetpt", "one", "");
-    add1DHist( {"hNum_selected_Noweight", "Number of clean-Jets w/o weight" , 11, -0.5, 10.5} , "ncleanjetspass", "one", "");
+    add1DHist( {"hNum_selectedjets_Noweight", "Number of clean-Jets w/o weight" , 11, -0.5, 10.5} , "ncleanjetspass", "one", "");
+    add1DHist( {"hNum_goodjets_Noweight", "Number of clean-Jets w/o weight" , 11, -0.5, 10.5} , "NgoodJets", "one", "");
 /*    if(!_isData){
       add1DHist( {"hbtag_SF_bcflav_central", "btag SF bcflav central" , 100, 0, 2} , "btag_SF_bcflav_central", "one", "");
       add1DHist( {"hbtag_SF_lflav_central", "btag SF lflav central" , 100, 0, 2} , "btag_SF_lflav_central", "one", "");
@@ -2691,6 +2747,7 @@ void BaseAnalyser::setupObjects()
 {
 	// Object selection will be defined in sequence.
 	// Selected objects will be stored in new vectors.
+    
 	selectElectrons();
 	selectMuons();
 	selectJets();

@@ -1,0 +1,718 @@
+Analysing through Run 2024
+Default run version : PreEE , PostEE , PreBPix, PostBPix is not selected! 
+-------------------------------------------------------------------
+Default root version :checking out gen branches! 
+-------------------------------------------------------------------
+input file is DATA
+Before crash!!
+================================//=================================
+Line : 1956 Function : setHLT
+================================//=================================
+ HLT names =  HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL==1 || HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ==1 || HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ==1 || HLT_Mu37_Ele27_CaloIdL_MW==1 || HLT_Mu27_Ele37_CaloIdL_MW==1 || HLT_DiMu9_Ele9_CaloIdL_TrackIdL_DZ==1 || HLT_Mu8_DiEle12_CaloIdL_TrackIdL==1 || HLT_Mu8_DiEle12_CaloIdL_TrackIdL_DZ==1 || HLT_Ele30_WPTight_Gsf==1 || HLT_Ele32_WPTight_Gsf==1 || HLT_Ele35_WPTight_Gsf==1 || HLT_Ele38_WPTight_Gsf==1 || HLT_Ele40_WPTight_Gsf==1 || HLT_Ele115_CaloIdVT_GsfTrkIdT==1 || HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL==1 || HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ==1 || HLT_DoubleEle33_CaloIdL_MW==1 || HLT_DoubleEle25_CaloIdL_MW==1 || HLT_DoubleEle27_CaloIdL_MW==1 || HLT_Ele16_Ele12_Ele8_CaloIdL_TrackIdL==1 || HLT_IsoMu24==1 || HLT_IsoMu24_eta2p1==1 || HLT_IsoMu27==1 || HLT_Mu50==1 || HLT_TripleMu_10_5_5_DZ==1 || HLT_TripleMu_12_10_5==1 || HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8==1 || HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8==1 || HLT_Mu19_TrkIsoVVL_Mu9_TrkIsoVVL_DZ_Mass8==1 || HLT_Mu19_TrkIsoVVL_Mu9_TrkIsoVVL_DZ_Mass3p8==1 
+set up Corrections!
+Electron scaling and smearing filename   : data/EGM/2024_Summer24/electronSS_EtDependent.json
+muon scaling and smearing filename :data/MUO/2024_Summer24/muon_scalesmearing.json
+Jrt veto JSON FILE : data/JERC/2024_Summer24/jetvetomaps.json
+SETUP JETMET correction
+JERC JSON file : data/JERC/2024_Summer24/jet_jerc.json
+JET tag in JSON : Summer24Prompt24_V3_DATA_L1L2L3Res_AK4PFPuppi
+JET uncertainty tag in JSON : Summer24Prompt24_V3_MC_Total_AK4PFPuppi
+JER tag in json: Summer24Prompt24_JRV1_MC_ScaleFactor_AK4PFPuppi
+================================//=================================
+Loaded JetID JSON file: data/JERC/2024_Summer24/jetid.json
+Applying JET/MET corrections
+Defined MET columns: PuppiMET_pt_corr, PuppiMET_phi_corr
+Apply Electron Pt correction
+Applying Muon Pt correction using correctionlib
+Muon Pt correction applied successfully
+
+=============================================
+Line: 79 | Function: defineCuts
+=============================================
+---------------------------------------------------
+Total entries: 551343
+---------------------------------------------------
+================================//=================================
+Line : 1956 Function : setHLT
+================================//=================================
+ HLT names =  HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL==1 || HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ==1 || HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ==1 || HLT_Mu37_Ele27_CaloIdL_MW==1 || HLT_Mu27_Ele37_CaloIdL_MW==1 || HLT_DiMu9_Ele9_CaloIdL_TrackIdL_DZ==1 || HLT_Mu8_DiEle12_CaloIdL_TrackIdL==1 || HLT_Mu8_DiEle12_CaloIdL_TrackIdL_DZ==1 || HLT_Ele30_WPTight_Gsf==1 || HLT_Ele32_WPTight_Gsf==1 || HLT_Ele35_WPTight_Gsf==1 || HLT_Ele38_WPTight_Gsf==1 || HLT_Ele40_WPTight_Gsf==1 || HLT_Ele115_CaloIdVT_GsfTrkIdT==1 || HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL==1 || HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ==1 || HLT_DoubleEle33_CaloIdL_MW==1 || HLT_DoubleEle25_CaloIdL_MW==1 || HLT_DoubleEle27_CaloIdL_MW==1 || HLT_Ele16_Ele12_Ele8_CaloIdL_TrackIdL==1 || HLT_IsoMu24==1 || HLT_IsoMu24_eta2p1==1 || HLT_IsoMu27==1 || HLT_Mu50==1 || HLT_TripleMu_10_5_5_DZ==1 || HLT_TripleMu_12_10_5==1 || HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8==1 || HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8==1 || HLT_Mu19_TrkIsoVVL_Mu9_TrkIsoVVL_DZ_Mass8==1 || HLT_Mu19_TrkIsoVVL_Mu9_TrkIsoVVL_DZ_Mass3p8==1 
+select good electrons
+================================//=================================
+Line : 130 Function : selectElectrons
+================================//=================================
+select good muons
+================================//=================================
+Line : 205 Function : selectMuons
+================================//=================================
+================================//=================================
+Line : 2087 Function : MuonID
+================================//=================================
+ LOOSE Muon ID requested  == 2
+-------------------------------------------------------------------
+select good jets
+================================//=================================
+Line : 274 Function : selectJets
+================================//=================================
+================================//=================================
+Line : 662 Function : selectMET
+================================//=================================
+================================//=================================
+==================CORRECT MET HAS BEEN SELECTED====================
+================================//=================================
+Checking overlaps between jets and leptons
+Applying Jet veto map...
+merge electrons and muons
+================================//=================================
+Line : 780 Function : mergeLeptons
+================================//=================================
+Define inzpeak
+================================//=================================
+Line : 929 Function : defineInZPeak
+================================//=================================
+Defining Signal Region
+================================//=================================
+Line : 1530 Function : defineSignalRegion
+================================//=================================
+================================//=================================
+Line : 2785 Function : setupAnalysis
+================================//=================================
+year====2024==runtype=== 
+================================//=================================
+Line : 2139 Function : defineMoreVars
+================================//=================================
+================================//=================================
+Line : 2677 Function : bookHists
+================================//=================================
+setting up definitions, cuts, and histograms
+PuppiMET_pt_corr.* not found at 00
+PuppiMET_phi_corr.* not found at 00
+ThreeLSignal_leadingLepton_pt not found at 00
+ThreeLSignalRegion_nElectron not found at 00
+ThreeLSignalRegion_nMuon not found at 00
+ThreeLSignalRegion_leadingJet_pt not found at 00
+ThreeLSignalRegion_Jet_HT not found at 00
+zboson_mass_3LRegion not found at 00
+nElectron_T3E_TR not found at 00
+goodLepton3_.* not found at 00
+goodLepton4_.* not found at 00
+sum_selectedJet_pt not found at 00
+sum_lepton_MET_pt not found at 00
+Selected_jeteta_maxAbs not found at 00
+RecoilingJet_pt not found at 00
+RecoilingJet_eta not found at 00
+ncleanjetspass_SignalRegion not found at 00
+ncleanbjetspass_SignalRegion not found at 00
+ncleanjetspass_WZ_Region not found at 00
+Wboson_transversMass_WZ_Region not found at 00
+ncleanjetspass_WZ_Region_modified not found at 00
+Wboson_transversMass_WZ_Region_modified not found at 00
+ncleanjetspass_X_gamma_Region not found at 00
+ncleanbjetspass_X_gamma_Region not found at 00
+ncleanjetspass_NP_2_Region not found at 00
+ncleanbjetspass_NP_2_Region not found at 00
+ncleanjetspass_NP_1_Region not found at 00
+ncleanbjetspass_NP_1_Region not found at 00
+ncleanjetspass_ZZ_Region not found at 00
+mass_of_4L_ZZ_Region not found at 00
+Z_mass1_ZZ_Region not found at 00
+Z_mass2_ZZ_Region not found at 00
+ncleanjetspass_ttZ_Region not found at 00
+ncleanbjetspass_ttZ_Region not found at 00
+muon_multiplicity_SignalRegion not found at 00
+muon_multiplicity_WZ_Region not found at 00
+muon_multiplicity_WZ_Region_modified not found at 00
+muon_multiplicity_X_gamma_Region not found at 00
+muon_multiplicity_NP_2_Region not found at 00
+muon_multiplicity_NP_1_Region not found at 00
+muon_multiplicity_ZZ_Region not found at 00
+muon_multiplicity_ttZ_Region not found at 00
+SR_leadLepton_pt not found at 00
+SR_leadLepton_eta not found at 00
+SR_subleadLepton_pt not found at 00
+SR_subleadLepton_eta not found at 00
+SR_trailLepton_pt not found at 00
+SR_trailLepton_eta not found at 00
+SR_tzq_leadLepton_pt not found at 00
+SR_tzq_leadLepton_eta not found at 00
+SR_tzq_subleadLepton_pt not found at 00
+SR_tzq_subleadLepton_eta not found at 00
+SR_tzq_trailLepton_pt not found at 00
+SR_tzq_trailLepton_eta not found at 00
+SR_ttz_leadLepton_pt not found at 00
+SR_ttz_leadLepton_eta not found at 00
+SR_ttz_subleadLepton_pt not found at 00
+SR_ttz_subleadLepton_eta not found at 00
+SR_ttz_trailLepton_pt not found at 00
+SR_ttz_trailLepton_eta not found at 00
+WZ_leadLepton_pt not found at 00
+WZ_leadLepton_eta not found at 00
+WZ_subleadLepton_pt not found at 00
+WZ_subleadLepton_eta not found at 00
+WZ_trailLepton_pt not found at 00
+WZ_trailLepton_eta not found at 00
+XG_leadLepton_pt not found at 00
+XG_leadLepton_eta not found at 00
+XG_subleadLepton_pt not found at 00
+XG_subleadLepton_eta not found at 00
+XG_trailLepton_pt not found at 00
+XG_trailLepton_eta not found at 00
+NP2_leadLepton_pt not found at 00
+NP2_leadLepton_eta not found at 00
+NP2_subleadLepton_pt not found at 00
+NP2_subleadLepton_eta not found at 00
+NP2_trailLepton_pt not found at 00
+NP2_trailLepton_eta not found at 00
+NP1_leadLepton_pt not found at 00
+NP1_leadLepton_eta not found at 00
+NP1_subleadLepton_pt not found at 00
+NP1_subleadLepton_eta not found at 00
+NP1_trailLepton_pt not found at 00
+NP1_trailLepton_eta not found at 00
+ZZ_leadLepton_pt not found at 00
+ZZ_leadLepton_eta not found at 00
+ZZ_subleadLepton_pt not found at 00
+ZZ_subleadLepton_eta not found at 00
+ZZ_trailLepton_pt not found at 00
+ZZ_trailLepton_eta not found at 00
+ttZ4L_leadLepton_pt not found at 00
+ttZ4L_leadLepton_eta not found at 00
+ttZ4L_subleadLepton_pt not found at 00
+ttZ4L_subleadLepton_eta not found at 00
+ttZ4L_trailLepton_pt not found at 00
+ttZ4L_trailLepton_eta not found at 00
+SR_leadingJet_pt not found at 00
+SR_leadingJet_eta not found at 00
+SR_tzq_leadingJet_pt not found at 00
+SR_tzq_leadingJet_eta not found at 00
+SR_ttz_leadingJet_pt not found at 00
+SR_ttz_leadingJet_eta not found at 00
+WZ_leadingJet_pt not found at 00
+WZ_leadingJet_eta not found at 00
+XG_leadingJet_pt not found at 00
+XG_leadingJet_eta not found at 00
+NP2_leadingJet_pt not found at 00
+NP2_leadingJet_eta not found at 00
+NP1_leadingJet_pt not found at 00
+NP1_leadingJet_eta not found at 00
+ZZ_leadingJet_pt not found at 00
+ZZ_leadingJet_eta not found at 00
+ttZ4L_leadingJet_pt not found at 00
+ttZ4L_leadingJet_eta not found at 00
+goodMET_pt not found at 00
+goodMET_phi not found at 00
+SR_goodMET_pt not found at 00
+SR_goodMET_phi not found at 00
+SR_tzq_goodMET_pt not found at 00
+SR_tzq_goodMET_phi not found at 00
+SR_ttz_goodMET_pt not found at 00
+SR_ttz_goodMET_phi not found at 00
+WZ_goodMET_pt not found at 00
+WZ_goodMET_phi not found at 00
+XG_goodMET_pt not found at 00
+XG_goodMET_phi not found at 00
+NP2_goodMET_pt not found at 00
+NP2_goodMET_phi not found at 00
+NP1_goodMET_pt not found at 00
+NP1_goodMET_phi not found at 00
+ZZ_goodMET_pt not found at 00
+ZZ_goodMET_phi not found at 00
+ttZ4L_goodMET_pt not found at 00
+ttZ4L_goodMET_phi not found at 00
+OSSF_pair_count not found at 00
+mZ_compatible_3l not found at 00
+OSSF_selection_with_topLep not found at 00
+OSSF_all_pairs_masses not found at 00
+OSSF_ZPair_mass not found at 00
+OSSF_LowerMassPair_mass not found at 00
+OSSF_category not found at 00
+zboson_mass not found at 00
+nonZ_OSSF_mass not found at 00
+mass_of_3_goodLepton_4BG not found at 00
+topLepton_index not found at 00
+topLepton_pt_new not found at 00
+topLepton_eta_new not found at 00
+topLepton_phi_new not found at 00
+topLepton_charge not found at 00
+topLepton_flavor not found at 00
+OSSF4L_category not found at 00
+OSSF4L_info not found at 00
+OSSF4L_bestZ_mass not found at 00
+OSSF4L_secondZ_mass not found at 00
+mass_of_4L not found at 00
+OSSF_info not found at 00
+OSSF_mass not found at 00
+OSSF_pt not found at 00
+OSSF_eta not found at 00
+OSSF_phi not found at 00
+ntopLepton not found at 00
+topLepton_pt not found at 00
+topLepton_eta not found at 00
+topLepton_phi not found at 00
+Wboson_transversMass not found at 00
+w_pt not found at 00
+w_eta not found at 00
+w_phi not found at 00
+top_mass not found at 00
+top_pt not found at 00
+top_eta not found at 00
+top_phi not found at 00
+b_mass not found at 00
+dphi_lepZ_OSSF not found at 00
+min_dR_bjet_lepton not found at 00
+max_dR_bjet_lepton not found at 00
+max_dphi_jj not found at 00
+max_dphi_jj_confirm not found at 00
+max_ptjj not found at 00
+max_mjj not found at 00
+topLepton_absEta_times_charge not found at 00
+mass_3lepton not found at 00
+dR_b_recoilJet not found at 00
+dR_b_lepton not found at 00
+cosTheta_Polarization_angle not found at 00
+SignalRegion not found at 00
+SignalRegion_tzq not found at 00
+SignalRegion_ttz not found at 00
+totalWeight not found at 00
+globalScale not found at 00
+sumGenWeight not found at 00
+crossSection not found at 00
+
+0
+00
+1
+ nodename
+-------------------------------------------------------------------
+cut : 00 --writing branches
+-------------------------------------------------------------------
+run
+-----branch stored
+luminosityBlock
+-----branch stored
+event
+-----branch stored
+evWeight
+-----branch stored
+A_baselineElectrons_charge
+-----branch stored
+A_baselineElectrons_eta
+-----branch stored
+A_baselineElectrons_idx
+-----branch stored
+A_baselineElectrons_mass
+-----branch stored
+A_baselineElectrons_mvaTTH
+-----branch stored
+A_baselineElectrons_pdgId
+-----branch stored
+A_baselineElectrons_phi
+-----branch stored
+A_baselineElectrons_pt
+-----branch stored
+A_NbaselineElectrons
+-----branch stored
+A_tight_baselineElectrons
+-----branch stored
+baselineMuons_charge
+-----branch stored
+baselineMuons_eta
+-----branch stored
+baselineMuons_idx
+-----branch stored
+baselineMuons_mass
+-----branch stored
+baselineMuons_pdgId
+-----branch stored
+baselineMuons_phi
+-----branch stored
+baselineMuons_pt
+-----branch stored
+NbaselineMuons
+-----branch stored
+Jet_pt_corr
+-----branch stored
+Selected_bjetHT
+-----branch stored
+Selected_bjet_score
+-----branch stored
+Selected_bjeteta
+-----branch stored
+Selected_bjetmass
+-----branch stored
+Selected_bjetphi
+-----branch stored
+Selected_bjetpt
+-----branch stored
+Selected_jetHT
+-----branch stored
+Selected_jetbtag
+-----branch stored
+Selected_jeteta
+-----branch stored
+Selected_jetmass
+-----branch stored
+Selected_jetphi
+-----branch stored
+Selected_jetpt
+-----branch stored
+good_leadingJet_eta
+-----branch stored
+good_leadingJet_pt
+-----branch stored
+good_subleadingJet_eta
+-----branch stored
+good_subleadingJet_pt
+-----branch stored
+PuppiMET_pt
+-----branch stored
+PuppiMET_ptUnclusteredDown
+-----branch stored
+PuppiMET_ptUnclusteredUp
+-----branch stored
+PuppiMET_pt_corr
+-----branch stored
+PuppiMET_pt_corr_vec
+-----branch stored
+PuppiMET_phi
+-----branch stored
+PuppiMET_phiUnclusteredDown
+-----branch stored
+PuppiMET_phiUnclusteredUp
+-----branch stored
+PuppiMET_phi_corr
+-----branch stored
+goodMET_pt
+-----branch stored
+goodMET_phi
+-----branch stored
+NLepton
+-----branch stored
+Lepton_charge
+-----branch stored
+Lepton_eta
+-----branch stored
+Lepton_flavor
+-----branch stored
+Lepton_isPrompt
+-----branch stored
+Lepton_mass
+-----branch stored
+Lepton_pdgId
+-----branch stored
+Lepton_phi
+-----branch stored
+Lepton_pt
+-----branch stored
+NgoodLepton
+-----branch stored
+goodLepton_charge
+-----branch stored
+goodLepton_eta
+-----branch stored
+goodLepton_flavor
+-----branch stored
+goodLepton_idx
+-----branch stored
+goodLepton_isPrompt
+-----branch stored
+goodLepton_mass
+-----branch stored
+goodLepton_pdgId
+-----branch stored
+goodLepton_phi
+-----branch stored
+goodLepton_pt
+-----branch stored
+goodLepton_ptCut
+-----branch stored
+ThreeLRegion_PuppiMET_phi
+-----branch stored
+ThreeLRegion_PuppiMET_pt
+-----branch stored
+ThreeLRegion_goodMET_phi
+-----branch stored
+ThreeLRegion_goodMET_pt
+-----branch stored
+ThreeLRegion_leadingJet_eta
+-----branch stored
+ThreeLRegion_leadingJet_pt
+-----branch stored
+ThreeLRegion_leadingLepton_eta
+-----branch stored
+ThreeLRegion_leadingLepton_pt
+-----branch stored
+ThreeLRegion_leadingbJet_eta
+-----branch stored
+ThreeLRegion_leadingbJet_pt
+-----branch stored
+ThreeLRegion_muon_multiplicity
+-----branch stored
+ThreeLRegion_nJets
+-----branch stored
+ThreeLRegion_nJets_from_JET
+-----branch stored
+ThreeLRegion_nJets_goodJet
+-----branch stored
+ThreeLRegion_nbJets
+-----branch stored
+ThreeLRegion_subleadingJet_eta
+-----branch stored
+ThreeLRegion_subleadingJet_pt
+-----branch stored
+ThreeLRegion_subleadingLepton_eta
+-----branch stored
+ThreeLRegion_subleadingLepton_pt
+-----branch stored
+ThreeLRegion_subleadingbJet_eta
+-----branch stored
+ThreeLRegion_subleadingbJet_pt
+-----branch stored
+ThreeLRegion_trailingLepton_eta
+-----branch stored
+ThreeLRegion_trailingLepton_pt
+-----branch stored
+uuu_ThreeLRegion_goodMET_phi
+-----branch stored
+uuu_ThreeLRegion_goodMET_pt
+-----branch stored
+uuu_ThreeLRegion_leadingJet_eta
+-----branch stored
+uuu_ThreeLRegion_leadingJet_pt
+-----branch stored
+uuu_ThreeLRegion_leadingLepton_eta
+-----branch stored
+uuu_ThreeLRegion_leadingLepton_pt
+-----branch stored
+uuu_ThreeLRegion_leadingMuon_eta
+-----branch stored
+uuu_ThreeLRegion_leadingMuon_pt
+-----branch stored
+uuu_ThreeLRegion_leadingbJet_eta
+-----branch stored
+uuu_ThreeLRegion_leadingbJet_pt
+-----branch stored
+uuu_ThreeLRegion_muon_multiplicity
+-----branch stored
+uuu_ThreeLRegion_nJets
+-----branch stored
+uuu_ThreeLRegion_nbJets
+-----branch stored
+uuu_ThreeLRegion_subleadingJet_eta
+-----branch stored
+uuu_ThreeLRegion_subleadingJet_pt
+-----branch stored
+uuu_ThreeLRegion_subleadingLepton_eta
+-----branch stored
+uuu_ThreeLRegion_subleadingLepton_pt
+-----branch stored
+uuu_ThreeLRegion_subleadingMuon_eta
+-----branch stored
+uuu_ThreeLRegion_subleadingMuon_pt
+-----branch stored
+uuu_ThreeLRegion_subleadingbJet_eta
+-----branch stored
+uuu_ThreeLRegion_subleadingbJet_pt
+-----branch stored
+uuu_ThreeLRegion_trailingLepton_eta
+-----branch stored
+uuu_ThreeLRegion_trailingLepton_pt
+-----branch stored
+uuu_ThreeLRegion_trailingMuon_eta
+-----branch stored
+uuu_ThreeLRegion_trailingMuon_pt
+-----branch stored
+uue_ThreeLRegion_goodMET_phi
+-----branch stored
+uue_ThreeLRegion_goodMET_pt
+-----branch stored
+uue_ThreeLRegion_leadingJet_eta
+-----branch stored
+uue_ThreeLRegion_leadingJet_pt
+-----branch stored
+uue_ThreeLRegion_leadingLepton_eta
+-----branch stored
+uue_ThreeLRegion_leadingLepton_pt
+-----branch stored
+uue_ThreeLRegion_leadingbJet_eta
+-----branch stored
+uue_ThreeLRegion_leadingbJet_pt
+-----branch stored
+uue_ThreeLRegion_muon_multiplicity
+-----branch stored
+uue_ThreeLRegion_nJets
+-----branch stored
+uue_ThreeLRegion_nbJets
+-----branch stored
+uue_ThreeLRegion_subleadingJet_eta
+-----branch stored
+uue_ThreeLRegion_subleadingJet_pt
+-----branch stored
+uue_ThreeLRegion_subleadingLepton_eta
+-----branch stored
+uue_ThreeLRegion_subleadingLepton_pt
+-----branch stored
+uue_ThreeLRegion_subleadingbJet_eta
+-----branch stored
+uue_ThreeLRegion_subleadingbJet_pt
+-----branch stored
+uue_ThreeLRegion_trailingLepton_eta
+-----branch stored
+uue_ThreeLRegion_trailingLepton_pt
+-----branch stored
+eeu_ThreeLRegion_goodMET_phi
+-----branch stored
+eeu_ThreeLRegion_goodMET_pt
+-----branch stored
+eeu_ThreeLRegion_leadingJet_eta
+-----branch stored
+eeu_ThreeLRegion_leadingJet_pt
+-----branch stored
+eeu_ThreeLRegion_leadingLepton_eta
+-----branch stored
+eeu_ThreeLRegion_leadingLepton_pt
+-----branch stored
+eeu_ThreeLRegion_leadingbJet_eta
+-----branch stored
+eeu_ThreeLRegion_leadingbJet_pt
+-----branch stored
+eeu_ThreeLRegion_muon_multiplicity
+-----branch stored
+eeu_ThreeLRegion_nJets
+-----branch stored
+eeu_ThreeLRegion_nbJets
+-----branch stored
+eeu_ThreeLRegion_subleadingJet_eta
+-----branch stored
+eeu_ThreeLRegion_subleadingJet_pt
+-----branch stored
+eeu_ThreeLRegion_subleadingLepton_eta
+-----branch stored
+eeu_ThreeLRegion_subleadingLepton_pt
+-----branch stored
+eeu_ThreeLRegion_subleadingbJet_eta
+-----branch stored
+eeu_ThreeLRegion_subleadingbJet_pt
+-----branch stored
+eeu_ThreeLRegion_trailingLepton_eta
+-----branch stored
+eeu_ThreeLRegion_trailingLepton_pt
+-----branch stored
+eee_ThreeLRegion_goodMET_phi
+-----branch stored
+eee_ThreeLRegion_goodMET_pt
+-----branch stored
+eee_ThreeLRegion_leadingJet_eta
+-----branch stored
+eee_ThreeLRegion_leadingJet_pt
+-----branch stored
+eee_ThreeLRegion_leadingLepton_eta
+-----branch stored
+eee_ThreeLRegion_leadingLepton_pt
+-----branch stored
+eee_ThreeLRegion_leadingbJet_eta
+-----branch stored
+eee_ThreeLRegion_leadingbJet_pt
+-----branch stored
+eee_ThreeLRegion_muon_multiplicity
+-----branch stored
+eee_ThreeLRegion_nJets
+-----branch stored
+eee_ThreeLRegion_nbJets
+-----branch stored
+eee_ThreeLRegion_subleadingJet_eta
+-----branch stored
+eee_ThreeLRegion_subleadingJet_pt
+-----branch stored
+eee_ThreeLRegion_subleadingLepton_eta
+-----branch stored
+eee_ThreeLRegion_subleadingLepton_pt
+-----branch stored
+eee_ThreeLRegion_subleadingbJet_eta
+-----branch stored
+eee_ThreeLRegion_subleadingbJet_pt
+-----branch stored
+eee_ThreeLRegion_trailingLepton_eta
+-----branch stored
+eee_ThreeLRegion_trailingLepton_pt
+-----branch stored
+one_muon_Region
+-----branch stored
+one_electron_Region
+-----branch stored
+WZ_Region_goodMET_phi
+-----branch stored
+WZ_Region_goodMET_pt
+-----branch stored
+WZ_Region_leadingLepton_eta
+-----branch stored
+WZ_Region_leadingLepton_pt
+-----branch stored
+WZ_Region_muon_multiplicity
+-----branch stored
+WZ_Region_nJets
+-----branch stored
+WZ_Region_nbJets
+-----branch stored
+WZ_Region_subleadingLepton_eta
+-----branch stored
+WZ_Region_subleadingLepton_pt
+-----branch stored
+WZ_Region_trailingLepton_eta
+-----branch stored
+WZ_Region_trailingLepton_pt
+-----branch stored
+BaseRegion_goodMET_phi
+-----branch stored
+BaseRegion_goodMET_pt
+-----branch stored
+BaseRegion_leadingJet_eta
+-----branch stored
+BaseRegion_leadingJet_pt
+-----branch stored
+BaseRegion_leadingLepton_eta
+-----branch stored
+BaseRegion_leadingLepton_pt
+-----branch stored
+BaseRegion_leadingbJet_eta
+-----branch stored
+BaseRegion_leadingbJet_pt
+-----branch stored
+BaseRegion_muon_multiplicity
+-----branch stored
+BaseRegion_nJets
+-----branch stored
+BaseRegion_nbJets
+-----branch stored
+BaseRegion_subleadingJet_eta
+-----branch stored
+BaseRegion_subleadingJet_pt
+-----branch stored
+BaseRegion_subleadingLepton_eta
+-----branch stored
+BaseRegion_subleadingLepton_pt
+-----branch stored
+BaseRegion_subleadingbJet_eta
+-----branch stored
+BaseRegion_subleadingbJet_pt
+-----branch stored
+BaseRegion_trailingLepton_eta
+-----branch stored
+BaseRegion_trailingLepton_pt
+-----branch stored
+leadingJet_pt
+-----branch stored
+leadingJet_eta
+-----branch stored
+subleadingJet_pt
+-----branch stored
+subleadingJet_eta
+-----branch stored
+leadingbJet_pt
+-----branch stored
+leadingbJet_eta
+-----branch stored
+subleadingbJet_pt
+-----branch stored
+subleadingbJet_eta
+-----branch stored
+threeLRegion
+-----branch stored
