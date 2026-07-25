@@ -63,8 +63,8 @@ else
 fi
 
 #Run Python RDF version
-python3 create_hist_rdf.py \
 # python3 create_hist_rdf_modified.py\
+python3 create_hist_rdf.py \
     --filename "${xrootd_filename}" \
     --cross_section ${crosssection} \
     --luminosity ${luminosity} \

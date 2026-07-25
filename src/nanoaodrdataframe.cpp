@@ -18,8 +18,8 @@ using namespace ROOT;
 int main(void) {
 
 	TChain c1("Events");
-	c1.Add("root://cmsxrootd.fnal.gov//store/mc/RunIII2024Summer24NanoAODv15/TZQB-Zto2L-4FS_Bin-MLL-30_TuneCP5_13p6TeV_amcatnlo-pythia8/NANOAODSIM/Madgraph_2_6_5_150X_mcRun3_2024_realistic_v2-v2/2810000/43318103-fc71-48c7-8d99-4915164b3b87.root"); 
-	// c1.Add("root://cmsxrootd.fnal.gov//store/data/Run2024C/MuonEG/NANOAOD/MINIv6NANOv15-v1/2530000/5ec3440b-ed82-41a9-9740-a4b5829ff450.root");
+	// c1.Add("root://cmsxrootd.fnal.gov//store/mc/RunIII2024Summer24NanoAODv15/TZQB-Zto2L-4FS_Bin-MLL-30_TuneCP5_13p6TeV_amcatnlo-pythia8/NANOAODSIM/Madgraph_2_6_5_150X_mcRun3_2024_realistic_v2-v2/2810000/43318103-fc71-48c7-8d99-4915164b3b87.root"); 
+	c1.Add("root://cmsxrootd.fnal.gov//store/data/Run2024C/MuonEG/NANOAOD/MINIv6NANOv15-v1/2530000/5ec3440b-ed82-41a9-9740-a4b5829ff450.root");
 	//c1.Add("root://cmsxrootd.fnal.gov//store/mc/Run3Summer22NanoAODv12/TZQB-Zto2L-4FS_MLL-30_TuneCP5_13p6TeV_amcatnlo-pythia8/NANOAODSIM/130X_mcRun3_2022_realistic_v5-v2/30000/06fc08ec-0f13-454d-be83-11b602978e15.root");
 
 

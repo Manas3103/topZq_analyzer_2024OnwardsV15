@@ -93,9 +93,9 @@ void BaseAnalyser::defineCuts()
     // Basic Event Quality
     // -----------------------------------------------------
     const std::string minimalSelection =
-        // "NgoodLepton >= 3 &&"
-        "PV_npvsGood >= 1 &&"
-        "threeLRegion ==1";
+        "NgoodLepton >= 3 &&"
+        "PV_npvsGood >= 1";
+        // "threeLRegion ==1_corr";
 
     const std::string metFilters =
         "Flag_goodVertices && "
@@ -137,23 +137,23 @@ void BaseAnalyser::selectElectrons()
     // =====================================================================
     // baselineElectrons_isPromptBaseline Electron Selection
     // =====================================================================
-    // _rlm = _rlm.Define("baselineElectrons", 
-    //         "Electron_pt_corr > 20.0 && abs(Electron_eta) < 2.5 && "
-    //             "Electron_cutBased >=4 &&" 
-    //             "!(abs(Electron_eta) > 1.442 && abs(Electron_eta) < 1.566) && " 
-    //             "Electron_miniPFRelIso_all < 0.40 && abs(Electron_dxy) < 0.05 && " 
-    //             "abs(Electron_dz) < 0.10 && Electron_lostHits <= 1 && " 
-    //             "Electron_hoe < 0.10 && Electron_convVeto &&" 
-    //             "((abs(Electron_eta) < 1.479 && Electron_sieie < 0.011) || " // Barrel cut 
-    //             "(abs(Electron_eta) >= 1.479 && abs(Electron_eta) < 2.5 && Electron_sieie < 0.030)) &&" // Endcap cut 
-    //             "Electron_sip3d < 8 && Electron_eInvMinusPInv > -0.04 "
-    //             // "&& Electron_promptMVA > 0.90"
-    //             ); 
-
     _rlm = _rlm.Define("baselineElectrons", 
-            "Electron_pt_corr > 20.0 && abs(Electron_eta) < 2.4 && "
-            " !(abs(Electron_eta) > 1.442 && abs(Electron_eta) < 1.566)"
-            " && Electron_promptMVA > 0.90 && Electron_miniPFRelIso_all < 0.40");  //Tight ID
+            "Electron_pt_corr > 20.0 && abs(Electron_eta) < 2.5 && "
+                "Electron_cutBased >=4 &&" 
+                "!(abs(Electron_eta) > 1.442 && abs(Electron_eta) < 1.566) && " 
+                "Electron_miniPFRelIso_all < 0.40 && abs(Electron_dxy) < 0.05 && " 
+                "abs(Electron_dz) < 0.10 && Electron_lostHits <= 1 && " 
+                "Electron_hoe < 0.10 && Electron_convVeto &&" 
+                "((abs(Electron_eta) < 1.479 && Electron_sieie < 0.011) || " // Barrel cut 
+                "(abs(Electron_eta) >= 1.479 && abs(Electron_eta) < 2.5 && Electron_sieie < 0.030)) &&" // Endcap cut 
+                "Electron_sip3d < 8 && Electron_eInvMinusPInv > -0.04 "
+                // "&& Electron_promptMVA > 0.90"
+                ); 
+
+    // _rlm = _rlm.Define("baselineElectrons", 
+    //         "Electron_pt_corr > 20.0 && abs(Electron_eta) < 2.4 && "
+    //         " !(abs(Electron_eta) > 1.442 && abs(Electron_eta) < 1.566)"
+    //         " && Electron_promptMVA > 0.90 && Electron_miniPFRelIso_all < 0.40");  //Tight ID
 
 
     // Additional variables for baseline electrons
@@ -214,16 +214,16 @@ void BaseAnalyser::selectMuons()
     // ====================================================================
     // Baseline Muon Selection
     // // =====================================================================
-     // _rlm = _rlm.Define("baselineMuons", 
-		        // "Muon_pt_corr > 20.0 && abs(Muon_eta) < 2.4 && " 
-     //            "Muon_miniPFRelIso_all < 0.4 && abs(Muon_dxy) < 0.05 && " 
-		        // "abs(Muon_dz) < 0.10 && Muon_sip3d < 8.0 && " 
-		        // "Muon_tightId && Muon_isPFcand" 
-		        // "&& (Muon_isGlobal || Muon_isTracker)"
-     //            // "&& Muon_promptMVA > 0.64"
-     //            ); 
+     _rlm = _rlm.Define("baselineMuons", 
+		        "Muon_pt_corr > 20.0 && abs(Muon_eta) < 2.4 && " 
+                "Muon_miniPFRelIso_all < 0.4 && abs(Muon_dxy) < 0.05 && " 
+		        "abs(Muon_dz) < 0.10 && Muon_sip3d < 8.0 && " 
+		        "Muon_tightId && Muon_isPFcand" 
+		        "&& (Muon_isGlobal || Muon_isTracker)"
+                // "&& Muon_promptMVA > 0.64"
+                ); 
 
-    _rlm = _rlm.Define("baselineMuons", "Muon_pt > 20 && abs(Muon_eta) < 2.4 && Muon_miniPFRelIso_all < 0.40 && Muon_promptMVA > 0.64");
+    // _rlm = _rlm.Define("baselineMuons", "Muon_pt_corr > 20 && abs(Muon_eta) < 2.4 && Muon_miniPFRelIso_all < 0.40 && Muon_promptMVA > 0.64");
 
 
 
@@ -354,20 +354,6 @@ void BaseAnalyser::selectJets()
 	//It will be updated ASAP the Jet id will work as json
 	//Also PU JetID is also not applied since it's not present in the NanoAOD v15
 	
-		
-	/* _rlm = _rlm.Define( */
-	/*     "goodJets", */
-	/*     "goodJetsID && (" */
-	/* 	"(" */
-	/* 	    "abs(Jet_eta) > 2.65 && abs(Jet_eta) < 3.139 && Jet_pt_corr > 50.0" */
-	/* 	") || (" */
-	/* 	    "abs(Jet_eta) > 3.139 && abs(Jet_eta) < 5.0 && Jet_pt_corr > 25.0" */
-	/* 	") || (" */
-	/* 	    "abs(Jet_eta) > 0.0 && abs(Jet_eta) < 2.65 && Jet_pt_corr > 25.0" */
-	/* 	")" */
-	/*     ") && abs(Jet_eta) < 5.0" */
-	/* ); */
-
 
 	_rlm = _rlm.Define(
 	    "goodJets",
@@ -1545,8 +1531,6 @@ void BaseAnalyser::defineSignalRegion()
         .Define("uue_Region", "channel_code == 2 && NgoodLepton == 3 && inzpeak && goodLepton_ptCut")
         .Define("uuu_Region", "channel_code == 3 && NgoodLepton == 3 && inzpeak && goodLepton_ptCut")
         .Define("threeLRegion", "channel_code >= 0 && NgoodLepton == 3 && inzpeak && goodLepton_ptCut")
-        .Define("one_muon_Region", "abs(Lepton_pdgId[0]) == 13 && NgoodLepton == 1")
-        .Define("one_electron_Region", "abs(Lepton_pdgId[0]) == 11 && NgoodLepton == 1 ")
         .Define("BaseRegion", "threeLRegion && ncleanjetspass >= 2 && ncleanbjetspass >= 1");
 
     // _rlm = _rlm
