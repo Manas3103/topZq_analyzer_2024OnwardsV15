@@ -139,12 +139,7 @@
   "WZ_Region_goodMET_phi": { "bins": 15, "xmin": -3.2, "xmax": 3.2 },
   "WZ_Region_nbJets": { "bins": 6, "xmin": 0, "xmax": 6 },
 
-  "eee_Region":{"bins": 6, "xmin": 0, "xmax": 6},
-  "eeu_Region":{"bins": 6, "xmin": 0, "xmax": 6},
-  "uue_Region":{"bins": 6, "xmin": 0, "xmax": 6},
-  "uuu_Region":{"bins": 6, "xmin": 0, "xmax": 6},
-  "threeLRegion":{"bins": 6, "xmin": 0, "xmax": 6},
-  "BaseRegion":{"bins": 6, "xmin": 0, "xmax": 6}
+  "BaseRegion":{"bins": 1, "xmin": 0.5, "xmax": 1.5}
 
 }
 

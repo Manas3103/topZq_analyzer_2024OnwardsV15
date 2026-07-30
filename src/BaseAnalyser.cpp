@@ -62,12 +62,12 @@ BaseAnalyser::BaseAnalyser(TTree *t, std::string outfilename)
             "HLT_IsoMu24_eta2p1",
             "HLT_IsoMu27",
             "HLT_Mu50",
-            "HLT_TripleMu_10_5_5_DZ",
-            "HLT_TripleMu_12_10_5",
             "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8",
             "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8",
             "HLT_Mu19_TrkIsoVVL_Mu9_TrkIsoVVL_DZ_Mass8",
-            "HLT_Mu19_TrkIsoVVL_Mu9_TrkIsoVVL_DZ_Mass3p8"
+            "HLT_Mu19_TrkIsoVVL_Mu9_TrkIsoVVL_DZ_Mass3p8",
+            "HLT_TripleMu_10_5_5_DZ",
+            "HLT_TripleMu_12_10_5"
         };
 
 }
@@ -93,7 +93,8 @@ void BaseAnalyser::defineCuts()
     // Basic Event Quality
     // -----------------------------------------------------
     const std::string minimalSelection =
-        "NgoodLepton >= 3 &&"
+        // "NgoodLepton >= 3 &&"
+        "nElectron + nMuon >= 3 &&"
         "PV_npvsGood >= 1";
         // "threeLRegion ==1_corr";
 
@@ -111,10 +112,21 @@ void BaseAnalyser::defineCuts()
     // -----------------------------------------------------
     // Apply Cuts (ordered logically)
     // -----------------------------------------------------
-    addCuts(setHLT(), "0");
-    addCuts(metFilters, "00");
-    addCuts(minimalSelection, "000");
-    addCuts(jetVetoCut, "0000");
+    // addCuts(setHLT(), "0");
+    // addCuts(metFilters, "00");
+    // addCuts(minimalSelection, "000");
+    // addCuts(jetVetoCut, "0000");
+
+    std::string cut0 = setHLT();
+    std::string cut1 = "(" + cut0 + ") && (" + metFilters + ")";
+    std::string cut2 = "(" + cut1 + ") && (" + minimalSelection + ")";
+    std::string cut3 = "(" + cut2 + ") && (" + jetVetoCut + ")";
+
+    addCuts(cut0, "0");
+    // addCuts(cut1, "1");
+    // addCuts(cut2, "2");
+    // addCuts(cut3, "3");
+
 }
 
 
@@ -357,7 +369,7 @@ void BaseAnalyser::selectJets()
 
 	_rlm = _rlm.Define(
 	    "goodJets",
-	    "goodJetsID && abs(Jet_eta) < 2.4 && Jet_pt_corr > 25.0"
+	    "abs(Jet_eta) < 2.4 && Jet_pt> 25.0"
 	);
 
 	// _rlm = _rlm.Define(
@@ -377,7 +389,7 @@ void BaseAnalyser::selectJets()
     // =====================================================
     // 2. EXTRACT GOOD JET VARIABLES
     // =====================================================
-    _rlm = _rlm.Define("goodJets_pt",   "Jet_pt_corr[goodJets]")
+    _rlm = _rlm.Define("goodJets_pt",   "Jet_pt[goodJets]")
             .Define("goodJets_eta",  "Jet_eta[goodJets]")
             .Define("goodJets_phi",  "Jet_phi[goodJets]")
             .Define("goodJets_mass", "Jet_mass[goodJets]");
@@ -655,8 +667,11 @@ void BaseAnalyser::selectMET()
 //    _rlm = _rlm.Define("goodMET_pt","PuppiMET_pt>20 ? PuppiMET_pt : std::numeric_limits<float>::quiet_NaN()")
 //	       .Define("goodMET_phi","PuppiMET_pt > 20 ? PuppiMET_phi : std::numeric_limits<float>::quiet_NaN()");
 
-    _rlm =  _rlm.Define("goodMET_pt",  "PuppiMET_pt_corr")
-                .Define("goodMET_phi", "PuppiMET_phi_corr");
+    // _rlm =  _rlm.Define("goodMET_pt",  "PuppiMET_pt_corr")
+    //             .Define("goodMET_phi", "PuppiMET_phi_corr");
+
+    _rlm =  _rlm.Define("goodMET_pt",  "PuppiMET_pt")
+                .Define("goodMET_phi", "PuppiMET_phi");
     std::cout<< "================================//=================================" << std::endl;
     std::cout<< "==================CORRECT MET HAS BEEN SELECTED====================" << std::endl;
     std::cout<< "================================//=================================" << std::endl;
@@ -2192,7 +2207,15 @@ void BaseAnalyser::defineMoreVars()
     addVartoStore("Selected_jeteta_maxAbs");
     addVartoStore("RecoilingJet_pt");
     addVartoStore("RecoilingJet_eta");
- 
+
+
+    addVartoStore("eee_Region");
+    addVartoStore("eeu_Region");
+    addVartoStore("uue_Region");
+    addVartoStore("uuu_Region");
+    addVartoStore("threeLRegion");
+
+
 
     addVartoStore("ThreeLRegion.*");
     addVartoStore("uuu_ThreeLRegion.*");

@@ -37,4 +37,8 @@
 /DYto2Mu-2Jets_Bin-MLL-50_TuneCP5_13p6TeV_amcatnloFXFX-pythia8/RunIII2024Summer24NanoAODv15-150X_mcRun3_2024_realistic_v2-v6/NANOAODSIM DYto_2Mu2Jet.root DYto_2Mu2Jet.out
 /DYto2E-2Jets_Bin-MLL-50_TuneCP5_13p6TeV_amcatnloFXFX-pythia8/RunIII2024Summer24NanoAODv15-150X_mcRun3_2024_realistic_v2-v4/NANOAODSIM DYto_2E2Jet.root DYto_2E2Jet.out
 /DYto2Tau-2Jets_Bin-MLL-50_TuneCP5_13p6TeV_amcatnloFXFX-pythia8/RunIII2024Summer24NanoAODv15-150X_mcRun3_2024_realistic_v2-v7/NANOAODSIM DYto_2Tau2Jet.root DYto_2Tau2Jet.out
-/TTH-HtoNon2B_Par-M-125_TuneCP5_13p6TeV_powheg-pythia8/RunIII2024Summer24NanoAODv15-150X_mcRun3_2024_realistic_v2-v2/NANOAODSIM TTH-HtoNon2B.root TTH-HtoNon2B.out
+/EGamma0/Run2024H-MINIv6NANOv15-v2/NANOAOD EGamma0_Era_H_Run24.root EGamma0_Era_H_Run24.out
+/EGamma1/Run2024H-MINIv6NANOv15-v1/NANOAOD EGamma1_Era_H_Run24.root EGamma1_Era_H_Run24.out
+/Muon0/Run2024H-MINIv6NANOv15-v1/NANOAOD Muon0_Era_H_Run24.root Muon0_Era_H_Run24.out
+/Muon1/Run2024H-MINIv6NANOv15-v2/NANOAOD Muon1_Era_H_Run24.root Muon1_Era_H_Run24.out
+/MuonEG/Run2024H-MINIv6NANOv15-v2/NANOAOD MuonEG_Era_H_Run24.root MuonEG_Era_H_Run24.out
