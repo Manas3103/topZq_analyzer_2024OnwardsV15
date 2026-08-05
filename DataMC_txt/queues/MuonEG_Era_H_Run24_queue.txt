@@ -1,0 +1,3 @@
+DataMC_txt/filelists/MuonEG_Era_H_Run24_chunk0.txt MuonEG_Era_H_Run24_chunk0.root MuonEG_Era_H_Run24_chunk0.out
+DataMC_txt/filelists/MuonEG_Era_H_Run24_chunk1.txt MuonEG_Era_H_Run24_chunk1.root MuonEG_Era_H_Run24_chunk1.out
+DataMC_txt/filelists/MuonEG_Era_H_Run24_chunk2.txt MuonEG_Era_H_Run24_chunk2.root MuonEG_Era_H_Run24_chunk2.out

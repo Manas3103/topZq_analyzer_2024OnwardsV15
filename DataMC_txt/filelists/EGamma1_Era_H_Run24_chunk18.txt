@@ -1,0 +1,10 @@
+root://cmsxrootd.fnal.gov//store/data/Run2024H/EGamma1/NANOAOD/MINIv6NANOv15-v1/2530000/dcae180d-7d51-4913-8e30-dcdaa5bd4220.root
+root://cmsxrootd.fnal.gov//store/data/Run2024H/EGamma1/NANOAOD/MINIv6NANOv15-v1/2530000/2de83d14-548b-4756-82ec-abc7287919c7.root
+root://cmsxrootd.fnal.gov//store/data/Run2024H/EGamma1/NANOAOD/MINIv6NANOv15-v1/2530000/ffeb34e9-40d9-4ec9-893c-2f26f25fac5f.root
+root://cmsxrootd.fnal.gov//store/data/Run2024H/EGamma1/NANOAOD/MINIv6NANOv15-v1/2530000/b51699f4-5e10-4f7b-aa02-bb323dffc976.root
+root://cmsxrootd.fnal.gov//store/data/Run2024H/EGamma1/NANOAOD/MINIv6NANOv15-v1/2530000/2d78fcef-863e-4c89-a5eb-34a106354add.root
+root://cmsxrootd.fnal.gov//store/data/Run2024H/EGamma1/NANOAOD/MINIv6NANOv15-v1/2530000/2c28c4d2-a913-4d83-a3cc-2e0ec170b226.root
+root://cmsxrootd.fnal.gov//store/data/Run2024H/EGamma1/NANOAOD/MINIv6NANOv15-v1/2530000/aff0c462-3a09-4f8f-a957-1f7c7435cee8.root
+root://cmsxrootd.fnal.gov//store/data/Run2024H/EGamma1/NANOAOD/MINIv6NANOv15-v1/2530000/6542c61f-ee84-4d65-a574-cf740cd824c9.root
+root://cmsxrootd.fnal.gov//store/data/Run2024H/EGamma1/NANOAOD/MINIv6NANOv15-v1/2530000/ea090a5b-30a8-4162-a62c-165555e466fe.root
+root://cmsxrootd.fnal.gov//store/data/Run2024H/EGamma1/NANOAOD/MINIv6NANOv15-v1/2530000/4facbcff-1fdd-43aa-83f3-e72008b94330.root

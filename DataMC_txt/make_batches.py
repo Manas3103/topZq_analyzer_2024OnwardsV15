@@ -1,101 +1,189 @@
+#!/usr/bin/env python3
+"""
+get_das_files_batched.py
 
-#!/usr/bin/env python3 
-import os 
-import math 
-import subprocess 
-import shlex 
+Reads a filelist where each line's FIRST field is a DAS dataset path, e.g.:
 
-BATCH_SIZE = 25 
-REDIRECTOR = "root://cmsxrootd.fnal.gov" 
+/TZQB-Zto2L-4FS_..._realistic_v2-v2/NANOAODSIM top_zq.root top_zq.out
 
-def das_files(dataset): 
-    # Returns list of file *paths* like /store/data/... 
-    # Requires dasgoclient on your submit node environment 
-    q = f'file dataset={dataset}' 
-    cmd = f'dasgoclient -query "{q}"' 
-    out = subprocess.check_output(cmd, shell=True, text=True) 
-    files = [line.strip() for line in out.splitlines() if line.strip()] 
-    return files 
+For each DAS path:
+  1. Runs `dasgoclient -query="file dataset=<path>"` to get the actual LFNs
+  2. Prepends an xrootd redirector
+  3. Splits the resolved files into fixed-size batches (default: 20 files/batch)
+  4. Writes ALL results into a single structured JSON file
+     (and, optionally, one plain-text filelist per batch)
 
-def sanitize(name): 
-    # Make a safe prefix for filenames 
-    return name.strip("/").replace("/", "_") 
+No file-opening checks and no genEventSumw / event-count computation are
+done here -- this script only resolves and batches file paths.
 
-def ensure_dir(d):
-    if d and not os.path.exists(d):
-        os.makedirs(d, exist_ok=True)
+Usage:
+    cmsenv
+    voms-proxy-init -voms cms
+    python3 get_das_files_batched.py General.txt -o das_files_batched.json
+    python3 get_das_files_batched.py General.txt -o das_files_batched.json --write-txt --txt-outdir batches/
+"""
+
+import argparse
+import json
+import os
+import subprocess
+import sys
+import time
+
+
+def parse_filelist_line(line):
+    """Fields (whitespace-separated), only the first is mandatory:
+        1. das_path   (required)
+        2. tag        (optional, e.g. 'top_zq.root' -> 'top_zq'; used as the
+                       dataset's key in the output JSON / as the batch-file
+                       basename)
+
+    Anything after field 2 is ignored (sample_type / batch_size columns from
+    older filelists are simply not used by this script).
+    """
+    line = line.strip()
+    if not line or line.startswith("#"):
+        return None
+    fields = line.split()
+    das_path = fields[0]
+    tag = fields[1].replace(".root", "") if len(fields) > 1 else None
+    return das_path, tag
+
+
+def query_das_files(das_path, redirector):
+    """Run dasgoclient to resolve a DAS dataset path into LFNs, then prepend redirector."""
+    try:
+        result = subprocess.run(
+            ["dasgoclient", "-query", f"file dataset={das_path}"],
+            capture_output=True, text=True, check=True, timeout=120
+        )
+    except subprocess.CalledProcessError as e:
+        return [], f"dasgoclient query failed: {e.stderr.strip()}"
+    except FileNotFoundError:
+        sys.exit("ERROR: 'dasgoclient' not found. Run 'cmsenv' and 'voms-proxy-init -voms cms' first.")
+    except subprocess.TimeoutExpired:
+        return [], "dasgoclient query timed out"
+
+    lfns = [l.strip() for l in result.stdout.splitlines() if l.strip()]
+    files = []
+    for lfn in lfns:
+        if lfn.startswith("root://"):
+            files.append(lfn)
+        else:
+            host = redirector.rstrip("/")
+            path = "/" + lfn.lstrip("/")
+            files.append(host + "/" + path)
+    return files, None
+
 
 def main():
-    in_list = "2024_summer/2024_Pure_MC.txt"
-    out_list = "sample_list_split.txt"
+    ap = argparse.ArgumentParser(description=__doc__,
+                                  formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("filelist", help="Text file; first column of each line is a DAS dataset path")
+    ap.add_argument("-o", "--output", default="das_files_batched.json",
+                    help="Output JSON file (default: das_files_batched.json)")
+    ap.add_argument("--redirector", default="root://cmsxrootd.fnal.gov/",
+                    help="xrootd redirector for resolved LFNs")
+    ap.add_argument("--batch-size", type=int, default=20,
+                    help="Number of files per batch (default: 20)")
+    ap.add_argument("--write-txt", action="store_true",
+                    help="Also write one plain-text filelist per batch "
+                         "(one root file path per line)")
+    ap.add_argument("--txt-outdir", default="batches",
+                    help="Directory to write per-batch .txt filelists into "
+                         "when --write-txt is given (default: batches/)")
+    args = ap.parse_args()
 
-    if not os.path.isfile(in_list):
-        raise SystemExit(f"Missing {in_list}")
+    with open(args.filelist) as fh:
+        parsed = [parse_filelist_line(line) for line in fh]
+    entries = [p for p in parsed if p]
 
-    with open(in_list) as f:
-        lines = [l.strip() for l in f if l.strip() and not l.strip().startswith("#")]
+    if not entries:
+        sys.exit(f"No DAS paths found in {args.filelist}")
 
-    out_lines = []
-    batch_counter_global = 0
+    if args.write_txt:
+        os.makedirs(args.txt_outdir, exist_ok=True)
 
-    for line in lines:
-        # Expect: <dataset> <outroot> <outlog> <xsec> <genweight_sum>
-        parts = line.split()
-        if len(parts) < 4:
-            print(f"Skip malformed line: {line}")
+    datasets = {}
+    n_ok, n_failed = 0, 0
+
+    for i, (das_path, tag) in enumerate(entries, 1):
+        print(f"[{i}/{len(entries)}] {das_path}")
+        key = tag if tag else das_path
+
+        files, query_error = query_das_files(das_path, args.redirector)
+
+        if query_error:
+            print(f"  ERROR: {query_error}")
+            datasets[key] = {
+                "das_path": das_path,
+                "status": "failed",
+                "error": query_error,
+                "n_files_total": 0,
+                "n_batches": 0,
+                "batches": [],
+            }
+            n_failed += 1
             continue
-        
-        # Handle both 4-column (old format) and 5-column (new format with genweight)
-        if len(parts) == 4:
-            dataset, outroot, outlog, xsec = parts[0], parts[1], parts[2], parts[3]
-            genweight_sum = "1"  # Default for data or missing genweight
-        else:
-            dataset, outroot, outlog, xsec, genweight_sum = parts[0], parts[1], parts[2], parts[3], parts[4]
-        
-        ds_tag = sanitize(dataset)
 
-        print(f"[INFO] Querying DAS for {dataset} ...")
-        file_paths = das_files(dataset)
-        if not file_paths:
-            print(f"[WARN] No files for {dataset}")
+        if not files:
+            print("  WARNING: no files resolved, skipping")
+            datasets[key] = {
+                "das_path": das_path,
+                "status": "no_files",
+                "error": "dasgoclient returned zero files",
+                "n_files_total": 0,
+                "n_batches": 0,
+                "batches": [],
+            }
+            n_failed += 1
             continue
 
-        # Turn into XRootD URLs
-        urls = [f"{REDIRECTOR}//{p}" for p in file_paths]
+        chunks = [files[j:j + args.batch_size] for j in range(0, len(files), args.batch_size)]
 
-        nbatches = math.ceil(len(urls) / BATCH_SIZE)
-        print(f"[INFO] {len(urls)} files -> {nbatches} batches of {BATCH_SIZE}")
+        batches = []
+        for b_idx, chunk in enumerate(chunks):
+            print(f"  batch {b_idx}: {len(chunk)} file(s)")
+            batches.append({
+                "batch_index": b_idx,
+                "n_files": len(chunk),
+                "files": chunk,
+            })
 
-        # Make an output-friendly base names
-        outroot_base, outroot_ext = os.path.splitext(outroot)
-        outlog_base, outlog_ext = os.path.splitext(outlog)
+            if args.write_txt:
+                txt_path = os.path.join(args.txt_outdir, f"{key}_batch{b_idx}.txt")
+                with open(txt_path, "w") as tf:
+                    tf.write("\n".join(chunk) + "\n")
 
-        for bi in range(nbatches):
-            batch_counter_global += 1
-            start, end = bi * BATCH_SIZE, (bi + 1) * BATCH_SIZE
-            chunk = urls[start:end]
+        datasets[key] = {
+            "das_path": das_path,
+            "status": "ok",
+            "error": None,
+            "n_files_total": len(files),
+            "n_batches": len(batches),
+            "batches": batches,
+        }
+        n_ok += 1
 
-            batch_id = f"{batch_counter_global:04d}"
-            batch_file = f"batch_{ds_tag}_{batch_id}.txt"
+    output = {
+        "metadata": {
+            "generated_at": time.strftime("%Y-%m-%dT%H:%M:%S"),
+            "source_filelist": args.filelist,
+            "redirector": args.redirector,
+            "batch_size": args.batch_size,
+            "n_datasets_total": len(entries),
+            "n_datasets_ok": n_ok,
+            "n_datasets_failed": n_failed,
+        },
+        "datasets": datasets,
+    }
 
-            with open(batch_file, "w") as bf:
-                bf.write("\n".join(chunk) + "\n")
+    with open(args.output, "w") as out:
+        json.dump(output, out, indent=2)
 
-            # Unique outputs per batch
-            outroot_i = f"{outroot_base}_b{batch_id}{outroot_ext}"
-            outlog_i  = f"{outlog_base}_b{batch_id}{outlog_ext}"
+    print(f"\nWrote batched file lists for {len(entries)} dataset(s) to {args.output}")
+    print(f"  OK: {n_ok}   Failed/no-files: {n_failed}")
 
-            # Write one line per batch to the new sample list, including genweight_sum
-            out_lines.append(f"{batch_file} {outroot_i} {outlog_i} {xsec} {genweight_sum}")
-
-    with open(out_list, "w") as f:
-        f.write("\n".join(out_lines) + "\n")
-
-    print(f"\n[DONE] Wrote {len(out_lines)} batch lines to {out_list}")
-    print("       Example first lines:")
-    for example in out_lines[:3]:
-        print("       ", example)
 
 if __name__ == "__main__":
     main()
-

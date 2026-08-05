@@ -63,7 +63,7 @@ public:
 			string hname_Medium_btagEff_lflav,
 			string hname_Tight_btagEff_bcflav,
 			string hname_Tight_btagEff_lflav,
-		        string muon_roch_fname, 
+		    string muon_roch_fname, 
 			string muon_fname, string muon_hlt_type, 
 			string muon_id_type, string muon_iso_type, 
 			string electron_fname, string electronHlt_fname, 
@@ -102,7 +102,7 @@ public:
 	ROOT::RDF::RNode calculateMuSF(RNode _rlm, std::vector<std::string> Muon_vars, std::string output_var = "muon_SF_");
 	ROOT::RDF::RNode calculateEleSF(RNode _rlm, std::vector<std::string> Ele_vars, std::string output_var = "ele_SF_");
 	ROOT::RDF::RNode applyPrefiringWeight(RNode _rlm, std::string output_var="prefiring_SF_");
-        ROOT::RDF::RNode applyJetVetoMap(ROOT::RDF::RNode _rlm,const std::string& eta_var,const std::string& phi_var,const std::string& output_var = "vetoed_jets");
+    ROOT::RDF::RNode applyJetVetoMap(ROOT::RDF::RNode _rlm,const std::string& eta_var,const std::string& phi_var,const std::string& output_var = "vetoed_jets");
 
 	void setupCuts_and_Hists();
 	void drawHists(RNode t);
@@ -163,9 +163,9 @@ public:
 	string _electron_reco_type2;
 	string _electron_reco_type3;
 	string _electron_id_type;
-    	string _electronHlt_type;
+   	string _electronHlt_type;
 	string _jet_veto_f_name;
-        string _jet_veto_tag;	
+    string _jet_veto_tag;	
 	string _electron_SSF;
 	string _metpt_fname;
 	string _muon_roch_fname;

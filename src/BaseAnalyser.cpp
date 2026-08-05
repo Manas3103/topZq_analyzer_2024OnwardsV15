@@ -93,9 +93,9 @@ void BaseAnalyser::defineCuts()
     // Basic Event Quality
     // -----------------------------------------------------
     const std::string minimalSelection =
+        "nElectron + nMuon >= 3";
+        // "&& PV_npvsGood >= 1";
         // "NgoodLepton >= 3 &&"
-        "nElectron + nMuon >= 3 &&"
-        "PV_npvsGood >= 1";
         // "threeLRegion ==1_corr";
 
     const std::string metFilters =
@@ -112,7 +112,8 @@ void BaseAnalyser::defineCuts()
     // -----------------------------------------------------
     // Apply Cuts (ordered logically)
     // -----------------------------------------------------
-    // addCuts(setHLT(), "0");
+    addCuts(setHLT(), "0");
+    addCuts(minimalSelection, "00");
     // addCuts(metFilters, "00");
     // addCuts(minimalSelection, "000");
     // addCuts(jetVetoCut, "0000");
@@ -122,7 +123,7 @@ void BaseAnalyser::defineCuts()
     std::string cut2 = "(" + cut1 + ") && (" + minimalSelection + ")";
     std::string cut3 = "(" + cut2 + ") && (" + jetVetoCut + ")";
 
-    addCuts(cut0, "0");
+    // addCuts(cut0, "0");
     // addCuts(cut1, "1");
     // addCuts(cut2, "2");
     // addCuts(cut3, "3");
@@ -169,37 +170,37 @@ void BaseAnalyser::selectElectrons()
 
 
     // Additional variables for baseline electrons
-    /* _rlm = _rlm.Define("A_baselineElectrons_pt", "Electron_pt_corr[baselineElectrons]") */
+    /* _rlm = _rlm.Define("baselineElectrons_pt", "Electron_pt_corr[baselineElectrons]") */
 
 
-    _rlm = _rlm.Define("A_baselineElectrons_pt", "Electron_pt_corr[baselineElectrons]")
-                .Define("A_baselineElectrons_eta", "Electron_eta[baselineElectrons]")
-                .Define("A_baselineElectrons_phi", "Electron_phi[baselineElectrons]")
-                .Define("A_baselineElectrons_mass", "Electron_mass[baselineElectrons]")
-                .Define("A_baselineElectrons_charge", "Electron_charge[baselineElectrons]")
-                .Define("A_baselineElectrons_idx", ::good_idx, {"baselineElectrons"})
-                .Define("A_baselineElectrons_pdgId", "Electron_pdgId[baselineElectrons]")
-                .Define("A_NbaselineElectrons", "int(A_baselineElectrons_pt.size())");
+    _rlm = _rlm.Define("baselineElectrons_pt", "Electron_pt_corr[baselineElectrons]")
+                .Define("baselineElectrons_eta", "Electron_eta[baselineElectrons]")
+                .Define("baselineElectrons_phi", "Electron_phi[baselineElectrons]")
+                .Define("baselineElectrons_mass", "Electron_mass[baselineElectrons]")
+                .Define("baselineElectrons_charge", "Electron_charge[baselineElectrons]")
+                .Define("baselineElectrons_idx", ::good_idx, {"baselineElectrons"})
+                .Define("baselineElectrons_pdgId", "Electron_pdgId[baselineElectrons]")
+                .Define("NbaselineElectrons", "int(baselineElectrons_pt.size())");
 
 
     if (_year == 2024)
     {
         // Define tight and fakable electrons based on MVA score
         _rlm = _rlm.Define("TightElectrons", "baselineElectrons && Electron_promptMVA > 0.90")
-                    .Define("A_baselineElectrons_mvaTTH", "Electron_promptMVA[baselineElectrons]")
-                    .Define("A_tight_baselineElectrons", "Electron_promptMVA[baselineElectrons] > 0.90");
+                    .Define("baselineElectrons_mvaTTH", "Electron_promptMVA[baselineElectrons]")
+                    .Define("tight_baselineElectrons", "Electron_promptMVA[baselineElectrons] > 0.90");
     }else
     {
         // Define tight and fakable electrons based on MVA score
         _rlm = _rlm.Define("TightElectrons", "baselineElectrons && Electron_mvaTTH > 0.90")
-                    .Define("A_baselineElectrons_mvaTTH", "Electron_mvaTTH[baselineElectrons]")
-                    .Define("A_tight_baselineElectrons", "Electron_mvaTTH[baselineElectrons] > 0.90");
+                    .Define("baselineElectrons_mvaTTH", "Electron_mvaTTH[baselineElectrons]")
+                    .Define("tight_baselineElectrons", "Electron_mvaTTH[baselineElectrons] > 0.90");
 
     }
 
     // Generate 4-vectors for baseline electrons
-    _rlm = _rlm.Define("A_baselineElectron_4Vecs", ::generate_4vec, {"A_baselineElectrons_pt", "A_baselineElectrons_eta", "A_baselineElectrons_phi", "A_baselineElectrons_mass"});
-    _rlm = _rlm.Define("A_baselineElectron_TL4Vecs", ::buildTLorentzVectors, {"A_baselineElectrons_pt", "A_baselineElectrons_eta", "A_baselineElectrons_phi", "A_baselineElectrons_mass"});
+    _rlm = _rlm.Define("baselineElectron_4Vecs", ::generate_4vec, {"baselineElectrons_pt", "baselineElectrons_eta", "baselineElectrons_phi", "baselineElectrons_mass"});
+    _rlm = _rlm.Define("baselineElectron_TL4Vecs", ::buildTLorentzVectors, {"baselineElectrons_pt", "baselineElectrons_eta", "baselineElectrons_phi", "baselineElectrons_mass"});
     
 }
 
@@ -495,19 +496,19 @@ void BaseAnalyser::removeOverlaps()
                        [buildDeltaRMask](const FourVectorRVec &ele,
                                          const FourVectorRVec &mu)
                        { return buildDeltaRMask(ele, mu, 0.05); },
-                       {"A_baselineElectron_4Vecs", "baselineMuon_4Vecs"})
+                       {"baselineElectron_4Vecs", "baselineMuon_4Vecs"})
 
-               .Define("baselineElectrons_pt",   "A_baselineElectrons_pt[ElectronMuonCleanMask]")
-               .Define("baselineElectrons_eta",  "A_baselineElectrons_eta[ElectronMuonCleanMask]")
-               .Define("baselineElectrons_phi",  "A_baselineElectrons_phi[ElectronMuonCleanMask]")
-               .Define("baselineElectrons_mass", "A_baselineElectrons_mass[ElectronMuonCleanMask]")
-               .Define("baselineElectrons_charge", "A_baselineElectrons_charge[ElectronMuonCleanMask]")
-               .Define("baselineElectrons_pdgId", "A_baselineElectrons_pdgId[ElectronMuonCleanMask]")
-               .Define("baselineElectrons_mvaTTH", "A_baselineElectrons_mvaTTH[ElectronMuonCleanMask]")
-               .Define("tight_baselineElectrons", "A_tight_baselineElectrons[ElectronMuonCleanMask]")
-               .Define("NbaselineElectrons", "int(baselineElectrons_pt.size())");
+               .Redefine("baselineElectrons_pt",   "baselineElectrons_pt[ElectronMuonCleanMask]")
+               .Redefine("baselineElectrons_eta",  "baselineElectrons_eta[ElectronMuonCleanMask]")
+               .Redefine("baselineElectrons_phi",  "baselineElectrons_phi[ElectronMuonCleanMask]")
+               .Redefine("baselineElectrons_mass", "baselineElectrons_mass[ElectronMuonCleanMask]")
+               .Redefine("baselineElectrons_charge", "baselineElectrons_charge[ElectronMuonCleanMask]")
+               .Redefine("baselineElectrons_pdgId", "baselineElectrons_pdgId[ElectronMuonCleanMask]")
+               .Redefine("baselineElectrons_mvaTTH", "baselineElectrons_mvaTTH[ElectronMuonCleanMask]")
+               .Redefine("tight_baselineElectrons", "tight_baselineElectrons[ElectronMuonCleanMask]")
+               .Redefine("NbaselineElectrons", "int(baselineElectrons_pt.size())");
 
-    _rlm = _rlm.Define("baselineElectron_4Vecs",
+    _rlm = _rlm.Redefine("baselineElectron_4Vecs",
                        ::generate_4vec,
                        {"baselineElectrons_pt",
                         "baselineElectrons_eta",
@@ -2154,7 +2155,57 @@ void BaseAnalyser::defineMoreVars()
     addVartoStore("luminosityBlock");
     addVartoStore("event");
     addVartoStore("evWeight");
+    addVartoStore("nElectron");
+    addVartoStore("nMuon");
+    
 
+    // The Trigger list starts from here  
+    addVartoStore("HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL");
+    addVartoStore("HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ");
+    addVartoStore("HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ");
+    addVartoStore("HLT_Mu37_Ele27_CaloIdL_MW");
+    addVartoStore("HLT_Mu27_Ele37_CaloIdL_MW");
+    addVartoStore("HLT_DiMu9_Ele9_CaloIdL_TrackIdL_DZ");
+    addVartoStore("HLT_Mu8_DiEle12_CaloIdL_TrackIdL");
+    addVartoStore("HLT_Mu8_DiEle12_CaloIdL_TrackIdL_DZ");
+
+    addVartoStore("HLT_Ele30_WPTight_Gsf");
+    addVartoStore("HLT_Ele32_WPTight_Gsf");
+    addVartoStore("HLT_Ele35_WPTight_Gsf");
+    addVartoStore("HLT_Ele38_WPTight_Gsf");
+    addVartoStore("HLT_Ele40_WPTight_Gsf");
+    addVartoStore("HLT_Ele115_CaloIdVT_GsfTrkIdT");
+
+    addVartoStore("HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL");
+    addVartoStore("HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ");
+    addVartoStore("HLT_DoubleEle33_CaloIdL_MW");
+    addVartoStore("HLT_DoubleEle25_CaloIdL_MW");
+    addVartoStore("HLT_DoubleEle27_CaloIdL_MW");
+    addVartoStore("HLT_Ele16_Ele12_Ele8_CaloIdL_TrackIdL");
+
+    addVartoStore("HLT_IsoMu24");
+    addVartoStore("HLT_IsoMu24_eta2p1");
+    addVartoStore("HLT_IsoMu27");
+    addVartoStore("HLT_Mu50");
+
+    addVartoStore("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8");
+    addVartoStore("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8");
+    addVartoStore("HLT_Mu19_TrkIsoVVL_Mu9_TrkIsoVVL_DZ_Mass8");
+    addVartoStore("HLT_Mu19_TrkIsoVVL_Mu9_TrkIsoVVL_DZ_Mass3p8");
+
+    addVartoStore("HLT_TripleMu_10_5_5_DZ");
+    addVartoStore("HLT_TripleMu_12_10_5");
+    //The Trigger list ended here
+    
+    //The MET Filters
+    addVartoStore("Flag_goodVertices");
+    addVartoStore("Flag_globalSuperTightHalo2016Filter");
+    addVartoStore("Flag_EcalDeadCellTriggerPrimitiveFilter");
+    addVartoStore("Flag_BadPFMuonFilter");
+    addVartoStore("Flag_BadPFMuonDzFilter");
+    addVartoStore("Flag_hfNoisyHitsFilter");
+    addVartoStore("Flag_eeBadScFilter");
+    addVartoStore("Flag_ecalBadCalibFilter");
 
     addVartoStore("A_baselineElectrons_.*");
     addVartoStore("A_NbaselineElectrons");

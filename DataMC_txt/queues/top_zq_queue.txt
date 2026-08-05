@@ -1,0 +1,8 @@
+DataMC_txt/filelists/top_zq_chunk0.txt top_zq_chunk0.root top_zq_chunk0.out
+DataMC_txt/filelists/top_zq_chunk1.txt top_zq_chunk1.root top_zq_chunk1.out
+DataMC_txt/filelists/top_zq_chunk2.txt top_zq_chunk2.root top_zq_chunk2.out
+DataMC_txt/filelists/top_zq_chunk3.txt top_zq_chunk3.root top_zq_chunk3.out
+DataMC_txt/filelists/top_zq_chunk4.txt top_zq_chunk4.root top_zq_chunk4.out
+DataMC_txt/filelists/top_zq_chunk5.txt top_zq_chunk5.root top_zq_chunk5.out
+DataMC_txt/filelists/top_zq_chunk6.txt top_zq_chunk6.root top_zq_chunk6.out
+DataMC_txt/filelists/top_zq_chunk7.txt top_zq_chunk7.root top_zq_chunk7.out
