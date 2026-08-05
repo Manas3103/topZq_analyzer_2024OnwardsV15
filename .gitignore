@@ -28,4 +28,4 @@ nanoaodrdataframe
 batch_*
 *.log
 *.err
-
+DataMC_txt/filelists/*
