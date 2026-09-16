@@ -18,14 +18,14 @@ using namespace ROOT;
 int main(void) {
 
 	TChain c1("Events");
-	// c1.Add("root://cmsxrootd.fnal.gov//store/mc/RunIII2024Summer24NanoAODv15/TZQB-Zto2L-4FS_Bin-MLL-30_TuneCP5_13p6TeV_amcatnlo-pythia8/NANOAODSIM/Madgraph_2_6_5_150X_mcRun3_2024_realistic_v2-v2/2810000/43318103-fc71-48c7-8d99-4915164b3b87.root"); 
-	c1.Add("root://cmsxrootd.fnal.gov//store/data/Run2024C/MuonEG/NANOAOD/MINIv6NANOv15-v1/2530000/5ec3440b-ed82-41a9-9740-a4b5829ff450.root");
-	//c1.Add("root://cmsxrootd.fnal.gov//store/mc/Run3Summer22NanoAODv12/TZQB-Zto2L-4FS_MLL-30_TuneCP5_13p6TeV_amcatnlo-pythia8/NANOAODSIM/130X_mcRun3_2022_realistic_v5-v2/30000/06fc08ec-0f13-454d-be83-11b602978e15.root");
+	c1.Add("root://cmsxrootd.fnal.gov//store/mc/RunIII2024Summer24NanoAODv15/TZQB-Zto2L-4FS_Bin-MLL-30_TuneCP5_13p6TeV_amcatnlo-pythia8/NANOAODSIM/Madgraph_2_6_5_150X_mcRun3_2024_realistic_v2-v2/2810000/43318103-fc71-48c7-8d99-4915164b3b87.root"); 
+	// c1.Add("root://cmsxrootd.fnal.gov//store/data/Run2024C/MuonEG/NANOAOD/MINIv6NANOv15-v1/2530000/5ec3440b-ed82-41a9-9740-a4b5829ff450.root");
 
 
 
-    BaseAnalyser nanoaodrdf(&c1, "tzq.root");
+    BaseAnalyser nanoaodrdf(&c1, "tzq_new.root");
     nanoaodrdf.setParams(2024, "", -1);
+    // nanoaodrdf.setParams(2024, "", -1, 1.0, 1.0);
 	nanoaodrdf.setHLT();
 
     // Golden JSON
@@ -39,9 +39,13 @@ int main(void) {
     string muon_roch_fname = "data/MUO/2024_Summer24/muon_scalesmearing.json";
     string muon_fname      = "data/MUO/2024_Summer24/muon_Z.json";
     string muonHLTtype     = "NUM_IsoMu24_DEN_CutBasedIdTight_and_PFIsoTight"; //not using 
-    string muonRECOtype    = "NUM_TrackerMuons_DEN_genTracks"; // not required for Run3
-    string muonIDtype      = "NUM_TightID_DEN_TrackerMuons"; // not using 
-    string muonISOtype     = "NUM_TightPFIso_DEN_TightID";
+    // string muonRECOtype    = "NUM_TrackerMuons_DEN_genTracks"; // not required for Run3
+    // string muonIDtype      = "NUM_TightID_DEN_TrackerMuons"; // not using 
+    // string muonISOtype     = "NUM_TightPFIso_DEN_TightID";
+
+    string muonRECOtype    = "NUM_promptMVA_WP64ID_DEN_MediumID"; // not required for Run3
+    string muonIDtype      = "NUM_MediumID_DEN_TrackerMuons"; // not using 
+    string muonISOtype     = "NUM_LoosePFIso_DEN_MediumID";
 
     // Electrons
     string electron_fname      = "data/EGM/2024_Summer24/electron.json";
@@ -50,7 +54,8 @@ int main(void) {
     string electron_reco_type1 = "RecoAbove75";
     string electron_reco_type2 = "Reco20to75";
     string electron_reco_type3 = "RecoBelow20"; //not using
-    string electron_id_type    = "wp90iso";
+    // string electron_id_type    = "wp90iso";
+    string electron_id_type    = "PromptMVA-Tight";
     string electron_SSF        = "data/EGM/2024_Summer24/electronSS_EtDependent.json";
 
     // Jet veto
@@ -89,7 +94,8 @@ int main(void) {
             hname_Tight_btagEff_bcflav,
             hname_Tight_btagEff_lflav,
             muon_roch_fname, muon_fname,
-            muonHLTtype, muonIDtype, muonISOtype, electron_fname,
+            // muonHLTtype,
+            muonRECOtype , muonIDtype, muonISOtype, electron_fname,
             electronHlt_fname,electronHlt_type, electron_reco_type1,
             electron_reco_type2, electron_id_type,
             jercfname, jerctag, jettagMC, jercunctag, jet_veto_f_name,

@@ -44,10 +44,12 @@ config = {
         # Muon Correction 
         'muon_roch_fname': 'data/MUO/2024_Summer24/muon_scalesmearing.json', 
         'muon_fname': 'data/MUO/2024_Summer24/muon_Z.json', 
-        'muonHLTtype': 'NUM_IsoMu24_DEN_CutBasedIdTight_and_PFIsoTight', # not using this 
-        'muonRECOtype': 'NUM_TrackerMuons_DEN_genTracks', # not using this 
+        # 'muonHLTtype': 'NUM_IsoMu24_DEN_CutBasedIdTight_and_PFIsoTight', # not using this 
+        # 'muonRECOtype': 'NUM_TrackerMuons_DEN_genTracks', # not using this 
+        'muonRECOtype': 'NUM_promptMVA_WP64ID_DEN_MediumID', # not using this 
         'muonIDtype': 'NUM_TightID_DEN_TrackerMuons', # dont not use this
         # 'muonIDtype': 'NUM_MediumID_DEN_TrackerMuons', # dont not use this 
+        # 'muonISOtype': 'NUM_LoosePFIso_DEN_MediumID',
         'muonISOtype': 'NUM_TightPFIso_DEN_TightID',
         # 'muonISOtype': 'NUM_promptMVA_WP64ID_DEN_MediumID',
 

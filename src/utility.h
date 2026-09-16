@@ -14,13 +14,15 @@
 #include "correction.h"
 #include <string>
 #include <TLorentzVector.h>
+#include <set>
 
+using ushorts = ROOT::RVec<unsigned short>;
 using floats =  ROOT::VecOps::RVec<float>;
 using doubles =  ROOT::VecOps::RVec<double>;
 using ints =  ROOT::VecOps::RVec<int>;
 using bools = ROOT::VecOps::RVec<bool>;
 using uchars = ROOT::VecOps::RVec<unsigned char>;
-
+using shorts = ROOT::VecOps::RVec<short>;
 using FourVector = ROOT::Math::PtEtaPhiMVector;
 using FourVectorVec = std::vector<FourVector>;
 using FourVectorRVec = ROOT::VecOps::RVec<FourVector>;
@@ -28,6 +30,10 @@ using FourVectorRVec = ROOT::VecOps::RVec<FourVector>;
 // generates vectors of 4 vectors given vectors of pt, eta, phi, mass
 FourVectorRVec generate_4vec(floats &pt, floats &eta, floats &phi, floats &mass);
 
+struct ZPairCounts {
+    int nPairs;         // total number of OS-SF pairs in the Z window (can double-count leptons)
+    int nDistinctPairs; // max number of non-overlapping OS-SF Z pairs (no shared lepton)
+};
 
 
 
@@ -149,5 +155,38 @@ buildTLorentzVectors(
 
 bool hasExactlyOneOSSFZPair(const FourVectorRVec& leptons,const ints& pdgId); 
 
+ints GetLeptonOrigin(
+    const shorts& Lepton_genPartIdx,
+    const ints& GenPart_pdgId,
+    const ushorts& GenPart_statusFlags,
+    const shorts& GenPart_genPartIdxMother
+);
+int CountUniqueOrigin3(
+    const shorts& genIdx,
+    const ints& origin);
 
+ROOT::RVec<int> Muon_FromTopW(
+    const ROOT::VecOps::RVec<float>& muPt,
+    const ROOT::VecOps::RVec<float>& muEta,
+    const ROOT::VecOps::RVec<float>& muPhi,
+    const ROOT::VecOps::RVec<int>&   pdg,
+    const ROOT::VecOps::RVec<short>& mother,
+    const ROOT::VecOps::RVec<float>& genEta,
+    const ROOT::VecOps::RVec<float>& genPhi,
+    float maxDR);
+
+ROOT::RVec<int> GenPart_MuonFromTopW(
+    const ROOT::VecOps::RVec<int>&   pdg,
+    const ROOT::VecOps::RVec<short>& mother);
+
+bool Event_HasGenMuonFromTopW(
+    const ROOT::VecOps::RVec<int>&   pdg,
+    const ROOT::VecOps::RVec<short>& mother);
+
+ints CompareLeptonOriginToGenPartFlag(
+    const shorts& Lepton_genPartIdx,
+    const ints&   origin,              
+    const ints&   GenPart_muFromTopW); 
+
+ZPairCounts countOSSFZPairs(const FourVectorRVec& leptons, const ints& pdgId);
 #endif /* UTILITY_H_ */

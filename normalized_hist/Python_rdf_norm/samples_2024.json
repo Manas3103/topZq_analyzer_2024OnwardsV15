@@ -1,0 +1,281 @@
+{
+  "top_zq": {
+    "file": "/store/user/msahoo/2024_merged_rootfile/top_zq.root",
+    "cross_section": 80.0,
+    "sum_gen_weight": 721849.15164552,
+    "type": "mc"
+  },
+
+  "ttz_4to50": {
+    "file": "/store/user/msahoo/2024_merged_rootfile/ttz_4to50.root",
+    "cross_section": 44.23,
+    "sum_gen_weight": 116919.58803551001,
+    "type": "mc"
+  },
+
+  "ttz_50": {
+    "file": "/store/user/msahoo/2024_merged_rootfile/ttz_50.root",
+    "cross_section": 96.84,
+    "sum_gen_weight": 340956.54948466003,
+    "type": "mc"
+  },
+
+  "ttbar_dilepton": {
+    "file": "/store/user/msahoo/2024_merged_rootfile/ttbar_dilepton.root",
+    "cross_section": 97448.8,
+    "sum_gen_weight": 37820112169.8707,
+    "type": "mc"
+  },
+
+  "ttbar_semilep": {
+    "file": "/store/user/msahoo/2024_merged_rootfile/ttbar_semilep.root",
+    "cross_section": 403254.9,
+    "sum_gen_weight": 161967473084.469,
+    "type": "mc"
+  },
+
+  "wz": {
+    "file": "/store/user/msahoo/2024_merged_rootfile/wz.root",
+    "cross_section": 5310.0,
+    "sum_gen_weight": 1221944255.2106197,
+    "type": "mc"
+  },
+
+  "zz": {
+    "file": "/store/user/msahoo/2024_merged_rootfile/zz.root",
+    "cross_section": 1390.0,
+    "sum_gen_weight": 329198063.93507,
+    "type": "mc"
+  },
+
+  "www": {
+    "file": "/store/user/msahoo/2024_merged_rootfile/www.root",
+    "cross_section": 232.0,
+    "sum_gen_weight": 1000694.72524648,
+    "type": "mc"
+  },
+
+  "wwz": {
+    "file": "/store/user/msahoo/2024_merged_rootfile/wwz.root",
+    "cross_section": 190.0,
+    "sum_gen_weight": 2997995.9066717904,
+    "type": "mc"
+  },
+
+  "wzz": {
+    "file": "/store/user/msahoo/2024_merged_rootfile/wzz.root",
+    "cross_section": 60.0,
+    "sum_gen_weight": 1005658.4341803684,
+    "type": "mc"
+  },
+
+  "zzz": {
+    "file": "/store/user/msahoo/2024_merged_rootfile/zzz.root",
+    "cross_section": 20.0,
+    "sum_gen_weight": 258040.2453164591,
+    "type": "mc"
+  },
+
+  "ggh_zz_4l": {
+    "file": "/store/user/msahoo/2024_merged_rootfile/ggh_zz_4l.root",
+    "cross_section": 14.34,
+    "sum_gen_weight": 625848110.1546,
+    "type": "mc"
+  },
+
+  "vbfh_zz_4l": {
+    "file": "/store/user/msahoo/2024_merged_rootfile/vbfh_zz_4l.root",
+    "cross_section": 1.2,
+    "sum_gen_weight": 5797532.213509996,
+    "type": "mc"
+  },
+
+  "wmh_zz_4l": {
+    "file": "/store/user/msahoo/2024_merged_rootfile/wmh_zz_4l.root",
+    "cross_section": 580.3,
+    "sum_gen_weight": 3976529.9144399967,
+    "type": "mc"
+  },
+
+  "wph_zz_4l": {
+    "file": "/store/user/msahoo/2024_merged_rootfile/wph_zz_4l.root",
+    "cross_section": 921.8,
+    "sum_gen_weight": 6217706.673464987,
+    "type": "mc"
+  },
+
+  "ttwh": {
+    "file": "/store/user/msahoo/2024_merged_rootfile/ttwh.root",
+    "cross_section": 1.252,
+    "sum_gen_weight": 10595000.0,
+    "type": "mc"
+  },
+
+  "ttww": {
+    "file": "/store/user/msahoo/2024_merged_rootfile/ttww.root",
+    "cross_section": 8.203,
+    "sum_gen_weight": 5801000.0,
+    "type": "mc"
+  },
+
+  "ttwz": {
+    "file": "/store/user/msahoo/2024_merged_rootfile/ttwz.root",
+    "cross_section": 2.715,
+    "sum_gen_weight": 5529000.0,
+    "type": "mc"
+  },
+
+  "ttzz": {
+    "file": "/store/user/msahoo/2024_merged_rootfile/ttzz.root",
+    "cross_section": 1.579,
+    "sum_gen_weight": 10798000.0,
+    "type": "mc"
+  },
+
+  "tttt": {
+    "file": "/store/user/msahoo/2024_merged_rootfile/tttt.root",
+    "cross_section": 9.652,
+    "sum_gen_weight": 94510.332516192,
+    "type": "mc"
+  },
+
+  "tth_non2b": {
+    "file": "/store/user/msahoo/2024_merged_rootfile/tth_non2b.root",
+    "cross_section": 372500.0,
+    "sum_gen_weight": 30954616.589242984,
+    "type": "mc"
+  },
+
+  "wg_1jet": {
+    "file": "/store/user/msahoo/2024_merged_rootfile/wg_1jet.root",
+    "cross_section": 671500.0,
+    "sum_gen_weight": 562746953095.8859,
+    "type": "mc"
+  },
+
+  "tgqb": {
+    "file": "/store/user/msahoo/2024_merged_rootfile/tgqb.root",
+    "cross_section": 3873.0,
+    "sum_gen_weight": 86496601.24608798,
+    "type": "mc"
+  },
+
+  "tbarWplus_2l2nu": {
+    "file": "/store/user/msahoo/2024_merged_rootfile/tbarWplus_2l2nu.root",
+    "cross_section": 36050.0,
+    "sum_gen_weight": 57087278.51789978,
+    "type": "mc"
+  },
+
+  "tWminus_2l2nu": {
+    "file": "/store/user/msahoo/2024_merged_rootfile/tWminus_2l2nu.root",
+    "cross_section": 35990.0,
+    "sum_gen_weight": 56972823.764779955,
+    "type": "mc"
+  },
+
+  "tbarb_lmin": {
+    "file": "/store/user/msahoo/2024_merged_rootfile/tbarb_lmin.root",
+    "cross_section": 4.534,
+    "sum_gen_weight": 11402994.327884696,
+    "type": "mc"
+  },
+
+  "tbbar_lplus": {
+    "file": "/store/user/msahoo/2024_merged_rootfile/tbbar_lplus.root",
+    "cross_section": 7.244,
+    "sum_gen_weight": 29602028.402244404,
+    "type": "mc"
+  },
+
+  "GluGlu2zto4Tau": {
+    "file": "/store/user/msahoo/2024_merged_rootfile/GluGlu2zto4Tau.root",
+    "cross_section": 3.042,
+    "sum_gen_weight": 2099160.0,
+    "type": "mc"
+  },
+
+  "GluGlu2zto4Mu": {
+    "file": "/store/user/msahoo/2024_merged_rootfile/GluGlu2zto4Mu.root",
+    "cross_section": 3.042,
+    "sum_gen_weight": 2097498.0,
+    "type": "mc"
+  },
+
+  "GluGlu2zto4E": {
+    "file": "/store/user/msahoo/2024_merged_rootfile/GluGlu2zto4E.root",
+    "cross_section": 3.042,
+    "sum_gen_weight": 2100000.0,
+    "type": "mc"
+  },
+
+  "GluGlu2zto2Mu2Tau": {
+    "file": "/store/user/msahoo/2024_merged_rootfile/GluGlu2zto2Mu2Tau.root",
+    "cross_section": 6.242,
+    "sum_gen_weight": 2095000.0,
+    "type": "mc"
+  },
+
+  "GluGlu2zto2E2Tau": {
+    "file": "/store/user/msahoo/2024_merged_rootfile/GluGlu2zto2E2Tau.root",
+    "cross_section": 6.242,
+    "sum_gen_weight": 2100000.0,
+    "type": "mc"
+  },
+
+  "GluGlu2zto2E2Mu": {
+    "file": "/store/user/msahoo/2024_merged_rootfile/GluGlu2zto2E2Mu.root",
+    "cross_section": 6.242,
+    "sum_gen_weight": 2078216.0,
+    "type": "mc"
+  },
+
+  "DYto2Tau-2Jets_M2L10-50": {
+    "file": "/store/user/msahoo/2024_merged_rootfile/DYto2Tau-2Jets_M2L10-50.root",
+    "cross_section": 21160000.0,
+    "sum_gen_weight": 4698652628263.991,
+    "type": "mc"
+  },
+
+  "DYto2Mu-2Jets_M2L-10to50": {
+    "file": "/store/user/msahoo/2024_merged_rootfile/DYto2Mu-2Jets_M2L-10to50.root",
+    "cross_section": 21190000.0,
+    "sum_gen_weight": 5073178077945.424,
+    "type": "mc"
+  },
+
+  "DYto2E-2Jets_M2L-10to50": {
+    "file": "/store/user/msahoo/2024_merged_rootfile/DYto2E-2Jets_M2L-10to50.root",
+    "cross_section": 21140000.0,
+    "sum_gen_weight": 4870829110957.164,
+    "type": "mc"
+  },
+
+  "DYto_2E2Jet": {
+    "file": "/store/user/msahoo/2024_merged_rootfile/DYto_2E2Jet.root",
+    "cross_section": 372400.0,
+    "sum_gen_weight": 8687530720822.49,
+    "type": "mc"
+  },
+
+  "DYto_2Mu2Jet": {
+    "file": "/store/user/msahoo/2024_merged_rootfile/DYto_2Mu2Jet.root",
+    "cross_section": 374000.0,
+    "sum_gen_weight": 8752983373231.523,
+    "type": "mc"
+  },
+
+  "DYto_2Tau2Jet": {
+    "file": "/store/user/msahoo/2024_merged_rootfile/DYto_2Tau2Jet.root",
+    "cross_section": 372500.0,
+    "sum_gen_weight": 6237984447192.093,
+    "type": "mc"
+  },
+
+  "Merged_H_era_data_nodup": {
+    "file": "/store/user/msahoo/2024_merged_rootfile/Merged_H_era_data_nodup_py.root",
+    "cross_section": 0.0,
+    "sum_gen_weight": null,
+    "type": "data"
+  }
+}

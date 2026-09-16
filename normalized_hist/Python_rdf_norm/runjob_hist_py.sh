@@ -1,16 +1,22 @@
 #!/bin/bash
 
+#---------------------------------------
 # Input validation
-if [ $# -ne 2 ]; then
+#---------------------------------------
+if [ $# -lt 2 ] || [ $# -gt 4 ]; then 
     echo "Error: Required arguments missing"
-    echo "Usage: $0 <filename> <crosssection> "
+    echo "Usage: $0 <filename> <crosssection> <sum_gen_weight> <type>"
     exit 1
 fi
+
 
 # Input arguments
 filename=$1
 crosssection=$2
-luminosity=110.0
+sum_gen_weight=$3
+sample_type=$4
+luminosity=5.0
+# luminosity=110.0
 
 
 start_time=$(date +%s)
@@ -22,7 +28,17 @@ xrootd_filename="root://cmseos.fnal.gov/${filename}"
 echo "Processing histogram with the following parameters:"
 echo "File name: $xrootd_filename"
 echo "Cross section: $crosssection"
+echo "Sample type: $sample_type"
 echo "Luminosity: $luminosity"
+
+
+if [ -n "$sum_gen_weight" ]; then
+    echo "Sum of GenWeight: $sum_gen_weight"
+else
+    echo "Sum of GenWeight: Not provided"
+    echo "Python will search for sumGenWeight/genEventSumw branch"
+fi
+
 
 # Define EOS output directory
 eos_output_dir="root://cmseos.fnal.gov//store/user/msahoo/2024_Analysed_hist/"
@@ -55,23 +71,22 @@ fi
 output_dir="Analysed"
 mkdir -p "${output_dir}" || handle_error "Failed to create output directory"
 
-# Determine if DATA or MC
-if [ "$crosssection" = "1" ]; then
-    extra_flag="data"
-else
-    extra_flag="mc"
+python_cmd=(
+    python3 create_hist_rdf.py
+    --filename "${xrootd_filename}"
+    --cross_section "${crosssection}"
+    --luminosity "${luminosity}"
+    --tree_name outputTree_00000
+    --config hist_config_with_labels.json
+    --extra "${sample_type}"
+)
+
+# Add SumGenWeight only if supplied
+if [ -n "${sum_gen_weight}" ]; then
+    python_cmd+=(--sum_gen_weight "${sum_gen_weight}")
 fi
 
-#Run Python RDF version
-# python3 create_hist_rdf_modified.py\
-python3 create_hist_rdf.py \
-    --filename "${xrootd_filename}" \
-    --cross_section ${crosssection} \
-    --luminosity ${luminosity} \
-    --tree_name outputTree \
-    --config hist_config.json \
-    --extra ${extra_flag} \
-    || handle_error "Processing failed"
+"${python_cmd[@]}" || handle_error "Processing failed"
 
 # Find output file
 HIST_FILE=$(ls -t *_hist.root 2>/dev/null | head -n1)

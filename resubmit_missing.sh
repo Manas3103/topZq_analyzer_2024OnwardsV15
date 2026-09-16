@@ -9,7 +9,7 @@
 #   ./resubmit_missing.sh <job_status_report.csv> <original_queue.txt> <resubmit_queue_out.txt>
 #
 # Example:
-#   ./resubmit_missing.sh job_status_report.csv queue_all.txt resubmit_queue.txt
+#   ./resubmit_missing.sh my_job_report.csv DataMC_txt/queue_all.txt resubmit_queue.txt
 
 set -e
 

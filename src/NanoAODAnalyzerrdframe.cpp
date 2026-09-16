@@ -929,7 +929,8 @@ void NanoAODAnalyzerrdframe::setupCorrections(
 		string hname_Tight_btagEff_lflav,
 		string muon_roch_fname, 
 		string muon_fname, 
-		string muonhlttype,
+		// string muonhlttype,
+        string muonrecotype,
 		string muonidtype,
 		string muonisotype,
 		string electron_fname,
@@ -981,13 +982,13 @@ void NanoAODAnalyzerrdframe::setupCorrections(
         // using correctionlib
         //Muon corrections
         _correction_muon = correction::CorrectionSet::from_file(muon_fname);
-        _muon_hlt_type = muonhlttype;
-        // _muon_reco_type = muonrecotype;
+        // _muon_hlt_type = muonhlttype;
+        _muon_reco_type = muonrecotype;
         _muon_id_type = muonidtype;
         _muon_iso_type = muonisotype;
         std::cout<< "================================//=================================" << std::endl;
         cout<< "MUON JSON FILE : " <<  muon_fname << endl;
-        cout<< "MUON HLT type in JSON  : " << _muon_hlt_type << endl;
+        // cout<< "MUON HLT type in JSON  : " << _muon_hlt_type << endl;
         cout<< "MUON ID type in JSON  : " << _muon_id_type << endl;
         cout<< "MUON ISO type in JSON  : " << _muon_iso_type << endl;
         assert(_correction_muon->validate());
@@ -1392,23 +1393,27 @@ ROOT::RDF::RNode NanoAODAnalyzerrdframe::calculateMuSF(RNode _rlm, std::vector<s
     //===========//===========//===========//===========//===========
     // define muon HLT weight sf/systs for each variation individually
     for (const std::string& variation : variations) {
-      std::string column_name_hlt = output_var+"hlt_" + variation;
-      _rlm = _rlm.Define(column_name_hlt, [this, muon_weightgenerator, variation](const ROOT::VecOps::RVec<float>& etas, const ROOT::VecOps::RVec<float>& pts) {
-	  float weight = muon_weightgenerator(_muon_hlt_type, etas, pts, variation); // Get the weight for the corresponding variation
-	  //std::cout << "Muon HLT weight (" << variation << "): " << weight << std::endl;
-	  return weight;
-	}, Muon_vars);
 
 
-/*      std::string column_name_reco = output_var+"reco_" + variation;
+     //std::string column_name_hlt = output_var+"hlt_" + variation;
+     //_rlm = _rlm.Define(column_name_hlt, [this, muon_weightgenerator, variation](const ROOT::VecOps::RVec<float>& etas, const ROOT::VecOps::RVec<float>& pts) {
+	 //float weight = muon_weightgenerator(_muon_hlt_type, etas, pts, variation); // Get the weight for the corresponding variation
+	 ////std::cout << "Muon HLT weight (" << variation << "): " << weight << std::endl;
+	 //return weight;
+	//}, Muon_vars);
+
+
+      std::string column_name_reco = output_var+"reco_" + variation;
+      std::cout << "Creating branch: " << column_name_reco << std::endl;
       _rlm = _rlm.Define(column_name_reco, [this, muon_weightgenerator, variation](const ROOT::VecOps::RVec<float>& etas, const ROOT::VecOps::RVec<float>& pts) {
 	  float weight = muon_weightgenerator(_muon_reco_type, etas, pts, variation); // Get the weight for the corresponding variation
 	  //std::cout << "Muon HLT weight (" << variation << "): " << weight << std::endl;
 	  return weight;
-	}, Muon_vars);   */
+	}, Muon_vars);   
 	
 
       std::string column_name_id = output_var+"id_" + variation;
+      std::cout << "Creating branch: " << column_name_id << std::endl;
       _rlm = _rlm.Define(column_name_id, [this, muon_weightgenerator, variation](const ROOT::VecOps::RVec<float>& etas, const ROOT::VecOps::RVec<float>& pts) {
 	  float weight = muon_weightgenerator(_muon_id_type, etas, pts, variation); // Get the weight for the corresponding variation
 	  //std::cout << "Muon HLT weight (" << variation << "): " << weight << std::endl;
@@ -1417,6 +1422,7 @@ ROOT::RDF::RNode NanoAODAnalyzerrdframe::calculateMuSF(RNode _rlm, std::vector<s
 
 
       std::string column_name_iso = output_var+"iso_" + variation;
+      std::cout << "Creating branch: " << column_name_iso << std::endl;
       _rlm = _rlm.Define(column_name_iso, [this, muon_weightgenerator, variation](const ROOT::VecOps::RVec<float>& etas, const ROOT::VecOps::RVec<float>& pts) {
 	  float weight = muon_weightgenerator(_muon_iso_type, etas, pts, variation); // Get the weight for the corresponding variation
 	  //std::cout << "Muon HLT weight (" << variation << "): " << weight << std::endl;
@@ -1437,8 +1443,9 @@ ROOT::RDF::RNode NanoAODAnalyzerrdframe::calculateMuSF(RNode _rlm, std::vector<s
 	column_name += "syst";
       }
 
-	//std::string sf_definition = column_name_hlt+" * "+column_name_reco+" * "+column_name_id+" * "+column_name_iso;
-	std::string sf_definition = column_name_id+" * "+column_name_iso;
+	// std::string sf_definition = column_name_reco+" * "+column_name_id+" * "+column_name_iso;
+	// std::string sf_definition = column_name_id+" * "+column_name_iso;
+	std::string sf_definition = column_name_iso;
 	_rlm = _rlm.Define(column_name, sf_definition);
 	std::cout<< "Muon SF column name: " << column_name << std::endl;
     }
@@ -1786,81 +1793,230 @@ void NanoAODAnalyzerrdframe::addCuts(string cut, string idx)
 }
 
 
+
 void NanoAODAnalyzerrdframe::run(bool saveAll, string outtreename)
 {
-	vector<RNodeTree *> rntends;
-	_rnt.getRNodeLeafs(rntends);
-	_rnt.Print();
-	 cout << rntends.size() << endl;
-	for (auto arnt : rntends)
-	{
-		string nodename = arnt->getIndex();
-		cout <<" nodename" <<endl;
-		string outname = _outfilename;
-		if (rntends.size() > 1)
-			outname.replace(outname.find(".root"), 5, "_" + nodename + ".root");
-		_outrootfilenames.push_back(outname);
-		RNode *arnode = arnt->getRNode();
-		std::cout << "-------------------------------------------------------------------" << std::endl;
-		cout << "cut : ";
-		cout << arnt->getIndex();
-		if (saveAll)
-		{
-			arnode->Snapshot(outtreename, outname);
-		}
-		else
-		{
-			cout << " --writing branches" << endl;
-			std::cout << "-------------------------------------------------------------------" << std::endl;
-			for (auto bname : _varstostorepertree[nodename])
-			{
-				cout << bname << endl;
-			        cout << "-----branch stored" << endl;
-			}
-		  	arnode->Snapshot(outtreename, outname, _varstostorepertree[nodename]);
-		}
-        // <-- Add this here
+    vector<RNodeTree *> rntends;
+    _rnt.getRNodeLeafs(rntends);
+
+    _rnt.Print();
+
+    cout << "Number of leaf nodes: " << rntends.size() << endl;
+
+    // ------------------------------------------------------------
+    // SAME OUTPUT FILE FOR ALL TREES
+    // ------------------------------------------------------------
+
+    string outname = _outfilename;
+
+    for (auto arnt : rntends)
+    {
+        string nodename = arnt->getIndex();
+
+        cout << "\n============================================================"
+             << endl;
+        cout << "Processing node : " << nodename << endl;
+        cout << "Output file     : " << outname << endl;
+        cout << "============================================================"
+             << endl;
+
+        _outrootfilenames.push_back(outname);
+
+        RNode *arnode = arnt->getRNode();
+
+        // --------------------------------------------------------
+        // UNIQUE TREE NAME
+        // --------------------------------------------------------
+
+        string treename = outtreename + "_" + nodename;
+
+        cout << "Output tree     : " << treename << endl;
+
+        // --------------------------------------------------------
+        // SNAPSHOT OPTIONS
+        // --------------------------------------------------------
+
+        ROOT::RDF::RSnapshotOptions opts;
+        opts.fMode = "UPDATE";
+        opts.fOverwriteIfExists = true;
+
+        // --------------------------------------------------------
+        // WRITE TREE
+        // --------------------------------------------------------
+
+        if (saveAll)
+        {
+            cout << "Writing all branches..." << endl;
+
+            arnode->Snapshot(
+                treename,
+                outname
+                // opts
+            );
+        }
+        else
+        {
+            cout << "Writing selected branches..." << endl;
+
+            for (auto bname : _varstostorepertree[nodename])
+            {
+                cout << bname << endl;
+            }
+
+            arnode->Snapshot(
+                treename,
+                outname,
+                _varstostorepertree[nodename],
+                opts
+            );
+        }
+
+        // --------------------------------------------------------
+        // CUTFLOW
+        // --------------------------------------------------------
+
         std::cout << "\n========== Cutflow ==========\n";
+
         for (auto &[idx, def, cnt] : _cutCounts)
         {
-            std::cout << idx << "  [" << def << "]  : " << *cnt << '\n';
+            std::cout << idx
+                      << "  [" << def << "]  : "
+                      << *cnt
+                      << '\n';
         }
-		std::cout << "-------------------------------------------------------------------" << std::endl;
-		cout << "Creating output root file :  " << endl;
-		cout << outname << " ";
-		cout << endl;
-		std::cout << "-------------------------------------------------------------------" << std::endl;
-		_outrootfile = new TFile(outname.c_str(), "UPDATE");
-		cout << "Writing histograms...   " << endl;
-		std::cout << "-------------------------------------------------------------------" << std::endl;
-		for (auto &h : _th1dhistos)
-		{
-			if (h.second.GetPtr() != nullptr)
-			{
-				h.second.GetPtr()->Print();
-				h.second.GetPtr()->Write();
-			}
-		}
-		// for 2D histograms
-		for (auto &h : _th2dhistos)
-		{
-			if (h.second.GetPtr() != nullptr)
-			{
-				h.second.GetPtr()->Print();
-				h.second.GetPtr()->Write();
-			}
-		}
-		//TH1F* hPDFWeights = new TH1F("LHEPdfWeightSum", "LHEPdfWeightSum", 103, 0, 1);
-		//for (size_t i=0; i<PDFWeights.size(); i++){
-		//	hPDFWeights->SetBinContent(i+1, PDFWeights[i]);
-	//	}
-		_outrootfile->Write(0, TObject::kOverwrite);
-		_outrootfile->Close();
-	}
-	std::cout << "-------------------------------------------------------------------" << std::endl;
-	std::cout << "END...  :) " << std::endl;
+
+        std::cout << "-------------------------------------------------------------------"
+                  << std::endl;
+    }
+
+    // ============================================================
+    // WRITE HISTOGRAMS ONCE
+    // ============================================================
+
+    cout << "\nCreating output ROOT file : "
+         << outname << endl;
+
+    _outrootfile = new TFile(
+        outname.c_str(),
+        "UPDATE"
+    );
+
+    cout << "Writing histograms..." << endl;
+
+    // ------------------------------------------------------------
+    // 1D HISTOGRAMS
+    // ------------------------------------------------------------
+
+    for (auto &h : _th1dhistos)
+    {
+        if (h.second.GetPtr() != nullptr)
+        {
+            h.second.GetPtr()->Print();
+            h.second.GetPtr()->Write();
+        }
+    }
+
+    // ------------------------------------------------------------
+    // 2D HISTOGRAMS
+    // ------------------------------------------------------------
+
+    for (auto &h : _th2dhistos)
+    {
+        if (h.second.GetPtr() != nullptr)
+        {
+            h.second.GetPtr()->Print();
+            h.second.GetPtr()->Write();
+        }
+    }
+
+    _outrootfile->Write(0, TObject::kOverwrite);
+    _outrootfile->Close();
+
+    std::cout << "-------------------------------------------------------------------"
+              << std::endl;
+
+    std::cout << "END...  :) " << std::endl;
 }
 
+
+//void NanoAODAnalyzerrdframe::run(bool saveAll, string outtreename)
+//{
+//	vector<RNodeTree *> rntends;
+//	_rnt.getRNodeLeafs(rntends);
+//	_rnt.Print();
+//	 cout << rntends.size() << endl;
+//	for (auto arnt : rntends)
+//	{
+//		string nodename = arnt->getIndex();
+//		cout <<" nodename" <<endl;
+//		string outname = _outfilename;
+//		if (rntends.size() > 1)
+//			outname.replace(outname.find(".root"), 5, "_" + nodename + ".root");
+//		_outrootfilenames.push_back(outname);
+//		RNode *arnode = arnt->getRNode();
+//		std::cout << "-------------------------------------------------------------------" << std::endl;
+//		cout << "cut : ";
+//		cout << arnt->getIndex();
+//		if (saveAll)
+//		{
+//			arnode->Snapshot(outtreename, outname);
+//		}
+//		else
+//		{
+//			cout << " --writing branches" << endl;
+//			std::cout << "-------------------------------------------------------------------" << std::endl;
+//			for (auto bname : _varstostorepertree[nodename])
+//			{
+//				cout << bname << endl;
+//			        cout << "-----branch stored" << endl;
+//			}
+//            ROOT::RDF::RSnapshotOptions opts;
+//            opts.fMode = "UPDATE";
+//		  	arnode->Snapshot(outtreename, outname, _varstostorepertree[nodename],opts);
+//		}
+//        // <-- Add this here
+//        std::cout << "\n========== Cutflow ==========\n";
+//        for (auto &[idx, def, cnt] : _cutCounts)
+//        {
+//            std::cout << idx << "  [" << def << "]  : " << *cnt << '\n';
+//        }
+//		std::cout << "-------------------------------------------------------------------" << std::endl;
+//		cout << "Creating output root file :  " << endl;
+//		cout << outname << " ";
+//		cout << endl;
+//		std::cout << "-------------------------------------------------------------------" << std::endl;
+//		_outrootfile = new TFile(outname.c_str(), "UPDATE");
+//		cout << "Writing histograms...   " << endl;
+//		std::cout << "-------------------------------------------------------------------" << std::endl;
+//		for (auto &h : _th1dhistos)
+//		{
+//			if (h.second.GetPtr() != nullptr)
+//			{
+//				h.second.GetPtr()->Print();
+//				h.second.GetPtr()->Write();
+//			}
+//		}
+//		// for 2D histograms
+//		for (auto &h : _th2dhistos)
+//		{
+//			if (h.second.GetPtr() != nullptr)
+//			{
+//				h.second.GetPtr()->Print();
+//				h.second.GetPtr()->Write();
+//			}
+//		}
+//		//TH1F* hPDFWeights = new TH1F("LHEPdfWeightSum", "LHEPdfWeightSum", 103, 0, 1);
+//		//for (size_t i=0; i<PDFWeights.size(); i++){
+//		//	hPDFWeights->SetBinContent(i+1, PDFWeights[i]);
+//	//	}
+//		_outrootfile->Write(0, TObject::kOverwrite);
+//		_outrootfile->Close();
+//	}
+//	std::cout << "-------------------------------------------------------------------" << std::endl;
+//	std::cout << "END...  :) " << std::endl;
+//}
+
+// void NanoAODAnalyzerrdframe::setParams(int year, string runtype, int datatype, float X_section, float SumOfGenWeight_Computed)
 void NanoAODAnalyzerrdframe::setParams(int year, string runtype, int datatype)
 {
     /*if(debug){
@@ -1868,9 +2024,11 @@ void NanoAODAnalyzerrdframe::setParams(int year, string runtype, int datatype)
         std::cout<< "Line : "<< __LINE__ << " Function : " << __FUNCTION__ << std::endl;
         std::cout<< "================================//=================================" << std::endl;
     }*/
-	_year=year;
-	_runtype=runtype;
-	_datatype=datatype;
+	_year = year;
+	_runtype = runtype;
+	_datatype = datatype;
+    // _X_section = X_section;
+    // _SumOfGenWeight_Computed = SumOfGenWeight_Computed;
 	
 
 	if(_year==2017) {

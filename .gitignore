@@ -29,3 +29,5 @@ batch_*
 *.log
 *.err
 DataMC_txt/filelists/*
+DataMC_txt/*.txt
+DataMC_txt/queues/*

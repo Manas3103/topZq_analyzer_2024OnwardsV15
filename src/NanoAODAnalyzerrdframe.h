@@ -64,7 +64,9 @@ public:
 			string hname_Tight_btagEff_bcflav,
 			string hname_Tight_btagEff_lflav,
 		    string muon_roch_fname, 
-			string muon_fname, string muon_hlt_type, 
+			string muon_fname, 
+            // string muon_hlt_type,
+            string muonrecotype,
 			string muon_id_type, string muon_iso_type, 
 			string electron_fname, string electronHlt_fname, 
 			string electronHlt_type, string electron_reco_type1,
@@ -111,10 +113,13 @@ public:
 	void setupTree();
 
 	//setting parameters for nanoaod
+	// void setParams(int year, string runtype, int datatype, float X_section, float SumOfGenWeight_Computed);
 	void setParams(int year, string runtype, int datatype);
 	int _year;
 	string _runtype;
 	int _datatype;
+    // float _X_section;
+    // float  _SumOfGenWeight_Computed;
 	bool _doBtagEff =false;
 	bool _isPreEE =false;
 	bool _isPostEE = false;
@@ -156,7 +161,7 @@ public:
 	string _putag;
 	string _btvtype;
 	string _muon_hlt_type;
-//	string _muon_reco_type;
+	string _muon_reco_type;
 	string _muon_id_type;
 	string _muon_iso_type;
 	string _electron_reco_type1;

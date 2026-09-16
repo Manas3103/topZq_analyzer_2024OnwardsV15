@@ -3,11 +3,37 @@ import os
 import argparse
 import json
 import time
-
+import re 
 
 def load_config(config_file):
     with open(config_file, "r") as f:
         return json.load(f)
+
+# ---------- NEW HELPER FUNCTION 1 ----------
+def make_default_title(branch):
+    title = branch.replace("_", " ")
+    title = re.sub(r"(?<!^)(?=[A-Z])", " ", title)
+    title = re.sub(r"\s+", " ", title).strip()
+    return title
+
+
+# ---------- NEW HELPER FUNCTION 2 ----------
+def make_default_xlabel(branch):
+    variable_labels = {
+        "pt": "p_{T} [GeV]",
+        "eta": "#eta",
+        "phi": "#phi",
+        "mass": "Mass [GeV]",
+        "nJets": "Number of Jets",
+        "nbJets": "Number of b-Jets",
+        "muon_multiplicity": "Muon Multiplicity"
+    }
+
+    for key, label in variable_labels.items():
+        if branch.endswith(key):
+            return label
+
+    return make_default_title(branch)
 
 
 def is_data_sample(filename, extra_flag):
@@ -23,7 +49,8 @@ def create_normalized_histogram_rdf(filename,
                                     luminosity,
                                     tree_name,
                                     config_file,
-                                    extra_flag):
+                                    sum_gen_weight=None,
+                                    extra_flag="mc"):
 
     start_time = time.time()
 
@@ -42,30 +69,127 @@ def create_normalized_histogram_rdf(filename,
     # -----------------------------------
     # Weight definition
     # -----------------------------------
+
     if not is_data:
-        normalization_factor = luminosity * cross_section
-        print("Normalization Factor:", normalization_factor)
 
-        has_pu   = "pugenWeight" in columns
-        has_gen   = "genWeight" in columns
-        has_ev   = "evWeight" in columns
-        has_muon_sf = "muon_SF_central" in columns
-        has_ev_new = "evWeight_with_em_SF_Only" in columns
-        has_sumw = "sumGenWeight" in columns or "genEventSumw" in columns
+        # -----------------------------------
+        # Determine Sum of Generator Weights
+        # -----------------------------------
 
-        if has_pu and has_sumw and has_ev and has_gen and has_muon_sf:
-            sumw_branch = "sumGenWeight" if "sumGenWeight" in columns else "genEventSumw"
-            df = df.Define(
-                "total_weight",
-                f"((pugenWeight * ele_SF_central * muon_SF_central * btag_SF_lflav_vector[0] * btag_SF_bcflav_vector[0])/{sumw_branch}) * {normalization_factor}"  
-                # f"((genWeight)/{sumw_branch}) * {normalization_factor}"  
-            )#has done with evWeight
+        if sum_gen_weight is not None:
+            # Use value provided by user
+            sumw = float(sum_gen_weight)
+            print(f"Using input SumGenWeight = {sumw}")
+
         else:
-            print("Warning: weight branches missing, using normalization only")
-            df = df.Define("total_weight", f"{normalization_factor}")
+            # Look for branch inside ROOT tree
+            if "sumGenWeight" in columns:
+                sumw = float(df.Max("sumGenWeight").GetValue())
+                print(f"Using branch 'sumGenWeight' = {sumw}")
+
+            elif "genEventSumw" in columns:
+                sumw = float(df.Max("genEventSumw").GetValue())
+                print(f"Using branch 'genEventSumw' = {sumw}")
+
+            else:
+                raise RuntimeError(
+                    "MC sample detected but no SumGenWeight provided "
+                    "and neither 'sumGenWeight' nor 'genEventSumw' branch exists."
+                )
+
+        # -----------------------------------
+        # Normalization
+        # -----------------------------------
+
+        normalization_factor = luminosity * cross_section / sumw
+
+        print(f"Cross section       : {cross_section}")
+        print(f"Luminosity          : {luminosity}")
+        print(f"Normalization factor: {normalization_factor}")
+
+
+        weight_terms = []
+
+        # Always include normalization
+        weight_terms.append(str(normalization_factor))
+
+        # Check available branches
+        has_pu = "pugenWeight" in columns
+        has_ele_sf = "ele_SF_central" in columns
+        has_muon_sf = "muon_SF_central" in columns
+        has_muon_iso_sf = "muon_SF_iso_nominal" in columns
+        has_muon_id_sf = "muon_SF_id_nominal" in columns
+        has_btag_lf = "btag_SF_lflav_vector" in columns
+        has_btag_bc = "btag_SF_bcflav_vector" in columns
+
+        # Print availability
+        print("\n========== AVAILABLE WEIGHT BRANCHES ==========")
+
+        if has_pu:
+            print("pugenWeight                  : AVAILABLE")
+            weight_terms.append("pugenWeight")
+        else:
+            print("pugenWeight                  : MISSING")
+
+        if has_ele_sf:
+            print("ele_SF_central               : AVAILABLE")
+            weight_terms.append("ele_SF_central")
+        else:
+            print("ele_SF_central               : MISSING")
+
+        # if has_muon_sf:
+        #     print("muon_SF_central              : AVAILABLE")
+        #     weight_terms.append("muon_SF_central")
+        # else:
+        #     print("muon_SF_central              : MISSING")
+
+        if has_muon_iso_sf:
+            print("muon_SF_iso_nominal              : AVAILABLE")
+            weight_terms.append("muon_SF_iso_nominal")
+        else:
+            print("muon_SF_iso_nominal              : MISSING")
+
+        if has_muon_id_sf:
+            print("muon_SF_id_nominal              : AVAILABLE")
+            weight_terms.append("muon_SF_id_nominal")
+        else:
+            print("muon_SF_id_nominal              : MISSING")
+
+        if has_btag_lf:
+            print("btag_SF_lflav_vector[0]      : AVAILABLE")
+            weight_terms.append("btag_SF_lflav_vector[0]")
+        else:
+            print("btag_SF_lflav_vector[0]      : MISSING")
+
+        if has_btag_bc:
+            print("btag_SF_bcflav_vector[0]     : AVAILABLE")
+            weight_terms.append("btag_SF_bcflav_vector[0]")
+        else:
+            print("btag_SF_bcflav_vector[0]     : MISSING")
+
+        print("===============================================")
+
+        # -----------------------------------
+        # Construct total weight
+        # -----------------------------------
+
+        weight_expression = " * ".join(weight_terms)
+
+        print(f"Final weight expression: {weight_expression}")
+
+        df = df.Define(
+            "total_weight",
+            weight_expression
+        )
+
     else:
-        print("DATA detected → Using unit weights")
-        df = df.Define("total_weight", "1.0")
+        print("DATA detected -> Using unit weights")
+
+        df = df.Define(
+            "total_weight",
+            "1.0"
+        )
+
 
     # -----------------------------------
     # Load histogram configuration
@@ -93,8 +217,14 @@ def create_normalized_histogram_rdf(filename,
         xmin = float(config["xmin"])
         xmax = float(config["xmax"])
 
+        hist_title = config.get("title", make_default_title(branch))
+        x_axis_title = config.get("xlabel", make_default_xlabel(branch))
+        y_axis_title = config.get("ylabel", "Events")
+
+        root_title = f"{hist_title};{x_axis_title};{y_axis_title}"
+
         histograms[branch] = df.Histo1D(
-            (branch, branch, bins, xmin, xmax),
+            (branch, root_title, bins, xmin, xmax),
             branch,
             "total_weight"
         )
@@ -128,6 +258,11 @@ if __name__ == "__main__":
                         help="JSON config file for histogram definitions")
     parser.add_argument("--extra", default="mc",
                         help="Use 'data' to force no weighting")
+    parser.add_argument(
+            "--sum_gen_weight",
+            type=float,
+            default=None,
+            help="Optional total sum of generator weights for MC samples.")
 
     args = parser.parse_args()
 
@@ -137,5 +272,6 @@ if __name__ == "__main__":
         luminosity=args.luminosity,
         tree_name=args.tree_name,
         config_file=args.config,
+        sum_gen_weight=args.sum_gen_weight,
         extra_flag=args.extra
     )

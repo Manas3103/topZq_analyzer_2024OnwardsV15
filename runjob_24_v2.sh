@@ -6,7 +6,7 @@ stderr_file=$3    # Log file
 jobconfmod=${4:-jobconfiganalysis_2024}   # use value passed from condor; fall back to default only if empty
 
 # Configuration variables
-eos_output_dir="/eos/uscms/store/user/msahoo/2024_processed"   # NOTE: no trailing slash - avoids double '/' below
+eos_output_dir="/eos/uscms/store/user/msahoo/2024_test"   # NOTE: no trailing slash - avoids double '/' below
 
 echo "==================== JOB STARTED ===================="
 echo "Running analysis with the following parameters:"

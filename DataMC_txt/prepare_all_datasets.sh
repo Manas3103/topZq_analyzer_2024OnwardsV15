@@ -10,7 +10,7 @@
 #   ./prepare_all_datasets.sh <datasets_list.txt> <files_per_job> <master_queue_out.txt>
 #
 # Example:
-#   ./prepare_all_datasets.sh datasets_2024.txt 15 queue_all.txt
+#   ./prepare_all_datasets.sh 2024_MC.txt 15 queue_all.txt
 
 set -e
 
