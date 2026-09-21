@@ -1,0 +1,2 @@
+/store/user/msahoo/2024_merged_rootfile/Merged_H_era_data_nodup_py.root 1.0 0.0 data
+/store/user/msahoo/2024_merged_rootfile/Merged_C_era_data_nodup_py.root 1.0 0.0 data

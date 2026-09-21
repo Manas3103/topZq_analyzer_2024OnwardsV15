@@ -19,5 +19,6 @@ request_cpus=1
 request_memory=8 GB
 request_disk= 50 GB
 
-# queue input_dir, output_file, stderr_file from DataMC_txt/queue_all.txt
+# queue input_dir, output_file, stderr_file from DataMC_txt/All_path.txt
+# queue input_dir, output_file, stderr_file from DataMC_txt/All_Data_path.txt
 queue input_dir, output_file, stderr_file from resubmit_queue.txt

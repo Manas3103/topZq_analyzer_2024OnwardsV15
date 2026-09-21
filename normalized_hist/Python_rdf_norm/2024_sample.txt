@@ -38,3 +38,4 @@
 /store/user/msahoo/2024_merged_rootfile/DYto_2Mu2Jet.root 374000.0 8752983373231.523 mc
 /store/user/msahoo/2024_merged_rootfile/DYto_2Tau2Jet.root 372500.0 6237984447192.093 mc
 /store/user/msahoo/2024_merged_rootfile/Merged_H_era_data_nodup_py.root 1.0 0.0 data
+/store/user/msahoo/2024_merged_rootfile/Merged_C_era_data_nodup_py.root 1.0 0.0 data

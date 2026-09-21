@@ -338,10 +338,7 @@ void BaseAnalyser::selectJets()
         std::cout<< "================================//=================================" << std::endl;
     }
 
-//     _rlm = applyJetVetoMap(_rlm,
-//                            "Jet_eta",
-//                            "Jet_phi");
- 
+
     if (_year == 2024)
     {
     // Tight + TightLeptonVeto cut
@@ -402,7 +399,7 @@ void BaseAnalyser::selectJets()
 
 	    return mask;
 	},
-	{"Jet_neMultiplicity", "Jet_chMultiplicity", "Jet_pt",
+	{"Jet_neMultiplicity", "Jet_chMultiplicity", "Jet_pt_corr",
 	 "Jet_neEmEF", "Jet_chEmEF", "Jet_chHEF", "Jet_neHEF",
 	 "Jet_muEF", "Jet_eta"});
     }
@@ -432,28 +429,27 @@ void BaseAnalyser::selectJets()
         "jet_phi_veto",
         "Jet_phi[for_jetVeto]"
     );
-    _rlm = applyJetVetoMap(_rlm,
-                           "jet_eta_veto",
-                           "jet_phi_veto");
- 
+
+    _rlm = applyJetVetoMap(
+        _rlm,
+        "jet_eta_veto",
+        "jet_phi_veto",
+        "vetoed_jets"
+    );
+
 
 	_rlm = _rlm.Define(
 	    "goodJets",
-	    "abs(Jet_eta) < 2.4 && Jet_pt_corr> 25.0 && for_jetVeto"
+	    "for_jetVeto && vetoed_jets == 0 && ("
+		"("
+		    "abs(Jet_eta) > 2.5 && abs(Jet_eta) < 3.0 && Jet_pt_corr > 50.0"
+		") || ("
+		    "abs(Jet_eta) > 3.0 && abs(Jet_eta) < 5.0 && Jet_pt_corr > 25.0"
+		") || ("
+		    "abs(Jet_eta) > 0.0 && abs(Jet_eta) < 2.5 && Jet_pt_corr > 25.0"
+		")"
+	    ") && abs(Jet_eta) < 5.0"
 	);
-
-	// _rlm = _rlm.Define(
-	//     "goodJets",
-	//     "goodJetsID && ("
-	// 	"("
-	// 	    "abs(Jet_eta) > 2.5 && abs(Jet_eta) < 3.0 && Jet_pt_corr > 50.0"
-	// 	") || ("
-	// 	    "abs(Jet_eta) > 3.0 && abs(Jet_eta) < 5.0 && Jet_pt_corr > 25.0"
-	// 	") || ("
-	// 	    "abs(Jet_eta) > 0.0 && abs(Jet_eta) < 2.5 && Jet_pt_corr > 25.0"
-	// 	")"
-	//     ") && abs(Jet_eta) < 5.0"
-	// );
 
 
     // =====================================================
@@ -620,11 +616,6 @@ void BaseAnalyser::removeOverlaps()
         _rlm = _rlm.Define("Selected_jethadflav",
                            "goodJets_hadflav[CleanJetMask]");
 
-    // _rlm = applyJetVetoMap(_rlm,
-    //                        "Selected_jeteta",
-    //                        "Selected_jetphi");
-               // .Filter("!vetoed_jets");
-
 
     // =====================================================
     // 4  CENTRAL JETS AND LEADING JETS
@@ -669,14 +660,20 @@ void BaseAnalyser::removeOverlaps()
                            "Selected_jethadflav[btagcuts2]");
 
 
-_rlm = _rlm.Define("leadingJet_pt",      "Selected_jetpt.size()  > 0 ? Selected_jetpt[0]  : -999.f")
-           .Define("subleadingJet_pt",   "Selected_jetpt.size()  > 1 ? Selected_jetpt[1]  : -999.f")
-           .Define("leadingbJet_pt",     "Selected_bjetpt.size() > 0 ? Selected_bjetpt[0] : -999.f")
-           .Define("subleadingbJet_pt",  "Selected_bjetpt.size() > 1 ? Selected_bjetpt[1] : -999.f")
-           .Define("leadingJet_eta",     "Selected_jeteta.size()  > 0 ? Selected_jeteta[0]  : -999.f")
-           .Define("subleadingJet_eta",  "Selected_jeteta.size()  > 1 ? Selected_jeteta[1]  : -999.f")
-           .Define("leadingbJet_eta",    "Selected_bjeteta.size() > 0 ? Selected_bjeteta[0] : -999.f")
-           .Define("subleadingbJet_eta", "Selected_bjeteta.size() > 1 ? Selected_bjeteta[1] : -999.f");
+    _rlm = _rlm.Define("leadingJet_pt",      "Selected_jetpt.size()  > 0 ? Selected_jetpt[0]  : -999.f")
+             .Define("subleadingJet_pt",   "Selected_jetpt.size()  > 1 ? Selected_jetpt[1]  : -999.f")
+             .Define("leadingbJet_pt",     "Selected_bjetpt.size() > 0 ? Selected_bjetpt[0] : -999.f")
+             .Define("subleadingbJet_pt",  "Selected_bjetpt.size() > 1 ? Selected_bjetpt[1] : -999.f")
+             .Define("leadingJet_eta",     "Selected_jeteta.size()  > 0 ? Selected_jeteta[0]  : -999.f")
+             .Define("subleadingJet_eta",  "Selected_jeteta.size()  > 1 ? Selected_jeteta[1]  : -999.f")
+             .Define("leadingbJet_eta",    "Selected_bjeteta.size() > 0 ? Selected_bjeteta[0] : -999.f")
+             .Define("subleadingbJet_eta", "Selected_bjeteta.size() > 1 ? Selected_bjeteta[1] : -999.f")
+             .Define("leadingJet_phi",     "Selected_jetphi.size()  > 0 ? Selected_jetphi[0]  : -999.f")
+             .Define("subleadingJet_phi",  "Selected_jetphi.size()  > 1 ? Selected_jetphi[1]  : -999.f")
+             .Define("leadingbJet_phi",    "Selected_bjetphi.size() > 0 ? Selected_bjetphi[0] : -999.f")
+             .Define("subleadingbJet_phi", "Selected_bjetphi.size() > 1 ? Selected_bjetphi[1] : -999.f");
+
+
 
     // =====================================================
     // TLorentzVector Collections (ALL IN ONE PLACE)
@@ -1880,7 +1877,67 @@ void BaseAnalyser::defineSignalRegion()
         .Define("eee_ThreeLRegion_subleadingJet_eta",   "eee_Region ? subleadingJet_eta   : -999.f")
         .Define("eee_ThreeLRegion_leadingbJet_eta",     "eee_Region ? leadingbJet_eta     : -999.f")
         .Define("eee_ThreeLRegion_subleadingbJet_eta",  "eee_Region ? subleadingbJet_eta  : -999.f");
+    _rlm = _rlm
+        .Define("BaseRegion_leadingJet_phi",       "BaseRegion ? leadingJet_phi       : -999.f")
+        .Define("BaseRegion_subleadingJet_phi",    "BaseRegion ? subleadingJet_phi    : -999.f")
+        .Define("BaseRegion_leadingbJet_phi",      "BaseRegion ? leadingbJet_phi      : -999.f")
+        .Define("BaseRegion_subleadingbJet_phi",   "BaseRegion ? subleadingbJet_phi   : -999.f")
 
+        .Define("ThreeLRegion_leadingJet_phi",       "threeLRegion ? leadingJet_phi       : -999.f")
+        .Define("ThreeLRegion_subleadingJet_phi",    "threeLRegion ? subleadingJet_phi    : -999.f")
+        .Define("ThreeLRegion_leadingbJet_phi",      "threeLRegion ? leadingbJet_phi      : -999.f")
+        .Define("ThreeLRegion_subleadingbJet_phi",   "threeLRegion ? subleadingbJet_phi   : -999.f")
+
+        .Define("uuu_ThreeLRegion_leadingJet_phi",       "uuu_Region ? leadingJet_phi       : -999.f")
+        .Define("uuu_ThreeLRegion_subleadingJet_phi",    "uuu_Region ? subleadingJet_phi    : -999.f")
+        .Define("uuu_ThreeLRegion_leadingbJet_phi",      "uuu_Region ? leadingbJet_phi      : -999.f")
+        .Define("uuu_ThreeLRegion_subleadingbJet_phi",   "uuu_Region ? subleadingbJet_phi   : -999.f")
+
+        .Define("uue_ThreeLRegion_leadingJet_phi",       "uue_Region ? leadingJet_phi       : -999.f")
+        .Define("uue_ThreeLRegion_subleadingJet_phi",    "uue_Region ? subleadingJet_phi    : -999.f")
+        .Define("uue_ThreeLRegion_leadingbJet_phi",      "uue_Region ? leadingbJet_phi      : -999.f")
+        .Define("uue_ThreeLRegion_subleadingbJet_phi",   "uue_Region ? subleadingbJet_phi   : -999.f")
+
+        .Define("eeu_ThreeLRegion_leadingJet_phi",       "eeu_Region ? leadingJet_phi       : -999.f")
+        .Define("eeu_ThreeLRegion_subleadingJet_phi",    "eeu_Region ? subleadingJet_phi    : -999.f")
+        .Define("eeu_ThreeLRegion_leadingbJet_phi",      "eeu_Region ? leadingbJet_phi      : -999.f")
+        .Define("eeu_ThreeLRegion_subleadingbJet_phi",   "eeu_Region ? subleadingbJet_phi   : -999.f")
+
+        .Define("eee_ThreeLRegion_leadingJet_phi",       "eee_Region ? leadingJet_phi       : -999.f")
+        .Define("eee_ThreeLRegion_subleadingJet_phi",    "eee_Region ? subleadingJet_phi    : -999.f")
+        .Define("eee_ThreeLRegion_leadingbJet_phi",      "eee_Region ? leadingbJet_phi      : -999.f")
+        .Define("eee_ThreeLRegion_subleadingbJet_phi",   "eee_Region ? subleadingbJet_phi   : -999.f");
+
+    _rlm = _rlm
+        .Define("BaseRegion_PuppiMET_pt",
+                "BaseRegion ? PuppiMET_pt : std::numeric_limits<float>::quiet_NaN()")
+        .Define("BaseRegion_PuppiMET_phi",
+                "BaseRegion ? PuppiMET_phi : std::numeric_limits<float>::quiet_NaN()")
+
+        .Define("uuu_ThreeLRegion_PuppiMET_pt",
+                "uuu_Region ? PuppiMET_pt : std::numeric_limits<float>::quiet_NaN()")
+        .Define("uuu_ThreeLRegion_PuppiMET_phi",
+                "uuu_Region ? PuppiMET_phi : std::numeric_limits<float>::quiet_NaN()")
+
+        .Define("uue_ThreeLRegion_PuppiMET_pt",
+                "uue_Region ? PuppiMET_pt : std::numeric_limits<float>::quiet_NaN()")
+        .Define("uue_ThreeLRegion_PuppiMET_phi",
+                "uue_Region ? PuppiMET_phi : std::numeric_limits<float>::quiet_NaN()")
+
+        .Define("eeu_ThreeLRegion_PuppiMET_pt",
+                "eeu_Region ? PuppiMET_pt : std::numeric_limits<float>::quiet_NaN()")
+        .Define("eeu_ThreeLRegion_PuppiMET_phi",
+                "eeu_Region ? PuppiMET_phi : std::numeric_limits<float>::quiet_NaN()")
+
+        .Define("eee_ThreeLRegion_PuppiMET_pt",
+                "eee_Region ? PuppiMET_pt : std::numeric_limits<float>::quiet_NaN()")
+        .Define("eee_ThreeLRegion_PuppiMET_phi",
+                "eee_Region ? PuppiMET_phi : std::numeric_limits<float>::quiet_NaN()")
+
+        .Define("WZ_Region_PuppiMET_pt",
+                "WZ_Region ? PuppiMET_pt : std::numeric_limits<float>::quiet_NaN()")
+        .Define("WZ_Region_PuppiMET_phi",
+                "WZ_Region ? PuppiMET_phi : std::numeric_limits<float>::quiet_NaN()");
 /*
 
 //    _rlm = _rlm.Define("ThreeLSignalRegion", " NgoodLepton==3 && ncleanbjetspass >= 1 && All_good_tightLeptons && abs(Sum(goodLepton_charge)) == 1")

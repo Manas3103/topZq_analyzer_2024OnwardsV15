@@ -91,7 +91,7 @@
     "xlabel": "N_{#mu}"
   },
   "ThreeLRegion_leadingJet_pt": {
-    "bins": 40,
+    "bins": 20,
     "xmin": 0,
     "xmax": 400,
     "title": "Three-Lepton Region: Leading Jet p_{T}",
@@ -427,7 +427,7 @@
     "xlabel": "N_{#mu}"
   },
   "eeu_ThreeLRegion_leadingJet_pt": {
-    "bins": 40,
+    "bins": 20,
     "xmin": 0,
     "xmax": 400,
     "title": "Three-Lepton Region (ee#mu): Leading Jet p_{T}",
@@ -525,7 +525,7 @@
     "xlabel": "N_{#mu}"
   },
   "eee_ThreeLRegion_leadingJet_pt": {
-    "bins": 40,
+    "bins": 20,
     "xmin": 0,
     "xmax": 400,
     "title": "Three-Lepton Region (eee): Leading Jet p_{T}",
@@ -560,7 +560,7 @@
     "xlabel": "N_{b-jets}"
   },
   "eee_ThreeLRegion_subleadingJet_pt": {
-    "bins": 30,
+    "bins": 10,
     "xmin": 0,
     "xmax": 200,
     "title": "Three-Lepton Region (eee): Subleading Jet p_{T}",
@@ -574,7 +574,7 @@
     "xlabel": "#eta^{sublead jet}"
   },
   "eee_ThreeLRegion_leadingbJet_pt": {
-    "bins": 40,
+    "bins": 20,
     "xmin": 0,
     "xmax": 400,
     "title": "Three-Lepton Region (eee): Leading b-Jet p_{T}",
@@ -588,7 +588,7 @@
     "xlabel": "#eta^{lead b-jet}"
   },
   "eee_ThreeLRegion_subleadingbJet_pt": {
-    "bins": 30,
+    "bins": 10,
     "xmin": 0,
     "xmax": 200,
     "title": "Three-Lepton Region (eee): Subleading b-Jet p_{T}",
@@ -602,7 +602,7 @@
     "xlabel": "#eta^{sublead b-jet}"
   },
   "eeu_ThreeLRegion_subleadingJet_pt": {
-    "bins": 30,
+    "bins": 10,
     "xmin": 0,
     "xmax": 200,
     "title": "Three-Lepton Region (ee#mu): Subleading Jet p_{T}",
@@ -616,7 +616,7 @@
     "xlabel": "#eta^{sublead jet}"
   },
   "eeu_ThreeLRegion_leadingbJet_pt": {
-    "bins": 40,
+    "bins": 20,
     "xmin": 0,
     "xmax": 400,
     "title": "Three-Lepton Region (ee#mu): Leading b-Jet p_{T}",
@@ -630,7 +630,7 @@
     "xlabel": "#eta^{lead b-jet}"
   },
   "eeu_ThreeLRegion_subleadingbJet_pt": {
-    "bins": 30,
+    "bins": 10,
     "xmin": 0,
     "xmax": 200,
     "title": "Three-Lepton Region (ee#mu): Subleading b-Jet p_{T}",
@@ -644,7 +644,7 @@
     "xlabel": "#eta^{sublead b-jet}"
   },
   "uue_ThreeLRegion_subleadingJet_pt": {
-    "bins": 30,
+    "bins": 10,
     "xmin": 0,
     "xmax": 200,
     "title": "Three-Lepton Region (#mu#mue): Subleading Jet p_{T}",
@@ -658,7 +658,7 @@
     "xlabel": "#eta^{sublead jet}"
   },
   "uue_ThreeLRegion_leadingbJet_pt": {
-    "bins": 40,
+    "bins": 20,
     "xmin": 0,
     "xmax": 400,
     "title": "Three-Lepton Region (#mu#mue): Leading b-Jet p_{T}",
@@ -672,7 +672,7 @@
     "xlabel": "#eta^{lead b-jet}"
   },
   "uue_ThreeLRegion_subleadingbJet_pt": {
-    "bins": 30,
+    "bins": 10,
     "xmin": 0,
     "xmax": 200,
     "title": "Three-Lepton Region (#mu#mue): Subleading b-Jet p_{T}",
@@ -686,7 +686,7 @@
     "xlabel": "#eta^{sublead b-jet}"
   },
   "uuu_ThreeLRegion_subleadingJet_pt": {
-    "bins": 30,
+    "bins": 10,
     "xmin": 0,
     "xmax": 200,
     "title": "Three-Lepton Region (#mu#mu#mu): Subleading Jet p_{T}",
@@ -700,7 +700,7 @@
     "xlabel": "#eta^{sublead jet}"
   },
   "uuu_ThreeLRegion_leadingbJet_pt": {
-    "bins": 40,
+    "bins": 20,
     "xmin": 0,
     "xmax": 400,
     "title": "Three-Lepton Region (#mu#mu#mu): Leading b-Jet p_{T}",
@@ -714,7 +714,7 @@
     "xlabel": "#eta^{lead b-jet}"
   },
   "uuu_ThreeLRegion_subleadingbJet_pt": {
-    "bins": 30,
+    "bins": 10,
     "xmin": 0,
     "xmax": 200,
     "title": "Three-Lepton Region (#mu#mu#mu): Subleading b-Jet p_{T}",
@@ -728,7 +728,7 @@
     "xlabel": "#eta^{sublead b-jet}"
   },
   "ThreeLRegion_subleadingJet_pt": {
-    "bins": 30,
+    "bins": 10,
     "xmin": 0,
     "xmax": 200,
     "title": "Three-Lepton Region: Subleading Jet p_{T}",
@@ -742,7 +742,7 @@
     "xlabel": "#eta^{sublead jet}"
   },
   "ThreeLRegion_leadingbJet_pt": {
-    "bins": 40,
+    "bins": 20,
     "xmin": 0,
     "xmax": 400,
     "title": "Three-Lepton Region: Leading b-Jet p_{T}",
@@ -756,7 +756,7 @@
     "xlabel": "#eta^{lead b-jet}"
   },
   "ThreeLRegion_subleadingbJet_pt": {
-    "bins": 30,
+    "bins": 10,
     "xmin": 0,
     "xmax": 200,
     "title": "Three-Lepton Region: Subleading b-Jet p_{T}",
@@ -770,7 +770,7 @@
     "xlabel": "#eta^{sublead b-jet}"
   },
   "BaseRegion_subleadingJet_pt": {
-    "bins": 30,
+    "bins": 10,
     "xmin": 0,
     "xmax": 200,
     "title": "Base Region: Subleading Jet p_{T}",
@@ -784,7 +784,7 @@
     "xlabel": "#eta^{sublead jet}"
   },
   "BaseRegion_leadingbJet_pt": {
-    "bins": 40,
+    "bins": 20,
     "xmin": 0,
     "xmax": 400,
     "title": "Base Region: Leading b-Jet p_{T}",
@@ -798,7 +798,7 @@
     "xlabel": "#eta^{lead b-jet}"
   },
   "BaseRegion_subleadingbJet_pt": {
-    "bins": 30,
+    "bins": 10,
     "xmin": 0,
     "xmax": 200,
     "title": "Base Region: Subleading b-Jet p_{T}",
@@ -894,5 +894,16 @@
     "xmax": 1.5,
     "title": "Base Region: Event Yield",
     "xlabel": "Event Category"
+  },
+  "hist2d": {
+    "ThreeLRegion_Region_leadJet_eta_phi": {
+      "xbranch": "ThreeLRegion_leadingJet_eta",
+      "ybranch": "ThreeLRegion_leadingJet_phi",
+      "xbins": 104, "xmin": -5.2, "xmax": 5.2,
+      "ybins": 64, "ymin": -3.2, "ymax": 3.2,
+      "title": "Three Lepton Region: Leading Jet #eta vs #phi",
+      "xlabel": "#eta",
+      "ylabel": "#phi"
+    }
   }
 }

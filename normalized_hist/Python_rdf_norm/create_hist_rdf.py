@@ -3,13 +3,13 @@ import os
 import argparse
 import json
 import time
-import re 
+import re
 
 def load_config(config_file):
     with open(config_file, "r") as f:
         return json.load(f)
 
-# ---------- NEW HELPER FUNCTION 1 ----------
+# ---------- HELPER FUNCTION 1 ----------
 def make_default_title(branch):
     title = branch.replace("_", " ")
     title = re.sub(r"(?<!^)(?=[A-Z])", " ", title)
@@ -17,7 +17,7 @@ def make_default_title(branch):
     return title
 
 
-# ---------- NEW HELPER FUNCTION 2 ----------
+# ---------- HELPER FUNCTION 2 ----------
 def make_default_xlabel(branch):
     variable_labels = {
         "pt": "p_{T} [GeV]",
@@ -42,6 +42,98 @@ def is_data_sample(filename, extra_flag):
     if "data" in filename.lower():
         return True
     return False
+
+
+def resolve_branch_expr(branch, columns):
+    """
+    Resolve a requested branch name to an actual RDataFrame column
+    expression. If the exact branch name exists, use it as-is.
+    If it doesn't exist but a vector/array version does (e.g. the
+    user asked for 'leadJet_eta' but the tree only has 'Jet_eta'),
+    fall back to index [0] on the array branch (the leading object).
+    """
+    if branch in columns:
+        return branch
+
+    # common case: user wants the "leading" object but tree stores
+    # a vector/array branch instead of a dedicated lead-object branch
+    candidates = []
+
+    lower = branch.lower()
+    for prefix in ("leadjet_", "lead_jet_", "leading_jet_"):
+        if lower.startswith(prefix):
+            suffix = branch[len(prefix):]
+            candidates.append(f"Jet_{suffix}")
+            candidates.append(f"jet_{suffix}")
+
+    for cand in candidates:
+        if cand in columns:
+            return f"{cand}[0]"
+
+    # last resort: if branch itself is a known vector-style column,
+    # just index it directly
+    if branch in columns:
+        return branch
+
+    return None
+
+
+def create_2d_histograms(df, columns, config_2d):
+    """
+    Build lazy 2D histograms (e.g. eta vs phi of the leading jet)
+    from a config dict of the form:
+
+    {
+      "leadJet_eta_phi": {
+          "xbranch": "leadJet_eta",
+          "ybranch": "leadJet_phi",
+          "xbins": 50, "xmin": -3.0, "xmax": 3.0,
+          "ybins": 50, "ymin": -3.2, "ymax": 3.2,
+          "title": "Leading Jet #eta vs #phi",
+          "xlabel": "#eta",
+          "ylabel": "#phi"
+      }
+    }
+    """
+    hist2d = {}
+
+    for name, cfg in config_2d.items():
+
+        xbranch_raw = cfg["xbranch"]
+        ybranch_raw = cfg["ybranch"]
+
+        xexpr = resolve_branch_expr(xbranch_raw, columns)
+        yexpr = resolve_branch_expr(ybranch_raw, columns)
+
+        if xexpr is None or yexpr is None:
+            print(f"Warning: could not resolve branch(es) "
+                  f"'{xbranch_raw}' / '{ybranch_raw}' for 2D hist "
+                  f"'{name}', skipping.")
+            continue
+
+        xbins = int(cfg["xbins"])
+        xmin = float(cfg["xmin"])
+        xmax = float(cfg["xmax"])
+        ybins = int(cfg["ybins"])
+        ymin = float(cfg["ymin"])
+        ymax = float(cfg["ymax"])
+
+        title = cfg.get("title", f"{xbranch_raw} vs {ybranch_raw}")
+        xlabel = cfg.get("xlabel", make_default_xlabel(xbranch_raw))
+        ylabel = cfg.get("ylabel", make_default_xlabel(ybranch_raw))
+
+        root_title = f"{title};{xlabel};{ylabel}"
+
+        print(f"Booking 2D histogram '{name}': x={xexpr}, y={yexpr}")
+
+        hist2d[name] = df.Histo2D(
+            (name, root_title, xbins, xmin, xmax, ybins, ymin, ymax),
+            xexpr,
+            yexpr,
+            "total_weight"
+        )
+
+    return hist2d
 
 
 def create_normalized_histogram_rdf(filename,
@@ -77,12 +169,10 @@ def create_normalized_histogram_rdf(filename,
         # -----------------------------------
 
         if sum_gen_weight is not None:
-            # Use value provided by user
             sumw = float(sum_gen_weight)
             print(f"Using input SumGenWeight = {sumw}")
 
         else:
-            # Look for branch inside ROOT tree
             if "sumGenWeight" in columns:
                 sumw = float(df.Max("sumGenWeight").GetValue())
                 print(f"Using branch 'sumGenWeight' = {sumw}")
@@ -107,13 +197,9 @@ def create_normalized_histogram_rdf(filename,
         print(f"Luminosity          : {luminosity}")
         print(f"Normalization factor: {normalization_factor}")
 
-
         weight_terms = []
-
-        # Always include normalization
         weight_terms.append(str(normalization_factor))
 
-        # Check available branches
         has_pu = "pugenWeight" in columns
         has_ele_sf = "ele_SF_central" in columns
         has_muon_sf = "muon_SF_central" in columns
@@ -122,7 +208,6 @@ def create_normalized_histogram_rdf(filename,
         has_btag_lf = "btag_SF_lflav_vector" in columns
         has_btag_bc = "btag_SF_bcflav_vector" in columns
 
-        # Print availability
         print("\n========== AVAILABLE WEIGHT BRANCHES ==========")
 
         if has_pu:
@@ -169,12 +254,7 @@ def create_normalized_histogram_rdf(filename,
 
         print("===============================================")
 
-        # -----------------------------------
-        # Construct total weight
-        # -----------------------------------
-
         weight_expression = " * ".join(weight_terms)
-
         print(f"Final weight expression: {weight_expression}")
 
         df = df.Define(
@@ -190,11 +270,14 @@ def create_normalized_histogram_rdf(filename,
             "1.0"
         )
 
-
     # -----------------------------------
     # Load histogram configuration
     # -----------------------------------
     branch_ranges = load_config(config_file)
+
+    # Pull out the optional "hist2d" section; everything else is
+    # treated as a 1D histogram definition, exactly as before.
+    config_2d = branch_ranges.pop("hist2d", {})
 
     # -----------------------------------
     # Output file
@@ -203,7 +286,7 @@ def create_normalized_histogram_rdf(filename,
     outputFile = ROOT.TFile(outputFileName, "RECREATE")
 
     # -----------------------------------
-    # Create histograms (lazy)
+    # Create 1D histograms (lazy)
     # -----------------------------------
     histograms = {}
 
@@ -230,9 +313,20 @@ def create_normalized_histogram_rdf(filename,
         )
 
     # -----------------------------------
+    # Create 2D histograms (lazy)
+    # e.g. leading jet eta (x) vs phi (y)
+    # -----------------------------------
+    hist2d = create_2d_histograms(df, columns, config_2d)
+
+    # -----------------------------------
     # Trigger event loop (single pass)
+    # Both 1D and 2D histograms are filled
+    # together since they share the same df graph.
     # -----------------------------------
     for hist in histograms.values():
+        hist.Write()
+
+    for hist in hist2d.values():
         hist.Write()
 
     outputFile.Close()
@@ -241,7 +335,8 @@ def create_normalized_histogram_rdf(filename,
 
     print("\n=========== SUMMARY ===========")
     print("Output file:", outputFileName)
-    print("Histograms created:", len(histograms))
+    print("1D histograms created:", len(histograms))
+    print("2D histograms created:", len(hist2d))
     print("Execution time:", round(end_time - start_time, 2), "seconds")
     print("================================")
 
@@ -255,7 +350,9 @@ if __name__ == "__main__":
     parser.add_argument("--luminosity", type=float, default=1.0)
     parser.add_argument("--tree_name", default="outputTree")
     parser.add_argument("--config", required=True,
-                        help="JSON config file for histogram definitions")
+                        help="JSON config file for histogram definitions "
+                             "(supports 1D branches and an optional "
+                             "'hist2d' section for 2D histograms)")
     parser.add_argument("--extra", default="mc",
                         help="Use 'data' to force no weighting")
     parser.add_argument(

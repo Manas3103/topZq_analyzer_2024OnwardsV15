@@ -143,12 +143,12 @@ nanoaod_inputdir_outputdir_pairs = [
 
 '''
 nanoaod_inputdir_outputdir_pairs = [
-    # ['/TZQB-Zto2L-4FS_Bin-MLL-30_TuneCP5_13p6TeV_amcatnlo-pythia8/RunIII2024Summer24NanoAODv15-Madgraph_2_6_5_150X_mcRun3_2024_realistic_v2-v2/NANOAODSIM',
-    #  'tzq_3l.root',
-    #  'tzq_3l.out'],
-    ['/store/user/msahoo/2024/TTH-HtoNon2B/part9',
-     'TTH-HtoNon2B_part9_skimed.root',
-     'TTH-HtoNon2B_part9_skimmed.out']
+    ['/TZQB-Zto2L-4FS_Bin-MLL-30_TuneCP5_13p6TeV_amcatnlo-pythia8/RunIII2024Summer24NanoAODv15-Madgraph_2_6_5_150X_mcRun3_2024_realistic_v2-v2/NANOAODSIM',
+     'tzq_3l.root',
+     'tzq_3l.out']
+    # ['/store/user/msahoo/2024/TTH-HtoNon2B/part9',
+    #  'TTH-HtoNon2B_part9_skimed.root',
+    #  'TTH-HtoNon2B_part9_skimmed.out']
 
 ]
 

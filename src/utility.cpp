@@ -1272,3 +1272,147 @@ ints CompareLeptonOriginToGenPartFlag(
 
     return cmp;
 }
+
+
+// =====================================================================
+// utility_ff_additions.cpp
+//
+// Append the contents of this file into utility.cpp (anywhere after
+// the includes, e.g. right after countOSSFZPairs()).
+// =====================================================================
+
+ClosestJetInfo nearbyJetInfo(const floats &lepPt, const floats &lepEta, const floats &lepPhi,
+                              const shorts &jetIdx, const floats &jetPt,
+                              const floats &jetEta, const floats &jetPhi)
+{
+    ClosestJetInfo out;
+    out.dR.reserve(lepPt.size());
+    out.jetPt.reserve(lepPt.size());
+
+    for (size_t i = 0; i < lepPt.size(); i++)
+    {
+        int idx = jetIdx[i];
+        if (idx < 0 || idx >= (int)jetPt.size())
+        {
+            out.dR.push_back(999.f);
+            out.jetPt.push_back(-1.f);
+            continue;
+        }
+        float dphi = std::abs(lepPhi[i] - jetPhi[idx]);
+        if (dphi > M_PI) dphi = 2 * M_PI - dphi;
+        float deta = lepEta[i] - jetEta[idx];
+        out.dR.push_back(std::sqrt(deta * deta + dphi * dphi));
+        out.jetPt.push_back(jetPt[idx]);
+    }
+    return out;
+}
+
+floats jetDeepFlavBByIdx(const ints &jetIdx, const floats &jetDeepFlavB)
+{
+    floats out;
+    out.reserve(jetIdx.size());
+    for (auto idx : jetIdx)
+    {
+        out.push_back((idx >= 0 && idx < (int)jetDeepFlavB.size()) ? jetDeepFlavB[idx] : -1.f);
+    }
+    return out;
+}
+
+floats jetPtRatioByIdx(const floats &lepPt, const ints &jetIdx, const floats &jetPt)
+{
+    floats out;
+    out.reserve(lepPt.size());
+    for (size_t i = 0; i < lepPt.size(); i++)
+    {
+        int idx = jetIdx[i];
+        if (idx < 0 || idx >= (int)jetPt.size() || jetPt[idx] <= 0.f)
+        {
+            out.push_back(1.f);
+        }
+        else
+        {
+            out.push_back(lepPt[i] / jetPt[idx]);
+        }
+    }
+    return out;
+}
+
+floats coneCorrectedPt(const floats &lepPt,
+                        const ints &isTight,
+                        const floats &pfRelIso,
+                        const floats &closestJetDR,
+                        const floats &closestJetPt,
+                        float x,
+                        float dRmatch)
+{
+    floats out;
+    out.reserve(lepPt.size());
+
+    for (size_t i = 0; i < lepPt.size(); i++)
+    {
+        float ptcone;
+        if (isTight[i])
+        {
+            ptcone = lepPt[i];
+        }
+        else if (closestJetDR[i] < dRmatch && closestJetPt[i] > 0.f)
+        {
+            ptcone = x * closestJetPt[i];
+        }
+        else
+        {
+            ptcone = x * lepPt[i] * (1.f + pfRelIso[i]);
+        }
+        out.push_back(ptcone);
+    }
+    return out;
+}
+
+FFTriggerResult evaluateFFTrigger(const std::vector<bool>  &hltFired,
+                                   const std::vector<float> &lepPtMinTab,
+                                   const std::vector<float> &jetPtMinTab,
+                                   const std::vector<float> &coneLoTab,
+                                   const std::vector<float> &coneHiTab,
+                                   const std::vector<float> &prescaleTab,
+                                   float lepPt,
+                                   float jetPt,
+                                   float lepPtCone,
+                                   bool  isMC)
+{
+    FFTriggerResult result{false, 1.0};
+
+    double prodTerm = 1.0; // running product for Eq. 29
+    bool   anyFired = false;
+
+    size_t n = hltFired.size();
+    for (size_t i = 0; i < n; i++)
+    {
+        if (!hltFired[i]) continue;
+        if (lepPt     < lepPtMinTab[i]) continue;
+        if (jetPt     < jetPtMinTab[i]) continue;
+        if (lepPtCone < coneLoTab[i] || lepPtCone > coneHiTab[i]) continue;
+
+        anyFired = true;
+        if (isMC && prescaleTab[i] > 0.f)
+        {
+            prodTerm *= (1.0 - 1.0 / prescaleTab[i]);
+        }
+    }
+
+    result.passed = anyFired;
+    if (anyFired && isMC)
+    {
+        result.weight = 1.0 - prodTerm;
+    }
+    return result;
+}
+floats nearbyJetPtRatio(const floats& relIso)
+{
+    floats out;
+    out.reserve(relIso.size());
+
+    for (float x : relIso)
+        out.push_back(x <= -1.f ? 1.f : 1.f / (1.f + x));
+
+    return out;
+}

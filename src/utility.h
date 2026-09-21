@@ -189,4 +189,78 @@ ints CompareLeptonOriginToGenPartFlag(
     const ints&   GenPart_muFromTopW); 
 
 ZPairCounts countOSSFZPairs(const FourVectorRVec& leptons, const ints& pdgId);
+
+
+
+// =====================================================================
+// utility_ff_additions.h
+//
+// Append the contents of this file into utility.h (inside the existing
+// header, after the other struct/function declarations, before the
+// closing #endif). Kept as a separate file here only so the diff is
+// easy to review before you merge it in.
+// =====================================================================
+
+// ---------------------------------------------------------------------
+// Fake-factor (TOP-group cone-pt) helpers
+// ---------------------------------------------------------------------
+
+// Per-lepton closest-jet info, used both for the pT^cone jet-matched
+// branch (Eq. 28, DeltaR < 0.4) and for the MR jet-lepton separation
+// cut (DeltaR(jet, l) > 0.7). Computed once, reused for both.
+struct ClosestJetInfo
+{
+    floats dR;     // DeltaR to closest jet, per lepton (999 if no jets)
+    floats jetPt;  // pT of that closest jet, per lepton (-1 if no jets)
+};
+
+ClosestJetInfo nearbyJetInfo(const floats &lepPt, const floats &lepEta, const floats &lepPhi,
+                              const shorts &jetIdx, const floats &jetPt,
+                              const floats &jetEta, const floats &jetPhi);
+
+// DeepJetB / pT of the nearby jet given per-lepton jetIdx (-1 -> no jet:
+// DeepJetB returned as -1 (trivially passes "< threshold" cuts), pT
+// ratio returned as 1.0 (trivially passes ">threshold" cuts, i.e. an
+// isolated lepton with no nearby jet is treated as fully lepton-like).
+floats jetDeepFlavBByIdx(const ints &jetIdx, const floats &jetDeepFlavB);
+floats jetPtRatioByIdx(const floats &lepPt, const ints &jetIdx, const floats &jetPt);
+
+// Cone-corrected lepton pT, TOP-group Eq. 28:
+//   tight            -> pt_l
+//   jet within dRmatch -> x * pt_closestJet
+//   else             -> x * pt_l * (1 + pfRelIso)
+// x = 0.67 for both electrons and muons.
+floats coneCorrectedPt(const floats &lepPt,
+                        const ints &isTight,
+                        const floats &pfRelIso,
+                        const floats &closestJetDR,
+                        const floats &closestJetPt,
+                        float x = 0.67f,
+                        float dRmatch = 0.4f);
+
+// Result of the measurement-region trigger + prescale-weight evaluation
+// for the single fakeable lepton in the event (Table 25 / Eq. 29).
+struct FFTriggerResult
+{
+    bool   passed;  // fired >=1 applicable path with all pT/cone requirements met
+    double weight;  // MC-only prescale reweighting; 1.0 for data or if !passed
+};
+
+// hltFired / lepPtMinTab / jetPtMinTab / coneLoTab / coneHiTab / prescaleTab
+// are all parallel arrays: one entry per trigger path in Table 25, already
+// filtered down (by the caller) to just the paths relevant to this
+// lepton's flavor (electron paths for an electron event, muon paths for a
+// muon event). hltFired[i] is that event's decision bit for path i.
+FFTriggerResult evaluateFFTrigger(const std::vector<bool>  &hltFired,
+                                   const std::vector<float> &lepPtMinTab,
+                                   const std::vector<float> &jetPtMinTab,
+                                   const std::vector<float> &coneLoTab,
+                                   const std::vector<float> &coneHiTab,
+                                   const std::vector<float> &prescaleTab,
+                                   float lepPt,
+                                   float jetPt,
+                                   float lepPtCone,
+                                   bool  isMC);
+
+floats nearbyJetPtRatio(const floats& relIso);
 #endif /* UTILITY_H_ */

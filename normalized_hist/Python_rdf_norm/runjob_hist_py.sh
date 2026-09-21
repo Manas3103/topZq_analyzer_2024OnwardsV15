@@ -15,7 +15,8 @@ filename=$1
 crosssection=$2
 sum_gen_weight=$3
 sample_type=$4
-luminosity=5.0
+# luminosity=5.49
+luminosity=12.75
 # luminosity=110.0
 
 

@@ -98,10 +98,12 @@ int main(void) {
             jet_veto_tag,electron_SSF, metpt_fname, jetidfname,
             jetid_workingpoint, JER_tag, JER_tag_res);
 
-	nanoaodrdf.defineCuts();
-	nanoaodrdf.defineMoreVars();
-    nanoaodrdf.setupCuts_and_Hists();
-    nanoaodrdf.setupTree();
+	// setupObjects() builds the fakeable/tight electrons & muons, cone-pT,
+	// measurement region and FF trigger weight; setupAnalysis() then runs
+	// defineCuts() -> defineMoreVars() -> bookHists() -> setupCuts_and_Hists()
+	// -> setupTree() internally (see FakeFactorAnalyser::setupAnalysis()).
+	nanoaodrdf.setupObjects();
+	nanoaodrdf.setupAnalysis();
 	nanoaodrdf.run(false, "outputTree");
 
 	return EXIT_SUCCESS;

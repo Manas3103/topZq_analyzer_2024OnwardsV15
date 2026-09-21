@@ -171,7 +171,517 @@ void NanoAODAnalyzerrdframe::setupJetMETCorrection(string fname, string jettag,s
 }
 
 
+//void NanoAODAnalyzerrdframe::applyJetMETCorrections()
+//{
+//    std::cout << "Applying JET/MET corrections" << std::endl;
 
+//    using ROOT::VecOps::RVec;
+//    using floats = RVec<float>;
+
+//    //==================================================================
+//    // Standard CMS Type-1 PUPPI MET recipe:
+//    //
+//    //   p_T^miss = p_T^miss,raw
+//    //              - sum_{Jet}          ( pt_noMuL1L2L3 - pt_noMuL1 )
+//    //              - sum_{CorrT1METJet} ( pt_noMuL1L2L3 - pt_noMuL1 )
+//    //
+//    // for jets passing pt_noMuL1L2L3 > 15 GeV and EM-fraction < 0.9.
+//    // Seed MET MUST be RawPuppiMET_pt/phi, not PuppiMET_pt/phi (the
+//    // latter is already Type-1 corrected in NanoAOD -> double counting
+//    // otherwise).
+//    //
+//    // Key simplification used below: JEC/JER factors are derived from
+//    // (and applied to) the raw pT that STILL includes the muon
+//    // contribution. Because of that, the muon-subtracted corrected pT
+//    // is simply:
+//    //     pt_noMu_corrected = pt_corrected * (1 - muonSubtrFactor)
+//    // so we never need to re-run the corrector on the muon-subtracted
+//    // raw pT itself -- just scale the already-corrected pT.
+//    //==================================================================
+//    auto propagatePuppiMET_Type1 = [](
+//            // regular Jet collection (muon-subtracted quantities)
+//            floats jet_pt_noMuL1L2L3,
+//            floats jet_pt_noMuL1,
+//            floats jet_phi_noMuRaw,
+//            floats jet_chEmEF,
+//            floats jet_neEmEF,
+//            // CorrT1METJet collection (muon-subtracted quantities)
+//            floats corrT1_pt_noMuL1L2L3,
+//            floats corrT1_pt_noMuL1,
+//            floats corrT1_phi_noMuRaw,
+//            floats corrT1_EmEF,
+//            // seed MET -- RAW Puppi MET, not the already-corrected one
+//            float  rawmet_pt,
+//            float  rawmet_phi) -> floats
+//    {
+//        float met_x = rawmet_pt * std::cos(rawmet_phi);
+//        float met_y = rawmet_pt * std::sin(rawmet_phi);
+
+//        // ---- Jet collection ----
+//        for (size_t i = 0; i < jet_pt_noMuL1L2L3.size(); i++)
+//        {
+//            if (jet_pt_noMuL1L2L3[i] <= 15.f) continue;
+//            if (jet_chEmEF[i] + jet_neEmEF[i] >= 0.9f) continue;
+
+//            float dpt = jet_pt_noMuL1L2L3[i] - jet_pt_noMuL1[i];
+//            met_x -= dpt * std::cos(jet_phi_noMuRaw[i]);
+//            met_y -= dpt * std::sin(jet_phi_noMuRaw[i]);
+//        }
+
+//        // ---- CorrT1METJet collection (low-pT jets, kept only for MET) ----
+//        for (size_t i = 0; i < corrT1_pt_noMuL1L2L3.size(); i++)
+//        {
+//            if (corrT1_pt_noMuL1L2L3[i] <= 15.f) continue;
+//            if (corrT1_EmEF[i] >= 0.9f) continue;
+
+//            float dpt = corrT1_pt_noMuL1L2L3[i] - corrT1_pt_noMuL1[i];
+//            met_x -= dpt * std::cos(corrT1_phi_noMuRaw[i]);
+//            met_y -= dpt * std::sin(corrT1_phi_noMuRaw[i]);
+//        }
+
+//        return floats{ std::sqrt(met_x*met_x + met_y*met_y),
+//                       std::atan2(met_y, met_x) };
+//    };
+
+//    //------------------------------------------------------------------
+//    // defineMETVariant: for a given (possibly systematically varied)
+//    // L1L2L3-corrected Jet pt column, muon-subtract it on the fly and
+//    // combine with the (nominal, unvaried) L1 term, phi, EM fractions,
+//    // CorrT1METJet contribution and RawPuppiMET seed.
+//    //------------------------------------------------------------------
+//    auto defineMETVariant = [&](const std::string& jetCol,
+//                                const std::string& metPtCol,
+//                                const std::string& metPhiCol)
+//    {
+//        // muon-subtract this variant's L1L2L3 pt: pt*(1-muonSubtrFactor)
+//        std::string noMuCol = jetCol + "_noMu";
+//        _rlm = _rlm.Define(noMuCol,
+//            [](floats pt, floats musf) {
+//                floats out(pt.size());
+//                for (size_t i = 0; i < pt.size(); i++)
+//                    out[i] = pt[i] * (1.f - musf[i]);
+//                return out;
+//            },
+//            {jetCol, "Jet_muonSubtrFactor"});
+
+//        std::string vecCol = metPtCol + "_vec";
+
+//        _rlm = _rlm.Define(vecCol,
+//            propagatePuppiMET_Type1,
+//            {noMuCol, "Jet_pt_noMuL1", "Jet_phi_noMuRaw",
+//             "Jet_chEmEF", "Jet_neEmEF",
+//             "CorrT1METJet_pt_noMuL1L2L3", "CorrT1METJet_pt_noMuL1",
+//             "CorrT1METJet_phi_noMuRaw", "CorrT1METJet_EmEF",
+//             "RawPuppiMET_pt", "RawPuppiMET_phi"});
+
+//        _rlm = _rlm.Define(metPtCol,  vecCol + "[0]");
+//        _rlm = _rlm.Define(metPhiCol, vecCol + "[1]");
+
+//        std::cout << "Defined MET columns: " << metPtCol
+//                  << ", " << metPhiCol << std::endl;
+//    };
+
+//    //------------------------------------------------------------------
+//    // Shared helper: build the fixed (variant-independent) pieces that
+//    // both Data and MC paths need: Jet_pt_noMuL1, Jet_phi_noMuRaw, and
+//    // the full CorrT1METJet contribution (L1, L1L2L3, phi_noMuRaw).
+//    // Needs an L1-only corrector, _jetCorrectorL1, evaluated the same
+//    // way as _jetCorrector but with L1FastJet-only correction levels.
+//    //------------------------------------------------------------------
+//    auto defineFixedType1Inputs = [&]()
+//    {
+//        // --- L1-only correction for the regular Jet collection ---
+//        auto jetCorrLambda_L1 =
+//            [this](floats jetpts, floats jetetas, floats jetAreas,
+//                   floats jetrawf, float rho, floats jetphis,
+//                   floats run_f) -> floats
+//        {
+//            floats out; out.reserve(jetpts.size());
+//            for (size_t i = 0; i < jetpts.size(); i++)
+//            {
+//                float rawpt = jetpts[i] * (1.f - jetrawf[i]);
+//                float corr = (_year == 2023 || _year == 2024)
+//                    ? _jetCorrectorL1->evaluate({jetAreas[i], jetetas[i], rawpt, rho, jetphis[i]})
+//                    : _jetCorrectorL1->evaluate({jetAreas[i], jetetas[i], rawpt, rho});
+//                out.emplace_back(rawpt * corr);
+//            }
+//            return out;
+//        };
+
+//        if (_isData)
+//        {
+//            _rlm = _rlm.Define("Jet_pt_L1", jetCorrLambda_L1,
+//                {"Jet_pt", "Jet_eta", "Jet_area", "Jet_rawFactor",
+//                 "Rho_fixedGridRhoFastjetAll", "Jet_phi", "run_f"});
+//        }
+//        else
+//        {
+//            // MC: run_f isn't defined on the MC path, so pass a dummy
+//            _rlm = _rlm.Define("run_f_dummy",
+//                [](const floats& jetpts) { return floats(jetpts.size(), 0.f); },
+//                {"Jet_pt"});
+//            _rlm = _rlm.Define("Jet_pt_L1", jetCorrLambda_L1,
+//                {"Jet_pt", "Jet_eta", "Jet_area", "Jet_rawFactor",
+//                 "Rho_fixedGridRhoFastjetAll", "Jet_phi", "run_f_dummy"});
+//        }
+
+//        // phi with muon-induced angular shift added back in
+//        _rlm = _rlm.Define("Jet_phi_noMuRaw",
+//            [](floats phi, floats dphi) {
+//                floats out(phi.size());
+//                for (size_t i = 0; i < phi.size(); i++)
+//                    out[i] = phi[i] + dphi[i];
+//                return out;
+//            },
+//            {"Jet_phi", "Jet_muonSubtrDeltaPhi"});
+
+//        // Jet_pt_L1 -> Jet_pt_noMuL1
+//        _rlm = _rlm.Define("Jet_pt_noMuL1",
+//            [](floats pt, floats musf) {
+//                floats out(pt.size());
+//                for (size_t i = 0; i < pt.size(); i++)
+//                    out[i] = pt[i] * (1.f - musf[i]);
+//                return out;
+//            },
+//            {"Jet_pt_L1", "Jet_muonSubtrFactor"});
+
+//        // --- CorrT1METJet collection: L1 and L1L2L3, from CorrT1METJet_rawPt ---
+//        // NOTE: assumes CorrT1METJet_eta and CorrT1METJet_area branches
+//        // are available. If not, they must be added at NanoAOD
+//        // production, or looked up via index matching against Jet.
+//        auto corrT1Corr = [this](floats rawpt, floats etas, floats areas,
+//                                  float rho, floats phis, bool useL1) -> floats
+//        {
+//            floats out; out.reserve(rawpt.size());
+//            for (size_t i = 0; i < rawpt.size(); i++)
+//            {
+//                float corr = useL1
+//                    ? ((_year == 2023 || _year == 2024)
+//                        ? _jetCorrectorL1->evaluate({areas[i], etas[i], rawpt[i], rho, phis[i]})
+//                        : _jetCorrectorL1->evaluate({areas[i], etas[i], rawpt[i], rho}))
+//                    : ((_year == 2023 || _year == 2024)
+//                        ? _jetCorrector->evaluate({areas[i], etas[i], rawpt[i], rho, phis[i]})
+//                        : _jetCorrector->evaluate({areas[i], etas[i], rawpt[i], rho}));
+//                out.emplace_back(rawpt[i] * corr);
+//            }
+//            return out;
+//        };
+
+//        _rlm = _rlm.Define("CorrT1METJet_pt_L1L2L3",
+//            [corrT1Corr](floats rawpt, floats etas, floats areas, float rho, floats phis)
+//            { return corrT1Corr(rawpt, etas, areas, rho, phis, false); },
+//            {"CorrT1METJet_rawPt", "CorrT1METJet_eta", "CorrT1METJet_area",
+//             "Rho_fixedGridRhoFastjetAll", "CorrT1METJet_phi"});
+
+//        _rlm = _rlm.Define("CorrT1METJet_pt_L1",
+//            [corrT1Corr](floats rawpt, floats etas, floats areas, float rho, floats phis)
+//            { return corrT1Corr(rawpt, etas, areas, rho, phis, true); },
+//            {"CorrT1METJet_rawPt", "CorrT1METJet_eta", "CorrT1METJet_area",
+//             "Rho_fixedGridRhoFastjetAll", "CorrT1METJet_phi"});
+
+//        _rlm = _rlm.Define("CorrT1METJet_phi_noMuRaw",
+//            [](floats phi, floats dphi) {
+//                floats out(phi.size());
+//                for (size_t i = 0; i < phi.size(); i++)
+//                    out[i] = phi[i] + dphi[i];
+//                return out;
+//            },
+//            {"CorrT1METJet_phi", "CorrT1METJet_muonSubtrDeltaPhi"});
+
+//        _rlm = _rlm.Define("CorrT1METJet_pt_noMuL1L2L3",
+//            [](floats pt, floats musf) {
+//                floats out(pt.size());
+//                for (size_t i = 0; i < pt.size(); i++)
+//                    out[i] = pt[i] * (1.f - musf[i]);
+//                return out;
+//            },
+//            {"CorrT1METJet_pt_L1L2L3", "CorrT1METJet_muonSubtrFactor"});
+
+//        _rlm = _rlm.Define("CorrT1METJet_pt_noMuL1",
+//            [](floats pt, floats musf) {
+//                floats out(pt.size());
+//                for (size_t i = 0; i < pt.size(); i++)
+//                    out[i] = pt[i] * (1.f - musf[i]);
+//                return out;
+//            },
+//            {"CorrT1METJet_pt_L1", "CorrT1METJet_muonSubtrFactor"});
+//    };
+
+//    if (_jetCorrector == nullptr) return;
+
+//    //------------------------------------------------------------------
+//    // DATA path
+//    //------------------------------------------------------------------
+//    if (_isData)
+//    {
+//        // Vectorised run branch needed by the corrector
+//        _rlm = _rlm.Define("run_f",
+//            [](unsigned int run, const floats& jetpts) {
+//                return floats(jetpts.size(), float(run));
+//            },
+//            {"run", "Jet_pt"});
+
+//        auto jetCorrLambda_Data =
+//            [this](floats jetpts,
+//                   floats jetetas,
+//                   floats jetAreas,
+//                   floats jetrawf,
+//                   float  rho,
+//                   floats jetphis,
+//                   floats run_f) -> floats
+//        {
+//            floats out;
+//            out.reserve(jetpts.size());
+
+//            for (size_t i = 0; i < jetpts.size(); i++)
+//            {
+//                float rawpt = jetpts[i] * (1.f - jetrawf[i]);
+//                float corr;
+
+//                if ( _year == 2024)
+//                    corr = _jetCorrector->evaluate({jetAreas[i], jetetas[i], rawpt, rho, jetphis[i], run_f[i]});
+//                else
+//                    corr = _jetCorrector->evaluate({jetAreas[i], jetetas[i], rawpt, rho});
+//                out.emplace_back(rawpt * corr);
+//            }
+//            return out;
+//        };
+
+//        _rlm = _rlm.Define("Jet_pt_corr",
+//            jetCorrLambda_Data,
+//            {"Jet_pt", "Jet_eta", "Jet_area", "Jet_rawFactor",
+//             "Rho_fixedGridRhoFastjetAll", "Jet_phi", "run_f"});
+
+//        // Build the fixed (variant-independent) Type-1 inputs: Jet_pt_noMuL1,
+//        // Jet_phi_noMuRaw, and the full CorrT1METJet contribution.
+//        defineFixedType1Inputs();
+
+//        // Nominal MET propagation only — no JER/JEC systematics for Data
+//        defineMETVariant("Jet_pt_corr", "PuppiMET_pt_corr", "PuppiMET_phi_corr");
+//    }
+//    //------------------------------------------------------------------
+//    // MC path
+//    //------------------------------------------------------------------
+//    else
+//    {
+//        // ------------------------------------------
+//        // Step 1: JEC
+//        // ------------------------------------------
+//        auto jetCorrLambda_MC =
+//            [this](floats jetpts,
+//                   floats jetetas,
+//                   floats jetAreas,
+//                   floats jetrawf,
+//                   floats jetphis,
+//                   float  rho) -> floats
+//        {
+//            floats out;
+//            out.reserve(jetpts.size());
+
+//            for (size_t i = 0; i < jetpts.size(); i++)
+//            {
+//                float rawpt = jetpts[i] * (1.f - jetrawf[i]);
+//                float corr  = (_year == 2023 || _year == 2024)
+//                    ? _jetCorrector->evaluate({jetAreas[i], jetetas[i], rawpt, rho, jetphis[i]})
+//                    : _jetCorrector->evaluate({jetAreas[i], jetetas[i], rawpt, rho});
+
+//                out.emplace_back(rawpt * corr);
+//            }
+//            return out;
+//        };
+
+//        _rlm = _rlm.Define("Jet_pt_JEC",
+//            jetCorrLambda_MC,
+//            {"Jet_pt", "Jet_eta", "Jet_area", "Jet_rawFactor",
+//             "Jet_phi", "Rho_fixedGridRhoFastjetAll"});
+
+//        // Build the fixed (variant-independent) Type-1 inputs: Jet_pt_noMuL1,
+//        // Jet_phi_noMuRaw, and the full CorrT1METJet contribution.
+//        defineFixedType1Inputs();
+
+//        // ------------------------------------------
+//        // Step 2: JER smearing (nom / up / down)
+//        // ------------------------------------------
+//        auto jerSmearLambda =
+//            [this](floats jetpts,
+//                   floats jetetas,
+//                   floats jetgenpt,
+//                   float  rho,
+//                   unsigned int       run_n,
+//                   unsigned int       lumi,
+//                   unsigned long long event,
+//                   std::string        variation) -> floats
+//        {
+//            floats out;
+//            out.reserve(jetpts.size());
+
+//            std::normal_distribution<float> gauss(0.f, 1.f);
+
+//            for (size_t i = 0; i < jetpts.size(); i++)
+//            {
+//                float pt    = jetpts[i];
+//                float eta   = jetetas[i];
+//                float genpt = jetgenpt[i];
+
+//                uint64_t seed =
+//                    (uint64_t(run_n) << 32) ^
+//                    (uint64_t(lumi)  << 16) ^
+//                    (uint64_t(event))       ^
+//                    uint64_t(i);
+
+//                seed ^= (seed >> 33);
+//                seed *= 0xff51afd7ed558ccdULL;
+//                seed ^= (seed >> 33);
+//                seed *= 0xc4ceb9fe1a85ec53ULL;
+//                seed ^= (seed >> 33);
+
+//                std::mt19937_64 gen(seed);
+
+//                float resolution = _jer_resolution->evaluate({eta, pt, rho});
+//                float sf = (_year == 2024)
+//                    ? _jer_corrector->evaluate({eta, pt})
+//                    : _jer_corrector->evaluate({eta, pt, variation});
+//                float smeared_pt = pt;
+
+//                if (genpt > 0)
+//                {
+//                    smeared_pt = std::max(0.f, genpt + sf * (pt - genpt));
+//                }
+//                else
+//                {
+//                    float sigma    = resolution * std::sqrt(std::max(sf*sf - 1.f, 0.f));
+//                    float gaus_val = gauss(gen);
+//                    smeared_pt     = pt * (1.f + sigma * gaus_val);
+//                }
+
+//                out.emplace_back(smeared_pt);
+//            }
+//            return out;
+//        };
+
+//        // GenJet matching
+//        _rlm = _rlm.Define("Jet_genJetPt",
+//            [](const floats& GenJet_pt,
+//               const ROOT::VecOps::RVec<short>& Jet_genJetIdx)
+//            {
+//                floats out;
+//                out.reserve(Jet_genJetIdx.size());
+//                for (size_t i = 0; i < Jet_genJetIdx.size(); i++)
+//                {
+//                    int idx = Jet_genJetIdx[i];
+//                    out.emplace_back((idx >= 0 && idx < (int)GenJet_pt.size())
+//                                     ? GenJet_pt[idx] : -1.f);
+//                }
+//                return out;
+//            },
+//            {"GenJet_pt", "Jet_genJetIdx"});
+
+//        // Shared column list for all JER defines
+//        const std::vector<std::string> jerCols = {
+//            "Jet_pt_JEC", "Jet_eta", "Jet_genJetPt",
+//            "Rho_fixedGridRhoFastjetAll", "run", "luminosityBlock", "event"
+//        };
+
+//        for (const auto& var : std::vector<std::pair<std::string,std::string>>{
+//                {"nom",  "Jet_pt_corr"},
+//                {"up",   "Jet_pt_corr_jer_up"},
+//                {"down", "Jet_pt_corr_jer_down"}})
+//        {
+//            const std::string variation = var.first;
+//            const std::string colName   = var.second;
+
+//            _rlm = _rlm.Define(colName,
+//                [jerSmearLambda, variation](
+//                    floats pt, floats eta, floats genpt, float rho,
+//                    unsigned int run_n, unsigned int lumi, unsigned long long event)
+//                {
+//                    return jerSmearLambda(pt, eta, genpt, rho, run_n, lumi, event, variation);
+//                },
+//                jerCols);
+//        }
+
+//        // ------------------------------------------
+//        // Step 3: JEC uncertainties
+//        // ------------------------------------------
+//        for (const auto& [tag, unc] : _jetCorrectionUnc)
+//        {
+//            std::string colBase;
+//            size_t mc_pos  = tag.find("MC_");
+//            size_t ak4_pos = tag.find("_AK4");
+
+//            if (mc_pos != std::string::npos && ak4_pos != std::string::npos)
+//                colBase = tag.substr(mc_pos + 3, ak4_pos - (mc_pos + 3));
+//            else
+//                colBase = tag;
+
+//            std::replace_if(colBase.begin(), colBase.end(),
+//                [](char c){ return !std::isalnum(c); }, '_');
+
+//            const std::string colUp   = "Jet_pt_corr_" + colBase + "_up";
+//            const std::string colDown = "Jet_pt_corr_" + colBase + "_down";
+//            auto unc_copy = unc;
+
+//            _rlm = _rlm.Define(colUp,
+//                [unc_copy](floats jetpts, floats jetetas) -> floats {
+//                    floats out;
+//                    out.reserve(jetpts.size());
+//                    for (size_t i = 0; i < jetpts.size(); i++)
+//                        out.emplace_back(jetpts[i] * (1.f + unc_copy->evaluate({jetetas[i], jetpts[i]})));
+//                    return out;
+//                },
+//                {"Jet_pt_JEC", "Jet_eta"});
+
+//            _rlm = _rlm.Define(colDown,
+//                [unc_copy](floats jetpts, floats jetetas) -> floats {
+//                    floats out;
+//                    out.reserve(jetpts.size());
+//                    for (size_t i = 0; i < jetpts.size(); i++)
+//                        out.emplace_back(jetpts[i] * (1.f - unc_copy->evaluate({jetetas[i], jetpts[i]})));
+//                    return out;
+//                },
+//                {"Jet_pt_JEC", "Jet_eta"});
+
+//            std::cout << "Defined uncertainty columns: "
+//                      << colUp << ", " << colDown << std::endl;
+//        }
+
+//        // ------------------------------------------
+//        // Step 4: Propagate all MC variants to MET
+//        // ------------------------------------------
+//        // Nominal + JER
+//        for (const auto& var : std::vector<std::string>{"", "_jer_up", "_jer_down"})
+//        {
+//            defineMETVariant(
+//                "Jet_pt_corr" + var,
+//                "PuppiMET_pt_corr"  + var,
+//                "PuppiMET_phi_corr" + var);
+//        }
+
+//        // JEC uncertainty variants
+//        for (const auto& [tag, unc] : _jetCorrectionUnc)
+//        {
+//            std::string colBase;
+//            size_t mc_pos  = tag.find("MC_");
+//            size_t ak4_pos = tag.find("_AK4");
+
+//            if (mc_pos != std::string::npos && ak4_pos != std::string::npos)
+//                colBase = tag.substr(mc_pos + 3, ak4_pos - (mc_pos + 3));
+//            else
+//                colBase = tag;
+
+//            std::replace_if(colBase.begin(), colBase.end(),
+//                [](char c){ return !std::isalnum(c); }, '_');
+
+//            for (const auto& ud : std::vector<std::string>{"_up", "_down"})
+//            {
+//                defineMETVariant(
+//                    "Jet_pt_corr_" + colBase + ud,
+//                    "PuppiMET_pt_corr_"  + colBase + ud,
+//                    "PuppiMET_phi_corr_" + colBase + ud);
+//            }
+//        }
+//    } // end MC path
+//}
 void NanoAODAnalyzerrdframe::applyJetMETCorrections()
 {
     std::cout << "Applying JET/MET corrections" << std::endl;
@@ -1633,7 +2143,7 @@ ROOT::RDF::RNode NanoAODAnalyzerrdframe::applyJetVetoMap(ROOT::RDF::RNode _rlm,
 
 bool NanoAODAnalyzerrdframe::helper_1DHistCreator(std::string hname, std::string title, const int nbins, const double xlow, const double xhi, std::string rdfvar, std::string evWeight, RNode *anode)
 {
-	//cout << "1DHistCreator " << hname  << endl;
+	cout << "1DHistCreator " << hname  << endl;
 
 	RDF1DHist histojets = anode->Histo1D({hname.c_str(), title.c_str(), nbins, xlow, xhi}, rdfvar, evWeight); // Fill with weight given by evWeight
 	_th1dhistos[hname] = histojets;
@@ -1644,11 +2154,11 @@ bool NanoAODAnalyzerrdframe::helper_1DHistCreator(std::string hname, std::string
 //for 2D histograms//
 bool NanoAODAnalyzerrdframe::helper_2DHistCreator(std::string hname, std::string title, const int nbinsx, const double xlow, const double xhi, const int nbinsy, const double ylow, const double yhi,std::string rdfvarx,std::string rdfvary, std::string evWeight, RNode *anode)
 {
-	//cout << "1DHistCreator " << hname  << endl;
+	cout << "2DHistCreator " << hname  << endl;
 
 	RDF2DHist histojets = anode->Histo2D({hname.c_str(), title.c_str(), nbinsx, xlow, xhi,nbinsy, ylow, yhi}, rdfvarx,rdfvary, evWeight); // Fill with weight given by evWeight
 	_th2dhistos[hname] = histojets;
-	histojets.GetPtr()->Print("all");
+	// histojets.GetPtr()->Print("all");
 	return true;
 }
 
