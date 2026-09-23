@@ -1,0 +1,44 @@
+#!/bin/bash
+
+#This command will check in the directory if there is any missing file from the run
+python3 check_job_status.py DataMC_txt/All_path.txt /store/user/msahoo/2024_test --deep
+
+#This command will add the missing file in a txt file 
+./resubmit_missing.sh job_status_report.csv DataMC_txt/All_path.txt resubmit_queue.txt
+
+submit_file="job_2024_v2.submit"
+
+# Check that the submit file exists
+if [[ ! -f "$submit_file" ]]; then
+    echo "Error: $submit_file not found."
+    exit 1
+fi
+
+# Check whether the desired queue configuration is already present
+if grep -Eq '^[[:space:]]*#[[:space:]]*queue input_dir, output_file, stderr_file from DataMC_txt/All_path\.txt' "$submit_file" \
+   && grep -Eq '^[[:space:]]*#[[:space:]]*queue input_dir, output_file, stderr_file from DataMC_txt/All_Data_path\.txt' "$submit_file" \
+   && grep -Eq '^[[:space:]]*queue input_dir, output_file, stderr_file from resubmit_queue\.txt' "$submit_file"; then
+
+    echo "Queue configuration is already correct."
+
+else
+    echo "Updating queue configuration..."
+
+    sed -i \
+        -e 's/^[[:space:]]*#*[[:space:]]*queue input_dir, output_file, stderr_file from DataMC_txt\/All_path\.txt/# queue input_dir, output_file, stderr_file from DataMC_txt\/All_path.txt/' \
+        -e 's/^[[:space:]]*#*[[:space:]]*queue input_dir, output_file, stderr_file from DataMC_txt\/All_Data_path\.txt/# queue input_dir, output_file, stderr_file from DataMC_txt\/All_Data_path.txt/' \
+        -e 's/^[[:space:]]*#*[[:space:]]*queue input_dir, output_file, stderr_file from resubmit_queue\.txt/queue input_dir, output_file, stderr_file from resubmit_queue.txt/' \
+        "$submit_file"
+
+    echo "Queue configuration updated."
+fi
+
+# Show the queue lines before submitting
+echo
+echo "Current queue configuration:"
+grep -E '^[[:space:]]*#?[[:space:]]*queue ' "$submit_file"
+
+echo
+echo "Submitting job..."
+
+condor_submit "$submit_file"

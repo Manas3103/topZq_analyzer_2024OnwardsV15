@@ -37,6 +37,7 @@
 // Header files passed as explicit arguments
 #include "src/NanoAODAnalyzerrdframe.h"
 #include "src/BaseAnalyser.h"
+#include "src/FakeFactorAnalyser.h"
 
 // Header files passed via #pragma extra_include
 
@@ -126,6 +127,47 @@ namespace ROOT {
 } // end of namespace ROOT
 
 namespace ROOT {
+   static TClass *FakeFactorAnalyser_Dictionary();
+   static void FakeFactorAnalyser_TClassManip(TClass*);
+   static void delete_FakeFactorAnalyser(void *p);
+   static void deleteArray_FakeFactorAnalyser(void *p);
+   static void destruct_FakeFactorAnalyser(void *p);
+
+   // Function generating the singleton type initializer
+   static TGenericClassInfo *GenerateInitInstanceLocal(const ::FakeFactorAnalyser*)
+   {
+      ::FakeFactorAnalyser *ptr = nullptr;
+      static ::TVirtualIsAProxy* isa_proxy = new ::TIsAProxy(typeid(::FakeFactorAnalyser));
+      static ::ROOT::TGenericClassInfo 
+         instance("FakeFactorAnalyser", "FakeFactorAnalyser.h", 6,
+                  typeid(::FakeFactorAnalyser), ::ROOT::Internal::DefineBehavior(ptr, ptr),
+                  &FakeFactorAnalyser_Dictionary, isa_proxy, 4,
+                  sizeof(::FakeFactorAnalyser) );
+      instance.SetDelete(&delete_FakeFactorAnalyser);
+      instance.SetDeleteArray(&deleteArray_FakeFactorAnalyser);
+      instance.SetDestructor(&destruct_FakeFactorAnalyser);
+      return &instance;
+   }
+   TGenericClassInfo *GenerateInitInstance(const ::FakeFactorAnalyser*)
+   {
+      return GenerateInitInstanceLocal((::FakeFactorAnalyser*)nullptr);
+   }
+   // Static variable to force the class initialization
+   static ::ROOT::TGenericClassInfo *_R__UNIQUE_DICT_(Init) = GenerateInitInstanceLocal((const ::FakeFactorAnalyser*)nullptr); R__UseDummy(_R__UNIQUE_DICT_(Init));
+
+   // Dictionary for non-ClassDef classes
+   static TClass *FakeFactorAnalyser_Dictionary() {
+      TClass* theClass =::ROOT::GenerateInitInstanceLocal((const ::FakeFactorAnalyser*)nullptr)->GetClass();
+      FakeFactorAnalyser_TClassManip(theClass);
+   return theClass;
+   }
+
+   static void FakeFactorAnalyser_TClassManip(TClass* ){
+   }
+
+} // end of namespace ROOT
+
+namespace ROOT {
    // Wrapper around operator delete
    static void delete_NanoAODAnalyzerrdframe(void *p) {
       delete ((::NanoAODAnalyzerrdframe*)p);
@@ -152,6 +194,20 @@ namespace ROOT {
       ((current_t*)p)->~current_t();
    }
 } // end of namespace ROOT for class ::BaseAnalyser
+
+namespace ROOT {
+   // Wrapper around operator delete
+   static void delete_FakeFactorAnalyser(void *p) {
+      delete ((::FakeFactorAnalyser*)p);
+   }
+   static void deleteArray_FakeFactorAnalyser(void *p) {
+      delete [] ((::FakeFactorAnalyser*)p);
+   }
+   static void destruct_FakeFactorAnalyser(void *p) {
+      typedef ::FakeFactorAnalyser current_t;
+      ((current_t*)p)->~current_t();
+   }
+} // end of namespace ROOT for class ::FakeFactorAnalyser
 
 namespace ROOT {
    static TClass *vectorlEvarinfogR_Dictionary();
@@ -940,6 +996,7 @@ namespace {
     static const char* headers[] = {
 "src/NanoAODAnalyzerrdframe.h",
 "src/BaseAnalyser.h",
+"src/FakeFactorAnalyser.h",
 nullptr
     };
     static const char* includePaths[] = {
@@ -965,6 +1022,7 @@ namespace ROOT{namespace VecOps{template <typename T> class __attribute__((annot
 }}
 class __attribute__((annotate("$clingAutoload$src/NanoAODAnalyzerrdframe.h")))  NanoAODAnalyzerrdframe;
 class __attribute__((annotate("$clingAutoload$src/BaseAnalyser.h")))  BaseAnalyser;
+class __attribute__((annotate("$clingAutoload$src/FakeFactorAnalyser.h")))  FakeFactorAnalyser;
 )DICTFWDDCLS";
     static const char* payloadCode = R"DICTPAYLOAD(
 #line 1 "rootdict dictionary payload"
@@ -974,11 +1032,13 @@ class __attribute__((annotate("$clingAutoload$src/BaseAnalyser.h")))  BaseAnalys
 // Inline headers
 #include "src/NanoAODAnalyzerrdframe.h"
 #include "src/BaseAnalyser.h"
+#include "src/FakeFactorAnalyser.h"
 
 #undef  _BACKWARD_BACKWARD_WARNING_H
 )DICTPAYLOAD";
     static const char* classesHeaders[] = {
 "BaseAnalyser", payloadCode, "@",
+"FakeFactorAnalyser", payloadCode, "@",
 "NanoAODAnalyzerrdframe", payloadCode, "@",
 "ROOT::VecOps::RVec<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double> > >", payloadCode, "@",
 nullptr

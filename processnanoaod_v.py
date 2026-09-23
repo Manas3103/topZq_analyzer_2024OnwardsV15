@@ -70,6 +70,11 @@ class Nanoaodprocessor:
         self.datatype = config['datatype']
         self.skipcorrections = procflags.get('skipcorrections', False)  # Added skipcorrections flag
         print("year=", self.year)
+        self.analysertype = config.get('analysertype', 'BaseAnalyser')
+        if not hasattr(ROOT, self.analysertype):
+            print(f"'{self.analysertype}' is not a valid ROOT class name. Check config['analysertype'].")
+            exit(1)
+
 
         # Check if input is a DAS path or local directory
         self.is_das_path = is_valid_das_path(self.indir)
@@ -235,7 +240,17 @@ def Nanoaodprocessor_singledir(indir, outputroot, procflags, config):
     print("Total Number of Entries:", nevents)
     print("-------------------------------------------------------------------")
 
-    aproc = ROOT.BaseAnalyser(t, outputroot)
+    # aproc = ROOT.BaseAnalyser(t, outputroot)
+    analysertype = config.get('analysertype', 'BaseAnalyser')
+    try:
+        AnalyserClass = getattr(ROOT, analysertype)
+    except AttributeError:
+        print(f"Error: '{analysertype}' is not a known ROOT class "
+              f"(check the class name and that its library was loaded via cppyy.load_reflection_info)")
+        raise
+    print(f"Instantiating analyser: {analysertype}")
+    aproc = AnalyserClass(t, outputroot)
+
 
     try:
         aproc.setParams(config['year'], config['runtype'], config['datatype'])

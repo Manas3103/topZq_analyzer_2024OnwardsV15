@@ -118,6 +118,21 @@
     "title": "Three-Lepton Region: Missing Transverse Momentum #phi",
     "xlabel": "#phi^{miss}"
   },
+  "ThreeLRegion_PuppiMET_pt": {
+    "bins": 20,
+    "xmin": 0,
+    "xmax": 300,
+    "title": "Three-Lepton Region: Missing Transverse Momentum",
+    "xlabel": "p_{T}^{miss} [GeV]"
+  },
+  "ThreeLRegion_PuppiMET_phi": {
+    "bins": 15,
+    "xmin": -3.2,
+    "xmax": 3.2,
+    "title": "Three-Lepton Region: Missing Transverse Momentum #phi",
+    "xlabel": "#phi^{miss}"
+  },
+
   "ThreeLRegion_nbJets": {
     "bins": 6,
     "xmin": 0,

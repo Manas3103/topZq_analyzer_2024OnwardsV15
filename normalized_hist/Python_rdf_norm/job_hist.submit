@@ -19,5 +19,5 @@ request_memory=8 GB
 request_disk= 20 GB
 
 # queue filename, crossection from 2024_MC.txt 
-# queue filename, crossection, sum_gen_weight, type from 2024_sample.txt
-queue filename, crossection, sum_gen_weight, type from 2024_sample_data.txt
+queue filename, crossection, sum_gen_weight, type from 2024_sample.txt
+# queue filename, crossection, sum_gen_weight, type from 2024_sample_data.txt

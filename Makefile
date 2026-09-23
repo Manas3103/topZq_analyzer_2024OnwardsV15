@@ -84,6 +84,7 @@ clean:
 
 $(SRCDIR)/rootdict.C: $(SRCDIR)/NanoAODAnalyzerrdframe.h \
                        $(SRCDIR)/BaseAnalyser.h \
+					   $(SRCDIR)/FakeFactorAnalyser.h \
                        $(SRCDIR)/Linkdef.h
 
 	rm -f $@
