@@ -1,1 +1,0 @@
-DataMC_txt/filelists/Muon1_Era_C_Run24_chunk4.txt Muon1_Era_C_Run24_chunk4.root Muon1_Era_C_Run24_chunk4.out

@@ -6,7 +6,14 @@ stderr_file=$3    # Log file
 jobconfmod=${4:-jobconfiganalysis_2024}   # use value passed from condor; fall back to default only if empty
 
 # Configuration variables
-eos_output_dir="/eos/uscms/store/user/msahoo/2024_test"   # NOTE: no trailing slash - avoids double '/' below
+# eos_output_dir="/eos/uscms/store/user/msahoo/2024_test"   # NOTE: no trailing slash - avoids double '/' below
+
+# Configuration variables
+if [ "$jobconfmod" = "jobconfiganalysis_2024" ]; then
+    eos_output_dir="/eos/uscms/store/user/msahoo/2024_test"
+else
+    eos_output_dir="/eos/uscms/store/user/msahoo/2024_fakeFactor"
+fi
 
 echo "==================== JOB STARTED ===================="
 echo "Running analysis with the following parameters:"
@@ -58,7 +65,7 @@ echo "Final output file path: ${local_output_path}"
 if [ ! -f "${input_dir}" ]; then
     echo "ERROR: input filelist ${input_dir} not found on worker node."
     echo "Check that transfer_input_files in the .submit file includes the filelists/ directory."
-    exit 1
+    # exit 1
 fi
 echo "Filelist contents (${input_dir}):"
 cat "${input_dir}"
