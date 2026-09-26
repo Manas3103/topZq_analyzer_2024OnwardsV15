@@ -699,6 +699,7 @@ buildTLorentzVectors(
 }
 
 
+
 bool hasExactlyOneOSSFZPair(const FourVectorRVec& leptons,
                             const ints& pdgId)
 {
@@ -766,6 +767,275 @@ ZPairCounts countOSSFZPairs(const FourVectorRVec& leptons, const ints& pdgId)
 
     return {nPairs, nDistinctPairs};
 }
+
+
+
+
+namespace {
+constexpr double kZMassLo = 76.0;
+constexpr double kZMassHi = 106.0;
+constexpr double kZPole   = 91.1876;  // tie-break only, not a cut
+
+inline bool isOSSF(int pdgA, int pdgB) {
+    return pdgA + pdgB == 0;
+}
+}  // namespace
+
+OSSF3LInfo computeOSSF3LInfo(const FourVectorRVec& leptons, const ints& pdgId) {
+    OSSF3LInfo result{0, -1, -1, -1.0};
+
+    if (leptons.size() != 3 || pdgId.size() != 3) return result;
+
+    struct Candidate { int i; int j; double mass; };
+    Candidate candidates[2];
+    int nFound = 0;
+
+    auto tryPair = [&](int i, int j) {
+        if (!isOSSF(pdgId[i], pdgId[j])) return;
+        candidates[nFound++] = {i, j, (leptons[i] + leptons[j]).M()};
+    };
+
+    tryPair(0, 1);
+    tryPair(0, 2);
+    tryPair(1, 2);
+
+    if (nFound == 0) return result;
+
+    int best = 0;
+    if (nFound == 2) {
+        double d0 = std::abs(candidates[0].mass - kZPole);
+        double d1 = std::abs(candidates[1].mass - kZPole);
+        best = (d1 < d0) ? 1 : 0;
+    }
+    const Candidate& c = candidates[best];
+
+    const bool pairOnZ = (c.mass >= kZMassLo && c.mass <= kZMassHi);
+    if (pairOnZ) {
+        return OSSF3LInfo{1, c.i, c.j, c.mass};
+    }
+
+    const double m3l = (leptons[0] + leptons[1] + leptons[2]).M();
+    const bool m3lOnZ = (m3l >= kZMassLo && m3l <= kZMassHi);
+
+    return OSSF3LInfo{m3lOnZ ? 2 : 3, c.i, c.j, c.mass};
+}
+
+int getTopLeptonIndex3L(const OSSF3LInfo& info) {
+    if (info.category != 1) return -1;
+    for (int i = 0; i < 3; ++i) {
+        if (i != info.idx1 && i != info.idx2) return i;
+    }
+    return -1;
+}
+
+FourVector selectLeptonByIndex(const FourVectorRVec& leptons, int idx) {
+    return idx >= 0 ? leptons[idx] : FourVector{};
+}
+
+TLorentzVector TL4VecFromFourVec(const FourVector& v) {
+    TLorentzVector tlv;
+    tlv.SetPtEtaPhiM(v.Pt(), v.Eta(), v.Phi(), v.M());
+    return tlv;
+}
+
+int getOSSF3LCategory(const OSSF3LInfo& info) { return info.category; }
+
+double getZBosonMass(const OSSF3LInfo& info) {
+    return info.category == 1 ? info.mass : -1.0;
+}
+
+double getNonZOSSFMass(const OSSF3LInfo& info) {
+    return (info.category == 2 || info.category == 3) ? info.mass : -1.0;
+}
+
+double getMassOf3GoodLeptons4BG(const OSSF3LInfo& info, const FourVectorRVec& leptons) {
+    if ((info.category == 2 || info.category == 3) && leptons.size() == 3)
+        return (leptons[0] + leptons[1] + leptons[2]).M();
+    return -1.0;
+}
+
+double getM3L(const FourVectorRVec& leptons) {
+    if (leptons.size() != 3) return -1.0;
+    return (leptons[0] + leptons[1] + leptons[2]).M();
+}
+
+bool isMaskCat1OutsideZ3L(const OSSF3LInfo& info, double m3l) {
+    return info.category == 1 && std::abs(m3l - 91.1876) > 15.0;
+}
+
+
+
+
+
+
+namespace {
+struct PairDef  { int i, j; };
+struct PairEval { bool isOSSF; double mass; };
+
+// The 6 possible pairs among 4 leptons. Complement of pair k is always
+// pair (5-k) -- e.g. (0,1) <-> (2,3), (0,2) <-> (1,3), (0,3) <-> (1,2).
+// Fixed lookup, not a search: no recursion/backtracking needed at n=4.
+constexpr PairDef kPairDefs4L[6] = {
+    {0,1}, {0,2}, {0,3}, {1,2}, {1,3}, {2,3}
+};
+}  // namespace
+
+
+
+// ---------------------------------------------------------------------
+// 4-lepton OSSF categorization. category: 0 = no valid Z pair,
+// 1 = one on-Z pair + two leftover leptons, 2 = two non-overlapping
+// on-Z pairs (ZZ candidate). idx1/idx2/mass1 describe the best
+// ("Z1") pair; idx3/idx4/mass2 describe the other two leptons --
+// mass2 is populated whenever category >= 1, regardless of whether
+// that pair is itself OSSF or on-Z (it's the leftover pair's mass,
+// meaningful even when they don't form a Z).
+// ---------------------------------------------------------------------
+
+
+OSSF4LInfo computeOSSF4LInfo(const FourVectorRVec& leptons, const ints& pdgId) {
+    OSSF4LInfo result{0, -1, -1, -1.0, -1, -1, -1.0};
+
+    if (leptons.size() != 4 || pdgId.size() != 4) return result;
+
+    PairEval evals[6];
+    for (int k = 0; k < 6; ++k) {
+        const auto& p = kPairDefs4L[k];
+        evals[k].isOSSF = isOSSF(pdgId[p.i], pdgId[p.j]);
+        evals[k].mass = evals[k].isOSSF ? (leptons[p.i] + leptons[p.j]).M() : -1.0;
+    }
+
+    // Best pair: OSSF and closest to the Z pole.
+    int bestIdx = -1;
+    double bestDiff = 1e9;
+    for (int k = 0; k < 6; ++k) {
+        if (!evals[k].isOSSF) continue;
+        double diff = std::abs(evals[k].mass - kZPole);
+        if (diff < bestDiff) {
+            bestDiff = diff;
+            bestIdx = k;
+        }
+    }
+
+    if (bestIdx == -1) return result;  // no OSSF pair at all -> category 0
+
+    const bool bestOnZ = (evals[bestIdx].mass >= kZMassLo && evals[bestIdx].mass <= kZMassHi);
+    if (!bestOnZ) return result;  // no fallback at 4L, unlike the 3L m3l case -> category 0
+
+    const auto& bestPair = kPairDefs4L[bestIdx];
+    const int complementIdx = 5 - bestIdx;
+    const auto& otherPair = kPairDefs4L[complementIdx];
+
+    // Leftover pair's mass is always meaningful (fake-lepton / non-Z-pair
+    // diagnostics), so compute it even if that pair isn't itself OSSF.
+    const double otherMass = evals[complementIdx].isOSSF
+        ? evals[complementIdx].mass
+        : (leptons[otherPair.i] + leptons[otherPair.j]).M();
+
+    const bool secondOnZ = evals[complementIdx].isOSSF &&
+                           otherMass >= kZMassLo && otherMass <= kZMassHi;
+
+    result.category = secondOnZ ? 2 : 1;
+    result.idx1 = bestPair.i;
+    result.idx2 = bestPair.j;
+    result.mass1 = evals[bestIdx].mass;
+    result.idx3 = otherPair.i;
+    result.idx4 = otherPair.j;
+    result.mass2 = otherMass;
+    return result;
+}
+
+int getOSSF4LCategory(const OSSF4LInfo& info) { return info.category; }
+
+double getOSSF4LBestZMass(const OSSF4LInfo& info) {
+    return info.category >= 1 ? info.mass1 : -1.0;
+}
+
+double getOSSF4LSecondZMass(const OSSF4LInfo& info) {
+    return info.category == 2 ? info.mass2 : -1.0;
+}
+
+int getLeftoverLepton1Index(const OSSF4LInfo& info) {
+    return info.category == 1 ? info.idx3 : -1;
+}
+
+int getLeftoverLepton2Index(const OSSF4LInfo& info) {
+    return info.category == 1 ? info.idx4 : -1;
+}
+
+double getLeftoverPairMass(const OSSF4LInfo& info) {
+    return info.category == 1 ? info.mass2 : -1.0;
+}
+
+
+
+
+
+// A single branch spec: output field name, the RDF expression to read
+// when the region (and optional extra gate) is true, and the default
+// value when it's false.
+struct RegionBranchSpec {
+    std::string field;
+    std::string sourceExpr;
+    std::string defaultExpr;
+    std::string extraGate;  // empty means "no extra condition beyond the region flag"
+};
+
+// The full common branch list, in one place. Add/remove a branch by
+// editing this list only -- the function below never needs to change.
+static const std::vector<RegionBranchSpec>& regionBranchSpecs() {
+    static const std::vector<RegionBranchSpec> specs = {
+        // ---- leptons (pt-gated) ----
+        {"leadingLepton_pt",     "leadingLepton_pt",     "-999.f", "leadingLepton_pt > 0"},
+        {"subleadingLepton_pt",  "subleadingLepton_pt",  "-999.f", "subleadingLepton_pt > 0"},
+        {"trailingLepton_pt",    "trailingLepton_pt",    "-999.f", "trailingLepton_pt > 0"},
+        {"leadingLepton_eta",    "leadingLepton_eta",    "-999.f", "leadingLepton_pt > 0"},
+        {"subleadingLepton_eta", "subleadingLepton_eta", "-999.f", "subleadingLepton_pt > 0"},
+        {"trailingLepton_eta",   "trailingLepton_eta",   "-999.f", "trailingLepton_pt > 0"},
+
+        // ---- jets & b-jets ----
+        {"leadingJet_pt",        "leadingJet_pt",        "-999.f", ""},
+        {"subleadingJet_pt",     "subleadingJet_pt",     "-999.f", ""},
+        {"leadingbJet_pt",       "leadingbJet_pt",       "-999.f", ""},
+        {"subleadingbJet_pt",    "subleadingbJet_pt",    "-999.f", ""},
+        {"leadingJet_eta",       "leadingJet_eta",       "-999.f", ""},
+        {"subleadingJet_eta",    "subleadingJet_eta",    "-999.f", ""},
+        {"leadingbJet_eta",      "leadingbJet_eta",      "-999.f", ""},
+        {"subleadingbJet_eta",   "subleadingbJet_eta",   "-999.f", ""},
+        {"leadingJet_phi",       "leadingJet_phi",       "-999.f", ""},
+        {"subleadingJet_phi",    "subleadingJet_phi",    "-999.f", ""},
+        {"leadingbJet_phi",      "leadingbJet_phi",      "-999.f", ""},
+        {"subleadingbJet_phi",   "subleadingbJet_phi",   "-999.f", ""},
+
+        // ---- counts ----
+        {"nJets",  "int(Selected_jetpt.size())",  "-1", ""},
+        {"nbJets", "int(Selected_bjetpt.size())", "-1", ""},
+        {"muon_multiplicity", "sum_goodLepton_flavor", "-1", ""},
+
+        // ---- MET ----
+        {"goodMET_pt",   "goodMET_pt",   "std::numeric_limits<float>::quiet_NaN()", ""},
+        {"goodMET_phi",  "goodMET_phi",  "std::numeric_limits<float>::quiet_NaN()", ""},
+        {"PuppiMET_pt",  "PuppiMET_pt",  "std::numeric_limits<float>::quiet_NaN()", ""},
+        {"PuppiMET_phi", "PuppiMET_phi", "std::numeric_limits<float>::quiet_NaN()", ""},
+    };
+    return specs;
+}
+
+ROOT::RDF::RNode defineRegionObjectBranches(ROOT::RDF::RNode df,
+                                             const std::string& regionCol,
+                                             const std::string& outPrefix) {
+    for (const auto& spec : regionBranchSpecs()) {
+        const std::string cond = spec.extraGate.empty()
+            ? regionCol
+            : (regionCol + " && " + spec.extraGate);
+        const std::string expr = cond + " ? " + spec.sourceExpr + " : " + spec.defaultExpr;
+        df = df.Define(outPrefix + "_" + spec.field, expr);
+    }
+    return df;
+}
+
+
+
 // ints GetLeptonOrigin(
 //     const shorts& Lepton_genPartIdx,
 //     const ints& GenPart_pdgId,

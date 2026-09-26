@@ -903,6 +903,83 @@
     "title": "WZ Region: b-Jet Multiplicity",
     "xlabel": "N_{b-jets}"
   },
+  "BaseRegion_leadingLepton_pt": {
+    "bins": 25,
+    "xmin": 0,
+    "xmax": 250,
+    "title": "Base Region: Leading Lepton p_{T}",
+    "xlabel": "p_{T}^{lead lep} [GeV]"
+  },
+  "BaseRegion_subleadingLepton_pt": {
+    "bins": 20,
+    "xmin": 0,
+    "xmax": 150,
+    "title": "Base Region: Subleading Lepton p_{T}",
+    "xlabel": "p_{T}^{sublead lep} [GeV]"
+  },
+  "BaseRegion_trailingLepton_pt": {
+    "bins": 20,
+    "xmin": 0,
+    "xmax": 100,
+    "title": "Base Region: Trailing Lepton p_{T}",
+    "xlabel": "p_{T}^{trail lep} [GeV]"
+  },
+  "BaseRegion_leadingLepton_eta": {
+    "bins": 30,
+    "xmin": -3,
+    "xmax": 3,
+    "title": "Base Region: Leading Lepton #eta",
+    "xlabel": "#eta^{lead lep}"
+  },
+  "BaseRegion_subleadingLepton_eta": {
+    "bins": 30,
+    "xmin": -3,
+    "xmax": 3,
+    "title": "Base Region: Subleading Lepton #eta",
+    "xlabel": "#eta^{sublead lep}"
+  },
+  "BaseRegion_trailingLepton_eta": {
+    "bins": 30,
+    "xmin": -3,
+    "xmax": 3,
+    "title": "Base Region: Trailing Lepton #eta",
+    "xlabel": "#eta^{trail lep}"
+  },
+  "BaseRegion_nJets": {
+    "bins": 10,
+    "xmin": 0,
+    "xmax": 10,
+    "title": "Base Region: Jet Multiplicity",
+    "xlabel": "N_{jets}"
+  },
+  "BaseRegion_muon_multiplicity": {
+    "bins": 6,
+    "xmin": 0,
+    "xmax": 6,
+    "title": "Base Region: Muon Multiplicity",
+    "xlabel": "N_{#mu}"
+  },
+  "BaseRegion_goodMET_pt": {
+    "bins": 20,
+    "xmin": 0,
+    "xmax": 300,
+    "title": "Base Region: Missing Transverse Momentum",
+    "xlabel": "p_{T}^{miss} [GeV]"
+  },
+  "BaseRegion_goodMET_phi": {
+    "bins": 15,
+    "xmin": -3.2,
+    "xmax": 3.2,
+    "title": "Base Region: Missing Transverse Momentum #phi",
+    "xlabel": "#phi^{miss}"
+  },
+  "BaseRegion_nbJets": {
+    "bins": 6,
+    "xmin": 0,
+    "xmax": 6,
+    "title": "Base Region: b-Jet Multiplicity",
+    "xlabel": "N_{b-jets}"
+  },
   "BaseRegion": {
     "bins": 1,
     "xmin": 0.5,

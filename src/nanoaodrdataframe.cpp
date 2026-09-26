@@ -20,10 +20,12 @@ int main(void) {
 	TChain c1("Events");
 	c1.Add("root://cmsxrootd.fnal.gov//store/mc/RunIII2024Summer24NanoAODv15/TZQB-Zto2L-4FS_Bin-MLL-30_TuneCP5_13p6TeV_amcatnlo-pythia8/NANOAODSIM/Madgraph_2_6_5_150X_mcRun3_2024_realistic_v2-v2/2810000/43318103-fc71-48c7-8d99-4915164b3b87.root"); 
 	// c1.Add("root://cmsxrootd.fnal.gov//store/data/Run2024C/MuonEG/NANOAOD/MINIv6NANOv15-v1/2530000/5ec3440b-ed82-41a9-9740-a4b5829ff450.root");
+	// c1.Add("root://cmsxrootd.fnal.gov//store/mc/RunIII2024Summer24NanoAODv15/ZZto4L_TuneCP5_13p6TeV_powheg-pythia8/NANOAODSIM/150X_mcRun3_2024_realistic_v2-v2/110000/7b6611e3-13d6-419c-b1b2-93274d009935.root");
 
 
 
     BaseAnalyser nanoaodrdf(&c1, "tzq_new.root");
+    // BaseAnalyser nanoaodrdf(&c1, "zz_4l.root");
     nanoaodrdf.setParams(2024, "", -1);
     // nanoaodrdf.setParams(2024, "", -1, 1.0, 1.0);
 	nanoaodrdf.setHLT();

@@ -153,6 +153,7 @@ buildTLorentzVectors(
     const ROOT::VecOps::RVec<float>& phi,
     const ROOT::VecOps::RVec<float>& mass);
 
+TLorentzVector TL4VecFromFourVec(const FourVector &v); 
 bool hasExactlyOneOSSFZPair(const FourVectorRVec& leptons,const ints& pdgId); 
 
 ints GetLeptonOrigin(
@@ -190,7 +191,70 @@ ints CompareLeptonOriginToGenPartFlag(
 
 ZPairCounts countOSSFZPairs(const FourVectorRVec& leptons, const ints& pdgId);
 
+// ---------------------------------------------------------------------
+// 3-lepton OSSF categorization (single best Z-candidate pair, plus m3l
+// fallback). category: 0 = no OSSF pair, 1 = pair on-Z, 2 = pair off-Z
+// but m3l on-Z, 3 = pair off-Z and m3l off-Z. idx1/idx2/mass are -1/-1/-1.0
+// when category == 0.
+struct OSSF3LInfo {
+    int    category;
+    int    idx1;
+    int    idx2;
+    double mass;
+};
 
+OSSF3LInfo computeOSSF3LInfo(const FourVectorRVec& leptons, const ints& pdgId);
+
+// -1 unless category == 1 (only a genuine on-Z pair leaves a well-defined
+// "third" lepton).
+int getTopLeptonIndex3L(const OSSF3LInfo& info);
+
+// Returns FourVector{} if idx < 0.
+FourVector selectLeptonByIndex(const FourVectorRVec& leptons, int idx);
+
+// ---------------------------------------------------------------------
+// 3-lepton OSSF: accessors pulling individual branches back out of
+// OSSF3LInfo, plus m3l and the outside-Z-window mask.
+// ---------------------------------------------------------------------
+
+int    getOSSF3LCategory(const OSSF3LInfo& info);
+double getZBosonMass(const OSSF3LInfo& info);
+double getNonZOSSFMass(const OSSF3LInfo& info);
+double getMassOf3GoodLeptons4BG(const OSSF3LInfo& info, const FourVectorRVec& leptons);
+double getM3L(const FourVectorRVec& leptons);
+bool   isMaskCat1OutsideZ3L(const OSSF3LInfo& info, double m3l);
+
+
+
+// ---------------------------------------------------------------------
+// 4-lepton OSSF categorization. category: 0 = no valid Z pair,
+// 1 = one on-Z pair + two leftover leptons, 2 = two non-overlapping
+// on-Z pairs (ZZ candidate). idx1/idx2/mass1 describe the best
+// ("Z1") pair; idx3/idx4/mass2 describe the other two leptons --
+// mass2 is populated whenever category >= 1, regardless of whether
+// that pair is itself OSSF or on-Z (it's the leftover pair's mass,
+// meaningful even when they don't form a Z).
+// ---------------------------------------------------------------------
+struct OSSF4LInfo {
+    int    category;
+    int    idx1, idx2;
+    double mass1;
+    int    idx3, idx4;
+    double mass2;
+};
+
+OSSF4LInfo computeOSSF4LInfo(const FourVectorRVec& leptons, const ints& pdgId);
+
+int    getOSSF4LCategory(const OSSF4LInfo& info);
+double getOSSF4LBestZMass(const OSSF4LInfo& info);
+double getOSSF4LSecondZMass(const OSSF4LInfo& info);
+int    getLeftoverLepton1Index(const OSSF4LInfo& info);
+int    getLeftoverLepton2Index(const OSSF4LInfo& info);
+double getLeftoverPairMass(const OSSF4LInfo& info);
+
+ROOT::RDF::RNode defineRegionObjectBranches(ROOT::RDF::RNode df,
+                                             const std::string& regionCol,
+                                             const std::string& outPrefix);
 
 // =====================================================================
 // utility_ff_additions.h
