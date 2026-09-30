@@ -31,3 +31,4 @@ batch_*
 DataMC_txt/filelists/*
 DataMC_txt/*.txt
 DataMC_txt/queues/*
+DataMC_txt/temp/*

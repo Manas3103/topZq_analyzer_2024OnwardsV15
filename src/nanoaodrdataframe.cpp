@@ -25,6 +25,7 @@ int main(void) {
 
 
     BaseAnalyser nanoaodrdf(&c1, "tzq_new.root");
+    // BaseAnalyser nanoaodrdf(&c1, "MuonEG_test.root");
     // BaseAnalyser nanoaodrdf(&c1, "zz_4l.root");
     nanoaodrdf.setParams(2024, "", -1);
     // nanoaodrdf.setParams(2024, "", -1, 1.0, 1.0);
@@ -41,12 +42,11 @@ int main(void) {
     string muon_roch_fname = "data/MUO/2024_Summer24/muon_scalesmearing.json";
     string muon_fname      = "data/MUO/2024_Summer24/muon_Z.json";
     string muonHLTtype     = "NUM_IsoMu24_DEN_CutBasedIdTight_and_PFIsoTight"; //not using 
-    // string muonRECOtype    = "NUM_TrackerMuons_DEN_genTracks"; // not required for Run3
-    // string muonIDtype      = "NUM_TightID_DEN_TrackerMuons"; // not using 
-    // string muonISOtype     = "NUM_TightPFIso_DEN_TightID";
 
-    string muonRECOtype    = "NUM_promptMVA_WP64ID_DEN_MediumID"; // not required for Run3
-    string muonIDtype      = "NUM_MediumID_DEN_TrackerMuons"; // not using 
+    string muonRECOtype    = "NUM_promptMVA_WP64ID_DEN_TightID"; // not required for Run3
+    string muonIDtype      = "NUM_TightID_DEN_TrackerMuons"; // not using 
+    // string muonRECOtype    = "NUM_promptMVA_WP64ID_DEN_MediumID"; // not required for Run3
+    // string muonIDtype      = "NUM_MediumID_DEN_TrackerMuons"; // not using 
     string muonISOtype     = "NUM_LoosePFIso_DEN_MediumID";
 
     // Electrons
@@ -56,7 +56,6 @@ int main(void) {
     string electron_reco_type1 = "RecoAbove75";
     string electron_reco_type2 = "Reco20to75";
     string electron_reco_type3 = "RecoBelow20"; //not using
-    // string electron_id_type    = "wp90iso";
     string electron_id_type    = "PromptMVA-Tight";
     string electron_SSF        = "data/EGM/2024_Summer24/electronSS_EtDependent.json";
 

@@ -154,9 +154,9 @@ void FakeFactorAnalyser::selectFakeableMuons()
 
     const std::string sharedCuts =
         "Muon_pt_corr > 10.0 && abs(Muon_eta) < 2.4 && "
-        "abs(Muon_dxy) < 0.05 && abs(Muon_dz) < 0.10";
+        "abs(Muon_dxy) < 0.05 && abs(Muon_dz) < 0.10"
         // "abs(Muon_dxy) < 0.05 && abs(Muon_dz) < 0.10 && ";
-        // "Muon_sip3d < 8.0 && Muon_miniPFRelIso_all < 0.4 && Muon_mediumId";
+        "&& Muon_sip3d < 8.0 && Muon_miniPFRelIso_all < 0.4 && Muon_mediumId";
 
     _rlm = _rlm.Define("FFbaselineMuons", sharedCuts.c_str());
     _rlm = _rlm.Define("FFfakeablePreMVA_Muons", sharedCuts.c_str());
@@ -272,6 +272,12 @@ void FakeFactorAnalyser::defineMeasurementRegion()
                .Define("isMuonMR",     "NfakeableMuons==1 && NfakeableElectrons==0")
                .Define("passOneFakeableLepton", "isElectronMR || isMuonMR");
 
+    _rlm = _rlm
+        .Define("electron_ptcone",
+                "isElectronMR ? fakeableElectrons_ptcone[0] : -999.f")
+        .Define("muon_ptcone",
+                "isMuonMR ? fakeableMuons_ptcone[0] : -999.f");
+
     // The single lepton's kinematics, valid only when passOneFakeableLepton.
     _rlm = _rlm.Define("MRLepton_pt",
                 "isElectronMR ? fakeableElectrons_pt[0] : (isMuonMR ? fakeableMuons_pt[0] : -999.f)")
@@ -340,7 +346,7 @@ void FakeFactorAnalyser::defineFFTriggerWeight()
                 jetMin   = {30.f, 30.f};
                 coneLo   = {15.f, 25.f};
                 coneHi   = {45.f, 100.f};
-                prescale = {9318.f, 1537.f};   // 2018 placeholder -- update for 2024
+                prescale = {9116.f, 1540.f};   //  updated for 2024
             }
             else if (isMuonMR)
             {
@@ -349,7 +355,7 @@ void FakeFactorAnalyser::defineFFTriggerWeight()
                 jetMin   = {45.f,  30.f,  30.f,  30.f,  30.f};
                 coneLo   = {10.f,  15.f,  32.f,  32.f,  45.f};
                 coneHi   = {32.f,  100.f, 100.f, 100.f, 100.f};
-                prescale = {22160.f, 6990.f, 1305.f, 1081.f, 475.f}; // 2018 placeholder
+                prescale = {21900.f, 5214.f, 322.f, 1095.f, 497.f}; // 2024 updated value 
             }
             else
             {
@@ -399,11 +405,13 @@ void FakeFactorAnalyser::defineCuts()
     const std::string oneFakeableLepton = "passOneFakeableLepton";
     const std::string mrJetSelection    = "passMRJet";
     const std::string ffTriggerCut      = "passFFTrigger";
+    const std::string jetVetoCut = "!vetoed_jets";
 
     addCuts(metFilters,          "0");
     addCuts(oneFakeableLepton,   "00");
     addCuts(mrJetSelection,      "000");
     addCuts(ffTriggerCut,        "0000");
+    addCuts(jetVetoCut,          "00000");
 }
 
 // =====================================================================
@@ -531,6 +539,11 @@ void FakeFactorAnalyser::defineMoreVars()
     // --- Event-level MR flags ---
     addVartoStore("isElectronMR");
     addVartoStore("isMuonMR");
+    addVartoStore("electron_ptcone");
+    addVartoStore("muon_ptcone");
+    addVartoStore("goodJets_pt");
+    addVartoStore("goodJets_eta");
+    addVartoStore("goodJets_phi");
     addVartoStore("passOneFakeableLepton");
 
     // --- FF trigger (defineFFTriggerWeight()) ---
@@ -559,28 +572,6 @@ void FakeFactorAnalyser::defineMoreVars()
     //     addVartoStore("Muon_nearbyJetPtRatio");
     // }
 }
-
-
-// void FakeFactorAnalyser::defineMoreVars()
-// {
-//     if (debug){
-//         std::cout << "================================//=================================" << std::endl;
-//         std::cout << "Line : " << __LINE__ << " Function : " << __FUNCTION__ << std::endl;
-//         std::cout << "================================//=================================" << std::endl;
-//     }
-
-//     _rlm = _rlm.Define("FFWeight_base", _isData ? "1.0" : "FFTrigWeight")
-//                .Define("FFWeight_num",  "MRLepton_isTight ? FFWeight_base : 0.0");
-
-//     // Flavor-gated versions: an electron event must contribute zero to the
-//     // muon histograms and vice versa (MRLepton_* itself carries whichever
-//     // flavor passed the MR, so without this gate every event would fill
-//     // both flavors' histograms).
-//     _rlm = _rlm.Define("FFWeight_base_ele", "isElectronMR ? FFWeight_base : 0.0")
-//                .Define("FFWeight_num_ele",  "isElectronMR ? FFWeight_num  : 0.0")
-//                .Define("FFWeight_base_mu",  "isMuonMR     ? FFWeight_base : 0.0")
-//                .Define("FFWeight_num_mu",   "isMuonMR     ? FFWeight_num  : 0.0");
-// }
 
 void FakeFactorAnalyser::setupObjects()
 {

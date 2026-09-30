@@ -228,11 +228,11 @@ def create_normalized_histogram_rdf(filename,
         # else:
         #     print("muon_SF_central              : MISSING")
 
-        # if has_muon_iso_sf:
-        #     print("muon_SF_iso_nominal              : AVAILABLE")
-        #     weight_terms.append("muon_SF_iso_nominal")
-        # else:
-        #     print("muon_SF_iso_nominal              : MISSING")
+        if has_muon_iso_sf:
+            print("muon_SF_iso_nominal              : AVAILABLE")
+            weight_terms.append("muon_SF_iso_nominal")
+        else:
+            print("muon_SF_iso_nominal              : MISSING")
 
         if has_muon_id_sf:
             print("muon_SF_id_nominal              : AVAILABLE")
