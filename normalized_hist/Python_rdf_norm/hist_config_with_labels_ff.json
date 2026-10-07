@@ -1,0 +1,17 @@
+{
+  "electron_ptcone": {
+    "bins": 25,
+    "xmin": 0,
+    "xmax": 50,
+    "title": "Base Region: Electron p_{T}^{cone}",
+    "xlabel": "Electron p_{T}^{cone} [GeV]"
+  },
+
+  "muon_ptcone": {
+    "bins": 25,
+    "xmin": 0,
+    "xmax": 50,
+    "title": "Base Region: Muon p_{T}^{cone}",
+    "xlabel": "Muon p_{T}^{cone} [GeV]"
+  }
+}

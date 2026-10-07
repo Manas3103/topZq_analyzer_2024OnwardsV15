@@ -19,12 +19,13 @@ using namespace ROOT;
 int main(void) {
 
 	TChain c1("Events");
-	// c1.Add("root://cmsxrootd.fnal.gov//store/mc/RunIII2024Summer24NanoAODv15/TZQB-Zto2L-4FS_Bin-MLL-30_TuneCP5_13p6TeV_amcatnlo-pythia8/NANOAODSIM/Madgraph_2_6_5_150X_mcRun3_2024_realistic_v2-v2/2810000/43318103-fc71-48c7-8d99-4915164b3b87.root"); 
-	c1.Add("root://cmsxrootd.fnal.gov//store/mc/RunIII2024Summer24NanoAODv15/QCD_Bin-PT-120to170_Fil-bcToE_TuneCP5_13p6TeV_pythia8/NANOAODSIM/150X_mcRun3_2024_realistic_v2-v2/120000/2bef59fc-fde7-48e6-82ee-61a1c2014cc3.root");
+	// c1.Add("root://cmsxrootd.fnal.gov//store/mc/RunIII2024Summer24NanoAODv15/QCD_Bin-PT-120to170_Fil-bcToE_TuneCP5_13p6TeV_pythia8/NANOAODSIM/150X_mcRun3_2024_realistic_v2-v2/120000/2bef59fc-fde7-48e6-82ee-61a1c2014cc3.root");
+	// c1.Add("root://cmsxrootd.fnal.gov//store/data/Run2024H/MuonEG/NANOAOD/MINIv6NANOv15-v2/2520000/6fbe0049-3698-4949-981a-e3a6b538b351.root");
+	// c1.Add("root://cmsxrootd.fnal.gov//store/data/Run2024H/Muon1/NANOAOD/MINIv6NANOv15-v2/90000/13443c42-6446-42e3-8b8b-5cdf731dee7f.root");
+	c1.Add("root://cmsxrootd.fnal.gov//store/mc/RunIII2024Summer24NanoAODv15/WtoLNu-4Jets_Bin-4J_TuneCP5_13p6TeV_madgraphMLM-pythia8/NANOAODSIM/150X_mcRun3_2024_realistic_v2-v2/2530000/b531ec92-c480-4a84-919d-4d31c8abf7dd.root");
 
 
 
-    // FakeFactorAnalyser nanoaodrdf(&c1, "tzq_new.root");
     FakeFactorAnalyser nanoaodrdf(&c1, "QCD_bcToE.root");
     nanoaodrdf.setParams(2024, "", -1);
 	nanoaodrdf.setHLT();

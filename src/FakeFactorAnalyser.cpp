@@ -1,4 +1,5 @@
 #include "Math/GenVector/VectorUtil.h"
+#include "TInterpreter.h"
 #include "FakeFactorAnalyser.h"
 #include "utility.h"
 #include <iostream>
@@ -71,7 +72,8 @@ void FakeFactorAnalyser::selectFakeableElectrons()
     const std::string sharedCuts =
         "abs(Electron_eta) < 2.5 && "
         "abs(Electron_dxy) < 0.05 && abs(Electron_dz) < 0.10 && "
-        "Electron_sip3d < 8 && Electron_miniPFRelIso_all < 0.4 && "
+        "Electron_sip3d < 8 && "
+        // "Electron_miniPFRelIso_all < 0.4 && "
         "Electron_lostHits <= 1 && " + sieieCut + " && "
         "Electron_hoe < 0.10 && Electron_eInvMinusPInv > -0.04 && Electron_convVeto";
 
@@ -155,8 +157,9 @@ void FakeFactorAnalyser::selectFakeableMuons()
     const std::string sharedCuts =
         "Muon_pt_corr > 10.0 && abs(Muon_eta) < 2.4 && "
         "abs(Muon_dxy) < 0.05 && abs(Muon_dz) < 0.10"
-        // "abs(Muon_dxy) < 0.05 && abs(Muon_dz) < 0.10 && ";
-        "&& Muon_sip3d < 8.0 && Muon_miniPFRelIso_all < 0.4 && Muon_mediumId";
+        "&& Muon_sip3d < 8.0 && "
+        // "Muon_miniPFRelIso_all < 0.4 &&"
+        " Muon_mediumId";
 
     _rlm = _rlm.Define("FFbaselineMuons", sharedCuts.c_str());
     _rlm = _rlm.Define("FFfakeablePreMVA_Muons", sharedCuts.c_str());
@@ -219,7 +222,7 @@ void FakeFactorAnalyser::defineConePt()
         }
 
     cout << "Running Fake Factor Analyzer" << endl;
-
+    gInterpreter->Declare("#include \"utility.h\"");   // <-- add this
     _rlm = _rlm.Define("eleNearbyJet", ::nearbyJetInfo,
                 {"fakeableElectrons_pt", "fakeableElectrons_eta", "fakeableElectrons_phi",
                  "fakeableElectrons_jetIdx", "Jet_pt_corr", "Jet_eta", "Jet_phi"})
@@ -516,6 +519,14 @@ void FakeFactorAnalyser::defineMoreVars()
     // --- Fakeable electrons (selectFakeableElectrons()) ---
     // Covers: pt, eta, phi, mass, charge, miniIso, jetIdx, isTight
     // (and ptcone, added later by defineConePt())
+    addVartoStore("run");
+    addVartoStore("luminosityBlock");
+    addVartoStore("event");
+
+    if(!_isData){
+    addVartoStore("genWeight");
+    addVartoStore("pugenWeight");
+    };
     addVartoStore("fakeableElectrons_.*");
     addVartoStore("NfakeableElectrons");
 

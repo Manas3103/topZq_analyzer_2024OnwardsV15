@@ -3,9 +3,9 @@
 #---------------------------------------
 # Input validation
 #---------------------------------------
-if [ $# -lt 2 ] || [ $# -gt 4 ]; then 
+if [ $# -lt 2 ] || [ $# -gt 6 ]; then 
     echo "Error: Required arguments missing"
-    echo "Usage: $0 <filename> <crosssection> <sum_gen_weight> <type>"
+    echo "Usage: $0 <filename> <crosssection> <sum_gen_weight> <type> <json_file> <output_model>"
     exit 1
 fi
 
@@ -15,6 +15,8 @@ filename=$1
 crosssection=$2
 sum_gen_weight=$3
 sample_type=$4
+json_file=$5
+output_mode=${6:-default}
 # luminosity=5.49
 luminosity=12.75
 # luminosity=110.0
@@ -31,6 +33,7 @@ echo "File name: $xrootd_filename"
 echo "Cross section: $crosssection"
 echo "Sample type: $sample_type"
 echo "Luminosity: $luminosity"
+echo "Output mode: $output_mode"
 
 
 if [ -n "$sum_gen_weight" ]; then
@@ -42,7 +45,11 @@ fi
 
 
 # Define EOS output directory
-eos_output_dir="root://cmseos.fnal.gov//store/user/msahoo/2024_Analysed_hist/"
+if [ "$output_mode" = "ff" ]; then
+    eos_output_dir="root://cmseos.fnal.gov//store/user/msahoo/for_FakeFactor/"
+else
+    eos_output_dir="root://cmseos.fnal.gov//store/user/msahoo/2024_Analysed_hist/"
+fi
 handle_error() {
     echo "Error: $1"
     exit 1
@@ -78,7 +85,7 @@ python_cmd=(
     --cross_section "${crosssection}"
     --luminosity "${luminosity}"
     --tree_name outputTree_00000
-    --config hist_config_with_labels.json
+    --config "${json_file}"
     --extra "${sample_type}"
 )
 
@@ -102,7 +109,11 @@ if [ -n "${HIST_FILE}" ]; then
     xrdcp -f "${HIST_FILE_PATH}" "${eos_output_dir}" || handle_error "Failed to copy file to EOS"
 
     # Extract pure EOS path (without root://...)
-    EOS_PATH="/store/user/msahoo/2024_Analysed_hist/${HIST_FILE}"
+    if [ "$output_mode" = "ff" ]; then
+        EOS_PATH="/store/user/msahoo/for_FakeFactor/${HIST_FILE}"
+    else
+        EOS_PATH="/store/user/msahoo/2024_Analysed_hist/${HIST_FILE}"
+    fi
 
     echo "Verifying file on EOS..."
     xrdfs root://cmseos.fnal.gov stat "${EOS_PATH}" || handle_error "Verification failed"

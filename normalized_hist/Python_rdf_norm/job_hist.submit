@@ -1,6 +1,7 @@
 universe=vanilla
 executable=runjob_hist_py.sh
-arguments= $(filename) $(crossection) $(sum_gen_weight) $(type) 
+json_file = hist_config_with_labels.json
+arguments= $(filename) $(crossection) $(sum_gen_weight) $(type) $(json_file)
 
 # Extract clean file name (without path and .root)
 filetag = $Fnx(filename)

@@ -1,1 +1,0 @@
-/DYJetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8/RunIISummer20UL17NanoAODv9-106X_mc2017_realistic_v9-v1/NANOAODSIM DYJetsToLL_M-50_HT_less_70_1.root DYJetsToLL_M-50_HT_less_70_1.out

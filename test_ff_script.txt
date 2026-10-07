@@ -1,1 +1,0 @@
-DataMC_txt/filelists/QCD_Mu_15to20_chunk0.txt QCD_Mu_15to20_chunk0.root QCD_Mu_15to20_chunk0.out

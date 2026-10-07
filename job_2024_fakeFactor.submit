@@ -20,4 +20,5 @@ request_memory=8 GB
 request_disk= 50 GB
 
 queue input_dir, output_file, stderr_file from DataMC_txt/Fake_factor_MC_path.txt
-# queue input_dir, output_file, stderr_file from test_ff_script.txt
+# queue input_dir, output_file, stderr_file from DataMC_txt/Data_CH_2024.txt
+# queue input_dir, output_file, stderr_file from resubmit_queue_ff.txt

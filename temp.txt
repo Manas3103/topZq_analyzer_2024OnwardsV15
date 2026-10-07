@@ -1,0 +1,2 @@
+python3 check_job_status.py DataMC_txt/Fake_factor_MC_path.txt /store/user/msahoo/2024_fakeFactor --deep --report fakefactor_files.csv
+./resubmit_missing.sh fakefactor_files.csv DataMC_txt/Fake_factor_MC_path.txt resubmit_queue_ff.txt

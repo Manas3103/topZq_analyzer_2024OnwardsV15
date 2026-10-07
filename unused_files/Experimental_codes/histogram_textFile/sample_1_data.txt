@@ -1,2 +1,0 @@
-/store/user/msahoo/2017/Era_c Era_c_all.root Era_c_all.out
-/store/user/msahoo/2017/Era_d Era_d_all.root Era_d_all.out

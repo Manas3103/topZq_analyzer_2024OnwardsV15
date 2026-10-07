@@ -200,7 +200,7 @@ def create_normalized_histogram_rdf(filename,
         weight_terms = []
         weight_terms.append(str(normalization_factor))
 
-        has_pu = "pugenWeight" in columns
+        has_pu = "genWeight" in columns
         has_ele_sf = "ele_SF_central" in columns
         has_muon_sf = "muon_SF_central" in columns
         has_muon_iso_sf = "muon_SF_iso_nominal" in columns
@@ -211,46 +211,46 @@ def create_normalized_histogram_rdf(filename,
         print("\n========== AVAILABLE WEIGHT BRANCHES ==========")
 
         if has_pu:
-            print("pugenWeight                  : AVAILABLE")
-            weight_terms.append("pugenWeight")
+            print("genWeight                  : AVAILABLE")
+            weight_terms.append("genWeight")
         else:
-            print("pugenWeight                  : MISSING")
+            print("genWeight                  : MISSING")
 
-        if has_ele_sf:
-            print("ele_SF_central               : AVAILABLE")
-            weight_terms.append("ele_SF_central")
-        else:
-            print("ele_SF_central               : MISSING")
-
-        # if has_muon_sf:
-        #     print("muon_SF_central              : AVAILABLE")
-        #     weight_terms.append("muon_SF_central")
+        # if has_ele_sf:
+        #     print("ele_SF_central               : AVAILABLE")
+        #     weight_terms.append("ele_SF_central")
         # else:
-        #     print("muon_SF_central              : MISSING")
+        #     print("ele_SF_central               : MISSING")
 
-        if has_muon_iso_sf:
-            print("muon_SF_iso_nominal              : AVAILABLE")
-            weight_terms.append("muon_SF_iso_nominal")
-        else:
-            print("muon_SF_iso_nominal              : MISSING")
+        # # if has_muon_sf:
+        # #     print("muon_SF_central              : AVAILABLE")
+        # #     weight_terms.append("muon_SF_central")
+        # # else:
+        # #     print("muon_SF_central              : MISSING")
 
-        if has_muon_id_sf:
-            print("muon_SF_id_nominal              : AVAILABLE")
-            weight_terms.append("muon_SF_id_nominal")
-        else:
-            print("muon_SF_id_nominal              : MISSING")
+        # if has_muon_iso_sf:
+        #     print("muon_SF_iso_nominal              : AVAILABLE")
+        #     weight_terms.append("muon_SF_iso_nominal")
+        # else:
+        #     print("muon_SF_iso_nominal              : MISSING")
 
-        if has_btag_lf:
-            print("btag_SF_lflav_vector[0]      : AVAILABLE")
-            weight_terms.append("btag_SF_lflav_vector[0]")
-        else:
-            print("btag_SF_lflav_vector[0]      : MISSING")
+        # if has_muon_id_sf:
+        #     print("muon_SF_id_nominal              : AVAILABLE")
+        #     weight_terms.append("muon_SF_id_nominal")
+        # else:
+        #     print("muon_SF_id_nominal              : MISSING")
 
-        if has_btag_bc:
-            print("btag_SF_bcflav_vector[0]     : AVAILABLE")
-            weight_terms.append("btag_SF_bcflav_vector[0]")
-        else:
-            print("btag_SF_bcflav_vector[0]     : MISSING")
+        # if has_btag_lf:
+        #     print("btag_SF_lflav_vector[0]      : AVAILABLE")
+        #     weight_terms.append("btag_SF_lflav_vector[0]")
+        # else:
+        #     print("btag_SF_lflav_vector[0]      : MISSING")
+
+        # if has_btag_bc:
+        #     print("btag_SF_bcflav_vector[0]     : AVAILABLE")
+        #     weight_terms.append("btag_SF_bcflav_vector[0]")
+        # else:
+        #     print("btag_SF_bcflav_vector[0]     : MISSING")
 
         print("===============================================")
 
