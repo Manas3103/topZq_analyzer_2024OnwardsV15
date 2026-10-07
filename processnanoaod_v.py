@@ -8,7 +8,6 @@ import os
 import re
 import subprocess
 import sys
-from multiprocessing import Process
 import cppyy
 import ROOT
 
@@ -46,117 +45,6 @@ def is_valid_das_path(indir):
         return bool(output.strip())
     except subprocess.CalledProcessError:
         return False
-
-def function_calling_PostProcessor(outdir, rootfileshere, jobconfmod):
-    for afile in rootfileshere:
-        rootfname = re.split('\/', afile)[-1]
-        withoutext = re.split('\.root', rootfname)[0]
-        outfname = outdir + '/' + withoutext + '_analyzed.root'
-        subprocess.run(["./processonefile.py", afile, outfname, jobconfmod])
-    pass
-
-class Nanoaodprocessor:
-    def __init__(self, indir, outdir, jobconfmod, procflags, config):
-        self.outdir = outdir
-        self.indir = indir
-        self.jobconfmod = jobconfmod
-        self.split = procflags['split']
-        self.skipold = procflags['skipold']
-        self.recursive = procflags['recursive']
-        self.saveallbranches = procflags['saveallbranches']
-        self.nrootfiles = procflags['nrootfiles']
-        self.year = config['year']
-        self.runtype = config['runtype']
-        self.datatype = config['datatype']
-        self.skipcorrections = procflags.get('skipcorrections', False)  # Added skipcorrections flag
-        print("year=", self.year)
-        self.analysertype = config.get('analysertype', 'BaseAnalyser')
-        if not hasattr(ROOT, self.analysertype):
-            print(f"'{self.analysertype}' is not a valid ROOT class name. Check config['analysertype'].")
-            exit(1)
-
-
-        # Check if input is a DAS path or local directory
-        self.is_das_path = is_valid_das_path(self.indir)
-        self.is_eos_path = self.indir.startswith("/store/user/msahoo/")
-        if not (self.is_das_path or self.is_eos_path) and not os.path.exists(self.indir):
-            print(f'Path {indir} is neither a valid DAS path nor an existing local directory')
-            exit(1)
-
-    def process(self):
-        self._processROOTfiles(self.indir, self.outdir)
-        pass
-
-    def _processROOTfiles(self, inputdirectory, outputdirectory):
-        if not os.path.exists(outputdirectory):
-            os.makedirs(outputdirectory)
-
-        rootfileshere = []
-        if self.is_das_path:
-            # Handle remote files using XRootD
-            rootfileshere = get_root_file_paths(inputdirectory)
-            if self.nrootfiles > 0:
-                rootfileshere = rootfileshere[:self.nrootfiles]
-        else:
-            # Original local file handling
-            flist = os.listdir(inputdirectory)
-            counter = 0
-            for fname in flist:
-                fullname = os.path.join(inputdirectory, fname)
-                if re.match('.*\.root', fname) and os.path.isfile(fullname):
-                    counter += 1
-                    if counter <= self.nrootfiles and self.nrootfiles != 0:
-                        rootfileshere.append(fullname)
-                    elif self.nrootfiles == 0:
-                        rootfileshere.append(fullname)
-
-        print(f"Files found in {'DAS dataset' if self.is_das_path else 'directory'} {inputdirectory}")
-        print(rootfileshere)
-
-        if len(rootfileshere) > 0:
-            if self.skipold:
-                oflist = os.listdir(outputdirectory)
-                filteredoflist = []
-                for fname in oflist:
-                    fullname = os.path.join(outputdirectory, fname)
-                    if re.match('.*\.root', fname) and os.path.isfile(fullname):
-                        withoutext = re.split("\.root", fname)[0]
-                        wihoutskimtext = re.split("\_analyzed", withoutext)[0]
-                        filteredoflist.append(wihoutskimtext)
-
-                filterediflist = []
-                for ifname in rootfileshere:
-                    rootfname = re.split('\/', ifname)[-1]
-                    withoutext = re.split('\.root', rootfname)[0]
-                    if withoutext not in filteredoflist:
-                        print(f'{withoutext} not yet in output dir')
-                        filterediflist.append(ifname)
-                    else:
-                        print(f'{withoutext} in output dir')
-
-                rootfileshere = filterediflist
-
-            if self.split > 1:
-                njobs = min(self.split, len(rootfileshere))
-                nfileperjob = len(rootfileshere) / njobs
-
-                ap = []
-                for i in range(njobs):
-                    start_idx = int(i * nfileperjob)
-                    end_idx = int((i + 1) * nfileperjob) if i < njobs - 1 else None
-                    filesforjob = rootfileshere[start_idx:end_idx]
-                    p = Process(target=function_calling_PostProcessor,
-                              args=(outputdirectory, filesforjob, self.jobconfmod))
-                    p.start()
-                    ap.append(p)
-                for proc in ap:
-                    proc.join()
-            else:
-                for afile in rootfileshere:
-                    rootfname = re.split('\/', afile)[-1]
-                    withoutext = re.split('\.root', rootfname)[0]
-                    outfname = outputdirectory + '/' + withoutext + '_analyzed.root'
-                    subprocess.run(["./processonefile.py", afile, outfname, self.jobconfmod])
 
 def Nanoaodprocessor_singledir(indir, outputroot, procflags, config):
     """
@@ -332,10 +220,5 @@ if __name__ == '__main__':
     procflags = getattr(mod, 'procflags')
     config = getattr(mod, 'config')
 
-    if not procflags['allinone']:
-        print("not allinone")
-        n = Nanoaodprocessor(args.indir, args.outdir, args.jobconfmod, procflags, config)
-        n.process()
-    else:
-        print("allinone")
-        Nanoaodprocessor_singledir(args.indir, args.outdir, procflags, config)
+    print("allinone")
+    Nanoaodprocessor_singledir(args.indir, args.outdir, procflags, config)
