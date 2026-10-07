@@ -220,5 +220,4 @@ if __name__ == '__main__':
     procflags = getattr(mod, 'procflags')
     config = getattr(mod, 'config')
 
-    print("allinone")
     Nanoaodprocessor_singledir(args.indir, args.outdir, procflags, config)

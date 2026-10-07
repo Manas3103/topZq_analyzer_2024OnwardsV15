@@ -94,10 +94,6 @@ procflags = {
         #'split': 'Max', #only use 'Max' when nrootfiles = 'All'
         'split': 10,
 
-        ###### if False, one output file per input file, if True then one output file for everything ######
-        #'allinone': False,
-        'allinone': True,
-
         ###### if True then skip existing analyzed files ######
         'skipold': True,
 

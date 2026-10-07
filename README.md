@@ -66,12 +66,11 @@ if CMSSW is available: the package doesn't depend on any CMSSW libraries, but so
             'datatype': -1,               # -1: checking "gen" branch if it's exist run over MC. 1: Data0:MC
             }
 
-    * The second dictionary contains processing options, to split processing into multiple jobs, produce one output file per input file, skip files already processed, whether to dive into subdirectories recursively and process the files there. 
+    * The second dictionary contains processing options, to split processing into multiple jobs, skip files already processed, whether to dive into subdirectories recursively and process the files there.
        
             #processing options
             procflags = {
             'split': 1,                   # how many jobs?
-            'allinone': True,             # if "False" one output file per input file, if True then onoutput file for everything
             'skipold': True,              # if "True" then skip existing analyzed files
             'recursive': True,            # travel through the subdirectories and their subdirecties wheprocessing.
                                       # be careful not to mix   MC and real DATA in them.
