@@ -9,7 +9,9 @@ The intended scope is CMS Run 3 (2022–2025), currently centered on 2024 NanoAO
 ## 2. Current checkpoint
 
 - Branch: `cleanup/run3-remove-legacy-run2`
-- Reconciled source checkpoint (2026-10-08): `422a3fb04eaa74333eae0809aa6f650da361a1db`
+- Current source checkpoint (2026-10-08): `7bc8ddab306997be83a9a7e75bf09c27f0baab89`
+- Earlier reconciled checkpoint: `422a3fb04eaa74333eae0809aa6f650da361a1db`
+- CLI commit is local only at this update; it has not been pushed.
 - Original handoff pre-documentation checkpoint: `4a43a0cbc31e5eb64b7a1a7fda04cb50e38fab78`
 - Starting working tree: clean.
 
@@ -29,6 +31,9 @@ Verified against Git, in chronological order:
 | `5c3b9444c265c8a2bca3e584bb56fb9709575139` | docs: record Run-3 cleanup checkpoint | Original durable handoff; historical validation references. |
 | `7187b6fce4b67d6d10fc3a2868ed6ad506232932` | cleanup: remove tracked macOS metadata | Delete four tracked Finder metadata files and correct the ignore-rule capitalization. |
 | `422a3fb04eaa74333eae0809aa6f650da361a1db` | cleanup: stop tracking fakefactorframe executable | Remove executable from Git tracking, preserve the local executable, add exact ignore rule. |
+| `0165ef1cf2b321da0adf7f6315db677d22878a7c` | docs: reconcile Run-3 cleanup status and validation | Record phase status, diagnostic limitations and pending work. |
+| `aaf438b147f807d91114b4de292e732d8536abc3` | cleanup: stop tracking generated BTag ACLiC dependencies | Preserve local dependency files; retire their tracking with exact ignore rules. |
+| `7bc8ddab306997be83a9a7e75bf09c27f0baab89` | feat: add sample-selectable standalone CLI | Add validated input/sample/output selection and help; preserve automatic mode and physics settings. |
 
 Earlier orientation commits:
 
@@ -42,7 +47,7 @@ The phases refer to section 9 of the original audit; later approved artifact tas
 | Phase | Current status | Completed / remaining work |
 |---|---|---|
 | 1 — standalone inputs | Complete for the approved manifest | Exactly 78 tracked deletions in `13f2b14`; ignored BTag efficiency inputs preserved. No broader directory cleanup was approved. |
-| 2 — dependency/build cleanup | Partially complete | SkimEvents, per-file processing and isolated scratch sources retired; redundant configuration removed. Metadata cleanup and binary untracking also complete. Four dormant Makefile rules remain postponed pending successful baseline validation. Other reference/alternate workflows require decisions. |
+| 2 — dependency/build cleanup | Partially complete | SkimEvents, per-file processing and isolated scratch sources retired; redundant configuration removed. Metadata cleanup and binary/ACLiC artifact untracking also complete. Standalone CLI validation is complete. Four dormant Makefile rules remain pending a separately authorized cleanup and its required build/runtime validation. Historical alternative research implementations remain retained; any proposed retirement requires a separate user decision. |
 | 3 — active-code Run-2 refactoring | Not started as a dedicated approved batch | Historical trigger/year dispatch, BTag clauses and public helper interfaces remain in active/shared source. Trace Run-3 dependencies and external users before proposing narrow retirement. |
 | 4 — physics-sensitive cleanup | Intentionally deferred | FF definitions, IDs/triggers, corrections, weights, normalization and systematics require separate physics approval and per-year validation. No prescription is chosen by this handoff. |
 
@@ -60,6 +65,8 @@ No accidentally skipped approved deletion has been established. A failed prerequ
 - Four tracked Finder metadata files: `GetQuantile_Method/Outputs/.DS_Store`, `GetQuantile_Method/Outputs/MergedBins500/.DS_Store`, `GetQuantile_Method/Outputs/RebinX2/.DS_Store`, `GetQuantile_Method/data/.DS_Store`. `.gitignore` changed only `.DS_store` to `.DS_Store` in that commit. Research macros and README were retained.
 - Git tracking of `fakefactorframe`, using `git rm --cached`; the executable was preserved locally and is still executable at this reconciliation. Exact ignore rule: `/fakefactorframe`. Its C++ source and Makefile build rule remain tracked. Future `make clean` can still remove the local build product.
 
+- Git tracking of `BTag/btag_C.d` and `BTag/btag_efficiency_C.d`: local copies, sizes, permissions and SHA256 checksums preserved; exact ignore rules added. BTag macros and calibration inputs were untouched.
+
 Historical audit references to these paths remain intentionally unchanged. They are not descriptions of the current processing structure.
 
 ## 5. Current supported processing structure
@@ -74,6 +81,10 @@ processnanoaod_v.py
 ```
 
 `nanoaodrdataframe` and `fakefactorframe` remain standalone small-file debugging/testing executables, not production entry points. `processonefile.py` and the alternative per-file path have been retired. The `allinone` key was also removed from `jobconfiganalysis_2024.py` and `jobconfiganalysis_2024_ff.py` because it no longer controlled behavior.
+
+Both standalone entry points now accept `--sample NAME`, `--input PATH_OR_URL`, `--output FILE`, and `-h`/`--help`. Custom input requires output and cannot be combined with a sample selector. Invalid usage returns nonzero; help exits before TChain construction. `setParams(2024, "", -1)` preserves automatic MC/data detection from `genWeight`. No-argument behavior remains TZQB -> `tzq_new.root` and W+jets -> `QCD_bcToE.root`.
+
+Explicit main samples: `tzqb` -> `TZQB_TZQAnalysis.root`, `zz4l` -> `ZZ4L_TZQAnalysis.root`, `muoneg-c` -> `MuonEG_Era_C_Run24_TZQAnalysis.root`. Explicit fake-factor samples: `wjets` -> `WJets_4J_FakeFactor.root`, `qcd-bctoe` -> `QCD_bcToE_FakeFactor.root`, `muoneg-h` -> `MuonEG_Era_H_Run24_FakeFactor.root`, `muon1-h` -> `Muon1_Era_H_Run24_FakeFactor.root`. Output can be overridden. Existing URLs, analyser classes, triggers, correction arguments and setup/execution sequence remain unchanged.
 
 ## 6. Validation established
 
@@ -135,9 +146,49 @@ Diagnostic environment: ROOT 6.26/11, XRootD 5.6.2 in the existing CMSSW environ
 
 **Root cause remains unconfirmed.** Low CPU usage, sleeping/waiting process state and an established socket are observations, not proof of a server/network fault. Intermittent remote I/O/redirector/storage delay is supported as a hypothesis; ROOT synchronization and client behavior remain alternatives. The 10000-event stall occurred before the analysis graph, whereas the earlier full-run log reached the Snapshot region. Do not attribute both to one confirmed cause or claim that small passing tests validate the full run.
 
-### Durable regression baseline gap
+### Historical durable regression baseline gap
 
-No durable, provenance-verified full event-by-event golden ROOT baseline has been established. The historical `/tmp/codex-allinone-ydqo6spx` production evidence was no longer available at reconciliation. Other surviving outputs are not automatically golden references: their input/configuration provenance and complete contents have not been certified. Historical count/schema/weight comparisons cannot prove that every stored event and value matched.
+At the earlier reconciliation, no durable, provenance-verified full event-by-event golden ROOT baseline had been established. The historical `/tmp/codex-allinone-ydqo6spx` production evidence was no longer available at reconciliation. Other surviving outputs are not automatically golden references: their input/configuration provenance and complete contents have not been certified. Historical count/schema/weight comparisons cannot prove that every stored event and value matched.
+
+### Latest CLI validation and preserved regression evidence
+
+Regression directory: `/uscms_data/d3/msahoo/Project_tzq/regression_baseline`. This is outside Git. It contains preserved references (`tzq_new.root`, `QCD_bcToE.root`), exact staged original MC inputs under `inputs/`, new outputs under `test_outputs/`, and transfer manifests, full logs, comparison helpers and reports under `reports/`. Reference SHA256 checksums remained unchanged:
+
+- Main: `dc690df2e430080758d4533d6bf955601cdabb435a5ff0fc67e57e1042ab393c`.
+- Fake factor: `5e53098728221b6345de6e2cf1aa0b353890b496203219462ec0fc54125faa78`.
+
+The original TZQB and W+jets URLs were transferred without overwriting inputs using `xrdcp --cksum adler32`, exit 0. Transfer-time checksum verification succeeded; independent remote checksum queries were unsupported. Exact URLs, sizes and local SHA256 hashes are in the transfer manifests.
+
+The existing Makefile built both CLI executables successfully without `make clean`; 16 main and 18 fake-factor help/invalid-usage tests passed. Both staged-input MC executions exited 0 (40.2 and 32.9 seconds). Initial slow Python/ROOT comparison attempts were incomplete; they were superseded by successful 500-entry chunked uproot/awkward comparisons:
+
+| Validation | Result |
+|---|---|
+| Main MC | 6411 events, 648 top-level branches: exact full-content PASS, in original order; comparison 10.50 seconds. |
+| Fake-factor MC | 36539 events, 56 top-level branches: exact full-content PASS, in original order; comparison 7.31 seconds including common histograms. |
+| Fake-factor histograms | All 48 common histograms matched exactly: flow bins, errors, Sumw2, axes, labels and stored metadata. |
+| Historical histogram cycles | All 48 reference histograms matched across `;1`, `;2`, `;3` (96 pairwise checks). Reference-only extra cycles are repeated-write storage artifacts, not physics-content differences. Existing output `UPDATE` mode and histogram writes explain how repeated cycles accumulate. Strict key/cycle inventories still differ. |
+
+Comparisons covered every stored scalar, array, vector and split-object member, branch names/types and event ordering. Floating-point buffers were compared exactly, without tolerance, including NaN representations, infinities and signed zero. No independently written ROOT-file byte identity is required. The source identity of the staged inputs is recorded, but the older references still lack a complete contemporaneous environment/payload provenance manifest; verify evidence availability and freeze provenance before extending this baseline to another change.
+
+Two predefined data selectors were tested against their existing remote inputs with separate 600-second timeouts and unique outputs:
+
+| Data smoke test | Exit / elapsed | Selected / branches | Cutflow |
+|---|---|---|---|
+| Main MuonEG Run2024C (`muoneg-c`) | 0 / 259.0 seconds | 153 / 573 | 226953, 226479, 166, 166, 153 |
+| Fake factor MuonEG Run2024H (`muoneg-h`) | 0 / 175.6 seconds | 880 / 54 | 1177698, 555092, 414803, 880, 880 |
+
+Both data smoke tests PASS: non-zombie/non-recovered outputs, `outputTree_00000`, positive unique certified selected event IDs, logged DATA mode/data JEC path and consistent cutflows. Main `evWeight=1`; fake-factor `FFWeight_base=1`, with 48 finite histograms and consistent cut-stage counts. Preflight checked required object/correction branches and all configured HLT paths. Golden JSON covered all 551343 C input entries and 1181490 of 1187718 H entries; uncertified H entries were filtered.
+
+Exact new outputs are under `test_outputs/`:
+
+- `nanoaodrdataframe-mc-1791459446174753217.root`.
+- `fakefactorframe-mc-1791459446174753217.root`.
+- `data-1791461579460525387/MuonEG_Era_C_Run24_TZQAnalysis.root`.
+- `data-1791461579460525387/MuonEG_Era_H_Run24_FakeFactor.root`.
+
+Key evidence in `reports/`: `mc-run-1791459446174753217.json`, `full_mc_compare.py`, `full-mc-comparison-0.json`, `full-mc-comparison-1.json`, `full-mc-histogram-axes.json`, `historical-histogram-cycles.json`, `data-preflight.json`, `data-smoke-run-1791461579460525387.json`, `data-smoke-validation.json`, and `cli-commit-readiness.json`. The original fake-factor comparison report retains the strict cycle-inventory MISMATCH; the subsequent cycle report establishes identical physics content. Complete per-run logs and transfer manifests are stored alongside these reports.
+
+**Scope of evidence:** MC full-content regression establishes equivalence to the preserved references for these inputs. Data tests establish execution/integrity behavior; no prior data golden outputs exist, so no data regression equivalence is claimed. Neither proves independent physics correctness or approval for other years, datasets or prescriptions. The known OSSF4LInfo dictionary warning and existing unmatched output patterns remain parked; data adds the expected absent GenPart pattern. Successful recent runs do not resolve the earlier intermittent XRootD root cause.
 
 ## 7. Validation policy for future cleanup
 
@@ -169,7 +220,7 @@ Before active-code cleanup, establish an explicitly authorized full regression b
 - All stored scalar/vector/object values and vector alignment, including per-event weights and normalization quantities.
 - All histogram contents, errors, underflow/overflow and relevant totals where present.
 
-Agree comparison handling for floating-point values explicitly; do not silently accept differences or use byte-identical ROOT files as the criterion. Preserve existing normalization conventions and denominator scope. A comparator and durable baseline still need a separate approved task; this document supplies neither.
+Agree comparison handling for floating-point values explicitly; do not silently accept differences or use byte-identical ROOT files as the criterion. Preserve existing normalization conventions and denominator scope. The standalone MC comparator and preserved evidence now exist at the location above. Complete provenance freezing and any production-processor golden baseline remain separate approved tasks; this handoff does not authorize execution.
 
 For production-processor/configuration changes, also run the same production before/after regression test when appropriate and authorized. Documentation-only or clearly non-executable artifact cleanup does not automatically require expensive ROOT runtime validation.
 
@@ -201,7 +252,7 @@ These are follow-up items, **not authorized fixes**:
 - Recurring missing ROOT dictionary warning for `OSSF4LInfo`; validation still completed. Investigate separately rather than changing dictionary registrations during cleanup.
 - Dormant explicit `RoccoR.o` Makefile recipe referencing absent RoccoR sources; do not confuse it with active Run-3 MuonScaRe corrections.
 - Four postponed rules remain exactly: `src/RoccoR.o`, `src/rootdicttmp.C`, `src/rootdicttmp.o`, `libtest.so`. They reference absent RoccoR or temporary test sources/headers and are outside default targets. Removal was approved in earlier tasks but was not executed because the runtime baseline prerequisite failed; a fresh task must authorize resumption. Active dictionary and MuonScaRe rules remain untouched.
-- Intermittent remote opening/basket-read stalls remain under investigation; no confirmed XRootD root cause or new successful full TZQB baseline.
+- Intermittent remote opening/basket-read stalls remain under investigation; root cause remains unconfirmed despite the subsequent successful full local-input TZQB regression and remote data runs.
 - Historical quantile/study utilities retained for possible reference use.
 - `normalized_hist` alternatives/tests require separate workflow and normalization review.
 - Active physics/architecture concerns in the repository analysis and Run-2 audit remain review items, not silent cleanup targets.
@@ -212,7 +263,7 @@ Names containing historical years are insufficient evidence for deleting active/
 
 Candidates for INVESTIGATION only:
 
-- Tracked ACLiC dependency artifacts: `BTag/btag_C.d`, `BTag/btag_efficiency_C.d`. Investigate regeneration and manual consumers before a separate artifact-only change; preserve their macros and physics inputs.
+- ACLiC dependency untracking is complete in `aaf438b`; do not repeat this cleanup or remove the preserved macros/physics inputs.
 - Generated but tracked `src/rootdict.C`: changing tracking needs a separate build/reflection/reproducibility decision. It is not interchangeable with an ignored executable.
 - Retained `GetQuantile_Method/Quantiles_jj.C`, `GetQuantile_Method/Mergebins500.C`, `GetQuantile_Method/README.md`: useful research/reference methods without identified production callers; retain unless the user chooses Git-history-only storage. Metadata cleanup is already complete.
 - The four postponed Makefile rules listed above: resume only after the required baseline passes.
@@ -221,7 +272,7 @@ Candidates for INVESTIGATION only:
 - Isolated history/log/archive material such as `normalized_hist/.root_hist`, `normalized_hist/Python_rdf_norm/docker_stderror`, and `normalized_hist/my_ploting_project.tar.gz`: verify provenance and consumers; archives are not automatic deletion candidates.
 - Remaining historical comments/declarations and Run-2 branches inside active code: separate narrow interface/comment review from protected behavior. Triggers, BTag dispatch, helper APIs, FF fallbacks and year routing are not Phase-2 blanket deletion candidates.
 
-Recommended order: reconcile documentation; investigate low-risk artifacts; establish a durable full regression baseline; finish approved Phase 2 work; propose Phase 3 only with approval; address Phase 4 only with separate physics review.
+Recommended order: reconcile documentation; investigate low-risk artifacts; preserve/freeze the regression evidence and complete its provenance; finish separately approved Phase 2 work; propose Phase 3 only with approval; address Phase 4 only with separate physics review.
 
 **Investigate/classify first; obtain user approval; then modify.** None is approved for deletion by this handoff. Trace build, dictionary, production, manual-study and downstream consumers; do not maximize deletion or broaden a cleanup batch.
 
