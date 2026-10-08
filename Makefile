@@ -95,38 +95,11 @@ $(SRCDIR)/rootdict.C: $(SRCDIR)/NanoAODAnalyzerrdframe.h \
 
 
 # ============================================================
-# Temporary test dictionary
-# ============================================================
-
-$(SRCDIR)/rootdicttmp.C: $(SRCDIR)/testing.h \
-                         $(SRCDIR)/test_Linkdef.h
-
-	rm -f $@
-	rootcling -I$(CORRECTION_INCDIR) -I$(SRCDIR) $@ $^
-
-
-libtest.so: $(SRCDIR)/testing.o $(SRCDIR)/rootdicttmp.o
-	$(LD) $(SOFLAGS) $(LIBS) -o $@ $^
-
-
-$(SRCDIR)/rootdicttmp.o: $(SRCDIR)/rootdicttmp.C
-	$(CXX) -c -o $@ $(CXXFLAGS) $<
-
-
-# ============================================================
 # Common shared library
 # ============================================================
 
 libnanoadrdframe.so: $(OBJS)
 	$(LD) $(SOFLAGS) $(LIBS) -o $@ $^
-
-
-# ============================================================
-# RoccoR
-# ============================================================
-
-$(SRCDIR)/RoccoR.o: $(SRCDIR)/RoccoR.cpp $(SRCDIR)/RoccoR.h
-	g++ -c -o $@ $(CXXFLAGS) $<
 
 
 # ============================================================
