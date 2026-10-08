@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
+#include <iostream>
 #include "NanoAODAnalyzerrdframe.h"
 #include "BaseAnalyser.h"
 #include "FakeFactorAnalyser.h"
@@ -16,17 +17,100 @@
 using namespace std;
 using namespace ROOT;
 
-int main(void) {
+int main(int argc, char **argv) {
+    struct Sample {
+        const char *name;
+        const char *input;
+        const char *output;
+    };
+    const Sample samples[] = {
+        {"qcd-bctoe", "root://cmsxrootd.fnal.gov//store/mc/RunIII2024Summer24NanoAODv15/QCD_Bin-PT-120to170_Fil-bcToE_TuneCP5_13p6TeV_pythia8/NANOAODSIM/150X_mcRun3_2024_realistic_v2-v2/120000/2bef59fc-fde7-48e6-82ee-61a1c2014cc3.root", "QCD_bcToE_FakeFactor.root"},
+        {"muoneg-h", "root://cmsxrootd.fnal.gov//store/data/Run2024H/MuonEG/NANOAOD/MINIv6NANOv15-v2/2520000/6fbe0049-3698-4949-981a-e3a6b538b351.root", "MuonEG_Era_H_Run24_FakeFactor.root"},
+        {"muon1-h", "root://cmsxrootd.fnal.gov//store/data/Run2024H/Muon1/NANOAOD/MINIv6NANOv15-v2/90000/13443c42-6446-42e3-8b8b-5cdf731dee7f.root", "Muon1_Era_H_Run24_FakeFactor.root"},
+        {"wjets", "root://cmsxrootd.fnal.gov//store/mc/RunIII2024Summer24NanoAODv15/WtoLNu-4Jets_Bin-4J_TuneCP5_13p6TeV_madgraphMLM-pythia8/NANOAODSIM/150X_mcRun3_2024_realistic_v2-v2/2530000/b531ec92-c480-4a84-919d-4d31c8abf7dd.root", "WJets_4J_FakeFactor.root"},
+    };
+    const char *help = R"HELP(Usage: ./fakefactorframe [--sample NAME | --input PATH_OR_URL] [--output FILE]
+       ./fakefactorframe -h | --help
 
-	TChain c1("Events");
-	// c1.Add("root://cmsxrootd.fnal.gov//store/mc/RunIII2024Summer24NanoAODv15/QCD_Bin-PT-120to170_Fil-bcToE_TuneCP5_13p6TeV_pythia8/NANOAODSIM/150X_mcRun3_2024_realistic_v2-v2/120000/2bef59fc-fde7-48e6-82ee-61a1c2014cc3.root");
-	// c1.Add("root://cmsxrootd.fnal.gov//store/data/Run2024H/MuonEG/NANOAOD/MINIv6NANOv15-v2/2520000/6fbe0049-3698-4949-981a-e3a6b538b351.root");
-	// c1.Add("root://cmsxrootd.fnal.gov//store/data/Run2024H/Muon1/NANOAOD/MINIv6NANOv15-v2/90000/13443c42-6446-42e3-8b8b-5cdf731dee7f.root");
-	c1.Add("root://cmsxrootd.fnal.gov//store/mc/RunIII2024Summer24NanoAODv15/WtoLNu-4Jets_Bin-4J_TuneCP5_13p6TeV_madgraphMLM-pythia8/NANOAODSIM/150X_mcRun3_2024_realistic_v2-v2/2530000/b531ec92-c480-4a84-919d-4d31c8abf7dd.root");
+Options:
+  --sample NAME        Select an existing sample and its default output.
+  --input PATH_OR_URL  Use a custom input; requires --output.
+  --output FILE        Override the output filename.
+  -h, --help           Show this help without processing events.
 
+Samples:
+  qcd-bctoe  QCD bcToE pT120to170 MC -> QCD_bcToE_FakeFactor.root
+  muoneg-h  MuonEG Run2024H data -> MuonEG_Era_H_Run24_FakeFactor.root
+  muon1-h  Muon1 Run2024H data -> Muon1_Era_H_Run24_FakeFactor.root
+  wjets  W+jets MC -> WJets_4J_FakeFactor.root
 
+No arguments: wjets -> QCD_bcToE.root (existing behavior).
+--sample and --input are mutually exclusive.
+Year is fixed at 2024; MC/data detection remains automatic using genWeight.
+Existing analyser, triggers, corrections and selections remain unchanged.
 
-    FakeFactorAnalyser nanoaodrdf(&c1, "QCD_bcToE.root");
+Examples:
+  ./fakefactorframe --sample wjets
+  ./fakefactorframe --sample muoneg-h --output data_test.root
+  ./fakefactorframe --input /path/to/input.root --output custom_test.root
+)HELP";
+    string sampleName = "wjets";
+    string input;
+    string output = "QCD_bcToE.root";
+    bool haveSample = false, haveInput = false, haveOutput = false;
+    bool showHelp = false;
+    auto usageError = [&](const string &message) {
+        cerr << "Error: " << message << "\nUse --help for usage.\n";
+        return EXIT_FAILURE;
+    };
+    for (int i = 1; i < argc; ++i) {
+        string option = argv[i];
+        if (option == "-h" || option == "--help") {
+            showHelp = true;
+            continue;
+        }
+        if (option != "--sample" && option != "--input" && option != "--output")
+            return usageError("unknown option: " + option);
+        if (i + 1 >= argc || argv[i + 1][0] == '-' || argv[i + 1][0] == '\0')
+            return usageError("missing argument for " + option);
+        string value = argv[++i];
+        if (option == "--sample") {
+            if (haveSample) return usageError("duplicate --sample");
+            haveSample = true;
+            sampleName = value;
+        } else if (option == "--input") {
+            if (haveInput) return usageError("duplicate --input");
+            haveInput = true;
+            input = value;
+        } else {
+            if (haveOutput) return usageError("duplicate --output");
+            haveOutput = true;
+            output = value;
+        }
+    }
+    if (haveInput && haveSample)
+        return usageError("--input and --sample are mutually exclusive");
+    if (haveInput && !haveOutput)
+        return usageError("--input requires --output");
+    if (!haveInput) {
+        const Sample *selected = nullptr;
+        for (const auto &sample : samples)
+            if (sampleName == sample.name) selected = &sample;
+        if (!selected) return usageError("invalid sample: " + sampleName);
+        input = selected->input;
+        if (haveSample && !haveOutput) output = selected->output;
+    }
+    if (showHelp) {
+        cout << help;
+        return EXIT_SUCCESS;
+    }
+    cout << "Selected sample: " << (haveInput ? "custom" : sampleName)
+         << "\nInput: " << input << "\nOutput: " << output
+         << "\nAnalysis year: 2024\nMode: automatic (datatype=-1)\n";
+
+    TChain c1("Events");
+    c1.Add(input.c_str());
+    FakeFactorAnalyser nanoaodrdf(&c1, output);
     nanoaodrdf.setParams(2024, "", -1);
 	nanoaodrdf.setHLT();
 

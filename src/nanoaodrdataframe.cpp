@@ -9,24 +9,105 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
+#include <iostream>
 #include "NanoAODAnalyzerrdframe.h"
 #include "BaseAnalyser.h"
 #include "TChain.h"
 using namespace std;
 using namespace ROOT;
 
-int main(void) {
+int main(int argc, char **argv) {
+    struct Sample {
+        const char *name;
+        const char *input;
+        const char *output;
+    };
+    const Sample samples[] = {
+        {"tzqb", "root://cmsxrootd.fnal.gov//store/mc/RunIII2024Summer24NanoAODv15/TZQB-Zto2L-4FS_Bin-MLL-30_TuneCP5_13p6TeV_amcatnlo-pythia8/NANOAODSIM/Madgraph_2_6_5_150X_mcRun3_2024_realistic_v2-v2/2810000/43318103-fc71-48c7-8d99-4915164b3b87.root", "TZQB_TZQAnalysis.root"},
+        {"muoneg-c", "root://cmsxrootd.fnal.gov//store/data/Run2024C/MuonEG/NANOAOD/MINIv6NANOv15-v1/2530000/5ec3440b-ed82-41a9-9740-a4b5829ff450.root", "MuonEG_Era_C_Run24_TZQAnalysis.root"},
+        {"zz4l", "root://cmsxrootd.fnal.gov//store/mc/RunIII2024Summer24NanoAODv15/ZZto4L_TuneCP5_13p6TeV_powheg-pythia8/NANOAODSIM/150X_mcRun3_2024_realistic_v2-v2/110000/7b6611e3-13d6-419c-b1b2-93274d009935.root", "ZZ4L_TZQAnalysis.root"},
+    };
+    const char *help = R"HELP(Usage: ./nanoaodrdataframe [--sample NAME | --input PATH_OR_URL] [--output FILE]
+       ./nanoaodrdataframe -h | --help
 
-	TChain c1("Events");
-	c1.Add("root://cmsxrootd.fnal.gov//store/mc/RunIII2024Summer24NanoAODv15/TZQB-Zto2L-4FS_Bin-MLL-30_TuneCP5_13p6TeV_amcatnlo-pythia8/NANOAODSIM/Madgraph_2_6_5_150X_mcRun3_2024_realistic_v2-v2/2810000/43318103-fc71-48c7-8d99-4915164b3b87.root"); 
-	// c1.Add("root://cmsxrootd.fnal.gov//store/data/Run2024C/MuonEG/NANOAOD/MINIv6NANOv15-v1/2530000/5ec3440b-ed82-41a9-9740-a4b5829ff450.root");
-	// c1.Add("root://cmsxrootd.fnal.gov//store/mc/RunIII2024Summer24NanoAODv15/ZZto4L_TuneCP5_13p6TeV_powheg-pythia8/NANOAODSIM/150X_mcRun3_2024_realistic_v2-v2/110000/7b6611e3-13d6-419c-b1b2-93274d009935.root");
+Options:
+  --sample NAME        Select an existing sample and its default output.
+  --input PATH_OR_URL  Use a custom input; requires --output.
+  --output FILE        Override the output filename.
+  -h, --help           Show this help without processing events.
 
+Samples:
+  tzqb  TZQB MC -> TZQB_TZQAnalysis.root
+  muoneg-c  MuonEG Run2024C data -> MuonEG_Era_C_Run24_TZQAnalysis.root
+  zz4l  ZZto4L MC -> ZZ4L_TZQAnalysis.root
 
+No arguments: tzqb -> tzq_new.root (existing behavior).
+--sample and --input are mutually exclusive.
+Year is fixed at 2024; MC/data detection remains automatic using genWeight.
+Existing analyser, triggers, corrections and selections remain unchanged.
 
-    BaseAnalyser nanoaodrdf(&c1, "tzq_new.root");
-    // BaseAnalyser nanoaodrdf(&c1, "MuonEG_test.root");
-    // BaseAnalyser nanoaodrdf(&c1, "zz_4l.root");
+Examples:
+  ./nanoaodrdataframe --sample tzqb
+  ./nanoaodrdataframe --sample muoneg-c --output data_test.root
+  ./nanoaodrdataframe --input /path/to/input.root --output custom_test.root
+)HELP";
+    string sampleName = "tzqb";
+    string input;
+    string output = "tzq_new.root";
+    bool haveSample = false, haveInput = false, haveOutput = false;
+    bool showHelp = false;
+    auto usageError = [&](const string &message) {
+        cerr << "Error: " << message << "\nUse --help for usage.\n";
+        return EXIT_FAILURE;
+    };
+    for (int i = 1; i < argc; ++i) {
+        string option = argv[i];
+        if (option == "-h" || option == "--help") {
+            showHelp = true;
+            continue;
+        }
+        if (option != "--sample" && option != "--input" && option != "--output")
+            return usageError("unknown option: " + option);
+        if (i + 1 >= argc || argv[i + 1][0] == '-' || argv[i + 1][0] == '\0')
+            return usageError("missing argument for " + option);
+        string value = argv[++i];
+        if (option == "--sample") {
+            if (haveSample) return usageError("duplicate --sample");
+            haveSample = true;
+            sampleName = value;
+        } else if (option == "--input") {
+            if (haveInput) return usageError("duplicate --input");
+            haveInput = true;
+            input = value;
+        } else {
+            if (haveOutput) return usageError("duplicate --output");
+            haveOutput = true;
+            output = value;
+        }
+    }
+    if (haveInput && haveSample)
+        return usageError("--input and --sample are mutually exclusive");
+    if (haveInput && !haveOutput)
+        return usageError("--input requires --output");
+    if (!haveInput) {
+        const Sample *selected = nullptr;
+        for (const auto &sample : samples)
+            if (sampleName == sample.name) selected = &sample;
+        if (!selected) return usageError("invalid sample: " + sampleName);
+        input = selected->input;
+        if (haveSample && !haveOutput) output = selected->output;
+    }
+    if (showHelp) {
+        cout << help;
+        return EXIT_SUCCESS;
+    }
+    cout << "Selected sample: " << (haveInput ? "custom" : sampleName)
+         << "\nInput: " << input << "\nOutput: " << output
+         << "\nAnalysis year: 2024\nMode: automatic (datatype=-1)\n";
+
+    TChain c1("Events");
+    c1.Add(input.c_str());
+    BaseAnalyser nanoaodrdf(&c1, output);
     nanoaodrdf.setParams(2024, "", -1);
     // nanoaodrdf.setParams(2024, "", -1, 1.0, 1.0);
 	nanoaodrdf.setHLT();
