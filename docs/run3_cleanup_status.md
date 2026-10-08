@@ -9,9 +9,9 @@ The intended scope is CMS Run 3 (2022–2025), currently centered on 2024 NanoAO
 ## 2. Current checkpoint
 
 - Branch: `cleanup/run3-remove-legacy-run2`
-- Current source checkpoint (2026-10-08): `7bc8ddab306997be83a9a7e75bf09c27f0baab89`
+- Current source checkpoint (2026-10-08): `1d24d86dcbdc612ef293ff482a21b772365dda54`
 - Earlier reconciled checkpoint: `422a3fb04eaa74333eae0809aa6f650da361a1db`
-- CLI commit is local only at this update; it has not been pushed.
+- CLI commit `7bc8ddab` and documentation commit `0e934284` were pushed to both GitHub and CERN GitLab; Makefile cleanup `1d24d86` was also pushed successfully to both destinations.
 - Original handoff pre-documentation checkpoint: `4a43a0cbc31e5eb64b7a1a7fda04cb50e38fab78`
 - Starting working tree: clean.
 
@@ -34,6 +34,8 @@ Verified against Git, in chronological order:
 | `0165ef1cf2b321da0adf7f6315db677d22878a7c` | docs: reconcile Run-3 cleanup status and validation | Record phase status, diagnostic limitations and pending work. |
 | `aaf438b147f807d91114b4de292e732d8536abc3` | cleanup: stop tracking generated BTag ACLiC dependencies | Preserve local dependency files; retire their tracking with exact ignore rules. |
 | `7bc8ddab306997be83a9a7e75bf09c27f0baab89` | feat: add sample-selectable standalone CLI | Add validated input/sample/output selection and help; preserve automatic mode and physics settings. |
+| `0e9342848d9eb8eeddc7f24d4f2c21fac3249d73` | docs: update Run-3 cleanup CLI validation checkpoint | Preserve full-content MC regression and data smoke-test evidence. |
+| `1d24d86dcbdc612ef293ff482a21b772365dda54` | cleanup: remove dormant legacy Makefile rules | Remove four isolated legacy/test rules; verify unchanged active build plan and successful incremental make. |
 
 Earlier orientation commits:
 
@@ -47,11 +49,11 @@ The phases refer to section 9 of the original audit; later approved artifact tas
 | Phase | Current status | Completed / remaining work |
 |---|---|---|
 | 1 — standalone inputs | Complete for the approved manifest | Exactly 78 tracked deletions in `13f2b14`; ignored BTag efficiency inputs preserved. No broader directory cleanup was approved. |
-| 2 — dependency/build cleanup | Partially complete | SkimEvents, per-file processing and isolated scratch sources retired; redundant configuration removed. Metadata cleanup and binary/ACLiC artifact untracking also complete. Standalone CLI validation is complete. Four dormant Makefile rules remain pending a separately authorized cleanup and its required build/runtime validation. Historical alternative research implementations remain retained; any proposed retirement requires a separate user decision. |
+| 2 — dependency/build cleanup | Partially complete | SkimEvents, per-file processing and isolated scratch sources retired; redundant configuration removed. Metadata cleanup and binary/ACLiC artifact untracking also complete. Standalone CLI validation is complete. Four dormant Makefile rules were removed in `1d24d86` using the task-specific static/incremental validation described below. Remaining scope includes the tracked generated dictionary decision, alternate BTag/manual consumers and normalization alternatives; no blanket Phase-2 completion is claimed. Historical alternative research implementations remain retained; any proposed retirement requires a separate user decision. |
 | 3 — active-code Run-2 refactoring | Not started as a dedicated approved batch | Historical trigger/year dispatch, BTag clauses and public helper interfaces remain in active/shared source. Trace Run-3 dependencies and external users before proposing narrow retirement. |
 | 4 — physics-sensitive cleanup | Intentionally deferred | FF definitions, IDs/triggers, corrections, weights, normalization and systematics require separate physics approval and per-year validation. No prescription is chosen by this handoff. |
 
-No accidentally skipped approved deletion has been established. A failed prerequisite or intentionally retained reference is not a skipped cleanup. Phase 1 used static verification; compiled/build Phase 2 changes require before/after builds and runtime checks. Phase 3 also requires interface and event-level regression checks; Phase 4 requires physics review beyond software regression.
+No accidentally skipped approved deletion has been established. A failed prerequisite or intentionally retained reference is not a skipped cleanup. Phase 1 used static verification; compiled/build Phase 2 changes normally require before/after builds and runtime checks; the four-rule Makefile cleanup used an explicitly authorized incremental-only exception, without runtime execution. Phase 3 also requires interface and event-level regression checks; Phase 4 requires physics review beyond software regression.
 
 ## 4. What has been removed
 
@@ -66,6 +68,8 @@ No accidentally skipped approved deletion has been established. A failed prerequ
 - Git tracking of `fakefactorframe`, using `git rm --cached`; the executable was preserved locally and is still executable at this reconciliation. Exact ignore rule: `/fakefactorframe`. Its C++ source and Makefile build rule remain tracked. Future `make clean` can still remove the local build product.
 
 - Git tracking of `BTag/btag_C.d` and `BTag/btag_efficiency_C.d`: local copies, sizes, permissions and SHA256 checksums preserved; exact ignore rules added. BTag macros and calibration inputs were untouched.
+
+- Four dormant Makefile rules and their dedicated headings: `src/RoccoR.o`, `src/rootdicttmp.C`, `src/rootdicttmp.o`, `libtest.so`. Active dictionary, executable/library targets, source discovery, flags and the complete clean recipe were preserved.
 
 Historical audit references to these paths remain intentionally unchanged. They are not descriptions of the current processing structure.
 
@@ -190,6 +194,18 @@ Key evidence in `reports/`: `mc-run-1791459446174753217.json`, `full_mc_compare.
 
 **Scope of evidence:** MC full-content regression establishes equivalence to the preserved references for these inputs. Data tests establish execution/integrity behavior; no prior data golden outputs exist, so no data regression equivalence is claimed. Neither proves independent physics correctness or approval for other years, datasets or prescriptions. The known OSSF4LInfo dictionary warning and existing unmatched output patterns remain parked; data adds the expected absent GenPart pattern. Successful recent runs do not resolve the earlier intermittent XRootD root cause.
 
+### Dormant Makefile cleanup validation (`1d24d86`)
+
+Starting checkpoint: `0e9342848d9eb8eeddc7f24d4f2c21fac3249d73`, clean tree. Tracked-reference searches found no active production/script/dictionary consumer of the four rules; their RoccoR and temporary-test source/header prerequisites were absent. Documentation references and a commented RoccoR member were historical evidence, not executable dependencies.
+
+Before/after `make -n -j8 nanoaodrdataframe fakefactorframe libnanoadrdframe.so` plans agreed. The authorized bounded command was:
+
+```bash
+timeout --signal=TERM --kill-after=10s 600s make -j8 nanoaodrdataframe fakefactorframe libnanoadrdframe.so
+```
+
+It exited 0; all three targets were already up to date. **No fresh recompilation, dictionary regeneration, clean build or runtime regression was performed.** `git diff --check` passed, and the final/staged diff contained only 27 removed Makefile lines comprising the four rules and their dedicated headings. No source, configuration or generated artifact changed. Environment inspection matched CMSSW_13_3_3, ROOT 6.26/11, GCC 12.3.1 and Python 3.9.14. This task-specific exception does not relax validation for future active-code changes. Both existing origin push destinations succeeded.
+
 ## 7. Validation policy for future cleanup
 
 Execution still requires explicit authorization in the current task under [AGENTS.md](../AGENTS.md). This checklist does not grant standing permission to build or run analysis.
@@ -250,8 +266,7 @@ These are follow-up items, **not authorized fixes**:
 - Three broken historical tracked JetID symlinks: `data/JERC/2023_Summer23/jetid.json.gz`, `data/JERC/2023_Summer23BPix/jetid.json.gz`, and `data/JERC/2024_Winter24/jetid.json.gz`, each pointing to `../2022_Summer22/jetid.json.gz`. The target is absent. They predate Phase 1 and were intentionally untouched pending provenance/physics review.
 - Current 2024 Summer24 configuration instead selects the separate real `data/JERC/2024_Summer24/jetid.json`. Payload loading and actual selection evaluation are distinct; the earlier audit describes manual 2024 JetID selection. Do not infer the correct physics prescription from filenames or repair the historical links automatically.
 - Recurring missing ROOT dictionary warning for `OSSF4LInfo`; validation still completed. Investigate separately rather than changing dictionary registrations during cleanup.
-- Dormant explicit `RoccoR.o` Makefile recipe referencing absent RoccoR sources; do not confuse it with active Run-3 MuonScaRe corrections.
-- Four postponed rules remain exactly: `src/RoccoR.o`, `src/rootdicttmp.C`, `src/rootdicttmp.o`, `libtest.so`. They reference absent RoccoR or temporary test sources/headers and are outside default targets. Removal was approved in earlier tasks but was not executed because the runtime baseline prerequisite failed; a fresh task must authorize resumption. Active dictionary and MuonScaRe rules remain untouched.
+- The four historically postponed Makefile rules were removed in `1d24d86`; earlier failed baseline attempts remain recorded above. Active ROOT dictionary rules and MuonScaRe implementation were untouched. Historical RoccoR comments/interface naming require separate review, not a correction change.
 - Intermittent remote opening/basket-read stalls remain under investigation; root cause remains unconfirmed despite the subsequent successful full local-input TZQB regression and remote data runs.
 - Historical quantile/study utilities retained for possible reference use.
 - `normalized_hist` alternatives/tests require separate workflow and normalization review.
@@ -266,7 +281,7 @@ Candidates for INVESTIGATION only:
 - ACLiC dependency untracking is complete in `aaf438b`; do not repeat this cleanup or remove the preserved macros/physics inputs.
 - Generated but tracked `src/rootdict.C`: changing tracking needs a separate build/reflection/reproducibility decision. It is not interchangeable with an ignored executable.
 - Retained `GetQuantile_Method/Quantiles_jj.C`, `GetQuantile_Method/Mergebins500.C`, `GetQuantile_Method/README.md`: useful research/reference methods without identified production callers; retain unless the user chooses Git-history-only storage. Metadata cleanup is already complete.
-- The four postponed Makefile rules listed above: resume only after the required baseline passes.
+- The four dormant Makefile rules are now retired; do not repeat that cleanup. Remaining Phase-2 candidates require separate classification/approval, including dictionary tracking and manual alternative workflows.
 - Alternate `BTag/NanoAODAnalyzerrdframe_sneh.cpp`: outside the default source wildcard, but contains Run-3 functionality; manual/external use requires a user decision.
 - `normalized_hist` alternatives, including `normalized_hist/Python_rdf_norm/create_hist_rdf_old.py`, `normalized_hist/Python_rdf_norm/unused_txt_file/`, and `normalized_hist/normalization_with_C/Analysed/`: trace manual workflows and downstream normalization before retirement. Active Python and C++ submission workflows must be preserved; differing conventions need physics review.
 - Isolated history/log/archive material such as `normalized_hist/.root_hist`, `normalized_hist/Python_rdf_norm/docker_stderror`, and `normalized_hist/my_ploting_project.tar.gz`: verify provenance and consumers; archives are not automatic deletion candidates.
