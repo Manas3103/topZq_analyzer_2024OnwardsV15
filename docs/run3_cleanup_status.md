@@ -9,7 +9,7 @@ The intended scope is CMS Run 3 (2022–2025), currently centered on 2024 NanoAO
 ## 2. Current checkpoint
 
 - Branch: `cleanup/run3-remove-legacy-run2`
-- Current source checkpoint before this documentation commit: `cfd43659218565d879e7fbd4006105b19c918552` (six implementation-only modularization batches complete).
+- Current source checkpoint before this documentation commit: `1b601d882a94a928255dae7c83021894ad1a5c77` (seven implementation-only modularization batches complete).
 - Earlier Phase-2 source checkpoint: `1d24d86dcbdc612ef293ff482a21b772365dda54`.
 - Earlier reconciled checkpoint: `422a3fb04eaa74333eae0809aa6f650da361a1db`
 - CLI commit `7bc8ddab` and documentation commit `0e934284` were pushed to both GitHub and CERN GitLab; Makefile cleanup `1d24d86` was also pushed successfully to both destinations.
@@ -44,13 +44,15 @@ Verified against Git, in chronological order:
 | `53ba1bd0b0e261dbd71f990fe2a5d6216dccd4bb` | refactor: relocate BaseAnalyser implementation | Modularization Batch 4; content-identical implementation relocation and required Makefile paths only. |
 | `a87ab3d8552ccc287a81af4e20795c07d2674661` | refactor: relocate FakeFactorAnalyser implementation | Modularization Batch 5; content-identical implementation relocation and required Makefile paths only. |
 | `cfd43659218565d879e7fbd4006105b19c918552` | refactor: relocate utility implementation | Modularization Batch 6; content-identical implementation relocation and required Makefile paths only. |
+| `e8b84ce5b2073b1fd08bbec05cf5fa9801f90d0c` | docs: checkpoint six Run-3 modularization batches | Documentation checkpoint after Batch 6. |
+| `1b601d882a94a928255dae7c83021894ad1a5c77` | refactor: relocate NanoAODAnalyzerrdframe implementation | Batch 7; byte-identical framework relocation and Makefile source-path addition. |
 
 Earlier orientation commits:
 
 - `33cd64c0e707bef23ce0cb1d7296072c86093aaa` — `docs: record repository architecture and baseline before Codex-assisted development`.
 - `ac8fee688cdc215bbe51914404c7233635ec4e0b` — `docs: add repository-level Codex development instructions`.
 
-All six migration commits were pushed successfully to the existing GitHub and CERN GitLab destinations. Their scope is source organization, not retirement of embedded Run-2 physics logic.
+All seven migration commits were pushed successfully to the existing GitHub and CERN GitLab destinations. Their scope is source organization, not retirement of embedded Run-2 physics logic.
 
 ### Phase reconciliation
 
@@ -63,7 +65,7 @@ The phases refer to section 9 of the original audit; later approved artifact tas
 | 3 — active-code Run-2 refactoring | Not started as a dedicated approved batch | Historical trigger/year dispatch, BTag clauses and public helper interfaces remain in active/shared source. Trace Run-3 dependencies and external users before proposing narrow retirement. |
 | 4 — physics-sensitive cleanup | Intentionally deferred | FF definitions, IDs/triggers, corrections, weights, normalization and systematics require separate physics approval and per-year validation. No prescription is chosen by this handoff. |
 
-Six implementation-only modularization batches are complete as a separate workstream. Phase 2 remains partially complete, dedicated Phase-3 Run-2 behavior retirement has not started, and Phase 4 remains deferred for separate physics approval. No claim that all Run-3 cleanup is finished is made.
+Seven implementation-only modularization batches are complete as a separate workstream. Phase 2 remains partially complete, dedicated Phase-3 Run-2 behavior retirement has not started, and Phase 4 remains deferred for separate physics approval. No claim that all Run-3 cleanup is finished is made.
 
 No accidentally skipped approved deletion has been established. A failed prerequisite or intentionally retained reference is not a skipped cleanup. Phase 1 used static verification; compiled/build Phase 2 changes normally require before/after builds and runtime checks; the four-rule Makefile cleanup used an explicitly authorized incremental-only exception, without runtime execution. Phase 3 also requires interface and event-level regression checks; Phase 4 requires physics review beyond software regression.
 
@@ -102,11 +104,10 @@ Both standalone entry points now accept `--sample NAME`, `--input PATH_OR_URL`, 
 
 Explicit main samples: `tzqb` -> `TZQB_TZQAnalysis.root`, `zz4l` -> `ZZ4L_TZQAnalysis.root`, `muoneg-c` -> `MuonEG_Era_C_Run24_TZQAnalysis.root`. Explicit fake-factor samples: `wjets` -> `WJets_4J_FakeFactor.root`, `qcd-bctoe` -> `QCD_bcToE_FakeFactor.root`, `muoneg-h` -> `MuonEG_Era_H_Run24_FakeFactor.root`, `muon1-h` -> `Muon1_Era_H_Run24_FakeFactor.root`. Output can be overridden. Existing URLs, analyser classes, triggers, correction arguments and setup/execution sequence remain unchanged.
 
-### Current source organization after Batch 6
+### Current source organization after Batch 7
 
 ```text
 src/
-├── NanoAODAnalyzerrdframe.cpp
 ├── MuonScaRe.cc
 ├── BaseAnalyser.h
 ├── FakeFactorAnalyser.h
@@ -123,6 +124,7 @@ src/
 ├── apps/nanoaodrdataframe.cpp
 ├── apps/fakefactorframe.cpp
 ├── fakefactor/FakeFactorAnalyser.cpp
+├── framework/NanoAODAnalyzerrdframe.cpp
 ├── framework/RNodeTree.cpp
 ├── helpers/GenParticleHelper.cpp
 └── helpers/utility.cpp
@@ -130,7 +132,7 @@ src/
 
 This is the tracked layout; ignored build artifacts are not shown. Public headers remain in `src/`. No header, dictionary, API or algorithm was relocated/refactored. `src/rootdict.C` remains generated and tracked.
 
-The Makefile discovers the remaining top-level `.cpp` and explicitly lists the five relocated common implementations. Each of the six common implementations maps to one object, plus `src/rootdict.o`. The two `src/apps/` main objects are linked only into their respective root-level executables, never into `libnanoadrdframe.so`. Existing flags and `-Isrc` are preserved. `NanoAODAnalyzerrdframe.cpp` directly includes `MuonScaRe.cc`; that `.cc` is not independently compiled. FakeFactorAnalyser still dynamically declares `#include "utility.h"` through Cling.
+The Makefile retains the top-level `.cpp` wildcard (currently empty) and explicitly lists all six relocated common implementations. Each of the six common implementations maps to one object, plus `src/rootdict.o`. The two `src/apps/` main objects are linked only into their respective root-level executables, never into `libnanoadrdframe.so`. Existing flags and `-Isrc` are preserved. `src/framework/NanoAODAnalyzerrdframe.cpp` directly includes `MuonScaRe.cc`; that `.cc` is not independently compiled. FakeFactorAnalyser still dynamically declares `#include "utility.h"` through Cling.
 
 ## 6. Validation established
 
@@ -248,7 +250,7 @@ timeout --signal=TERM --kill-after=10s 600s make -j8 nanoaodrdataframe fakefacto
 
 It exited 0; all three targets were already up to date. **No fresh recompilation, dictionary regeneration, clean build or runtime regression was performed.** `git diff --check` passed, and the final/staged diff contained only 27 removed Makefile lines comprising the four rules and their dedicated headings. No source, configuration or generated artifact changed. Environment inspection matched CMSSW_13_3_3, ROOT 6.26/11, GCC 12.3.1 and Python 3.9.14. This task-specific exception does not relax validation for future active-code changes. Both existing origin push destinations succeeded.
 
-### Durable pre-modularization production baseline and six migration regressions
+### Durable pre-modularization production baseline and seven migration regressions
 
 Evidence root: `/uscms_data/d3/msahoo/Project_tzq/regression_baseline/`. The durable production case is **`production-48d4a5b-wigcmx95`**, built from source commit `48d4a5b7d46b2c302c7d9826ff1b276dc72f2c60`. Its `manifest.json` records `BASELINE_PASS`, source/configuration/payload checksums, local input checksums, tool/environment details, commands, build artifacts and output metadata. It supersedes the earlier absence of a durable production baseline; historical gaps and failed remote tests above remain valid descriptions of those earlier checkpoints.
 
@@ -262,7 +264,7 @@ An isolated fresh build succeeded. Both existing one-file local MC inputs were p
 | Histogram objects compared | 0 (none stored) | 48 |
 | Cutflow | 95551, 95415, 7147, 7147, 6411 | 115953, 54819, 47395, 36539, 36539 |
 
-The main `sum(evWeight)` is `480.6132584437728`. All six migrations passed fresh isolated builds and both production comparisons against the original baseline. Comparison covers exact event identity/order, branch names/types, every stored scalar/vector/split-object value, event weights, cutflows and histogram contents/errors, flow bins, Sumw2, axes, labels and stored metadata. Floating-point values are compared exactly, without numerical tolerance. File UUID/timestamp differences are separate from physics content; byte-identical ROOT files are not required.
+The main `sum(evWeight)` is `480.6132584437728`. All seven migrations passed fresh isolated builds and both production comparisons against the original baseline. Comparison covers exact event identity/order, branch names/types, every stored scalar/vector/split-object value, event weights, cutflows and histogram contents/errors, flow bins, Sumw2, axes, labels and stored metadata. Floating-point values are compared exactly, without numerical tolerance. File UUID/timestamp differences are separate from physics content; byte-identical ROOT files are not required.
 
 | Batch / commit | Content-identical move | Evidence directory under the evidence root |
 |---|---|---|
@@ -272,12 +274,23 @@ The main `sum(evWeight)` is `480.6132584437728`. All six migrations passed fresh
 | 4 / `53ba1bd` | `src/BaseAnalyser.cpp` → `src/analysis/BaseAnalyser.cpp` | `migration-baseanalyser-c2qa33ur` |
 | 5 / `a87ab3d` | `src/FakeFactorAnalyser.cpp` → `src/fakefactor/FakeFactorAnalyser.cpp` | `migration-fakefactor-8ol3y3me` |
 | 6 / `cfd4365` | `src/utility.cpp` → `src/helpers/utility.cpp` | `migration-utility-0yp55rwp` |
+| 7 / `1b601d8` | `src/NanoAODAnalyzerrdframe.cpp` → `src/framework/NanoAODAnalyzerrdframe.cpp` | `migration-nanoaodframework-efhg4zfi` |
 
-Each case retains `manifest.json` (`VALIDATION_PASS`), its isolated `source/`, unique ROOT `outputs/`, and `reports/` containing commands, logs, output metadata, library-loading records and comparator results. Batch 2 additionally passed standalone MC comparisons and CLI tests. Batches 1 and 3–6 validated both production configurations; do not infer new standalone/data runtime tests for those batches.
+Each case retains `manifest.json` (`VALIDATION_PASS`), its isolated `source/`, unique ROOT `outputs/`, and `reports/` containing commands, logs, output metadata, library-loading records and comparator results. Batch 2 additionally passed standalone MC comparisons and CLI tests. Batches 1 and 3–7 validated both production configurations; do not infer new standalone/data runtime tests for those batches.
 
-Fresh builds generated both executables, `libnanoadrdframe.so`, objects, dictionary and PCM artifacts. Dictionary content agreed after normalizing the isolated absolute source include path. Runtime `/proc/self/maps` checks verified the analysis library came from each isolated snapshot. Fake-factor runs completed with the unchanged dynamic `utility.h` include, including after Batch 6. No original-repository build, `make clean`, environment reinitialization or baseline overwrite was performed during these migrations.
+Fresh builds generated both executables, `libnanoadrdframe.so`, objects, dictionary and PCM artifacts. Dictionary content agreed after normalizing the isolated absolute source include path. Runtime `/proc/self/maps` checks verified the analysis library came from each isolated snapshot. Fake-factor runs completed with the unchanged dynamic `utility.h` include, including after Batch 7. No original-repository build, `make clean`, environment reinitialization or baseline overwrite was performed during these migrations.
 
 These are software regression results for the two approved MC inputs, not independent physics validation, new data regression or coverage of every Run-3 year. Known warnings and the unconfirmed intermittent XRootD cause remain parked. Evidence is outside Git: verify its availability before the next batch. This documentation task read saved evidence only; it did not rerun validation.
+
+### Batch 7 completion and reflection limitation
+
+Full evidence path: `/uscms_data/d3/msahoo/Project_tzq/regression_baseline/migration-nanoaodframework-efhg4zfi`. The fresh isolated build passed in 21.0 seconds. Validation first stopped because the temporary symbol checker incorrectly expected strong free-function (`T`) symbols. Source inspection established inline `MuonCorrectionHelper` methods; these may be weak (`W`) or inlined away. Only the external diagnostic was corrected, and the successful build was reused after verifying snapshot source/configuration identity and build provenance. No second build or repository code correction was needed.
+
+The corrected checks verified direct inclusion of `src/MuonScaRe.cc` through `-Isrc`, no separate MuonScaRe object, no duplicate strong definitions, and one framework implementation object in the link inputs. Dictionary generation matched the baseline after normalizing the isolated include path. PCM presence/layout, isolated shared-library loading, PyROOT access to all three registered analyser classes and Cling inclusion of `utility.h` passed. Both production runs completed (main 43.4 seconds; fake factor 38.8 seconds), followed by exact PASS for 6411/648 main events/branches and 36539/56 fake-factor events/branches plus all 48 histograms. Event identity/order, schemas, every stored value, weights, cutflows and histogram contents/errors/metadata matched.
+
+Explicit dictionary inspection emitted **88 ROOT reflection error lines** concerning ownership-member reflection for `CorrectionSet`. The same loading-only check of the untouched production-baseline library emitted the same 88 lines identically. This is a **pre-existing, unresolved reflection limitation**, not a newly introduced Batch-7 discrepancy or a resolved issue. Successful class access and event processing do not establish general reflection/serialization correctness.
+
+Key saved evidence: `manifest.json` (`VALIDATION_PASS`), `reports/framework-dependencies.txt`, `muon-definitions.json`, `loading-check.log`, `baseline-loading-check.log`, `loading-error-provenance.json`, both production loading records/logs, and `main-baseline-comparison.json` / `ff-baseline-comparison.json` under `reports/`. The failed checker is preserved as `reports/execute-failed-symbol-check.py`. All seven source migrations were pushed to both existing destinations; this documentation update reran no build or analysis.
 
 ## 7. Validation policy for future cleanup
 
@@ -304,7 +317,7 @@ Before active-code cleanup, establish an explicitly authorized full regression b
 - All stored scalar/vector/object values and vector alignment, including per-event weights and normalization quantities.
 - All histogram contents, errors, underflow/overflow and relevant totals where present.
 
-Agree comparison handling for floating-point values explicitly; do not silently accept differences or use byte-identical ROOT files as the criterion. Preserve existing normalization conventions and denominator scope. The standalone MC comparator and preserved evidence now exist at the location above. The durable production baseline and six migration reports are now preserved as described above; verify their manifests and exact inputs before reuse. Further baselines, dataset/year coverage or execution still require separate authorization.
+Agree comparison handling for floating-point values explicitly; do not silently accept differences or use byte-identical ROOT files as the criterion. Preserve existing normalization conventions and denominator scope. The standalone MC comparator and preserved evidence now exist at the location above. The durable production baseline and seven migration reports are now preserved as described above; verify their manifests and exact inputs before reuse. Further baselines, dataset/year coverage or execution still require separate authorization.
 
 For production-processor/configuration changes, also run the same production before/after regression test when appropriate and authorized. Documentation-only or clearly non-executable artifact cleanup does not automatically require expensive ROOT runtime validation.
 
@@ -333,6 +346,7 @@ These are follow-up items, **not authorized fixes**:
 
 - Three broken historical tracked JetID symlinks: `data/JERC/2023_Summer23/jetid.json.gz`, `data/JERC/2023_Summer23BPix/jetid.json.gz`, and `data/JERC/2024_Winter24/jetid.json.gz`, each pointing to `../2022_Summer22/jetid.json.gz`. The target is absent. They predate Phase 1 and were intentionally untouched pending provenance/physics review.
 - Current 2024 Summer24 configuration instead selects the separate real `data/JERC/2024_Summer24/jetid.json`. Payload loading and actual selection evaluation are distinct; the earlier audit describes manual 2024 JetID selection. Do not infer the correct physics prescription from filenames or repair the historical links automatically.
+- Baseline-reproduced 88 reflection-error lines during explicit dictionary inspection: unresolved `CorrectionSet` ownership-member reflection limitation, documented in the Batch-7 evidence. Do not silently change registrations or ownership interfaces to suppress it.
 - Recurring missing ROOT dictionary warning for `OSSF4LInfo`; validation still completed. Investigate separately rather than changing dictionary registrations during cleanup.
 - The four historically postponed Makefile rules were removed in `1d24d86`; earlier failed baseline attempts remain recorded above. Active ROOT dictionary rules and MuonScaRe implementation were untouched. Historical RoccoR comments/interface naming require separate review, not a correction change.
 - Intermittent remote opening/basket-read stalls remain under investigation; root cause remains unconfirmed despite the subsequent successful full local-input TZQB regression and remote data runs.
@@ -346,11 +360,19 @@ Names containing historical years are insufficient evidence for deleting active/
 
 ### Remaining modularization plan (not execution authorization)
 
-- Next proposed implementation-only batch: `src/NanoAODAnalyzerrdframe.cpp` → `src/framework/NanoAODAnalyzerrdframe.cpp`, keeping its header unchanged and adding only the required Makefile source path. Trace and regression-test separately before committing.
+The seven approved implementation relocations are complete. The next proposed phase is build-dependency reliability before header relocation; this is a plan, not permission to execute or modify:
+
+1. Add automatic compiler dependency files for objects, including transitive headers and directly included `MuonScaRe.cc`; preserve current flags and object/link membership.
+2. Improve dictionary transitive dependencies and explicit PCM/symlink recovery. Test fresh generation and missing-output recovery separately.
+3. Review generated-output organization and the tracked `src/rootdict.C` policy; preserve library/executable names and reliable ROOT loading before any untracking or relocation.
+4. Only then consider header moves in small batches, with compatibility paths, dictionary/Cling checks and exact production regressions.
+
+The read-only architecture audit found no automatic compiler header dependencies: ordinary objects depend only on their `.cpp`, and the `HEADERS` variable is unused by the rules. Dictionary generation lists the three analyser headers and `Linkdef.h`, but lacks complete transitive header dependencies. The PCM and root-level symlink are side effects rather than explicit targets, so missing outputs alone may not trigger regeneration. `clean` removes the root-level PCM link but does not explicitly remove `src/rootdict_rdict.pcm`. `src/rootdict.C` remains generated and tracked, with header/autoload and environment-specific include paths. Its original tracking rationale cannot be established from the commit message; do not invent one.
+
 - Keep `MuonScaRe.cc` directly included and in its current location. Do not independently compile it or change seed/correction behavior; a different translation-unit policy requires separate review.
 - Review public-header organization before any header moves, including inheritance, `-Isrc`, external/manual consumers, Cling's `utility.h` declaration and generated autoload paths.
 - Review ROOT dictionary generation and tracked `src/rootdict.C` policy separately from implementation relocation. Preserve current dictionary/header paths and library names until approved.
-- Review external/manual consumers, including the alternate BTag framework. Static repository searches do not prove absence of consumers outside this checkout.
+- Review external/manual consumers, including the alternate BTag framework. Its `MuonScaRe.h` free-function interface differs from the active inline `MuonCorrectionHelper` implementation; do not modernize it implicitly. Static repository searches do not prove absence of consumers outside this checkout.
 - Keep physics-sensitive cleanup separate from source organization and require explicit physics approval. Historical audit findings and alternative research implementations remain preserved.
 
 ### Remaining cleanup candidates
