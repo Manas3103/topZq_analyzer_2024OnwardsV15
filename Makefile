@@ -16,7 +16,7 @@ CXXFLAGS = -O0 -g -Wall -fmessage-length=0 $(rootflags) -fPIC -I$(SRCDIR) -I$(CO
 # Source files
 # ============================================================
 
-SRCS := $(wildcard $(SRCDIR)/*.cpp) $(SRCDIR)/helpers/GenParticleHelper.cpp $(SRCDIR)/framework/RNodeTree.cpp $(SRCDIR)/analysis/BaseAnalyser.cpp $(SRCDIR)/fakefactor/FakeFactorAnalyser.cpp
+SRCS := $(wildcard $(SRCDIR)/*.cpp) $(SRCDIR)/helpers/GenParticleHelper.cpp $(SRCDIR)/framework/RNodeTree.cpp $(SRCDIR)/analysis/BaseAnalyser.cpp $(SRCDIR)/fakefactor/FakeFactorAnalyser.cpp $(SRCDIR)/helpers/utility.cpp
 
 # Exclude files containing main()
 COMMON_SRCS := $(filter-out \
