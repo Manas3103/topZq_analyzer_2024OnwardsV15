@@ -9,13 +9,14 @@ The intended scope is CMS Run 3 (2022–2025), currently centered on 2024 NanoAO
 ## 2. Current checkpoint
 
 - Branch: `cleanup/run3-remove-legacy-run2`
-- Current source checkpoint (2026-10-08): `1d24d86dcbdc612ef293ff482a21b772365dda54`
+- Current source checkpoint before this documentation commit: `cfd43659218565d879e7fbd4006105b19c918552` (six implementation-only modularization batches complete).
+- Earlier Phase-2 source checkpoint: `1d24d86dcbdc612ef293ff482a21b772365dda54`.
 - Earlier reconciled checkpoint: `422a3fb04eaa74333eae0809aa6f650da361a1db`
 - CLI commit `7bc8ddab` and documentation commit `0e934284` were pushed to both GitHub and CERN GitLab; Makefile cleanup `1d24d86` was also pushed successfully to both destinations.
 - Original handoff pre-documentation checkpoint: `4a43a0cbc31e5eb64b7a1a7fda04cb50e38fab78`
 - Starting working tree: clean.
 
-The original handoff was committed as `5c3b944`. This reconciliation is documentation-only; HEAD advances only after a separately approved commit. Use Git to determine the latest SHA rather than treating this recorded source checkpoint as permanently current.
+The original handoff was committed as `5c3b944`. This reconciliation is documentation-only; HEAD advances by this authorized documentation-only checkpoint commit. Use Git to determine the latest SHA rather than treating this recorded source checkpoint as permanently current.
 
 ## 3. Cleanup commits completed
 
@@ -36,11 +37,20 @@ Verified against Git, in chronological order:
 | `7bc8ddab306997be83a9a7e75bf09c27f0baab89` | feat: add sample-selectable standalone CLI | Add validated input/sample/output selection and help; preserve automatic mode and physics settings. |
 | `0e9342848d9eb8eeddc7f24d4f2c21fac3249d73` | docs: update Run-3 cleanup CLI validation checkpoint | Preserve full-content MC regression and data smoke-test evidence. |
 | `1d24d86dcbdc612ef293ff482a21b772365dda54` | cleanup: remove dormant legacy Makefile rules | Remove four isolated legacy/test rules; verify unchanged active build plan and successful incremental make. |
+| `48d4a5b7d46b2c302c7d9826ff1b276dc72f2c60` | docs: record Phase-2 build cleanup checkpoint | Last documentation checkpoint before the production baseline and modularization. |
+| `8ddbf7bda80fb796d517758f0164394c06cb175a` | refactor: relocate GenParticleHelper source | Modularization Batch 1; content-identical implementation relocation and required Makefile paths only. |
+| `70adf289e0e204d478d87d9490403c2a4c29a875` | refactor: relocate standalone entry points | Modularization Batch 2; content-identical implementation relocation and required Makefile paths only. |
+| `a0454ae29f8fb7286cbde890d423d2c70c585add` | refactor: relocate RNodeTree implementation | Modularization Batch 3; content-identical implementation relocation and required Makefile paths only. |
+| `53ba1bd0b0e261dbd71f990fe2a5d6216dccd4bb` | refactor: relocate BaseAnalyser implementation | Modularization Batch 4; content-identical implementation relocation and required Makefile paths only. |
+| `a87ab3d8552ccc287a81af4e20795c07d2674661` | refactor: relocate FakeFactorAnalyser implementation | Modularization Batch 5; content-identical implementation relocation and required Makefile paths only. |
+| `cfd43659218565d879e7fbd4006105b19c918552` | refactor: relocate utility implementation | Modularization Batch 6; content-identical implementation relocation and required Makefile paths only. |
 
 Earlier orientation commits:
 
 - `33cd64c0e707bef23ce0cb1d7296072c86093aaa` — `docs: record repository architecture and baseline before Codex-assisted development`.
 - `ac8fee688cdc215bbe51914404c7233635ec4e0b` — `docs: add repository-level Codex development instructions`.
+
+All six migration commits were pushed successfully to the existing GitHub and CERN GitLab destinations. Their scope is source organization, not retirement of embedded Run-2 physics logic.
 
 ### Phase reconciliation
 
@@ -52,6 +62,8 @@ The phases refer to section 9 of the original audit; later approved artifact tas
 | 2 — dependency/build cleanup | Partially complete | SkimEvents, per-file processing and isolated scratch sources retired; redundant configuration removed. Metadata cleanup and binary/ACLiC artifact untracking also complete. Standalone CLI validation is complete. Four dormant Makefile rules were removed in `1d24d86` using the task-specific static/incremental validation described below. Remaining scope includes the tracked generated dictionary decision, alternate BTag/manual consumers and normalization alternatives; no blanket Phase-2 completion is claimed. Historical alternative research implementations remain retained; any proposed retirement requires a separate user decision. |
 | 3 — active-code Run-2 refactoring | Not started as a dedicated approved batch | Historical trigger/year dispatch, BTag clauses and public helper interfaces remain in active/shared source. Trace Run-3 dependencies and external users before proposing narrow retirement. |
 | 4 — physics-sensitive cleanup | Intentionally deferred | FF definitions, IDs/triggers, corrections, weights, normalization and systematics require separate physics approval and per-year validation. No prescription is chosen by this handoff. |
+
+Six implementation-only modularization batches are complete as a separate workstream. Phase 2 remains partially complete, dedicated Phase-3 Run-2 behavior retirement has not started, and Phase 4 remains deferred for separate physics approval. No claim that all Run-3 cleanup is finished is made.
 
 No accidentally skipped approved deletion has been established. A failed prerequisite or intentionally retained reference is not a skipped cleanup. Phase 1 used static verification; compiled/build Phase 2 changes normally require before/after builds and runtime checks; the four-rule Makefile cleanup used an explicitly authorized incremental-only exception, without runtime execution. Phase 3 also requires interface and event-level regression checks; Phase 4 requires physics review beyond software regression.
 
@@ -90,6 +102,36 @@ Both standalone entry points now accept `--sample NAME`, `--input PATH_OR_URL`, 
 
 Explicit main samples: `tzqb` -> `TZQB_TZQAnalysis.root`, `zz4l` -> `ZZ4L_TZQAnalysis.root`, `muoneg-c` -> `MuonEG_Era_C_Run24_TZQAnalysis.root`. Explicit fake-factor samples: `wjets` -> `WJets_4J_FakeFactor.root`, `qcd-bctoe` -> `QCD_bcToE_FakeFactor.root`, `muoneg-h` -> `MuonEG_Era_H_Run24_FakeFactor.root`, `muon1-h` -> `Muon1_Era_H_Run24_FakeFactor.root`. Output can be overridden. Existing URLs, analyser classes, triggers, correction arguments and setup/execution sequence remain unchanged.
 
+### Current source organization after Batch 6
+
+```text
+src/
+├── NanoAODAnalyzerrdframe.cpp
+├── MuonScaRe.cc
+├── BaseAnalyser.h
+├── FakeFactorAnalyser.h
+├── GenParticleHelper.h
+├── NanoAODAnalyzerrdframe.h
+├── RNodeTree.h
+├── MuonScaRe.h
+├── utility.h
+├── json.hpp
+├── json_fwd.hpp
+├── Linkdef.h
+├── rootdict.C
+├── analysis/BaseAnalyser.cpp
+├── apps/nanoaodrdataframe.cpp
+├── apps/fakefactorframe.cpp
+├── fakefactor/FakeFactorAnalyser.cpp
+├── framework/RNodeTree.cpp
+├── helpers/GenParticleHelper.cpp
+└── helpers/utility.cpp
+```
+
+This is the tracked layout; ignored build artifacts are not shown. Public headers remain in `src/`. No header, dictionary, API or algorithm was relocated/refactored. `src/rootdict.C` remains generated and tracked.
+
+The Makefile discovers the remaining top-level `.cpp` and explicitly lists the five relocated common implementations. Each of the six common implementations maps to one object, plus `src/rootdict.o`. The two `src/apps/` main objects are linked only into their respective root-level executables, never into `libnanoadrdframe.so`. Existing flags and `-Isrc` are preserved. `NanoAODAnalyzerrdframe.cpp` directly includes `MuonScaRe.cc`; that `.cc` is not independently compiled. FakeFactorAnalyser still dynamically declares `#include "utility.h"` through Cling.
+
 ## 6. Validation established
 
 ### Historical successful full-input references
@@ -111,7 +153,7 @@ Production reference using `jobconfiganalysis_2024` and `BaseAnalyser`:
 | Cutflow, in recorded order | 95551, 95415, 7147, 7147, 6411 |
 | sum(evWeight) | 480.6132584437728 |
 
-Before/after production validation matched for both retirement of `processonefile.py`/False dispatch and subsequent removal of redundant configuration. The latest exact invocation, from repository root, was:
+Before/after production validation matched for both retirement of `processonefile.py`/False dispatch and subsequent removal of redundant configuration. The historical exact invocation, from repository root, was:
 
 ```bash
 PYTHONDONTWRITEBYTECODE=1 ./processnanoaod_v.py /tmp/codex-allinone-ydqo6spx/tzqb.txt /tmp/codex-allinone-ydqo6spx/production.root jobconfiganalysis_2024
@@ -130,7 +172,7 @@ Relevant ROOT outputs opened normally, were not zombie/recovered, and recorded s
 
 Clean builds and both standalone runtimes passed for the compiled-code/per-file retirement batches. The later redundant-key cleanup used Python/static checks and production before/after validation; it did not rerun a C++ build because compiled files were untouched.
 
-### Recent incomplete baseline attempts and bounded diagnostics
+### Historical incomplete baseline attempts and bounded diagnostics
 
 These later investigations did **not** complete a new full TZQB baseline and did not implement the postponed Makefile cleanup. Results below come from the prior diagnostic session; this documentation update performed no runtime tests. Temporary evidence may expire.
 
@@ -154,7 +196,7 @@ Diagnostic environment: ROOT 6.26/11, XRootD 5.6.2 in the existing CMSSW environ
 
 At the earlier reconciliation, no durable, provenance-verified full event-by-event golden ROOT baseline had been established. The historical `/tmp/codex-allinone-ydqo6spx` production evidence was no longer available at reconciliation. Other surviving outputs are not automatically golden references: their input/configuration provenance and complete contents have not been certified. Historical count/schema/weight comparisons cannot prove that every stored event and value matched.
 
-### Latest CLI validation and preserved regression evidence
+### CLI validation and preserved regression evidence
 
 Regression directory: `/uscms_data/d3/msahoo/Project_tzq/regression_baseline`. This is outside Git. It contains preserved references (`tzq_new.root`, `QCD_bcToE.root`), exact staged original MC inputs under `inputs/`, new outputs under `test_outputs/`, and transfer manifests, full logs, comparison helpers and reports under `reports/`. Reference SHA256 checksums remained unchanged:
 
@@ -206,28 +248,54 @@ timeout --signal=TERM --kill-after=10s 600s make -j8 nanoaodrdataframe fakefacto
 
 It exited 0; all three targets were already up to date. **No fresh recompilation, dictionary regeneration, clean build or runtime regression was performed.** `git diff --check` passed, and the final/staged diff contained only 27 removed Makefile lines comprising the four rules and their dedicated headings. No source, configuration or generated artifact changed. Environment inspection matched CMSSW_13_3_3, ROOT 6.26/11, GCC 12.3.1 and Python 3.9.14. This task-specific exception does not relax validation for future active-code changes. Both existing origin push destinations succeeded.
 
+### Durable pre-modularization production baseline and six migration regressions
+
+Evidence root: `/uscms_data/d3/msahoo/Project_tzq/regression_baseline/`. The durable production case is **`production-48d4a5b-wigcmx95`**, built from source commit `48d4a5b7d46b2c302c7d9826ff1b276dc72f2c60`. Its `manifest.json` records `BASELINE_PASS`, source/configuration/payload checksums, local input checksums, tool/environment details, commands, build artifacts and output metadata. It supersedes the earlier absence of a durable production baseline; historical gaps and failed remote tests above remain valid descriptions of those earlier checkpoints.
+
+An isolated fresh build succeeded. Both existing one-file local MC inputs were processed through unchanged `processnanoaod_v.py`: TZQB with `jobconfiganalysis_2024`, W+jets with `jobconfiganalysis_2024_ff`. Each production test was repeated with a new output filename. `outputs/main-1.root`, `main-2.root`, `ff-1.root`, and `ff-2.root` are preserved; `reports/main-repeat-comparison.json` and `ff-repeat-comparison.json` record exact PASS.
+
+| Production result | Main TZQB | Fake factor W+jets |
+|---|---:|---:|
+| Input entries | 141000 | 116017 |
+| Selected entries in `outputTree_00000` | 6411 | 36539 |
+| Top-level branches | 648 | 56 |
+| Histogram objects compared | 0 (none stored) | 48 |
+| Cutflow | 95551, 95415, 7147, 7147, 6411 | 115953, 54819, 47395, 36539, 36539 |
+
+The main `sum(evWeight)` is `480.6132584437728`. All six migrations passed fresh isolated builds and both production comparisons against the original baseline. Comparison covers exact event identity/order, branch names/types, every stored scalar/vector/split-object value, event weights, cutflows and histogram contents/errors, flow bins, Sumw2, axes, labels and stored metadata. Floating-point values are compared exactly, without numerical tolerance. File UUID/timestamp differences are separate from physics content; byte-identical ROOT files are not required.
+
+| Batch / commit | Content-identical move | Evidence directory under the evidence root |
+|---|---|---|
+| 1 / `8ddbf7b` | `src/GenParticleHelper.cpp` → `src/helpers/GenParticleHelper.cpp` | `migration-genparticle-o44dpdy2` |
+| 2 / `70adf28` | Both standalone mains from `src/` → `src/apps/` | `migration-apps-umwlf0z7` |
+| 3 / `a0454ae` | `src/RNodeTree.cpp` → `src/framework/RNodeTree.cpp` | `migration-rnodetree-sqe3leeo` |
+| 4 / `53ba1bd` | `src/BaseAnalyser.cpp` → `src/analysis/BaseAnalyser.cpp` | `migration-baseanalyser-c2qa33ur` |
+| 5 / `a87ab3d` | `src/FakeFactorAnalyser.cpp` → `src/fakefactor/FakeFactorAnalyser.cpp` | `migration-fakefactor-8ol3y3me` |
+| 6 / `cfd4365` | `src/utility.cpp` → `src/helpers/utility.cpp` | `migration-utility-0yp55rwp` |
+
+Each case retains `manifest.json` (`VALIDATION_PASS`), its isolated `source/`, unique ROOT `outputs/`, and `reports/` containing commands, logs, output metadata, library-loading records and comparator results. Batch 2 additionally passed standalone MC comparisons and CLI tests. Batches 1 and 3–6 validated both production configurations; do not infer new standalone/data runtime tests for those batches.
+
+Fresh builds generated both executables, `libnanoadrdframe.so`, objects, dictionary and PCM artifacts. Dictionary content agreed after normalizing the isolated absolute source include path. Runtime `/proc/self/maps` checks verified the analysis library came from each isolated snapshot. Fake-factor runs completed with the unchanged dynamic `utility.h` include, including after Batch 6. No original-repository build, `make clean`, environment reinitialization or baseline overwrite was performed during these migrations.
+
+These are software regression results for the two approved MC inputs, not independent physics validation, new data regression or coverage of every Run-3 year. Known warnings and the unconfirmed intermittent XRootD cause remain parked. Evidence is outside Git: verify its availability before the next batch. This documentation task read saved evidence only; it did not rerun validation.
+
 ## 7. Validation policy for future cleanup
 
 Execution still requires explicit authorization in the current task under [AGENTS.md](../AGENTS.md). This checklist does not grant standing permission to build or run analysis.
 
-For deletion/modification under `src/` or changes affecting compiled/build code:
+For approved implementation-only modularization, use the established isolated fresh-build procedure:
 
-1. Verify clean starting tree and expected HEAD.
-2. Establish and record the baseline conditions.
-3. Run `make clean`.
-4. Run `make -j8`.
-5. Run `nanoaodrdataframe`.
-6. Run `fakefactorframe`.
-7. Record meaningful ROOT integrity, tree/schema, cutflow and weight quantities.
-8. Make the narrow approved change only after baseline passes.
-9. Run `make clean`.
-10. Run `make -j8`.
-11. Rerun the same executables on the same inputs.
-12. Compare meaningful quantities; stop on unexplained differences.
-13. Inspect exact Git diff, including generated files.
-14. Commit/push only after validation passes and when explicitly authorized.
+1. Verify clean starting tree, expected branch/HEAD, baseline manifest and evidence availability.
+2. Trace source discovery, includes, dictionary/Cling inputs and manual consumers; prove the move is byte-identical.
+3. Export the approved source into a uniquely named disposable snapshot under the regression directory; overlay only the approved changes and preserve the verified configuration/payload inputs.
+4. Check that the moved implementation compiles/links once and mains remain outside the shared library.
+5. Run the bounded fresh build in the snapshot, without `make clean` or rebuilding original-repository artifacts. The recorded procedure uses `timeout --signal=TERM --kill-after=10s 1200s make -B -j8 nanoaodrdataframe fakefactorframe libnanoadrdframe.so`.
+6. Verify dictionary/PCM generation, normalize only the understood isolated include-path difference, and verify runtime loading of the snapshot library.
+7. Run both production configurations on the same preserved local MC inputs with unique outputs and bounded timeouts; use the saved wrappers/commands and unchanged settings.
+8. Compare all physics content and cutflows against the preserved production baseline; run extra standalone/CLI/data checks when the approved scope requires them.
+9. Stop on unexplained differences. Inspect the exact source/staged diff; commit/push only the authorized paths after all required checks pass.
 
-`make clean` removes tracked `src/rootdict.C`; the normal build has been verified to regenerate it identically in the current environment. Recheck clean/build behavior before future use. The clean recipe also removes build products and `.nfs*`; inspect the working environment rather than treating clean as harmless. Do not commit dictionary churn or hide unexplained changes with restore/reset.
+**Never run `make clean` without explicit current-task approval.** It removes tracked `src/rootdict.C`, build products and `.nfs*`. Earlier cleanup batches explicitly authorized clean builds and verified identical regeneration; that historical practice is not standing permission and is not the current modularization procedure. `src/rootdict.C` remains tracked in the original repository. Do not manually edit it, commit generated churn, or hide unexplained changes with restore/reset. Never overwrite preserved baseline files or silently reinitialize CMSSW.
 
 Before active-code cleanup, establish an explicitly authorized full regression baseline in an approved durable location, with a manifest recording source SHA, exact command, ordered input files, configuration/payload versions, software environment, threading and random-seed settings, and output checksums. Preserve and compare:
 
@@ -236,7 +304,7 @@ Before active-code cleanup, establish an explicitly authorized full regression b
 - All stored scalar/vector/object values and vector alignment, including per-event weights and normalization quantities.
 - All histogram contents, errors, underflow/overflow and relevant totals where present.
 
-Agree comparison handling for floating-point values explicitly; do not silently accept differences or use byte-identical ROOT files as the criterion. Preserve existing normalization conventions and denominator scope. The standalone MC comparator and preserved evidence now exist at the location above. Complete provenance freezing and any production-processor golden baseline remain separate approved tasks; this handoff does not authorize execution.
+Agree comparison handling for floating-point values explicitly; do not silently accept differences or use byte-identical ROOT files as the criterion. Preserve existing normalization conventions and denominator scope. The standalone MC comparator and preserved evidence now exist at the location above. The durable production baseline and six migration reports are now preserved as described above; verify their manifests and exact inputs before reuse. Further baselines, dataset/year coverage or execution still require separate authorization.
 
 For production-processor/configuration changes, also run the same production before/after regression test when appropriate and authorized. Documentation-only or clearly non-executable artifact cleanup does not automatically require expensive ROOT runtime validation.
 
@@ -276,6 +344,17 @@ Names containing historical years are insufficient evidence for deleting active/
 
 ## 10. Likely next cleanup candidates
 
+### Remaining modularization plan (not execution authorization)
+
+- Next proposed implementation-only batch: `src/NanoAODAnalyzerrdframe.cpp` → `src/framework/NanoAODAnalyzerrdframe.cpp`, keeping its header unchanged and adding only the required Makefile source path. Trace and regression-test separately before committing.
+- Keep `MuonScaRe.cc` directly included and in its current location. Do not independently compile it or change seed/correction behavior; a different translation-unit policy requires separate review.
+- Review public-header organization before any header moves, including inheritance, `-Isrc`, external/manual consumers, Cling's `utility.h` declaration and generated autoload paths.
+- Review ROOT dictionary generation and tracked `src/rootdict.C` policy separately from implementation relocation. Preserve current dictionary/header paths and library names until approved.
+- Review external/manual consumers, including the alternate BTag framework. Static repository searches do not prove absence of consumers outside this checkout.
+- Keep physics-sensitive cleanup separate from source organization and require explicit physics approval. Historical audit findings and alternative research implementations remain preserved.
+
+### Remaining cleanup candidates
+
 Candidates for INVESTIGATION only:
 
 - ACLiC dependency untracking is complete in `aaf438b`; do not repeat this cleanup or remove the preserved macros/physics inputs.
@@ -287,7 +366,7 @@ Candidates for INVESTIGATION only:
 - Isolated history/log/archive material such as `normalized_hist/.root_hist`, `normalized_hist/Python_rdf_norm/docker_stderror`, and `normalized_hist/my_ploting_project.tar.gz`: verify provenance and consumers; archives are not automatic deletion candidates.
 - Remaining historical comments/declarations and Run-2 branches inside active code: separate narrow interface/comment review from protected behavior. Triggers, BTag dispatch, helper APIs, FF fallbacks and year routing are not Phase-2 blanket deletion candidates.
 
-Recommended order: reconcile documentation; investigate low-risk artifacts; preserve/freeze the regression evidence and complete its provenance; finish separately approved Phase 2 work; propose Phase 3 only with approval; address Phase 4 only with separate physics review.
+Recommended order: reconcile documentation; investigate low-risk artifacts; verify/preserve the durable regression evidence and extend coverage only when approved; finish separately approved Phase 2 work; propose Phase 3 only with approval; address Phase 4 only with separate physics review.
 
 **Investigate/classify first; obtain user approval; then modify.** None is approved for deletion by this handoff. Trace build, dictionary, production, manual-study and downstream consumers; do not maximize deletion or broaden a cleanup batch.
 
