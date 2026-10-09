@@ -84,16 +84,27 @@ clean:
 # ROOT dictionary
 # ============================================================
 
-$(SRCDIR)/rootdict.C: $(SRCDIR)/NanoAODAnalyzerrdframe.h \
-                       $(SRCDIR)/BaseAnalyser.h \
-					   $(SRCDIR)/FakeFactorAnalyser.h \
-                       $(SRCDIR)/Linkdef.h
+DICT_HEADERS := $(SRCDIR)/NanoAODAnalyzerrdframe.h $(SRCDIR)/BaseAnalyser.h $(SRCDIR)/FakeFactorAnalyser.h $(SRCDIR)/Linkdef.h
+DICT_DEPS := $(SRCDIR)/rootdict_headers.d
+DICT_PCM := $(SRCDIR)/rootdict_rdict.pcm
 
-	rm -f $@
-	rootcling -I$(CORRECTION_INCDIR) -I$(SRCDIR) $@ $^
+# Track headers parsed for the dictionary, including transitive includes.
+$(DICT_DEPS): $(DICT_HEADERS) Makefile
+	$(CXX) $(CXXFLAGS) -D__CLING__ -MM -MP -x c++ -MT $(DICT_DEPS) -MT $(SRCDIR)/rootdict.C -MT $(DICT_PCM) $(DICT_HEADERS) > $@.tmp
+	mv $@.tmp $@
 
-	rm -f rootdict_rdict.pcm
-	ln -s $(SRCDIR)/rootdict_rdict.pcm .
+# rootcling produces both outputs in one invocation (GNU Make >= 4.3).
+$(SRCDIR)/rootdict.C $(DICT_PCM) &: $(DICT_HEADERS) $(DICT_DEPS)
+	rm -f $(SRCDIR)/rootdict.C
+	rootcling -I$(CORRECTION_INCDIR) -I$(SRCDIR) $(SRCDIR)/rootdict.C $(DICT_HEADERS)
+	test -s $(SRCDIR)/rootdict.C
+	test -s $(DICT_PCM)
+
+# Recover the lookup link without recompiling objects or relinking binaries.
+rootdict_rdict.pcm: | $(DICT_PCM)
+	ln -sfn $(DICT_PCM) $@
+
+$(TARGET) $(FAKE_TARGET) libnanoadrdframe.so: | rootdict_rdict.pcm
 
 
 # ============================================================
@@ -108,8 +119,9 @@ libnanoadrdframe.so: $(OBJS)
 # ROOT dictionary object
 # ============================================================
 
-$(SRCDIR)/rootdict.o: $(SRCDIR)/rootdict.C
-	$(CXX) -c -o $@ $(CXXFLAGS) $(DEPFLAGS) $<
+# Visit the PCM first so grouped-output recovery precedes object checks.
+$(SRCDIR)/rootdict.o: $(DICT_PCM) $(SRCDIR)/rootdict.C
+	$(CXX) -c -o $@ $(CXXFLAGS) $(DEPFLAGS) $(SRCDIR)/rootdict.C
 
 
 # ============================================================
@@ -136,4 +148,4 @@ $(FAKE_TARGET): $(OBJS) $(SRCDIR)/apps/fakefactorframe.o
 	$(CXX) -o $(FAKE_TARGET) $^ $(LIBS_EXE)
 
 # Include generated dependencies without failing on the first build.
--include $(DEPS)
+-include $(DEPS) $(DICT_DEPS)
