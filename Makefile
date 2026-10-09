@@ -11,6 +11,7 @@ SOFLAGS       = -shared
 LD = g++ -m64 -g -Wall
 
 CXXFLAGS = -O0 -g -Wall -fmessage-length=0 $(rootflags) -fPIC -I$(SRCDIR) -I$(CORRECTION_INCDIR) -I.
+DEPFLAGS = -MMD -MP -MF $(@:.o=.d) -MT $@
 
 # ============================================================
 # Source files
@@ -28,6 +29,7 @@ HEADERS = $(wildcard $(SRCDIR)/*.h)
 
 # Objects used by the common library
 OBJS := $(patsubst %.cpp,%.o,$(COMMON_SRCS)) $(SRCDIR)/rootdict.o
+DEPS := $(OBJS:.o=.d) $(SRCDIR)/apps/nanoaodrdataframe.d $(SRCDIR)/apps/fakefactorframe.d
 
 
 # ============================================================
@@ -107,7 +109,7 @@ libnanoadrdframe.so: $(OBJS)
 # ============================================================
 
 $(SRCDIR)/rootdict.o: $(SRCDIR)/rootdict.C
-	$(CXX) -c -o $@ $(CXXFLAGS) $<
+	$(CXX) -c -o $@ $(CXXFLAGS) $(DEPFLAGS) $<
 
 
 # ============================================================
@@ -115,7 +117,7 @@ $(SRCDIR)/rootdict.o: $(SRCDIR)/rootdict.C
 # ============================================================
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.cpp
-	$(CXX) -c -o $@ $(CXXFLAGS) $<
+	$(CXX) -c -o $@ $(CXXFLAGS) $(DEPFLAGS) $<
 
 
 # ============================================================
@@ -132,3 +134,6 @@ $(TARGET): $(OBJS) $(SRCDIR)/apps/nanoaodrdataframe.o
 
 $(FAKE_TARGET): $(OBJS) $(SRCDIR)/apps/fakefactorframe.o
 	$(CXX) -o $(FAKE_TARGET) $^ $(LIBS_EXE)
+
+# Include generated dependencies without failing on the first build.
+-include $(DEPS)
