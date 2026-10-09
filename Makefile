@@ -20,8 +20,8 @@ SRCS := $(wildcard $(SRCDIR)/*.cpp) $(SRCDIR)/helpers/GenParticleHelper.cpp
 
 # Exclude files containing main()
 COMMON_SRCS := $(filter-out \
-    $(SRCDIR)/nanoaodrdataframe.cpp \
-    $(SRCDIR)/fakefactorframe.cpp, \
+    $(SRCDIR)/apps/nanoaodrdataframe.cpp \
+    $(SRCDIR)/apps/fakefactorframe.cpp, \
     $(SRCS))
 
 HEADERS = $(wildcard $(SRCDIR)/*.h)
@@ -68,8 +68,8 @@ all: $(TARGET) $(FAKE_TARGET) libnanoadrdframe.so
 
 clean:
 	rm -f $(OBJS) \
-	      $(SRCDIR)/nanoaodrdataframe.o \
-	      $(SRCDIR)/fakefactorframe.o \
+	      $(SRCDIR)/apps/nanoaodrdataframe.o \
+	      $(SRCDIR)/apps/fakefactorframe.o \
 	      $(TARGET) \
 	      $(FAKE_TARGET) \
 	      libnanoadrdframe.so \
@@ -122,7 +122,7 @@ $(OBJDIR)/%.o: $(SRCDIR)/%.cpp
 # Main executable
 # ============================================================
 
-$(TARGET): $(OBJS) $(SRCDIR)/nanoaodrdataframe.o
+$(TARGET): $(OBJS) $(SRCDIR)/apps/nanoaodrdataframe.o
 	$(CXX) -o $(TARGET) $^ $(LIBS_EXE)
 
 
@@ -130,5 +130,5 @@ $(TARGET): $(OBJS) $(SRCDIR)/nanoaodrdataframe.o
 # Fake-factor executable
 # ============================================================
 
-$(FAKE_TARGET): $(OBJS) $(SRCDIR)/fakefactorframe.o
+$(FAKE_TARGET): $(OBJS) $(SRCDIR)/apps/fakefactorframe.o
 	$(CXX) -o $(FAKE_TARGET) $^ $(LIBS_EXE)
