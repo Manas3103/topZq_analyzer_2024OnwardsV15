@@ -4,7 +4,7 @@ rootflags:=$(shell root-config --cflags)
 CORRECTION_INCDIR:=$(shell correction config --incdir)
 CORRECTION_LIBDIR:=$(shell correction config --libdir)
 
-OBJDIR=src
+OBJDIR=build/obj
 SRCDIR=src
 
 SOFLAGS       = -shared
@@ -28,8 +28,8 @@ COMMON_SRCS := $(filter-out \
 HEADERS = $(wildcard $(SRCDIR)/*.h)
 
 # Objects used by the common library
-OBJS := $(patsubst %.cpp,%.o,$(COMMON_SRCS)) $(SRCDIR)/rootdict.o
-DEPS := $(OBJS:.o=.d) $(SRCDIR)/apps/nanoaodrdataframe.d $(SRCDIR)/apps/fakefactorframe.d
+OBJS := $(patsubst $(SRCDIR)/%.cpp,$(OBJDIR)/%.o,$(COMMON_SRCS)) $(OBJDIR)/rootdict.o
+DEPS := $(OBJS:.o=.d) $(OBJDIR)/apps/nanoaodrdataframe.d $(OBJDIR)/apps/fakefactorframe.d
 
 
 # ============================================================
@@ -70,8 +70,8 @@ all: $(TARGET) $(FAKE_TARGET) libnanoadrdframe.so
 
 clean:
 	rm -f $(OBJS) \
-	      $(SRCDIR)/apps/nanoaodrdataframe.o \
-	      $(SRCDIR)/apps/fakefactorframe.o \
+	      $(OBJDIR)/apps/nanoaodrdataframe.o \
+	      $(OBJDIR)/apps/fakefactorframe.o \
 	      $(TARGET) \
 	      $(FAKE_TARGET) \
 	      libnanoadrdframe.so \
@@ -120,7 +120,8 @@ libnanoadrdframe.so: $(OBJS)
 # ============================================================
 
 # Visit the PCM first so grouped-output recovery precedes object checks.
-$(SRCDIR)/rootdict.o: $(DICT_PCM) $(SRCDIR)/rootdict.C
+$(OBJDIR)/rootdict.o: $(DICT_PCM) $(SRCDIR)/rootdict.C
+	mkdir -p $(@D)
 	$(CXX) -c -o $@ $(CXXFLAGS) $(DEPFLAGS) $(SRCDIR)/rootdict.C
 
 
@@ -129,6 +130,7 @@ $(SRCDIR)/rootdict.o: $(DICT_PCM) $(SRCDIR)/rootdict.C
 # ============================================================
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.cpp
+	mkdir -p $(@D)
 	$(CXX) -c -o $@ $(CXXFLAGS) $(DEPFLAGS) $<
 
 
@@ -136,7 +138,7 @@ $(OBJDIR)/%.o: $(SRCDIR)/%.cpp
 # Main executable
 # ============================================================
 
-$(TARGET): $(OBJS) $(SRCDIR)/apps/nanoaodrdataframe.o
+$(TARGET): $(OBJS) $(OBJDIR)/apps/nanoaodrdataframe.o
 	$(CXX) -o $(TARGET) $^ $(LIBS_EXE)
 
 
@@ -144,7 +146,7 @@ $(TARGET): $(OBJS) $(SRCDIR)/apps/nanoaodrdataframe.o
 # Fake-factor executable
 # ============================================================
 
-$(FAKE_TARGET): $(OBJS) $(SRCDIR)/apps/fakefactorframe.o
+$(FAKE_TARGET): $(OBJS) $(OBJDIR)/apps/fakefactorframe.o
 	$(CXX) -o $(FAKE_TARGET) $^ $(LIBS_EXE)
 
 # Include generated dependencies without failing on the first build.

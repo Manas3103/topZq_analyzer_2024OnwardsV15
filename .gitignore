@@ -35,3 +35,5 @@ DataMC_txt/temp/*
 /fakefactorframe
 /BTag/btag_C.d
 /BTag/btag_efficiency_C.d
+
+/build/obj/
