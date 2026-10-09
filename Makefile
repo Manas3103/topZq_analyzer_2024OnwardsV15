@@ -16,7 +16,7 @@ CXXFLAGS = -O0 -g -Wall -fmessage-length=0 $(rootflags) -fPIC -I$(SRCDIR) -I$(CO
 # Source files
 # ============================================================
 
-SRCS := $(wildcard $(SRCDIR)/*.cpp)
+SRCS := $(wildcard $(SRCDIR)/*.cpp) $(SRCDIR)/helpers/GenParticleHelper.cpp
 
 # Exclude files containing main()
 COMMON_SRCS := $(filter-out \
