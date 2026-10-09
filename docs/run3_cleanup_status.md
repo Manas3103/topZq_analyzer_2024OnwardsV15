@@ -9,7 +9,7 @@ The intended scope is CMS Run 3 (2022–2025), currently centered on 2024 NanoAO
 ## 2. Current checkpoint
 
 - Branch: `cleanup/run3-remove-legacy-run2`
-- Current source checkpoint before this documentation commit: `1b601d882a94a928255dae7c83021894ad1a5c77` (seven implementation-only modularization batches complete).
+- Current source/build checkpoint before this documentation commit: `07bec35ef4e54f5ccfbed7c1c5a8bdf001666656` (seven implementation-only migrations plus build-dependency Batches 8 and 9 complete).
 - Earlier Phase-2 source checkpoint: `1d24d86dcbdc612ef293ff482a21b772365dda54`.
 - Earlier reconciled checkpoint: `422a3fb04eaa74333eae0809aa6f650da361a1db`
 - CLI commit `7bc8ddab` and documentation commit `0e934284` were pushed to both GitHub and CERN GitLab; Makefile cleanup `1d24d86` was also pushed successfully to both destinations.
@@ -46,6 +46,8 @@ Verified against Git, in chronological order:
 | `cfd43659218565d879e7fbd4006105b19c918552` | refactor: relocate utility implementation | Modularization Batch 6; content-identical implementation relocation and required Makefile paths only. |
 | `e8b84ce5b2073b1fd08bbec05cf5fa9801f90d0c` | docs: checkpoint six Run-3 modularization batches | Documentation checkpoint after Batch 6. |
 | `1b601d882a94a928255dae7c83021894ad1a5c77` | refactor: relocate NanoAODAnalyzerrdframe implementation | Batch 7; byte-identical framework relocation and Makefile source-path addition. |
+| `ca06ad1d45885a5a12d45497b3447d7afce68f1d` | build: add automatic C++ header dependencies | Batch 8; compiler-generated object dependencies and incremental rebuild validation. |
+| `07bec35ef4e54f5ccfbed7c1c5a8bdf001666656` | build: track ROOT dictionary and PCM dependencies | Batch 9; transitive dictionary dependencies and same-invocation PCM recovery. |
 
 Earlier orientation commits:
 
@@ -61,7 +63,7 @@ The phases refer to section 9 of the original audit; later approved artifact tas
 | Phase | Current status | Completed / remaining work |
 |---|---|---|
 | 1 — standalone inputs | Complete for the approved manifest | Exactly 78 tracked deletions in `13f2b14`; ignored BTag efficiency inputs preserved. No broader directory cleanup was approved. |
-| 2 — dependency/build cleanup | Partially complete | SkimEvents, per-file processing and isolated scratch sources retired; redundant configuration removed. Metadata cleanup and binary/ACLiC artifact untracking also complete. Standalone CLI validation is complete. Four dormant Makefile rules were removed in `1d24d86` using the task-specific static/incremental validation described below. Remaining scope includes the tracked generated dictionary decision, alternate BTag/manual consumers and normalization alternatives; no blanket Phase-2 completion is claimed. Historical alternative research implementations remain retained; any proposed retirement requires a separate user decision. |
+| 2 — dependency/build cleanup | Partially complete | SkimEvents, per-file processing and isolated scratch sources retired; redundant configuration removed. Metadata cleanup and binary/ACLiC artifact untracking also complete. Standalone CLI validation is complete. Four dormant Makefile rules were removed in `1d24d86` using the task-specific static/incremental validation described below. Batches 8 and 9 completed automatic compiler dependencies and dictionary/PCM recovery. Remaining scope includes generated-artifact isolation, the tracked generated dictionary decision, alternate BTag/manual consumers and normalization alternatives; no blanket Phase-2 completion is claimed. Historical alternative research implementations remain retained; any proposed retirement requires a separate user decision. |
 | 3 — active-code Run-2 refactoring | Not started as a dedicated approved batch | Historical trigger/year dispatch, BTag clauses and public helper interfaces remain in active/shared source. Trace Run-3 dependencies and external users before proposing narrow retirement. |
 | 4 — physics-sensitive cleanup | Intentionally deferred | FF definitions, IDs/triggers, corrections, weights, normalization and systematics require separate physics approval and per-year validation. No prescription is chosen by this handoff. |
 
@@ -292,6 +294,34 @@ Explicit dictionary inspection emitted **88 ROOT reflection error lines** concer
 
 Key saved evidence: `manifest.json` (`VALIDATION_PASS`), `reports/framework-dependencies.txt`, `muon-definitions.json`, `loading-check.log`, `baseline-loading-check.log`, `loading-error-provenance.json`, both production loading records/logs, and `main-baseline-comparison.json` / `ff-baseline-comparison.json` under `reports/`. The failed checker is preserved as `reports/execute-failed-symbol-check.py`. All seven source migrations were pushed to both existing destinations; this documentation update reran no build or analysis.
 
+### Build-dependency Batches 8 and 9
+
+Both Makefile-only batches were committed and pushed to the existing GitHub and CERN GitLab destinations. They preserved source/header contents, physics configuration, class registrations and public output names.
+
+- **Batch 8 / `ca06ad1`:** added `-MMD -MP` with explicit `.d` paths and object targets, and safe dependency-file inclusion. Fresh isolated builds generated nine compiler dependency files, including both mains and the dictionary object. A temporary isolated `utility.h` comment rebuilt seven dependent objects; a `MuonScaRe.cc` comment rebuilt only the framework object, with no independent MuonScaRe compilation. Byte-for-byte restoration returned to no-op incremental builds.
+- **Batch 9 / `07bec35`:** added a compiler scan for transitive dictionary headers, grouped dictionary/PCM generation and independent root-level PCM-link recovery. The first attempt exposed delayed dictionary-object compilation after missing-PCM regeneration. The corrected rule visits the PCM before `rootdict.C` in the dictionary object's prerequisites, ensuring regeneration, compilation and relinking happen in the same invocation. Fresh parallel builds, transitive-header and Linkdef edits/restoration, missing dictionary/PCM/link recovery, and subsequent no-op builds passed. Link-only recovery caused no rootcling execution, compilation or relinking.
+
+The grouped `&:` rule requires **GNU Make 4.3 or newer**. Dictionary, PCM, shared-library loading, PyROOT analyser access and Cling `utility.h` inclusion passed. Generated dictionary content matched after normalization of the isolated absolute include path. The same 88 baseline reflection-error lines remained unchanged; this limitation was not repaired.
+
+Both batches passed exact production MC comparisons against `production-48d4a5b-wigcmx95`: main **6411 events / 648 branches**, fake factor **36539 events / 56 branches / 48 histograms**. Comparisons covered event identity/order, branch types and all stored values, weights, cutflows and histogram content/errors/metadata. These are two-input software regressions, not independent physics or all-year/data validation.
+
+Evidence under `/uscms_data/d3/msahoo/Project_tzq/regression_baseline/`:
+
+| Batch | Evidence directory |
+|---|---|
+| 8 | `build-dependencies-iujetbqr` |
+| 9, completed ordering validation | `dictionary-recovery-ac333_9q/ordering-resume-pf_xc6ft` |
+
+Both manifests record `VALIDATION_PASS`; logs, unique outputs, loading records and exact comparison reports are retained. The parent Batch-9 directory also preserves the original failed recovery attempt. This documentation update inspected saved evidence only and ran no builds or ROOT analyses.
+
+### Current generated-artifact layout and isolation audit
+
+Objects and compiler `.d` files currently belong alongside implementations under `src/{helpers,framework,analysis,fakefactor,apps}/`, with `src/rootdict.o` and `src/rootdict.d` for the dictionary. Dictionary generation uses tracked `src/rootdict.C`, generated `src/rootdict_headers.d` (and transient `.tmp`) and `src/rootdict_rdict.pcm`. Existing public root-level paths remain unchanged: **`libnanoadrdframe.so`, `nanoaodrdataframe`, `fakefactorframe`, `rootdict_rdict.pcm`**; the PCM link points to `src/rootdict_rdict.pcm`. BTag ACLiC artifacts are separate manual-workflow outputs. Old ignored objects from prior layouts are not current Makefile outputs or automatically approved cleanup candidates.
+
+The read-only audit observed a **zero-byte checkout `src/rootdict_rdict.pcm`**, with its root-level link present. This is unverified checkout runtime state, not a validated usable PCM, and it was **not repaired**. Successful isolated evidence does not prove current checkout artifact validity. Compiler/dictionary `.d` files lack a general ignore rule; build-directory/ignore policy remains separate work.
+
+Public headers and Cling include paths must remain available. Production loads the library by basename; standalone executables link common objects directly. Manual ROOT users and Condor deployment/transfer of runtime files and symlink targets remain unresolved compatibility boundaries. Repository searches do not establish the absence of external consumers.
+
 ## 7. Validation policy for future cleanup
 
 Execution still requires explicit authorization in the current task under [AGENTS.md](../AGENTS.md). This checklist does not grant standing permission to build or run analysis.
@@ -360,14 +390,15 @@ Names containing historical years are insufficient evidence for deleting active/
 
 ### Remaining modularization plan (not execution authorization)
 
-The seven approved implementation relocations are complete. The next proposed phase is build-dependency reliability before header relocation; this is a plan, not permission to execute or modify:
+Seven implementation relocations and build-dependency Batches 8 and 9 are complete. Remaining generated-output work is a proposal, not execution authorization:
 
-1. Add automatic compiler dependency files for objects, including transitive headers and directly included `MuonScaRe.cc`; preserve current flags and object/link membership.
-2. Improve dictionary transitive dependencies and explicit PCM/symlink recovery. Test fresh generation and missing-output recovery separately.
-3. Review generated-output organization and the tracked `src/rootdict.C` policy; preserve library/executable names and reliable ROOT loading before any untracking or relocation.
-4. Only then consider header moves in small batches, with compatibility paths, dictionary/Cling checks and exact production regressions.
+1. Move objects and compiler `.d` files into `build/obj/`, preserving source-relative subdirectories, object membership, public outputs and flags. Review directory creation and `/build/` ignore coverage.
+2. Move dictionary artifacts separately, preserving registrations, naming, public headers, PCM lookup and same-invocation recovery. Revalidate transitive dependencies and missing-output recovery.
+3. Decide dictionary untracking separately. First prove a source export without a generated dictionary/PCM builds and loads correctly; review manual/deployment consumers and update the tracked-dictionary policy only when authorized.
+4. Runtime-output relocation is optional later work: preserve root-level executable/library entry points through an explicitly approved compatibility policy and validate basename loading and deployment.
+5. Only then consider header moves in small batches, with dictionary/Cling checks and exact production regressions.
 
-The read-only architecture audit found no automatic compiler header dependencies: ordinary objects depend only on their `.cpp`, and the `HEADERS` variable is unused by the rules. Dictionary generation lists the three analyser headers and `Linkdef.h`, but lacks complete transitive header dependencies. The PCM and root-level symlink are side effects rather than explicit targets, so missing outputs alone may not trigger regeneration. `clean` removes the root-level PCM link but does not explicitly remove `src/rootdict_rdict.pcm`. `src/rootdict.C` remains generated and tracked, with header/autoload and environment-specific include paths. Its original tracking rationale cannot be established from the commit message; do not invent one.
+The earlier architecture audit found missing compiler/transitive dictionary dependencies and side-effect-only PCM/link generation. Those findings describe the pre-Batch-8/9 state and are now addressed by the tested rules above. `HEADERS` remains unused. The unchanged `clean` recipe still removes tracked `src/rootdict.C`, root-level outputs/link and `.nfs*`, but does not explicitly remove dependency files or `src/rootdict_rdict.pcm`; never run it without current-task approval. `src/rootdict.C` remains generated and tracked, with header/autoload and environment-specific include paths. Its original tracking rationale remains unestablished.
 
 - Keep `MuonScaRe.cc` directly included and in its current location. Do not independently compile it or change seed/correction behavior; a different translation-unit policy requires separate review.
 - Review public-header organization before any header moves, including inheritance, `-Isrc`, external/manual consumers, Cling's `utility.h` declaration and generated autoload paths.
