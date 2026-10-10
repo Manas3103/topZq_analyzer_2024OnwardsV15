@@ -128,3 +128,58 @@ Planning hashes only payloads resolved inside the repository; external paths and
 symlinks outside it are recorded uninspected. Payload references are not dereferenced
 by manifest validation. Git inspection has a bounded timeout. No network lookup,
 EOS access or environment reinitialization is part of these commands.
+
+## Read-only chunk acceptance (Batch 16F)
+
+`chunks` uses an explicit expected plan and inventory, not filename discovery:
+
+```bash
+python3 tools/campaign.py validate /tmp/expected.json
+python3 tools/campaign.py chunks --expected /tmp/expected.json \
+  --inventory /tmp/inventory.json --local-root /tmp/local-chunks --format json
+# Repeat with --format summary or --format accepted; all output goes to stdout.
+```
+
+Four additional schemas define `expected_chunks`, `chunk_inventory`,
+`chunk_completeness_report`, and `accepted_merge_inputs`. Existing commands and
+manifests remain compatible. Expected plans embed the existing dataset manifest
+and carry a `campaign_id` and production submission/filelist `plan_source`
+(path/SHA256). Chunk IDs, indices and ordered inputs come from that reviewed plan,
+not inferred ROOT filenames. Duplicate expected indices are invalid usage.
+
+Inventory carries campaign, dataset and workflow identities and `attempts` entries:
+`chunk_id`, `index`, `dataset_id`, `accepted`, the existing full `attempt` manifest,
+and `output` (`path`, `size_bytes`, `sha256`, `validation`). Output validation has
+`state`, `result`, `evidence`; acceptance requires verified PASS. The attempt must
+be validated, exit 0, and have verified processing PASS with evidence. Exactly one
+accepted attempt is required per expected chunk. Rejected/failed retries remain
+in report observations and do not block a valid accepted retry. Unexpected chunk
+identities, wrong input ordering or mismatched campaign/sample/workflow block PASS.
+The caller explicitly selects accepted attempts; there is no newest-file policy.
+
+Outputs must be relative paths inside an explicit existing local root. Absolute,
+traversal, network URLs, resolved symlink escapes and `/eos` roots are rejected.
+Accepted files must be regular, nonempty and match declared size/SHA256. Files are
+hashed in 1 MiB blocks; no ROOT is imported. ROOT integrity, schema, tree and cutflow
+validation must be performed separately and linked as evidence. Nonzero file size
+and a checksum alone cannot prove successful processing. Arbitrary mounts cannot
+be identified reliably; supply only approved local storage, not an EOS mount alias.
+
+Exit codes: 0 PASS, 1 completeness/acceptance FAIL, 2 malformed input or usage.
+Reports list issues and attempt histories, counts, identities and an embedded
+accepted input manifest. On FAIL the merge input list is empty. On PASS it is
+ordered by ascending expected chunk index (gaps are allowed if explicitly planned).
+Example summary: `PASS: 2/2 chunks accepted`. Example accepted input entry:
+
+```json
+{"chunk_id":"c0","index":0,"attempt_id":"a0","path":"0.root",
+ "size_bytes":100,"sha256":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
+```
+
+This example is synthetic, not a real ROOT artifact. Reports bind the local root
+and submission-plan identity, but do not independently certify the supplied plan
+or evidence. No directory scan is performed: unexpected chunks can be identified
+only if included in the inventory. Hashing cost scales with accepted file size;
+use an external timeout for large local inputs. Files can change after inspection,
+so a future merger must recheck checksums immediately before use. No merge, output
+publication, retention cleanup, deletion or approval action is implemented.

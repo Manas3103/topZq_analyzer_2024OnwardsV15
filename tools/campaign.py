@@ -67,7 +67,7 @@ def validate(manifest):
     except ImportError as exc:
         raise ValueError('validation requires jsonschema; no packages installed automatically') from exc
     kind = manifest.get('kind') if isinstance(manifest, dict) else None
-    if kind not in ('campaign', 'dataset', 'attempt', 'stage'):
+    if kind not in ('campaign', 'dataset', 'attempt', 'stage', 'expected_chunks', 'chunk_inventory', 'chunk_completeness_report', 'accepted_merge_inputs'):
         raise ValueError('unknown manifest kind')
     schema = load_json(SCHEMAS / f'{kind}.schema.json')
     if kind == 'campaign':
@@ -219,6 +219,11 @@ def preview(manifest):
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     subs = parser.add_subparsers(dest='command', required=True)
+    p = subs.add_parser('chunks', help='read-only local chunk completeness and acceptance report')
+    p.add_argument('--expected', required=True)
+    p.add_argument('--inventory', required=True)
+    p.add_argument('--local-root', required=True, help='approved local artifact directory; EOS/network paths rejected')
+    p.add_argument('--format', choices=('json', 'summary', 'accepted'), default='json')
     p = subs.add_parser('plan', help='emit a draft JSON manifest to stdout; creates no directories')
     p.add_argument('--id', required=True)
     p.add_argument('--eras', default='C,H')
@@ -232,7 +237,17 @@ def main(argv=None):
         subs.add_parser(command).add_argument('manifest')
     args = parser.parse_args(argv)
     try:
-        if args.command == 'plan':
+        if args.command == 'chunks':
+            from campaign_chunks import check_chunks
+            report = check_chunks(load_json(args.expected), load_json(args.inventory), args.local_root)
+            if args.format == 'summary':
+                print(f"{report['status']}: {report['accepted_count']}/{report['expected_count']} chunks accepted")
+                for issue in report['issues']:
+                    print(f"{issue['code']}: {issue['detail']}")
+            else:
+                print(json.dumps(report if args.format == 'json' else report['accepted_input_manifest'], indent=2))
+            return 0 if report['status'] == 'PASS' else 1
+        elif args.command == 'plan':
             print(json.dumps(plan(args), indent=2, allow_nan=False))
         elif args.command == 'config':
             print(json.dumps(read_config(args.path), indent=2, allow_nan=False))

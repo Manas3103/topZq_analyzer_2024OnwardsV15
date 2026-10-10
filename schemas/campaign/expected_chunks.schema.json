@@ -1,0 +1,1794 @@
+{
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "kind": {
+      "const": "expected_chunks"
+    },
+    "campaign_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+    },
+    "plan_source": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      },
+      "required": [
+        "path",
+        "sha256"
+      ],
+      "additionalProperties": false
+    },
+    "dataset": {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "const": 1
+        },
+        "kind": {
+          "const": "dataset"
+        },
+        "status": {
+          "enum": [
+            "planned",
+            "running",
+            "failed",
+            "incomplete",
+            "validated"
+          ]
+        },
+        "approval": {
+          "enum": [
+            "experimental",
+            "approved",
+            "rejected"
+          ]
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "dataset_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+        },
+        "sample_name": {
+          "type": "string"
+        },
+        "workflow": {
+          "enum": [
+            "main",
+            "fakefactor"
+          ]
+        },
+        "datatype": {
+          "enum": [
+            "mc",
+            "data"
+          ]
+        },
+        "era": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "enum": [
+            null,
+            "B",
+            "C",
+            "D",
+            "E",
+            "F",
+            "G",
+            "H",
+            "I"
+          ]
+        },
+        "dataset_path": {
+          "type": "string"
+        },
+        "sample_list": {
+          "type": "object",
+          "properties": {
+            "state": {
+              "enum": [
+                "declared",
+                "verified",
+                "unknown",
+                "unavailable"
+              ]
+            },
+            "value": {},
+            "evidence": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "reason": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          "required": [
+            "state",
+            "value",
+            "evidence",
+            "reason"
+          ],
+          "additionalProperties": false,
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "state": {
+                    "enum": [
+                      "unknown",
+                      "unavailable"
+                    ]
+                  }
+                }
+              },
+              "then": {
+                "properties": {
+                  "value": {
+                    "type": "null"
+                  },
+                  "reason": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                }
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "state": {
+                    "const": "verified"
+                  }
+                }
+              },
+              "then": {
+                "properties": {
+                  "evidence": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "value": {
+                    "not": {
+                      "type": "null"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "normalization": {
+          "type": "object",
+          "properties": {
+            "formula": {
+              "type": "object",
+              "properties": {
+                "state": {
+                  "enum": [
+                    "declared",
+                    "verified",
+                    "unknown",
+                    "unavailable"
+                  ]
+                },
+                "value": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "evidence": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "reason": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "state",
+                "value",
+                "evidence",
+                "reason"
+              ],
+              "additionalProperties": false,
+              "allOf": [
+                {
+                  "if": {
+                    "properties": {
+                      "state": {
+                        "enum": [
+                          "unknown",
+                          "unavailable"
+                        ]
+                      }
+                    }
+                  },
+                  "then": {
+                    "properties": {
+                      "value": {
+                        "type": "null"
+                      },
+                      "reason": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "properties": {
+                      "state": {
+                        "const": "verified"
+                      }
+                    }
+                  },
+                  "then": {
+                    "properties": {
+                      "evidence": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "value": {
+                        "not": {
+                          "type": "null"
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            "luminosity": {
+              "type": "object",
+              "properties": {
+                "state": {
+                  "enum": [
+                    "declared",
+                    "verified",
+                    "unknown",
+                    "unavailable"
+                  ]
+                },
+                "value": {
+                  "type": [
+                    "number",
+                    "null"
+                  ]
+                },
+                "evidence": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "reason": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "state",
+                "value",
+                "evidence",
+                "reason"
+              ],
+              "additionalProperties": false,
+              "allOf": [
+                {
+                  "if": {
+                    "properties": {
+                      "state": {
+                        "enum": [
+                          "unknown",
+                          "unavailable"
+                        ]
+                      }
+                    }
+                  },
+                  "then": {
+                    "properties": {
+                      "value": {
+                        "type": "null"
+                      },
+                      "reason": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "properties": {
+                      "state": {
+                        "const": "verified"
+                      }
+                    }
+                  },
+                  "then": {
+                    "properties": {
+                      "evidence": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "value": {
+                        "not": {
+                          "type": "null"
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            "luminosity_unit": {
+              "type": "object",
+              "properties": {
+                "state": {
+                  "enum": [
+                    "declared",
+                    "verified",
+                    "unknown",
+                    "unavailable"
+                  ]
+                },
+                "value": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "evidence": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "reason": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "state",
+                "value",
+                "evidence",
+                "reason"
+              ],
+              "additionalProperties": false,
+              "allOf": [
+                {
+                  "if": {
+                    "properties": {
+                      "state": {
+                        "enum": [
+                          "unknown",
+                          "unavailable"
+                        ]
+                      }
+                    }
+                  },
+                  "then": {
+                    "properties": {
+                      "value": {
+                        "type": "null"
+                      },
+                      "reason": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "properties": {
+                      "state": {
+                        "const": "verified"
+                      }
+                    }
+                  },
+                  "then": {
+                    "properties": {
+                      "evidence": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "value": {
+                        "not": {
+                          "type": "null"
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            "cross_section": {
+              "type": "object",
+              "properties": {
+                "state": {
+                  "enum": [
+                    "declared",
+                    "verified",
+                    "unknown",
+                    "unavailable"
+                  ]
+                },
+                "value": {
+                  "type": [
+                    "number",
+                    "null"
+                  ]
+                },
+                "evidence": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "reason": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "state",
+                "value",
+                "evidence",
+                "reason"
+              ],
+              "additionalProperties": false,
+              "allOf": [
+                {
+                  "if": {
+                    "properties": {
+                      "state": {
+                        "enum": [
+                          "unknown",
+                          "unavailable"
+                        ]
+                      }
+                    }
+                  },
+                  "then": {
+                    "properties": {
+                      "value": {
+                        "type": "null"
+                      },
+                      "reason": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "properties": {
+                      "state": {
+                        "const": "verified"
+                      }
+                    }
+                  },
+                  "then": {
+                    "properties": {
+                      "evidence": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "value": {
+                        "not": {
+                          "type": "null"
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            "cross_section_unit": {
+              "type": "object",
+              "properties": {
+                "state": {
+                  "enum": [
+                    "declared",
+                    "verified",
+                    "unknown",
+                    "unavailable"
+                  ]
+                },
+                "value": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "evidence": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "reason": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "state",
+                "value",
+                "evidence",
+                "reason"
+              ],
+              "additionalProperties": false,
+              "allOf": [
+                {
+                  "if": {
+                    "properties": {
+                      "state": {
+                        "enum": [
+                          "unknown",
+                          "unavailable"
+                        ]
+                      }
+                    }
+                  },
+                  "then": {
+                    "properties": {
+                      "value": {
+                        "type": "null"
+                      },
+                      "reason": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "properties": {
+                      "state": {
+                        "const": "verified"
+                      }
+                    }
+                  },
+                  "then": {
+                    "properties": {
+                      "evidence": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "value": {
+                        "not": {
+                          "type": "null"
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            "data_policy": {
+              "type": "object",
+              "properties": {
+                "state": {
+                  "enum": [
+                    "declared",
+                    "verified",
+                    "unknown",
+                    "unavailable"
+                  ]
+                },
+                "value": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "evidence": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "reason": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "state",
+                "value",
+                "evidence",
+                "reason"
+              ],
+              "additionalProperties": false,
+              "allOf": [
+                {
+                  "if": {
+                    "properties": {
+                      "state": {
+                        "enum": [
+                          "unknown",
+                          "unavailable"
+                        ]
+                      }
+                    }
+                  },
+                  "then": {
+                    "properties": {
+                      "value": {
+                        "type": "null"
+                      },
+                      "reason": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "properties": {
+                      "state": {
+                        "const": "verified"
+                      }
+                    }
+                  },
+                  "then": {
+                    "properties": {
+                      "evidence": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "value": {
+                        "not": {
+                          "type": "null"
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "required": [
+            "formula",
+            "luminosity",
+            "luminosity_unit",
+            "cross_section",
+            "cross_section_unit",
+            "data_policy"
+          ],
+          "additionalProperties": false
+        },
+        "ordered_inputs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "chunks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "chunk_id": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+              },
+              "index": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "ordered_inputs": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": [
+              "chunk_id",
+              "index",
+              "ordered_inputs"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "generator_weights": {
+          "type": "object",
+          "properties": {
+            "sumGenWeight": {
+              "type": "object",
+              "properties": {
+                "state": {
+                  "enum": [
+                    "declared",
+                    "verified",
+                    "unknown",
+                    "unavailable"
+                  ]
+                },
+                "value": {
+                  "type": [
+                    "number",
+                    "null"
+                  ]
+                },
+                "evidence": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "reason": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "state",
+                "value",
+                "evidence",
+                "reason"
+              ],
+              "additionalProperties": false,
+              "allOf": [
+                {
+                  "if": {
+                    "properties": {
+                      "state": {
+                        "enum": [
+                          "unknown",
+                          "unavailable"
+                        ]
+                      }
+                    }
+                  },
+                  "then": {
+                    "properties": {
+                      "value": {
+                        "type": "null"
+                      },
+                      "reason": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "properties": {
+                      "state": {
+                        "const": "verified"
+                      }
+                    }
+                  },
+                  "then": {
+                    "properties": {
+                      "evidence": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "value": {
+                        "not": {
+                          "type": "null"
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            "source_script": {
+              "type": "object",
+              "properties": {
+                "state": {
+                  "enum": [
+                    "declared",
+                    "verified",
+                    "unknown",
+                    "unavailable"
+                  ]
+                },
+                "value": {
+                  "anyOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "path": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "sha256": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "pattern": "^[0-9a-f]{64}$"
+                        }
+                      },
+                      "required": [
+                        "path",
+                        "sha256"
+                      ],
+                      "additionalProperties": false
+                    }
+                  ]
+                },
+                "evidence": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "reason": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "state",
+                "value",
+                "evidence",
+                "reason"
+              ],
+              "additionalProperties": false,
+              "allOf": [
+                {
+                  "if": {
+                    "properties": {
+                      "state": {
+                        "enum": [
+                          "unknown",
+                          "unavailable"
+                        ]
+                      }
+                    }
+                  },
+                  "then": {
+                    "properties": {
+                      "value": {
+                        "type": "null"
+                      },
+                      "reason": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "properties": {
+                      "state": {
+                        "const": "verified"
+                      }
+                    }
+                  },
+                  "then": {
+                    "properties": {
+                      "evidence": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "value": {
+                        "not": {
+                          "type": "null"
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            "input_dataset": {
+              "type": "object",
+              "properties": {
+                "state": {
+                  "enum": [
+                    "declared",
+                    "verified",
+                    "unknown",
+                    "unavailable"
+                  ]
+                },
+                "value": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "evidence": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "reason": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "state",
+                "value",
+                "evidence",
+                "reason"
+              ],
+              "additionalProperties": false,
+              "allOf": [
+                {
+                  "if": {
+                    "properties": {
+                      "state": {
+                        "enum": [
+                          "unknown",
+                          "unavailable"
+                        ]
+                      }
+                    }
+                  },
+                  "then": {
+                    "properties": {
+                      "value": {
+                        "type": "null"
+                      },
+                      "reason": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "properties": {
+                      "state": {
+                        "const": "verified"
+                      }
+                    }
+                  },
+                  "then": {
+                    "properties": {
+                      "evidence": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "value": {
+                        "not": {
+                          "type": "null"
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            "input_filelist": {
+              "type": "object",
+              "properties": {
+                "state": {
+                  "enum": [
+                    "declared",
+                    "verified",
+                    "unknown",
+                    "unavailable"
+                  ]
+                },
+                "value": {
+                  "anyOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "path": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "sha256": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "pattern": "^[0-9a-f]{64}$"
+                        }
+                      },
+                      "required": [
+                        "path",
+                        "sha256"
+                      ],
+                      "additionalProperties": false
+                    }
+                  ]
+                },
+                "evidence": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "reason": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "state",
+                "value",
+                "evidence",
+                "reason"
+              ],
+              "additionalProperties": false,
+              "allOf": [
+                {
+                  "if": {
+                    "properties": {
+                      "state": {
+                        "enum": [
+                          "unknown",
+                          "unavailable"
+                        ]
+                      }
+                    }
+                  },
+                  "then": {
+                    "properties": {
+                      "value": {
+                        "type": "null"
+                      },
+                      "reason": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "properties": {
+                      "state": {
+                        "const": "verified"
+                      }
+                    }
+                  },
+                  "then": {
+                    "properties": {
+                      "evidence": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "value": {
+                        "not": {
+                          "type": "null"
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            "calculation_report": {
+              "type": "object",
+              "properties": {
+                "state": {
+                  "enum": [
+                    "declared",
+                    "verified",
+                    "unknown",
+                    "unavailable"
+                  ]
+                },
+                "value": {
+                  "anyOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "path": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "sha256": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "pattern": "^[0-9a-f]{64}$"
+                        }
+                      },
+                      "required": [
+                        "path",
+                        "sha256"
+                      ],
+                      "additionalProperties": false
+                    }
+                  ]
+                },
+                "evidence": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "reason": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "state",
+                "value",
+                "evidence",
+                "reason"
+              ],
+              "additionalProperties": false,
+              "allOf": [
+                {
+                  "if": {
+                    "properties": {
+                      "state": {
+                        "enum": [
+                          "unknown",
+                          "unavailable"
+                        ]
+                      }
+                    }
+                  },
+                  "then": {
+                    "properties": {
+                      "value": {
+                        "type": "null"
+                      },
+                      "reason": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "properties": {
+                      "state": {
+                        "const": "verified"
+                      }
+                    }
+                  },
+                  "then": {
+                    "properties": {
+                      "evidence": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "value": {
+                        "not": {
+                          "type": "null"
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            "coverage": {
+              "type": "object",
+              "properties": {
+                "state": {
+                  "enum": [
+                    "declared",
+                    "verified",
+                    "unknown",
+                    "unavailable"
+                  ]
+                },
+                "value": {},
+                "evidence": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "reason": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "state",
+                "value",
+                "evidence",
+                "reason"
+              ],
+              "additionalProperties": false,
+              "allOf": [
+                {
+                  "if": {
+                    "properties": {
+                      "state": {
+                        "enum": [
+                          "unknown",
+                          "unavailable"
+                        ]
+                      }
+                    }
+                  },
+                  "then": {
+                    "properties": {
+                      "value": {
+                        "type": "null"
+                      },
+                      "reason": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "properties": {
+                      "state": {
+                        "const": "verified"
+                      }
+                    }
+                  },
+                  "then": {
+                    "properties": {
+                      "evidence": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "value": {
+                        "not": {
+                          "type": "null"
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            "provenance": {
+              "type": "object",
+              "properties": {
+                "state": {
+                  "enum": [
+                    "declared",
+                    "verified",
+                    "unknown",
+                    "unavailable"
+                  ]
+                },
+                "value": {},
+                "evidence": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "reason": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "state",
+                "value",
+                "evidence",
+                "reason"
+              ],
+              "additionalProperties": false,
+              "allOf": [
+                {
+                  "if": {
+                    "properties": {
+                      "state": {
+                        "enum": [
+                          "unknown",
+                          "unavailable"
+                        ]
+                      }
+                    }
+                  },
+                  "then": {
+                    "properties": {
+                      "value": {
+                        "type": "null"
+                      },
+                      "reason": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "properties": {
+                      "state": {
+                        "const": "verified"
+                      }
+                    }
+                  },
+                  "then": {
+                    "properties": {
+                      "evidence": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "value": {
+                        "not": {
+                          "type": "null"
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "required": [
+            "sumGenWeight",
+            "source_script",
+            "input_dataset",
+            "input_filelist",
+            "calculation_report",
+            "coverage",
+            "provenance"
+          ],
+          "additionalProperties": false
+        },
+        "chunk_retention": {
+          "type": "object",
+          "properties": {
+            "deletion_enabled": {
+              "const": false
+            },
+            "suggested_period_days": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 7
+            },
+            "accepted_chunks": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "dataset_id": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+                  },
+                  "chunk_id": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+                  },
+                  "attempt_id": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+                  },
+                  "artifact_path": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "sha256": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "pattern": "^[0-9a-f]{64}$"
+                  }
+                },
+                "required": [
+                  "dataset_id",
+                  "chunk_id",
+                  "attempt_id",
+                  "artifact_path",
+                  "sha256"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "merge_validation": {
+              "type": "object",
+              "properties": {
+                "state": {
+                  "enum": [
+                    "declared",
+                    "verified",
+                    "unknown",
+                    "unavailable"
+                  ]
+                },
+                "value": {},
+                "evidence": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "reason": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "state",
+                "value",
+                "evidence",
+                "reason"
+              ],
+              "additionalProperties": false,
+              "allOf": [
+                {
+                  "if": {
+                    "properties": {
+                      "state": {
+                        "enum": [
+                          "unknown",
+                          "unavailable"
+                        ]
+                      }
+                    }
+                  },
+                  "then": {
+                    "properties": {
+                      "value": {
+                        "type": "null"
+                      },
+                      "reason": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "properties": {
+                      "state": {
+                        "const": "verified"
+                      }
+                    }
+                  },
+                  "then": {
+                    "properties": {
+                      "evidence": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "value": {
+                        "not": {
+                          "type": "null"
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            "data_dedup_validation": {
+              "type": "object",
+              "properties": {
+                "state": {
+                  "enum": [
+                    "declared",
+                    "verified",
+                    "unknown",
+                    "unavailable"
+                  ]
+                },
+                "value": {},
+                "evidence": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "reason": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "state",
+                "value",
+                "evidence",
+                "reason"
+              ],
+              "additionalProperties": false,
+              "allOf": [
+                {
+                  "if": {
+                    "properties": {
+                      "state": {
+                        "enum": [
+                          "unknown",
+                          "unavailable"
+                        ]
+                      }
+                    }
+                  },
+                  "then": {
+                    "properties": {
+                      "value": {
+                        "type": "null"
+                      },
+                      "reason": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "properties": {
+                      "state": {
+                        "const": "verified"
+                      }
+                    }
+                  },
+                  "then": {
+                    "properties": {
+                      "evidence": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "value": {
+                        "not": {
+                          "type": "null"
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            "retention_start": {
+              "type": "object",
+              "properties": {
+                "state": {
+                  "enum": [
+                    "declared",
+                    "verified",
+                    "unknown",
+                    "unavailable"
+                  ]
+                },
+                "value": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "evidence": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "reason": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "state",
+                "value",
+                "evidence",
+                "reason"
+              ],
+              "additionalProperties": false,
+              "allOf": [
+                {
+                  "if": {
+                    "properties": {
+                      "state": {
+                        "enum": [
+                          "unknown",
+                          "unavailable"
+                        ]
+                      }
+                    }
+                  },
+                  "then": {
+                    "properties": {
+                      "value": {
+                        "type": "null"
+                      },
+                      "reason": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "properties": {
+                      "state": {
+                        "const": "verified"
+                      }
+                    }
+                  },
+                  "then": {
+                    "properties": {
+                      "evidence": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "value": {
+                        "not": {
+                          "type": "null"
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            "cleanup_eligibility": {
+              "enum": [
+                "unknown",
+                "not_eligible",
+                "eligible_for_review"
+              ]
+            },
+            "cleanup_audit_trail": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "timestamp": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "action": {
+                    "enum": [
+                      "proposed",
+                      "reviewed",
+                      "approved",
+                      "rejected",
+                      "external_action_recorded"
+                    ]
+                  },
+                  "actor": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "evidence": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "note": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "timestamp",
+                  "action",
+                  "actor",
+                  "evidence",
+                  "note"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "deletion_enabled",
+            "suggested_period_days",
+            "accepted_chunks",
+            "merge_validation",
+            "data_dedup_validation",
+            "retention_start",
+            "cleanup_eligibility",
+            "cleanup_audit_trail"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "schema_version",
+        "kind",
+        "status",
+        "approval",
+        "created_at",
+        "dataset_id",
+        "sample_name",
+        "workflow",
+        "datatype",
+        "era",
+        "dataset_path",
+        "sample_list",
+        "normalization",
+        "ordered_inputs",
+        "chunks",
+        "generator_weights",
+        "chunk_retention"
+      ],
+      "additionalProperties": false,
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "dataset.schema.json"
+    }
+  },
+  "required": [
+    "schema_version",
+    "kind",
+    "campaign_id",
+    "plan_source",
+    "dataset"
+  ],
+  "additionalProperties": false,
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}
