@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "kind": "condor_snapshot",
+  "source": "synthetic",
+  "observed_at": "2026-10-10T00:00:00Z",
+  "queue": [
+    {
+      "ClusterId": 10,
+      "ProcId": 0,
+      "JobStatus": 1
+    }
+  ],
+  "history": []
+}

@@ -183,3 +183,11 @@ only if included in the inventory. Hashing cost scales with accepted file size;
 use an external timeout for large local inputs. Files can change after inspection,
 so a future merger must recheck checksums immediately before use. No merge, output
 publication, retention cleanup, deletion or approval action is implemented.
+
+## Read-only scheduler monitoring (Batch 16G)
+
+The independent `tools/campaign_monitor.py` interface links existing expected-chunk
+and attempt manifests to explicit Condor identity evidence. It emits reports to
+stdout and leaves acceptance records and production scripts unchanged. See
+[campaign_monitoring.md](campaign_monitoring.md) for offline fixtures, mapping
+requirements, query bounds, conservative reconciliation and deferred work.
