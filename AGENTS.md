@@ -69,7 +69,7 @@
 ## Build artifacts, validation, and production
 
 - Do not manually edit generated ROOT dictionaries, object files, executables, shared libraries, PCM files, caches, logs, or analysis ROOT outputs unless explicitly requested.
-- `src/rootdict.C` is generated but tracked. Do not regenerate it or run `make clean` without explicit authorization; cleanup can remove tracked material and other artifacts.
+- Active ROOT dictionary source is generated under `build/dict/`. Historical `src/rootdict.C` is ignored and no longer tracked; existing local copies may remain. Do not regenerate dictionaries or run `make clean` without explicit authorization; cleanup can remove build products and other artifacts.
 - When validation execution is explicitly authorized, use the smallest useful bounded validation and report exact commands and results. Compilation alone does not establish physics validity.
 - When execution is not authorized, use read-only inspection and explain what runtime/build validation remains unperformed.
 - Do not modify active production queues, stage files to EOS, renew credentials, submit jobs, or remove outputs as a side effect of development.

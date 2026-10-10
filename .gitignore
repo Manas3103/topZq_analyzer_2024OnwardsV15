@@ -38,3 +38,4 @@ DataMC_txt/temp/*
 
 /build/obj/
 /build/dict/
+/src/rootdict.C
