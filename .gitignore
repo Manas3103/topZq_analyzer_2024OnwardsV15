@@ -37,3 +37,4 @@ DataMC_txt/temp/*
 /BTag/btag_efficiency_C.d
 
 /build/obj/
+/build/dict/

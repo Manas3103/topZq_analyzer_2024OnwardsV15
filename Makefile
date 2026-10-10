@@ -75,7 +75,7 @@ clean:
 	      $(TARGET) \
 	      $(FAKE_TARGET) \
 	      libnanoadrdframe.so \
-	      $(SRCDIR)/rootdict.C \
+	      $(DICT_SOURCE) \
 	      rootdict_rdict.pcm
 	rm -rf .nfs*
 
@@ -85,24 +85,33 @@ clean:
 # ============================================================
 
 DICT_HEADERS := $(SRCDIR)/NanoAODAnalyzerrdframe.h $(SRCDIR)/BaseAnalyser.h $(SRCDIR)/FakeFactorAnalyser.h $(SRCDIR)/Linkdef.h
-DICT_DEPS := $(SRCDIR)/rootdict_headers.d
-DICT_PCM := $(SRCDIR)/rootdict_rdict.pcm
+DICTDIR := build/dict
+DICT_SOURCE := $(DICTDIR)/rootdict.C
+DICT_DEPS := $(DICTDIR)/rootdict_headers.d
+DICT_PCM := $(DICTDIR)/rootdict_rdict.pcm
 
 # Track headers parsed for the dictionary, including transitive includes.
 $(DICT_DEPS): $(DICT_HEADERS) Makefile
-	$(CXX) $(CXXFLAGS) -D__CLING__ -MM -MP -x c++ -MT $(DICT_DEPS) -MT $(SRCDIR)/rootdict.C -MT $(DICT_PCM) $(DICT_HEADERS) > $@.tmp
+	mkdir -p $(DICTDIR)
+	$(CXX) $(CXXFLAGS) -D__CLING__ -MM -MP -x c++ -MT $(DICT_DEPS) -MT $(DICT_SOURCE) -MT $(DICT_PCM) $(DICT_HEADERS) > $@.tmp
 	mv $@.tmp $@
 
 # rootcling produces both outputs in one invocation (GNU Make >= 4.3).
-$(SRCDIR)/rootdict.C $(DICT_PCM) &: $(DICT_HEADERS) $(DICT_DEPS)
-	rm -f $(SRCDIR)/rootdict.C
-	rootcling -I$(CORRECTION_INCDIR) -I$(SRCDIR) $(SRCDIR)/rootdict.C $(DICT_HEADERS)
-	test -s $(SRCDIR)/rootdict.C
+$(DICT_SOURCE) $(DICT_PCM) &: $(DICT_HEADERS) $(DICT_DEPS)
+	mkdir -p $(DICTDIR)
+	rm -f $(DICT_SOURCE)
+	rootcling -I$(CORRECTION_INCDIR) -I$(SRCDIR) $(DICT_SOURCE) $(DICT_HEADERS)
+	test -s $(DICT_SOURCE)
 	test -s $(DICT_PCM)
 
-# Recover the lookup link without recompiling objects or relinking binaries.
-rootdict_rdict.pcm: | $(DICT_PCM)
-	ln -sfn $(DICT_PCM) $@
+# Check missing or old lookup links without changing correct links.
+.PHONY: check_pcm_link
+check_pcm_link:
+
+rootdict_rdict.pcm: check_pcm_link | $(DICT_PCM)
+	@if [ ! -L "$@" ] || [ "$$(readlink "$@")" != "$(DICT_PCM)" ]; then \
+	    ln -sfn $(DICT_PCM) "$@"; \
+	fi
 
 $(TARGET) $(FAKE_TARGET) libnanoadrdframe.so: | rootdict_rdict.pcm
 
@@ -120,9 +129,9 @@ libnanoadrdframe.so: $(OBJS)
 # ============================================================
 
 # Visit the PCM first so grouped-output recovery precedes object checks.
-$(OBJDIR)/rootdict.o: $(DICT_PCM) $(SRCDIR)/rootdict.C
+$(OBJDIR)/rootdict.o: $(DICT_PCM) $(DICT_SOURCE)
 	mkdir -p $(@D)
-	$(CXX) -c -o $@ $(CXXFLAGS) $(DEPFLAGS) $(SRCDIR)/rootdict.C
+	$(CXX) -c -o $@ $(CXXFLAGS) $(DEPFLAGS) $(DICT_SOURCE)
 
 
 # ============================================================
