@@ -29,18 +29,30 @@ if [ -z "${_CONDOR_SCRATCH_DIR}" ] ; then
     log_file="./${stderr_file}"  # Local execution log file
 else
     echo "Running in Batch (HTCondor)"
-    cd ${_CONDOR_SCRATCH_DIR}
-    echo "Condor Scratch Directory: ${_CONDOR_SCRATCH_DIR}"
-    source /cvmfs/cms.cern.ch/cmsset_default.sh
-    export SCRAM_ARCH=el9_amd64_gcc10
-    # Use an existing CMSSW release if available
+    cd "${_CONDOR_SCRATCH_DIR}" || { echo "Error: Cannot enter worker scratch directory"; exit 1; }
+    worker_root=$PWD
+    echo "Condor Scratch Directory: ${worker_root}"
+    export SCRAM_ARCH=el9_amd64_gcc12
+    source /cvmfs/cms.cern.ch/cmsset_default.sh || { echo "Error: CMS setup failed"; exit 1; }
+    # Use an existing matching CMSSW release if available
     if [ ! -d "CMSSW_13_3_3" ]; then
-        eval `scramv1 project CMSSW CMSSW_13_3_3`
+        scramv1 project CMSSW CMSSW_13_3_3 || { echo "Error: CMSSW project creation failed"; exit 1; }
     fi
-    cd CMSSW_13_3_3/src
-    cmsenv
-    eval `scramv1 runtime -sh`
-    cd - ;
+    cd CMSSW_13_3_3/src || { echo "Error: Cannot enter CMSSW source directory"; exit 1; }
+    actual_arch=$(scramv1 arch) || { echo "Error: Cannot determine CMSSW architecture"; exit 1; }
+    if [ "$actual_arch" != "el9_amd64_gcc12" ]; then
+        echo "Error: Existing CMSSW area has incompatible architecture: $actual_arch"
+        exit 1
+    fi
+    runtime_commands=$(scramv1 runtime -sh) || { echo "Error: Cannot obtain CMSSW runtime"; exit 1; }
+    eval "$runtime_commands" || { echo "Error: CMSSW runtime initialization failed"; exit 1; }
+    if [ "$CMSSW_VERSION" != "CMSSW_13_3_3" ] || [ "$SCRAM_ARCH" != "el9_amd64_gcc12" ] || [ "$CMSSW_BASE" != "$worker_root/CMSSW_13_3_3" ]; then
+        echo "Error: Effective CMSSW release, architecture or project path does not match worker requirements"
+        exit 1
+    fi
+    cd "$worker_root" || { echo "Error: Cannot return to worker scratch directory"; exit 1; }
+    export ROOT_INCLUDE_PATH="$worker_root:$worker_root/src${ROOT_INCLUDE_PATH:+:$ROOT_INCLUDE_PATH}"
+    export LD_LIBRARY_PATH="$worker_root${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
     echo "CMSSW environment setup done."
     log_file="${_CONDOR_SCRATCH_DIR}/${stderr_file}"
 fi
