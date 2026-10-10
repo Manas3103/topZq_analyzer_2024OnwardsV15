@@ -1,0 +1,128 @@
+{
+  "schema_version": 1,
+  "kind": "dataset",
+  "status": "planned",
+  "approval": "experimental",
+  "created_at": "2026-10-10T00:00:00Z",
+  "dataset_id": "example-data-C",
+  "sample_name": "ExampleData",
+  "workflow": "main",
+  "datatype": "data",
+  "era": "C",
+  "dataset_path": "/EXAMPLE/Run2024C/NANOAOD",
+  "sample_list": {
+    "state": "unknown",
+    "value": null,
+    "evidence": null,
+    "reason": "Not measured"
+  },
+  "normalization": {
+    "formula": {
+      "state": "unknown",
+      "value": null,
+      "evidence": null,
+      "reason": "Not measured"
+    },
+    "luminosity": {
+      "state": "unknown",
+      "value": null,
+      "evidence": null,
+      "reason": "Not measured"
+    },
+    "luminosity_unit": {
+      "state": "unknown",
+      "value": null,
+      "evidence": null,
+      "reason": "Not measured"
+    },
+    "cross_section": {
+      "state": "unknown",
+      "value": null,
+      "evidence": null,
+      "reason": "Not measured"
+    },
+    "cross_section_unit": {
+      "state": "unknown",
+      "value": null,
+      "evidence": null,
+      "reason": "Not measured"
+    },
+    "data_policy": {
+      "state": "unknown",
+      "value": null,
+      "evidence": null,
+      "reason": "Not measured"
+    }
+  },
+  "ordered_inputs": [],
+  "chunks": [],
+  "generator_weights": {
+    "sumGenWeight": {
+      "state": "unknown",
+      "value": null,
+      "evidence": null,
+      "reason": "Not measured"
+    },
+    "source_script": {
+      "state": "unknown",
+      "value": null,
+      "evidence": null,
+      "reason": "Not measured"
+    },
+    "input_dataset": {
+      "state": "unknown",
+      "value": null,
+      "evidence": null,
+      "reason": "Not measured"
+    },
+    "input_filelist": {
+      "state": "unknown",
+      "value": null,
+      "evidence": null,
+      "reason": "Not measured"
+    },
+    "calculation_report": {
+      "state": "unknown",
+      "value": null,
+      "evidence": null,
+      "reason": "Not measured"
+    },
+    "coverage": {
+      "state": "unknown",
+      "value": null,
+      "evidence": null,
+      "reason": "Not measured"
+    },
+    "provenance": {
+      "state": "unknown",
+      "value": null,
+      "evidence": null,
+      "reason": "Not measured"
+    }
+  },
+  "chunk_retention": {
+    "deletion_enabled": false,
+    "suggested_period_days": 7,
+    "accepted_chunks": [],
+    "merge_validation": {
+      "state": "unknown",
+      "value": null,
+      "evidence": null,
+      "reason": "Not measured"
+    },
+    "data_dedup_validation": {
+      "state": "unknown",
+      "value": null,
+      "evidence": null,
+      "reason": "Not measured"
+    },
+    "retention_start": {
+      "state": "unknown",
+      "value": null,
+      "evidence": null,
+      "reason": "Not measured"
+    },
+    "cleanup_eligibility": "unknown",
+    "cleanup_audit_trail": []
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "kind": "attempt",
+  "status": "planned",
+  "approval": "experimental",
+  "created_at": "2026-10-10T00:00:00Z",
+  "attempt_id": "a001",
+  "campaign_id": "example-2024-CH",
+  "workflow": "main",
+  "source": {
+    "repository": "https://example.invalid/repository",
+    "branch": null,
+    "commit": null,
+    "dirty": null,
+    "changes": []
+  },
+  "declared": {},
+  "runtime_effective": {
+    "processing": {
+      "state": "unknown",
+      "value": null,
+      "evidence": null,
+      "reason": "Not measured"
+    }
+  },
+  "environment": {},
+  "ordered_inputs": [],
+  "command": [],
+  "exit_code": null,
+  "artifact_manifests": []
+}
