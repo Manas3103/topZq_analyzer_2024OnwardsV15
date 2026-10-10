@@ -9,7 +9,7 @@ The intended scope is CMS Run 3 (2022–2025), currently centered on 2024 NanoAO
 ## 2. Current checkpoint
 
 - Branch: `cleanup/run3-remove-legacy-run2`
-- Current source/build checkpoint before this documentation commit: `07bec35ef4e54f5ccfbed7c1c5a8bdf001666656` (seven implementation-only migrations plus build-dependency Batches 8 and 9 complete).
+- Current source/build checkpoint before this documentation commit: `8e3076f80ac0c89930260bf66ef6321d32395d26` (seven implementation-only migrations and build-system Batches 8–11 complete).
 - Earlier Phase-2 source checkpoint: `1d24d86dcbdc612ef293ff482a21b772365dda54`.
 - Earlier reconciled checkpoint: `422a3fb04eaa74333eae0809aa6f650da361a1db`
 - CLI commit `7bc8ddab` and documentation commit `0e934284` were pushed to both GitHub and CERN GitLab; Makefile cleanup `1d24d86` was also pushed successfully to both destinations.
@@ -48,6 +48,8 @@ Verified against Git, in chronological order:
 | `1b601d882a94a928255dae7c83021894ad1a5c77` | refactor: relocate NanoAODAnalyzerrdframe implementation | Batch 7; byte-identical framework relocation and Makefile source-path addition. |
 | `ca06ad1d45885a5a12d45497b3447d7afce68f1d` | build: add automatic C++ header dependencies | Batch 8; compiler-generated object dependencies and incremental rebuild validation. |
 | `07bec35ef4e54f5ccfbed7c1c5a8bdf001666656` | build: track ROOT dictionary and PCM dependencies | Batch 9; transitive dictionary dependencies and same-invocation PCM recovery. |
+| `2d083bceac5aaa14a4f751d132d6cfdb4771681c` | build: isolate object and dependency files | Batch 10; nine objects and nine compiler dependency files under build/obj/. |
+| `8e3076f80ac0c89930260bf66ef6321d32395d26` | build: isolate ROOT dictionary artifacts | Batch 11; active dictionary generation under build/dict/, preserving public runtime paths. |
 
 Earlier orientation commits:
 
@@ -63,7 +65,7 @@ The phases refer to section 9 of the original audit; later approved artifact tas
 | Phase | Current status | Completed / remaining work |
 |---|---|---|
 | 1 — standalone inputs | Complete for the approved manifest | Exactly 78 tracked deletions in `13f2b14`; ignored BTag efficiency inputs preserved. No broader directory cleanup was approved. |
-| 2 — dependency/build cleanup | Partially complete | SkimEvents, per-file processing and isolated scratch sources retired; redundant configuration removed. Metadata cleanup and binary/ACLiC artifact untracking also complete. Standalone CLI validation is complete. Four dormant Makefile rules were removed in `1d24d86` using the task-specific static/incremental validation described below. Batches 8 and 9 completed automatic compiler dependencies and dictionary/PCM recovery. Remaining scope includes generated-artifact isolation, the tracked generated dictionary decision, alternate BTag/manual consumers and normalization alternatives; no blanket Phase-2 completion is claimed. Historical alternative research implementations remain retained; any proposed retirement requires a separate user decision. |
+| 2 — dependency/build cleanup | Partially complete | SkimEvents, per-file processing and isolated scratch sources retired; redundant configuration removed. Metadata cleanup and binary/ACLiC artifact untracking also complete. Standalone CLI validation is complete. Four dormant Makefile rules were removed in `1d24d86` using the task-specific static/incremental validation described below. Batches 8 and 9 completed automatic compiler dependencies and dictionary/PCM recovery. Batches 10 and 11 completed object/dependency and active dictionary artifact isolation. Remaining scope includes the tracked generated dictionary decision, alternate BTag/manual consumers and normalization alternatives; no blanket Phase-2 completion is claimed. Historical alternative research implementations remain retained; any proposed retirement requires a separate user decision. |
 | 3 — active-code Run-2 refactoring | Not started as a dedicated approved batch | Historical trigger/year dispatch, BTag clauses and public helper interfaces remain in active/shared source. Trace Run-3 dependencies and external users before proposing narrow retirement. |
 | 4 — physics-sensitive cleanup | Intentionally deferred | FF definitions, IDs/triggers, corrections, weights, normalization and systematics require separate physics approval and per-year validation. No prescription is chosen by this handoff. |
 
@@ -134,7 +136,7 @@ src/
 
 This is the tracked layout; ignored build artifacts are not shown. Public headers remain in `src/`. No header, dictionary, API or algorithm was relocated/refactored. `src/rootdict.C` remains generated and tracked.
 
-The Makefile retains the top-level `.cpp` wildcard (currently empty) and explicitly lists all six relocated common implementations. Each of the six common implementations maps to one object, plus `src/rootdict.o`. The two `src/apps/` main objects are linked only into their respective root-level executables, never into `libnanoadrdframe.so`. Existing flags and `-Isrc` are preserved. `src/framework/NanoAODAnalyzerrdframe.cpp` directly includes `MuonScaRe.cc`; that `.cc` is not independently compiled. FakeFactorAnalyser still dynamically declares `#include "utility.h"` through Cling.
+The Makefile retains the top-level `.cpp` wildcard (currently empty) and explicitly lists all six relocated common implementations. Each of the six common implementations maps to one object, plus `build/obj/rootdict.o` (object paths isolated in Batch 10). The two `src/apps/` main objects are linked only into their respective root-level executables, never into `libnanoadrdframe.so`. Existing flags and `-Isrc` are preserved. `src/framework/NanoAODAnalyzerrdframe.cpp` directly includes `MuonScaRe.cc`; that `.cc` is not independently compiled. FakeFactorAnalyser still dynamically declares `#include "utility.h"` through Cling.
 
 ## 6. Validation established
 
@@ -314,13 +316,31 @@ Evidence under `/uscms_data/d3/msahoo/Project_tzq/regression_baseline/`:
 
 Both manifests record `VALIDATION_PASS`; logs, unique outputs, loading records and exact comparison reports are retained. The parent Batch-9 directory also preserves the original failed recovery attempt. This documentation update inspected saved evidence only and ran no builds or ROOT analyses.
 
-### Current generated-artifact layout and isolation audit
+### Artifact-isolation Batches 10 and 11
 
-Objects and compiler `.d` files currently belong alongside implementations under `src/{helpers,framework,analysis,fakefactor,apps}/`, with `src/rootdict.o` and `src/rootdict.d` for the dictionary. Dictionary generation uses tracked `src/rootdict.C`, generated `src/rootdict_headers.d` (and transient `.tmp`) and `src/rootdict_rdict.pcm`. Existing public root-level paths remain unchanged: **`libnanoadrdframe.so`, `nanoaodrdataframe`, `fakefactorframe`, `rootdict_rdict.pcm`**; the PCM link points to `src/rootdict_rdict.pcm`. BTag ACLiC artifacts are separate manual-workflow outputs. Old ignored objects from prior layouts are not current Makefile outputs or automatically approved cleanup candidates.
+- **Batch 10 / `2d083bc`:** relocated all nine compiled objects and nine compiler `.d` files into `build/obj/`, preserving source-relative directories (`helpers/`, `framework/`, `analysis/`, `fakefactor/`, `apps/`). The dictionary object/dependency files are `build/obj/rootdict.o` and `build/obj/rootdict.d`. Old ignored source-directory objects were left untouched and excluded from active linking. `/build/obj/` is ignored.
+- **Batch 11 / `8e3076f`:** relocated active generated dictionary outputs to `build/dict/rootdict.C`, `build/dict/rootdict_headers.d` and `build/dict/rootdict_rdict.pcm`. The root-level `rootdict_rdict.pcm` symlink targets `build/dict/rootdict_rdict.pcm` in the validated build layout. Missing links and existing old-target links recover independently. `/build/dict/` is ignored. Tracked `src/rootdict.C` remains byte-identical, tracked and inactive; it has not been untracked or deleted. Old source-directory PCM/object artifacts were not cleaned up.
 
-The read-only audit observed a **zero-byte checkout `src/rootdict_rdict.pcm`**, with its root-level link present. This is unverified checkout runtime state, not a validated usable PCM, and it was **not repaired**. Successful isolated evidence does not prove current checkout artifact validity. Compiler/dictionary `.d` files lack a general ignore rule; build-directory/ignore policy remains separate work.
+Public root-level paths remain unchanged: **`libnanoadrdframe.so`, `nanoaodrdataframe`, `fakefactorframe`, `rootdict_rdict.pcm`**. Public headers remain in `src/`; class registrations and physics code are unchanged. GNU Make **4.3 or newer** remains required for grouped dictionary generation.
 
-Public headers and Cling include paths must remain available. Production loads the library by basename; standalone executables link common objects directly. Manual ROOT users and Condor deployment/transfer of runtime files and symlink targets remain unresolved compatibility boundaries. Repository searches do not establish the absence of external consumers.
+Both batches passed fresh isolated parallel builds, unchanged incremental no-op checks, header/MuonScaRe dependency tests, transitive dictionary-header and Linkdef regeneration, dictionary/PCM/link recovery, same-invocation rebuild checks, and ROOT/library/PyROOT/Cling loading checks. Batch 11 additionally tested missing scanner dependencies, old-link retargeting and dictionary semantic equivalence after understood path normalization. The final unchanged build changed no artifact or symlink timestamps.
+
+Both passed exact production regressions against `production-48d4a5b-wigcmx95`: main **6411 events / 648 branches**; fake factor **36539 events / 56 branches / 48 histograms**. Comparisons covered event identity/order, branch schemas and every stored value, weights, cutflows, and histogram contents/errors/metadata. Batch 11 finalization reused complete prior regressions after confirming unchanged implementation and output checksums; it did not rerun processing. These are software regressions for the two approved MC inputs, not independent physics or all-year validation.
+
+Evidence under `/uscms_data/d3/msahoo/Project_tzq/regression_baseline/`:
+
+| Check | Evidence directory |
+|---|---|
+| Batch 10 | `object-isolation-gimamtct` |
+| Batch 11 | `dictionary-isolation-r1cct88_` |
+| Controlled worker autoload investigation | `dictionary-isolation-r1cct88_/autoload-investigation-tm6sh2nn` |
+| Final worker/no-op validation | `dictionary-isolation-r1cct88_/finalization-qvwcw800` |
+
+Both case manifests record `VALIDATION_PASS`; earlier failures and logs remain preserved. Three worker-harness Cling `Missing FileEntry` messages reproduced identically with the original dictionary layout. Supplying **both worker root and worker/src include paths** eliminated them in both layouts. The corrected Batch-11 harness verified the mapped library, actual PCM access, dictionary classes, PyROOT and Cling `utility.h` inclusion. It produced no new autoload errors and the same **88 unresolved baseline reflection diagnostics**. Successful PCM access alone was not treated as proof of correct autoloading.
+
+**Actual Condor deployment compatibility remains unverified.** Corrected disposable-harness results do not prove real workers supply these include paths, headers or PCM symlink targets. Manual/external consumers remain uncertain. BTag ACLiC outputs remain separate manual-workflow artifacts.
+
+The earlier zero-byte checkout `src/rootdict_rdict.pcm` observation remains historical, unverified runtime state, not a repaired artifact. Isolated builds validate the new layout; the original checkout was not rebuilt or its old generated artifacts retargeted as part of these batches. This documentation checkpoint reads saved evidence only and runs no builds or ROOT analysis.
 
 ## 7. Validation policy for future cleanup
 
@@ -338,7 +358,7 @@ For approved implementation-only modularization, use the established isolated fr
 8. Compare all physics content and cutflows against the preserved production baseline; run extra standalone/CLI/data checks when the approved scope requires them.
 9. Stop on unexplained differences. Inspect the exact source/staged diff; commit/push only the authorized paths after all required checks pass.
 
-**Never run `make clean` without explicit current-task approval.** It removes tracked `src/rootdict.C`, build products and `.nfs*`. Earlier cleanup batches explicitly authorized clean builds and verified identical regeneration; that historical practice is not standing permission and is not the current modularization procedure. `src/rootdict.C` remains tracked in the original repository. Do not manually edit it, commit generated churn, or hide unexplained changes with restore/reset. Never overwrite preserved baseline files or silently reinitialize CMSSW.
+**Never run `make clean` without explicit current-task approval.** Before Batch 11 it removed tracked `src/rootdict.C`; the current recipe instead references active `$(DICT_SOURCE)` under `build/dict/`, and also removes build products and `.nfs*`. Earlier cleanup batches explicitly authorized clean builds and verified identical regeneration; that historical practice is not standing permission and is not the current modularization procedure. `src/rootdict.C` remains tracked in the original repository. Do not manually edit it, commit generated churn, or hide unexplained changes with restore/reset. Never overwrite preserved baseline files or silently reinitialize CMSSW.
 
 Before active-code cleanup, establish an explicitly authorized full regression baseline in an approved durable location, with a manifest recording source SHA, exact command, ordered input files, configuration/payload versions, software environment, threading and random-seed settings, and output checksums. Preserve and compare:
 
@@ -390,15 +410,13 @@ Names containing historical years are insufficient evidence for deleting active/
 
 ### Remaining modularization plan (not execution authorization)
 
-Seven implementation relocations and build-dependency Batches 8 and 9 are complete. Remaining generated-output work is a proposal, not execution authorization:
+Seven implementation relocations and build-system Batches 8–11 are complete. Object/dependency isolation and active dictionary isolation are finished; remaining work is not execution authorization:
 
-1. Move objects and compiler `.d` files into `build/obj/`, preserving source-relative subdirectories, object membership, public outputs and flags. Review directory creation and `/build/` ignore coverage.
-2. Move dictionary artifacts separately, preserving registrations, naming, public headers, PCM lookup and same-invocation recovery. Revalidate transitive dependencies and missing-output recovery.
-3. Decide dictionary untracking separately. First prove a source export without a generated dictionary/PCM builds and loads correctly; review manual/deployment consumers and update the tracked-dictionary policy only when authorized.
-4. Runtime-output relocation is optional later work: preserve root-level executable/library entry points through an explicitly approved compatibility policy and validate basename loading and deployment.
-5. Only then consider header moves in small batches, with dictionary/Cling checks and exact production regressions.
+1. **Next proposed task: read-only audit of safely untracking inactive generated `src/rootdict.C`.** Verify regeneration without this historical file, runtime loading, manual/deployment consumers and policy implications before requesting separate approval. Dictionary untracking has not been completed.
+2. Runtime-output relocation is optional later work: preserve root-level executable/library entry points through an explicitly approved compatibility policy and validate basename loading and deployment.
+3. Only then consider header moves in small batches, with dictionary/Cling checks and exact production regressions.
 
-The earlier architecture audit found missing compiler/transitive dictionary dependencies and side-effect-only PCM/link generation. Those findings describe the pre-Batch-8/9 state and are now addressed by the tested rules above. `HEADERS` remains unused. The unchanged `clean` recipe still removes tracked `src/rootdict.C`, root-level outputs/link and `.nfs*`, but does not explicitly remove dependency files or `src/rootdict_rdict.pcm`; never run it without current-task approval. `src/rootdict.C` remains generated and tracked, with header/autoload and environment-specific include paths. Its original tracking rationale remains unestablished.
+The earlier architecture audit's missing compiler/transitive dictionary dependencies and side-effect-only PCM/link generation describe the pre-Batch-8/9 state and are addressed by tested rules. `HEADERS` remains unused. Batch 11 changed only the clean recipe's explicit dictionary-source reference to `$(DICT_SOURCE)`; it did not broaden cleanup scope or run clean. Never run `make clean` without current-task approval. The inactive `src/rootdict.C` remains generated and tracked, with historical header/autoload and environment-specific include paths; its original tracking rationale remains unestablished.
 
 - Keep `MuonScaRe.cc` directly included and in its current location. Do not independently compile it or change seed/correction behavior; a different translation-unit policy requires separate review.
 - Review public-header organization before any header moves, including inheritance, `-Isrc`, external/manual consumers, Cling's `utility.h` declaration and generated autoload paths.
