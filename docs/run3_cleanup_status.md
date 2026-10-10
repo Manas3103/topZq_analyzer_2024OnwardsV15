@@ -9,8 +9,9 @@ The intended scope is CMS Run 3 (2022–2025), currently centered on 2024 NanoAO
 ## 2. Current checkpoint
 
 - Branch: `cleanup/run3-remove-legacy-run2`
+- Phase-2 final technical checkpoint before this documentation commit: `eb28128e8412c3ef3af9adeeb7ab36d7caee3639`. Approved dependency/build/runtime cleanup is complete through Batch 14H.2; retained exceptions and production-scale validation boundaries are listed below.
 - Source/build checkpoint through Batch 11: `8e3076f80ac0c89930260bf66ef6321d32395d26` (seven implementation-only migrations and build-system Batches 8–11 complete).
-- Batch-12B starting checkpoint: `426cf14340854886da3e5ecd1579714f98c51158`; Batch 12A validates this HEAD, and this commit changes tracking/policy/documentation only.
+- Batch-12B starting checkpoint: `426cf14340854886da3e5ecd1579714f98c51158`; Batch 12A validated that HEAD; Batch 12B (`28ef609`) changed tracking/policy/documentation only.
 - Earlier Phase-2 source checkpoint: `1d24d86dcbdc612ef293ff482a21b772365dda54`.
 - Earlier reconciled checkpoint: `422a3fb04eaa74333eae0809aa6f650da361a1db`
 - CLI commit `7bc8ddab` and documentation commit `0e934284` were pushed to both GitHub and CERN GitLab; Makefile cleanup `1d24d86` was also pushed successfully to both destinations.
@@ -51,6 +52,8 @@ Verified against Git, in chronological order:
 | `07bec35ef4e54f5ccfbed7c1c5a8bdf001666656` | build: track ROOT dictionary and PCM dependencies | Batch 9; transitive dictionary dependencies and same-invocation PCM recovery. |
 | `2d083bceac5aaa14a4f751d132d6cfdb4771681c` | build: isolate object and dependency files | Batch 10; nine objects and nine compiler dependency files under build/obj/. |
 | `8e3076f80ac0c89930260bf66ef6321d32395d26` | build: isolate ROOT dictionary artifacts | Batch 11; active dictionary generation under build/dict/, preserving public runtime paths. |
+| `28ef60907ca2e264e9e798deb0d79512bb09aab3` | build: untrack historical ROOT dictionary source | Batch 12B; preserve the ignored local dictionary after independence validation. |
+| `eb28128e8412c3ef3af9adeeb7ab36d7caee3639` | fix: initialize Condor workers with validated gcc12 runtime | Batch 14F; checked CMSSW initialization and worker library/header lookup paths only. |
 
 Earlier orientation commits:
 
@@ -66,11 +69,11 @@ The phases refer to section 9 of the original audit; later approved artifact tas
 | Phase | Current status | Completed / remaining work |
 |---|---|---|
 | 1 — standalone inputs | Complete for the approved manifest | Exactly 78 tracked deletions in `13f2b14`; ignored BTag efficiency inputs preserved. No broader directory cleanup was approved. |
-| 2 — dependency/build cleanup | Partially complete | SkimEvents, per-file processing and isolated scratch sources retired; redundant configuration removed. Metadata cleanup and binary/ACLiC artifact untracking also complete. Standalone CLI validation is complete. Four dormant Makefile rules were removed in `1d24d86` using the task-specific static/incremental validation described below. Batches 8 and 9 completed automatic compiler dependencies and dictionary/PCM recovery. Batches 10 and 11 completed object/dependency and active dictionary artifact isolation. Batch 12A validated independence from the historical dictionary, and Batch 12B retires its tracking. Remaining scope includes alternate BTag/manual consumers and normalization alternatives; no blanket Phase-2 completion is claimed. Historical alternative research implementations remain retained; any proposed retirement requires a separate user decision. |
+| 2 — dependency/build cleanup | Complete for the approved technical scope | Legacy dispatch/scratch sources, redundant configuration and dormant rules retired; generated artifact tracking/layout and incremental dictionary dependencies corrected; seven implementation-only migrations validated. Historical dictionary independence/untracking, ten approved object removals, checkout rebuild/exact local MC regressions and actual bounded Condor loading/help validation are complete. Research alternatives, uncertain manual consumers and preserved historical artifacts are explicit retained exceptions; full production-scale pipeline validation is separate. |
 | 3 — active-code Run-2 refactoring | Not started as a dedicated approved batch | Historical trigger/year dispatch, BTag clauses and public helper interfaces remain in active/shared source. Trace Run-3 dependencies and external users before proposing narrow retirement. |
 | 4 — physics-sensitive cleanup | Intentionally deferred | FF definitions, IDs/triggers, corrections, weights, normalization and systematics require separate physics approval and per-year validation. No prescription is chosen by this handoff. |
 
-Seven implementation-only modularization batches are complete as a separate workstream. Phase 2 remains partially complete, dedicated Phase-3 Run-2 behavior retirement has not started, and Phase 4 remains deferred for separate physics approval. No claim that all Run-3 cleanup is finished is made.
+Seven implementation-only modularization batches are complete as a separate workstream. Phase 2 is closed for the approved technical scope with the retained exceptions below; dedicated Phase-3 Run-2 behavior retirement has not started, and Phase 4 remains deferred for separate physics approval. No claim that all Run-3 cleanup is finished is made.
 
 No accidentally skipped approved deletion has been established. A failed prerequisite or intentionally retained reference is not a skipped cleanup. Phase 1 used static verification; compiled/build Phase 2 changes normally require before/after builds and runtime checks; the four-rule Makefile cleanup used an explicitly authorized incremental-only exception, without runtime execution. Phase 3 also requires interface and event-level regression checks; Phase 4 requires physics review beyond software regression.
 
@@ -338,9 +341,9 @@ Evidence under `/uscms_data/d3/msahoo/Project_tzq/regression_baseline/`:
 
 Both case manifests record `VALIDATION_PASS`; earlier failures and logs remain preserved. Three worker-harness Cling `Missing FileEntry` messages reproduced identically with the original dictionary layout. Supplying **both worker root and worker/src include paths** eliminated them in both layouts. The corrected Batch-11 harness verified the mapped library, actual PCM access, dictionary classes, PyROOT and Cling `utility.h` inclusion. It produced no new autoload errors and the same **88 unresolved baseline reflection diagnostics**. Successful PCM access alone was not treated as proof of correct autoloading.
 
-**Actual Condor deployment compatibility remains unverified.** Corrected disposable-harness results do not prove real workers supply these include paths, headers or PCM symlink targets. Manual/external consumers remain uncertain. BTag ACLiC outputs remain separate manual-workflow artifacts.
+**At the Batch-11 checkpoint, actual Condor deployment compatibility remained unverified.** Corrected disposable-harness results do not prove real workers supply these include paths, headers or PCM symlink targets. Manual/external consumers remain uncertain. BTag ACLiC outputs remain separate manual-workflow artifacts.
 
-The earlier zero-byte checkout `src/rootdict_rdict.pcm` observation remains historical, unverified runtime state, not a repaired artifact. Isolated builds validate the new layout; the original checkout was not rebuilt or its old generated artifacts retargeted as part of these batches. This documentation checkpoint reads saved evidence only and runs no builds or ROOT analysis.
+The earlier zero-byte checkout `src/rootdict_rdict.pcm` observation remains historical, unverified runtime state, not a repaired artifact. Isolated builds validate the new layout; the original checkout was not rebuilt or its old generated artifacts retargeted as part of these batches. Those observations are superseded for the active checkout runtime by Batch 14G below; this documentation checkpoint itself runs no builds or ROOT analysis.
 
 ### Batches 12A and 12B: historical dictionary independence and untracking
 
@@ -348,9 +351,36 @@ Batch 12A exported committed `426cf14340854886da3e5ecd1579714f98c51158` using `g
 
 Both production configurations passed exact comparisons against `production-48d4a5b-wigcmx95`: main 6411 events / 648 branches; fake factor 36539 events / 56 branches / 48 histograms. Event identity/order, all schemas and stored values, weights, cutflows and histogram contents/errors/metadata matched; outputs were neither zombie nor recovered. The known 88 reflection diagnostics were unchanged. An external helper's final manifest bookkeeping defect was corrected from independently verified reports and checksums, without rerunning analysers; the correction and prior record are preserved.
 
-Batch 12B (`build: untrack historical ROOT dictionary source`; use Git history for its resulting SHA) removes only `src/rootdict.C` from Git tracking with `git rm --cached`, preserves its existing local bytes, adds exact `/src/rootdict.C` ignore coverage, and updates the corresponding policy statement. **Active dictionary source is generated under `build/dict/`; fresh clones do not require historical `src/rootdict.C`.** Existing local copies may remain. Git history retains earlier versions. Makefile, C++ implementations, public headers, historical objects and PCMs are unchanged. Prior Batch-12A validation remains applicable, so no production rerun is performed for the tracking-only change.
+Batch 12B (`28ef60907ca2e264e9e798deb0d79512bb09aab3`, `build: untrack historical ROOT dictionary source`) removes only `src/rootdict.C` from Git tracking with `git rm --cached`, preserves its existing local bytes, adds exact `/src/rootdict.C` ignore coverage, and updates the corresponding policy statement. **Active dictionary source is generated under `build/dict/`; fresh clones do not require historical `src/rootdict.C`.** Existing local copies may remain. Git history retains earlier versions. Makefile, C++ implementations, public headers, historical objects and PCMs are unchanged. Prior Batch-12A validation remains applicable, so no production rerun is performed for the tracking-only change.
 
-The existing 88 ROOT reflection diagnostics remain unresolved, and actual Condor deployment compatibility remains unverified. Independent regeneration and local regression do not establish all manual/external consumers or real worker include paths. No broader historical-artifact deletion or physics change is authorized by this checkpoint.
+At Batch 12B, the 88 ROOT reflection diagnostics remained unresolved and actual Condor deployment compatibility was unverified. The later bounded Condor validation is recorded below; the reflection limitation remains. Independent regeneration and local regression do not establish all manual/external consumers or real worker include paths. No broader historical-artifact deletion or physics change is authorized by this checkpoint.
+
+### Phase-2 closure: Batches 13–15
+
+**Approved Phase-2 technical cleanup is complete. Full production-scale 2024 pipeline validation has not been performed.** This closes the approved build/dependency/artifact/runtime work, not all Run-3 development, independent physics validation, or every manual workflow. Phase 3 retirement of active Run-2 behavior remains unstarted; Phase 4 requires separate physics approval.
+
+All evidence paths below are relative to `/uscms_data/d3/msahoo/Project_tzq/regression_baseline/`:
+
+| Work | Verified result / evidence |
+|---|---|
+| Batch 13B | Ten explicitly approved ignored top-level `src/*.o` files backed up and removed; tracked status stayed clean. `historical-objects-rmt124ud/reports/postcheck.json` records PASS; backup `historical-objects-backup-2sutf7ao`. Eight nested objects, both historical PCMs and local `src/rootdict.C` were retained. |
+| Batches 14B–14E | Original-layout copies failed on the empty historical PCM; fresh gcc12 controls passed. gcc10 CMSSW_13_3_3 was unavailable; disposable gcc12 fresh/existing-area and relocation controls passed exact local MC regressions. `worker-runtime-5t3ywkyp`, `gcc10-worker-xfrs1_qn`, `gcc12-worker-init-_w2108bz`. |
+| Batch 14F / `eb28128` | Only `runjob_24_v2.sh` setup changed: gcc12, checked project/architecture/release, runtime once, worker root library path and root/src interpreter paths. Extracted-block fresh/existing initialization and loading passed; no wrapper/EOS execution. `worker-init-patch-yk5pph39`. |
+| Batch 14G | Original checkout rebuilt using initialized CMSSW_13_3_3/gcc12 and bounded `make -j8`, without clean. Verified backups, nine object/dependency pairs, active dictionary/PCM, no-op incremental build, mapped checkout library, ROOT/PyROOT/Cling and both help checks. `checkout-runtime-refresh-3dskc42n/manifest.json`: VALIDATION_PASS; backup/report alongside. |
+| Batches 14H–14H.2 | One initial diagnostic job `4488684.0` exited 1 on a symlink-only preflight; one explicitly approved corrected repeat `4488686.0` completed exit 0, no hold, on cmswn2187 in the site's RHEL9 container. `condor-runtime-smoke-nc24imwl/repeat-diagnostic-e8d9thm2/results.json`: PASS. Original failed evidence is preserved. |
+
+The frozen production reference remains `production-48d4a5b-wigcmx95`. Batch 14G used the same local TZQB/W+jets inputs, unchanged `jobconfiganalysis_2024`/`jobconfiganalysis_2024_ff` and preserved runner. Both exit-0 outputs were readable, neither zombie nor recovered, and passed exact event identity/order, branch types/values, weights, cutflows and histogram content/errors/metadata comparisons:
+
+- Main: **6411 events, 648 branches**; cutflow **95551, 95415, 7147, 7147, 6411**.
+- Fake factor: **36539 events, 56 branches, 48 histograms**; cutflow **115953, 54819, 47395, 36539, 36539**.
+
+The checkout PCM symlink now points to `build/dict/rootdict_rdict.pcm`; matching library/executables were rebuilt. The empty historical `src/rootdict_rdict.pcm`, second historical PCM, eight nested objects and ignored `src/rootdict.C` remain unchanged and inactive. Do not delete them automatically. Runtime artifacts are ignored local products; fresh clones still need an authorized build.
+
+The real Condor repeat verified directory/file integrity, **CMSSW_13_3_3 / el9_amd64_gcc12**, **ROOT 6.26/11**, **GCC 12.3.1**, **correctionlib 2.2.2**, mapped `/srv/libnanoadrdframe.so`, gcc12 `libstdc++.so.6.0.30` with GLIBCXX_3.4.29, actual PCM access, dictionary registration, PyROOT, Cling `utility.h` and both executable help checks. Exactly **88 known reflection diagnostics** matched the reference; they remain unresolved. No tracked production files changed during 14H; only external diagnostic helpers/manifests were corrected. No production wrapper or event processing ran on Condor.
+
+HTCondor transferred the root-level PCM symlink as a **regular 6200-byte file**, matching the independently verified generated PCM exactly (SHA256 `77b204f252670d4fc08e068ae9070ecb935eb745eebada6e63e5d69eaf25eb86`). Diagnostic-only checks now accept a valid expected relative symlink or a byte-identical regular PCM, reject missing/broken/unexpected/mismatching files, and never repair worker files. This resolves the diagnostic transfer-contract mismatch, not the known reflection limitations.
+
+**Exceptions and next task:** retain quantile/research methods, alternate BTag and normalization implementations, uncertain external/manual consumers, historical artifacts and broken historical JetID links pending separate decisions. The successful minimal worker bundle does not prove that every production transfer includes all inputs/configurations/payloads, nor validate production-scale processing, EOS staging, normalization/histogram/downstream workflows, all 2024 eras or 2022/2023/2025 support. Next: an explicitly approved **full 2024 pipeline audit and bounded validation plan**, tracing production configuration, transfer completeness, processing and downstream consumers before execution. No Phase-3 or physics change is authorized by closure.
 
 ## 7. Validation policy for future cleanup
 
@@ -422,7 +452,7 @@ Names containing historical years are insufficient evidence for deleting active/
 
 Seven implementation relocations and build-system Batches 8–11 are complete. Object/dependency isolation and active dictionary isolation are finished; remaining work is not execution authorization:
 
-1. Dictionary-independence validation and historical dictionary untracking are complete in Batches 12A/12B. Future work must separately review real Condor deployment and uncertain manual consumers; do not delete retained historical objects or PCMs without approval.
+1. Dictionary-independence validation and historical dictionary untracking are complete in Batches 12A/12B. Bounded real Condor runtime validation is complete; full production deployment and uncertain manual consumers still require separate review; do not delete retained historical objects or PCMs without approval.
 2. Runtime-output relocation is optional later work: preserve root-level executable/library entry points through an explicitly approved compatibility policy and validate basename loading and deployment.
 3. Only then consider header moves in small batches, with dictionary/Cling checks and exact production regressions.
 
@@ -441,13 +471,13 @@ Candidates for INVESTIGATION only:
 - ACLiC dependency untracking is complete in `aaf438b`; do not repeat this cleanup or remove the preserved macros/physics inputs.
 - Historical `src/rootdict.C` untracking is complete in Batch 12B; do not repeat it or delete preserved local copies automatically.
 - Retained `GetQuantile_Method/Quantiles_jj.C`, `GetQuantile_Method/Mergebins500.C`, `GetQuantile_Method/README.md`: useful research/reference methods without identified production callers; retain unless the user chooses Git-history-only storage. Metadata cleanup is already complete.
-- The four dormant Makefile rules are now retired; do not repeat that cleanup. Remaining Phase-2 candidates require separate classification/approval, including manual alternative workflows and deployment review.
+- The four dormant Makefile rules are now retired; do not repeat that cleanup. Phase 2 is closed for the approved scope; retained manual alternatives and full deployment review are separate follow-ups requiring classification/approval.
 - Alternate `BTag/NanoAODAnalyzerrdframe_sneh.cpp`: outside the default source wildcard, but contains Run-3 functionality; manual/external use requires a user decision.
 - `normalized_hist` alternatives, including `normalized_hist/Python_rdf_norm/create_hist_rdf_old.py`, `normalized_hist/Python_rdf_norm/unused_txt_file/`, and `normalized_hist/normalization_with_C/Analysed/`: trace manual workflows and downstream normalization before retirement. Active Python and C++ submission workflows must be preserved; differing conventions need physics review.
 - Isolated history/log/archive material such as `normalized_hist/.root_hist`, `normalized_hist/Python_rdf_norm/docker_stderror`, and `normalized_hist/my_ploting_project.tar.gz`: verify provenance and consumers; archives are not automatic deletion candidates.
 - Remaining historical comments/declarations and Run-2 branches inside active code: separate narrow interface/comment review from protected behavior. Triggers, BTag dispatch, helper APIs, FF fallbacks and year routing are not Phase-2 blanket deletion candidates.
 
-Recommended order: reconcile documentation; investigate low-risk artifacts; verify/preserve the durable regression evidence and extend coverage only when approved; finish separately approved Phase 2 work; propose Phase 3 only with approval; address Phase 4 only with separate physics review.
+Recommended next task: full 2024 pipeline audit and separately authorized validation. Preserve durable regression evidence and retained exceptions; propose Phase 3 only with approval and Phase 4 only with separate physics review.
 
 **Investigate/classify first; obtain user approval; then modify.** None is approved for deletion by this handoff. Trace build, dictionary, production, manual-study and downstream consumers; do not maximize deletion or broaden a cleanup batch.
 
