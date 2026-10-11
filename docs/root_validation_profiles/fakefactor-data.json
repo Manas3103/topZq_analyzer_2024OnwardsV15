@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "kind": "root_validation_profile",
+  "profile_id": "fakefactor-data-example",
+  "workflow": "fakefactor",
+  "datatype": "data",
+  "tree": "outputTree_00000",
+  "required_branches": [
+    "run",
+    "luminosityBlock",
+    "event",
+    "FFWeight_base",
+    "FFWeight_num",
+    "MRLepton_ptcone"
+  ],
+  "branch_types": {},
+  "required_objects": {
+    "hFF_ele_denom_nocut": "TH2",
+    "hFF_ele_num_nocut": "TH2",
+    "hFF_mu_denom_nocut": "TH2",
+    "hFF_mu_num_nocut": "TH2"
+  },
+  "allow_zero_entries": true,
+  "content": {
+    "mode": "metadata",
+    "branches": [],
+    "sample_entries": 3
+  },
+  "dictionary_branches": []
+}

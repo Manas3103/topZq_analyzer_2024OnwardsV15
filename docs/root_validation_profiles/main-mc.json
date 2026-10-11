@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "kind": "root_validation_profile",
+  "profile_id": "main-mc-example",
+  "workflow": "main",
+  "datatype": "mc",
+  "tree": "outputTree_00000",
+  "required_branches": [
+    "run",
+    "luminosityBlock",
+    "event",
+    "evWeight",
+    "genWeight"
+  ],
+  "branch_types": {},
+  "required_objects": {},
+  "allow_zero_entries": true,
+  "content": {
+    "mode": "metadata",
+    "branches": [],
+    "sample_entries": 3
+  },
+  "dictionary_branches": [
+    "OSSF4L_info"
+  ]
+}
