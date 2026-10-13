@@ -11,6 +11,7 @@
 #pragma link C++ class std::vector<ROOT::Math::PtEtaPhiMVector>+;
 #pragma link C++ class ROOT::VecOps::RVec<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>+;
 #pragma link C++ class std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double>>>+;
+#pragma link C++ class OSSF4LInfo+;
 
 
 #pragma link C++ class NanoAODAnalyzerrdframe +;
