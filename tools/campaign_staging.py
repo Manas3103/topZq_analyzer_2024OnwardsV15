@@ -78,8 +78,12 @@ def stage(files, receipt_path, identity, destination, policy, validation, runner
         command(['xrdfs', ep, 'stat', destination])
     except CommandError as exc:
         text = exc.stdout + '\n' + exc.stderr
-        codes = set(re.findall(r'\[([0-9]+)\]', text))
-        if exc.code != 'nonzero_exit' or codes != {'3011'} or re.search(r'network|connection|socket|resolve|auth|proxy|permission|timeout', text, re.I):
+        # XRootD includes the requested path in its diagnostic. Do not mistake
+        # identity/path tokens (for example a submission ID containing
+        # "timeout") for transport evidence; classify only the response text.
+        diagnostic = text.replace(destination, '').replace(ep, '').replace('\x00', ' ')
+        codes = set(re.findall(r'\[([0-9]+)\]', diagnostic))
+        if exc.code != 'nonzero_exit' or codes != {'3011'} or re.search(r'network|connection|socket|resolve|auth|proxy|permission|timeout', diagnostic, re.I):
             raise StagingError('destination absence not established') from exc
     else: raise StagingError('remote execution destination already exists')
     command(['xrdfs', ep, 'mkdir', '-p', destination])

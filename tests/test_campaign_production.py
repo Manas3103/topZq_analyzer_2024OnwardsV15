@@ -292,6 +292,25 @@ class StagingTests(unittest.TestCase):
         self.assertTrue(self.calls[-1][-1].endswith('publication.json'));self.assertEqual(len([a for a in self.calls if a[0]=='xrdcp']),4)
         self.assertEqual(result['marker']['sha256'],p.digest(self.root/'publication.json'))
 
+    def test_not_found_path_containing_timeout_is_absence(self):
+        self.identity['submission_id']='submission-d3-timeout-regression'
+        self.destination=p.execution_path('c',self.identity['submission_id'],'main','d','c0','a'*32)
+        execution=p.load_json(p.ROOT/'docs/campaign_templates/production/execution.json')
+        execution.update(self.identity)
+        (self.root/'execution.json').write_text(json.dumps(execution))
+        out=self.validation['outputs'][0]
+        out['identity']['campaign_id']='c';out['identity']['workflow']='main';out['identity']['dataset_id']='d'
+        out['identity']['chunk_id']='c0';out['identity']['attempt_id']='a'
+        def runner(args, timeout):
+            if args[2]=='stat' and args[-1]==self.destination:
+                raise CommandError('nonzero_exit','nonzero endpoint result',54,'',
+                                   '[ERROR] Server responded with an error: [3011] Unable to stat '
+                                   + self.destination + '; No such file or directory' + chr(0))
+            return self.runner(args, timeout)
+        result=self.stage(runner)
+        self.assertEqual(result['receipt']['status'],'published')
+        self.assertEqual(result['receipt']['acceptance'],'not_evaluated')
+
     def test_no_overwrite_collision(self):
         def runner(args,timeout):
             if args[2]=='stat':return subprocess.CompletedProcess(args,0,'','')
