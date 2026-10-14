@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "kind": "production_campaign",
+  "campaign_id": "test",
+  "year": 2024,
+  "created_at": "2026-10-12T00:00:00Z",
+  "source": {
+    "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "repository": "synthetic",
+    "dirty": false,
+    "source_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+  },
+  "endpoint": "root://cmseos.fnal.gov",
+  "processing_timeout": 10,
+  "publication_policy": {
+    "strategy": "manifest_last",
+    "checksum_algorithm": "adler32",
+    "no_clobber_confirmed": false,
+    "command_timeout": 5,
+    "overall_timeout": 30
+  },
+  "datasets": [
+    {
+      "schema_version": 1,
+      "kind": "production_dataset",
+      "dataset_id": "sample",
+      "sample_name": "Synthetic",
+      "year": 2024,
+      "workflow": "main",
+      "datatype": "mc",
+      "era": null,
+      "stream": null,
+      "das_dataset": "/Synthetic/RunIII2024Summer24NanoAODv15-v1/NANOAODSIM",
+      "processing_schema_id": "main-mc-test",
+      "config": "config.py",
+      "profile": "profile.json",
+      "chunks": [
+        {
+          "schema_version": 1,
+          "kind": "production_chunk",
+          "chunk_id": "c0",
+          "index": 0,
+          "ordered_inputs": [
+            "root://cmsxrootd.fnal.gov//store/mc/RunIII2024Summer24NanoAODv15/Synthetic/NANOAODSIM/a.root"
+          ]
+        }
+      ]
+    }
+  ]
+}

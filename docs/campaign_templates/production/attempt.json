@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "kind": "production_attempt",
+  "campaign_id": "test",
+  "submission_id": "s1",
+  "workflow": "main",
+  "dataset_id": "sample",
+  "chunk_id": "c0",
+  "attempt_id": "a-c8d8680ef66a0caa0dd9d2f308518c9bef7fc824aa03a02b7f234bb4ce037690",
+  "filelist_sha256": "5e1228643798da0f126aad599725d983d969eba00966c74fb346777be540cece",
+  "config_sha256": "7a8d0b0ca79430da912e2ffb5cbc6adc7cde4f22e772414321260fd06ea1bbb2",
+  "created_at": "2026-10-12T00:00:00Z"
+}

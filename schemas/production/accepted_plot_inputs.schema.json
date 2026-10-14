@@ -1,0 +1,154 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "kind": {
+      "const": "accepted_plot_inputs"
+    },
+    "revision": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+    },
+    "revision_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "scope_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+    },
+    "campaign_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+    },
+    "workflow": {
+      "const": "main"
+    },
+    "status": {
+      "const": "COMPLETE"
+    },
+    "campaign_complete_scope": {
+      "type": "boolean"
+    },
+    "physics_acceptance": {
+      "const": "NOT_EVALUATED"
+    },
+    "test_only": {
+      "const": true
+    },
+    "inputs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "properties": {
+          "dataset_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+          },
+          "chunk_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+          },
+          "index": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "datatype": {
+            "enum": [
+              "mc",
+              "data"
+            ]
+          },
+          "locator": {
+            "type": "string",
+            "pattern": "^root://"
+          },
+          "execution": {
+            "type": "object"
+          },
+          "checksum": {
+            "type": "object",
+            "properties": {
+              "algorithm": {
+                "enum": [
+                  "adler32",
+                  "sha256"
+                ]
+              },
+              "value": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "algorithm",
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "tree": {
+            "const": "outputTree_00000"
+          },
+          "processing_schema_id": {
+            "type": "string"
+          },
+          "schema_fingerprint": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "input_entries": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "processed_entries": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "selected_entries": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "dataset_id",
+          "chunk_id",
+          "index",
+          "datatype",
+          "locator",
+          "execution",
+          "checksum",
+          "sha256",
+          "tree",
+          "processing_schema_id",
+          "schema_fingerprint",
+          "input_entries",
+          "processed_entries",
+          "selected_entries"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "schema_version",
+    "kind",
+    "revision",
+    "revision_sha256",
+    "scope_id",
+    "campaign_id",
+    "workflow",
+    "status",
+    "campaign_complete_scope",
+    "physics_acceptance",
+    "test_only",
+    "inputs"
+  ],
+  "additionalProperties": false
+}

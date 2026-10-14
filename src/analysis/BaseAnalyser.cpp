@@ -9,6 +9,7 @@
 #include "Math/GenVector/VectorUtil.h"
 #include "BaseAnalyser.h"
 #include "utility.h"
+#include <stdexcept>
 #include "GenParticleHelper.h"
 #include <fstream>
 #include "correction.h"
@@ -1889,6 +1890,7 @@ void BaseAnalyser::bookHists()
 }
 void BaseAnalyser::setTree(TTree *t, std::string outfilename)
 {
+    if (_pilotMaxInputEvents) throw std::logic_error("limited analyser cannot be reused with setTree");
 	if (debug){
         std::cout<< "================================//=================================" << std::endl;
         std::cout<< "Line : "<< __LINE__ << " Function : " << __FUNCTION__ << std::endl;

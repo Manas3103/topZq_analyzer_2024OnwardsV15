@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "kind": "production_chunk",
+  "chunk_id": "c0",
+  "index": 0,
+  "ordered_inputs": [
+    "root://cmsxrootd.fnal.gov//store/mc/RunIII2024Summer24NanoAODv15/Synthetic/NANOAODSIM/a.root"
+  ]
+}

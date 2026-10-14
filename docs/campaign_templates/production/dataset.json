@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "kind": "production_dataset",
+  "dataset_id": "sample",
+  "sample_name": "Synthetic",
+  "year": 2024,
+  "workflow": "main",
+  "datatype": "mc",
+  "era": null,
+  "stream": null,
+  "das_dataset": "/Synthetic/RunIII2024Summer24NanoAODv15-v1/NANOAODSIM",
+  "processing_schema_id": "main-mc-test",
+  "config": "config.py",
+  "profile": "profile.json",
+  "chunks": [
+    {
+      "schema_version": 1,
+      "kind": "production_chunk",
+      "chunk_id": "c0",
+      "index": 0,
+      "ordered_inputs": [
+        "root://cmsxrootd.fnal.gov//store/mc/RunIII2024Summer24NanoAODv15/Synthetic/NANOAODSIM/a.root"
+      ]
+    }
+  ]
+}

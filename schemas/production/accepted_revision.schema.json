@@ -1,0 +1,505 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "kind": {
+      "const": "accepted_output_revision"
+    },
+    "scope": {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "const": 1
+        },
+        "kind": {
+          "const": "accepted_output_scope"
+        },
+        "scope_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+        },
+        "selector": {
+          "enum": [
+            "mc",
+            "data",
+            "full",
+            "explicit"
+          ]
+        },
+        "campaign": {
+          "type": "object"
+        },
+        "campaign_record": {
+          "type": "string"
+        },
+        "campaign_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "workflow": {
+          "const": "main"
+        },
+        "expected": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "properties": {
+              "dataset_id": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+              },
+              "datatype": {
+                "enum": [
+                  "mc",
+                  "data"
+                ]
+              },
+              "chunk_id": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+              },
+              "index": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "ordered_inputs": {
+                "type": "array",
+                "minItems": 1,
+                "uniqueItems": true,
+                "items": {
+                  "type": "string"
+                }
+              },
+              "config": {
+                "type": "string"
+              },
+              "profile": {
+                "type": "string"
+              },
+              "processing_schema_id": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+              }
+            },
+            "required": [
+              "dataset_id",
+              "datatype",
+              "chunk_id",
+              "index",
+              "ordered_inputs",
+              "config",
+              "profile",
+              "processing_schema_id"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "campaign_complete_scope": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "schema_version",
+        "kind",
+        "scope_id",
+        "selector",
+        "campaign",
+        "campaign_record",
+        "campaign_sha256",
+        "workflow",
+        "expected",
+        "campaign_complete_scope"
+      ],
+      "additionalProperties": false
+    },
+    "parent": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "dataset_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+          },
+          "chunk_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+          },
+          "index": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "datatype": {
+            "enum": [
+              "mc",
+              "data"
+            ]
+          },
+          "identity": {
+            "type": "object",
+            "properties": {
+              "campaign_id": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+              },
+              "submission_id": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+              },
+              "workflow": {
+                "const": "main"
+              },
+              "dataset_id": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+              },
+              "chunk_id": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+              },
+              "attempt_id": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+              },
+              "execution_id": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{32}$"
+              },
+              "cluster_id": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "proc_id": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "campaign_id",
+              "submission_id",
+              "workflow",
+              "dataset_id",
+              "chunk_id",
+              "attempt_id",
+              "execution_id",
+              "cluster_id",
+              "proc_id"
+            ],
+            "additionalProperties": false
+          },
+          "locator": {
+            "type": "string",
+            "pattern": "^root://"
+          },
+          "size_bytes": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "checksum": {
+            "type": "object",
+            "properties": {
+              "algorithm": {
+                "enum": [
+                  "adler32",
+                  "sha256"
+                ]
+              },
+              "value": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "algorithm",
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "manifest_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "schema_fingerprint": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "input_scope": {
+            "type": "object"
+          },
+          "selected_entries": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "processing_schema_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+          },
+          "evidence_files": {
+            "type": "object"
+          },
+          "local_artifacts": {
+            "type": "object"
+          },
+          "observations": {
+            "type": "object"
+          },
+          "technical_acceptance": {
+            "const": "ACCEPTED"
+          },
+          "physics_acceptance": {
+            "const": "NOT_EVALUATED"
+          }
+        },
+        "required": [
+          "dataset_id",
+          "chunk_id",
+          "index",
+          "datatype",
+          "identity",
+          "locator",
+          "size_bytes",
+          "sha256",
+          "checksum",
+          "manifest_sha256",
+          "schema_fingerprint",
+          "input_scope",
+          "selected_entries",
+          "processing_schema_id",
+          "evidence_files",
+          "local_artifacts",
+          "observations",
+          "technical_acceptance",
+          "physics_acceptance"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "history": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "enum": [
+              "accept",
+              "supersede"
+            ]
+          },
+          "operator": {
+            "type": "string",
+            "minLength": 1
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1
+          },
+          "authorization_reference": {
+            "type": "string",
+            "minLength": 1
+          },
+          "supersedes": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "identity": {
+            "type": "object",
+            "properties": {
+              "campaign_id": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+              },
+              "submission_id": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+              },
+              "workflow": {
+                "const": "main"
+              },
+              "dataset_id": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+              },
+              "chunk_id": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+              },
+              "attempt_id": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+              },
+              "execution_id": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{32}$"
+              },
+              "cluster_id": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "proc_id": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "campaign_id",
+              "submission_id",
+              "workflow",
+              "dataset_id",
+              "chunk_id",
+              "attempt_id",
+              "execution_id",
+              "cluster_id",
+              "proc_id"
+            ],
+            "additionalProperties": false
+          },
+          "prior_identity": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "campaign_id": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+                  },
+                  "submission_id": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+                  },
+                  "workflow": {
+                    "const": "main"
+                  },
+                  "dataset_id": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+                  },
+                  "chunk_id": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+                  },
+                  "attempt_id": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+                  },
+                  "execution_id": {
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{32}$"
+                  },
+                  "cluster_id": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "proc_id": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                },
+                "required": [
+                  "campaign_id",
+                  "submission_id",
+                  "workflow",
+                  "dataset_id",
+                  "chunk_id",
+                  "attempt_id",
+                  "execution_id",
+                  "cluster_id",
+                  "proc_id"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "evidence_hash": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        },
+        "required": [
+          "action",
+          "operator",
+          "timestamp",
+          "reason",
+          "authorization_reference",
+          "supersedes",
+          "identity",
+          "prior_identity",
+          "evidence_hash"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "missing": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "dataset_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+          },
+          "chunk_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+          }
+        },
+        "required": [
+          "dataset_id",
+          "chunk_id"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "status": {
+      "enum": [
+        "INCOMPLETE",
+        "COMPLETE"
+      ]
+    },
+    "physics_acceptance": {
+      "const": "NOT_EVALUATED"
+    },
+    "test_only": {
+      "const": true
+    },
+    "revision": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+    }
+  },
+  "required": [
+    "schema_version",
+    "kind",
+    "scope",
+    "parent",
+    "entries",
+    "history",
+    "missing",
+    "status",
+    "physics_acceptance",
+    "test_only",
+    "revision"
+  ],
+  "additionalProperties": false
+}

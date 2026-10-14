@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "kind": "production_publication",
+  "campaign_id": "test",
+  "submission_id": "s1",
+  "workflow": "main",
+  "dataset_id": "sample",
+  "chunk_id": "c0",
+  "attempt_id": "a-c8d8680ef66a0caa0dd9d2f308518c9bef7fc824aa03a02b7f234bb4ce037690",
+  "cluster_id": 1,
+  "proc_id": 0,
+  "execution_id": "12870cae30d6417d8b51e8abc61ea224",
+  "created_at": "2026-10-12T00:00:00Z",
+  "status": "published",
+  "acceptance": "not_evaluated",
+  "destination": "/store/user/msahoo/tzq/2024/campaigns/test/main/attempts/s1/datasets/sample/chunks/c0/executions/12870cae30d6417d8b51e8abc61ea224",
+  "strategy": "manifest_last",
+  "artifacts": {
+    "output.root": {
+      "locator": "root://example.test//store/user/msahoo/tzq/2024/campaigns/test/main/attempts/s1/datasets/sample/chunks/c0/executions/12870cae30d6417d8b51e8abc61ea224/output.root",
+      "size_bytes": 1,
+      "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "adler32": "00000001",
+      "remote_checksum": {
+        "algorithm": "adler32",
+        "value": "00000001"
+      }
+    },
+    "processing.log": {
+      "locator": "root://example.test//store/user/msahoo/tzq/2024/campaigns/test/main/attempts/s1/datasets/sample/chunks/c0/executions/12870cae30d6417d8b51e8abc61ea224/processing.log",
+      "size_bytes": 1,
+      "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "adler32": "00000001",
+      "remote_checksum": {
+        "algorithm": "adler32",
+        "value": "00000001"
+      }
+    },
+    "execution.json": {
+      "locator": "root://example.test//store/user/msahoo/tzq/2024/campaigns/test/main/attempts/s1/datasets/sample/chunks/c0/executions/12870cae30d6417d8b51e8abc61ea224/execution.json",
+      "size_bytes": 1,
+      "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "adler32": "00000001",
+      "remote_checksum": {
+        "algorithm": "adler32",
+        "value": "00000001"
+      }
+    }
+  },
+  "root_validation": {
+    "status": "PASS",
+    "acceptance_changed": false,
+    "outputs": [
+      {
+        "identity": {
+          "campaign_id": "test",
+          "workflow": "main",
+          "dataset_id": "sample",
+          "chunk_id": "c0",
+          "attempt_id": "a-c8d8680ef66a0caa0dd9d2f308518c9bef7fc824aa03a02b7f234bb4ce037690"
+        },
+        "inspected_path": "/tmp/tmprl5awvr7/executions/12870cae30d6417d8b51e8abc61ea224/output.root",
+        "status": "PASS",
+        "acceptance": "not_evaluated",
+        "structure": {
+          "branch_types": {
+            "run": "UInt_t"
+          },
+          "entries": 0
+        }
+      }
+    ]
+  },
+  "checksum_algorithm": "adler32",
+  "observations": [],
+  "input_scope": {
+    "schema_version": 1,
+    "kind": "processing_input_scope",
+    "total_input_entries": 0,
+    "requested_max_input_events": null,
+    "analysis_input_entries": 0,
+    "generator_weight_bookkeeping_scope": "full_input_chain_when_mc",
+    "partial": false,
+    "full_production_eligible": true,
+    "tree_prefix": "outputTree"
+  }
+}

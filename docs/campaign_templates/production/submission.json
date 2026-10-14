@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "kind": "production_submission",
+  "campaign_id": "test",
+  "submission_id": "s1",
+  "created_at": "2026-10-12T00:00:00Z",
+  "campaign_sha256": "d2390dccc5fd4c80b780fc224210d83982da3a4a9fd6623541bb07d433839469",
+  "source": {
+    "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "dirty": false,
+    "repository": "synthetic",
+    "source_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+  },
+  "files": {
+    "config.py": "7a8d0b0ca79430da912e2ffb5cbc6adc7cde4f22e772414321260fd06ea1bbb2",
+    "libnanoadrdframe.so": "a6380fabb1fe2a451a6ae093734a2a6da876e628bf45f7b6aaf98759aeae141e",
+    "processnanoaod_v.py": "8841acd2e97df17f701260bf005d34cc691df7a15d4ecb508316314cbda29341",
+    "profile.json": "55f4917165db8c853e3e72c648cb7c62de8f67b819a86fb9986748ce768d454f",
+    "runjob_campaign_2024.sh": "533f355820b77ec97d188893c9e23b9657f7f12788d8838b5704a65ee21871bb",
+    "schemas/production/attempt.schema.json": "335075924c6b32fea7e6e0621157b327e4e52bc5368a8b0db7e5398a8fab8761",
+    "schemas/production/campaign.schema.json": "53314f94d90c5d9bfbb09d726fcf514e0c8ec5d30fc23231192ce209e38a4ab8",
+    "schemas/production/chunk.schema.json": "bf44d6ffb0c69b53bb0efb5eac5d36f14a1bc4065a68f5f9386b7d9b97679630",
+    "schemas/production/dataset.schema.json": "7c8cb3a019442e13689b676f8a52ae4ba167d0bcea1c61255bdd751708d603c2",
+    "schemas/production/execution.schema.json": "04a70bf9dc792e28b16f7af1a60762ba08f7ce9dc67da12d6aa6e110b98fea5b",
+    "schemas/production/publication.schema.json": "8f9dd2dd0c18552c0b95abd639e87df16295e5aa996cef2a70e8b0d9adb375d0",
+    "schemas/production/submission.schema.json": "4397c9e39c29a291840899f3fa14c3fe015e2919165f787a2cdc12b2da78465c",
+    "tools/campaign.py": "b5ddd0989433a1f534687d9cb81cb0a3868ecd8f13a7220a47e7908d5968db1c",
+    "tools/campaign_process.py": "bac8baf36d05df77d8ce872597ee0666e8dd6c395c265f56ead405149aed39c6",
+    "tools/campaign_production.py": "7ccf970d3226c218965d4624be1d3f5722d32adfaa4c0b0b7a006018610b5002",
+    "tools/campaign_staging.py": "57800ac608fe74f69cf6b6fdf5858e7eded0922af74b008b60daa89143c84476",
+    "tools/campaign_worker.py": "b7efd3a80d05e081687ade7de1eea27a08e538c192ec848ca1d166a3d5a4dd0f",
+    "tools/root_output_validation.py": "da573c89622aaac19df6e920c593a8bfd9618e671fa12faabe7ad38b54e3dfb2",
+    "tools/root_output_worker.py": "7c370c9ae395584f8fc6a7ad95006886988d19daea083c27c701a2309dc58bd7",
+    "campaign.json": "d2390dccc5fd4c80b780fc224210d83982da3a4a9fd6623541bb07d433839469",
+    "filelists/main/sample/c0.txt": "5e1228643798da0f126aad599725d983d969eba00966c74fb346777be540cece",
+    "attempts/main/a-c8d8680ef66a0caa0dd9d2f308518c9bef7fc824aa03a02b7f234bb4ce037690.json": "f6ae0cbe2f53b8b437d456402a40ce266d8105c079e01b956e44ee4d90d7ab70",
+    "queues/main.txt": "176532208dcfb0e51f41bd5fba0bc13cef7c2727cb66e11d7b2af5025001418d",
+    "queues/fakefactor.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "jobs": [
+    {
+      "workflow": "main",
+      "dataset_id": "sample",
+      "chunk_id": "c0",
+      "attempt_id": "a-c8d8680ef66a0caa0dd9d2f308518c9bef7fc824aa03a02b7f234bb4ce037690",
+      "index": 0,
+      "filelist": "filelists/main/sample/c0.txt",
+      "filelist_sha256": "5e1228643798da0f126aad599725d983d969eba00966c74fb346777be540cece",
+      "config": "config.py",
+      "config_sha256": "7a8d0b0ca79430da912e2ffb5cbc6adc7cde4f22e772414321260fd06ea1bbb2",
+      "profile": "profile.json",
+      "profile_sha256": "55f4917165db8c853e3e72c648cb7c62de8f67b819a86fb9986748ce768d454f"
+    }
+  ]
+}

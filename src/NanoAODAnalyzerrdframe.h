@@ -45,6 +45,10 @@ public:
 	virtual ~NanoAODAnalyzerrdframe();
 
 
+	// Pilot-only boundary on analysis graph; _rd retains full-chain bookkeeping.
+	void setMaxInputEvents(ULong64_t maximum);
+	ULong64_t getPilotInputEntries();
+
 	virtual void setupAnalysis();
 	virtual void setTree(TTree *t, string outfilename);
 
@@ -109,6 +113,8 @@ public:
 	void setupCuts_and_Hists();
 	void drawHists(RNode t);
 	void run(bool saveAll=true, string outtreename="outputTree");
+    void enableCompletionVerification();
+    std::vector<ULong64_t> getSnapshotProcessedEntries() const;
 
 	void setupTree();
 
@@ -150,6 +156,11 @@ public:
 	
 	//private:
 	ROOT::RDataFrame _rd;
+	bool _verifyCompletion = false;
+    bool _completionRunFinished = false;
+    std::vector<ULong64_t> _snapshotProcessedEntries;
+    ULong64_t _pilotMaxInputEvents = 0;
+	ROOT::RDF::RResultPtr<ULong64_t> _pilotInputCount;
     std::vector<std::tuple<std::string, std::string, ROOT::RDF::RResultPtr<ULong64_t>>> _cutCounts;
 	//bool _isData;
 	bool _jsonOK;

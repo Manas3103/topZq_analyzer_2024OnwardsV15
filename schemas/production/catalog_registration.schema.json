@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "kind": {
+      "const": "local_campaign_registration"
+    },
+    "campaign_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+    },
+    "submission_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+    },
+    "campaign_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "manifest_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "processing_files": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string",
+        "pattern": "^[0-9a-f]{64}$"
+      }
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "location": {
+      "const": "local"
+    },
+    "remote_registered": {
+      "const": false
+    },
+    "acceptance": {
+      "const": "not_evaluated"
+    },
+    "event_limited": {
+      "type": "boolean"
+    },
+    "full_production_eligible": {
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "schema_version",
+    "kind",
+    "campaign_id",
+    "submission_id",
+    "campaign_sha256",
+    "manifest_sha256",
+    "processing_files",
+    "created_at",
+    "location",
+    "remote_registered",
+    "acceptance",
+    "event_limited",
+    "full_production_eligible"
+  ],
+  "additionalProperties": false
+}

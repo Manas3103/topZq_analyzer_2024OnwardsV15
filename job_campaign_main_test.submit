@@ -1,0 +1,32 @@
+universe = vanilla
+
+executable = runjob_campaign_2024.sh
+transfer_executable = True
+
+arguments = $(bundle_name) $(manifest_sha256) $(campaign_id) $(submission_id) main $(dataset_id) $(chunk_id) $(attempt_id) $(ClusterId) $(ProcId)
+
++TZQCampaignId = "$(campaign_id)"
++TZQWorkflow = "main"
++TZQDatasetId = "$(dataset_id)"
++TZQChunkId = "$(chunk_id)"
++TZQAttemptId = "$(attempt_id)"
++TZQSubmissionId = "$(submission_id)"
+
+output = $(log_dir)/$(ClusterId).$(ProcId).out
+error  = $(log_dir)/$(ClusterId).$(ProcId).err
+log    = $(log_dir)/$(ClusterId).log
+
+use_x509userproxy = True
+x509userproxy = $(proxy_path)
+
+should_transfer_files = YES
+transfer_input_files = $(bundle_path)
+
+when_to_transfer_output = ON_EXIT
+transfer_output_files = campaign_executions
+
+request_cpus = 1
+request_memory = 8 GB
+request_disk = 50 GB
+
+queue dataset_id, chunk_id, attempt_id from $(bundle_path)/queues/main.txt

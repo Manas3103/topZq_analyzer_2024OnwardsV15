@@ -10,6 +10,7 @@ import subprocess
 import sys
 import cppyy
 import ROOT
+from tools.campaign_event_limit import positive_events, configure_limit, record_limit
 
 def is_filelist(path):
     """
@@ -46,7 +47,7 @@ def is_valid_das_path(indir):
     except subprocess.CalledProcessError:
         return False
 
-def Nanoaodprocessor_singledir(indir, outputroot, procflags, config):
+def Nanoaodprocessor_singledir(indir, outputroot, procflags, config, max_input_events=None, input_ledger=None):
     """
     Runs nanoaod analyzer over ROOT files in indir and outputs into a single ROOT file.
     Now supports both local and remote files via XRootD.
@@ -55,8 +56,12 @@ def Nanoaodprocessor_singledir(indir, outputroot, procflags, config):
         print("Output file should be a root file! Quitting")
         exit(-1)
 
+    if max_input_events is not None and os.path.exists(outputroot):
+        raise RuntimeError('pilot output already exists; refusing overwrite')
     rootfilestoprocess = []
-    is_das_path = is_valid_das_path(indir)
+    if input_ledger is not None and not is_filelist(indir):
+        raise RuntimeError("strict campaign input requires an explicit filelist")
+    is_das_path = False if input_ledger is not None else is_valid_das_path(indir)
 
     if is_filelist(indir):
         print(f"READ root files from batch list:\n{indir}\n")
@@ -110,6 +115,7 @@ def Nanoaodprocessor_singledir(indir, outputroot, procflags, config):
                 elif procflags['nrootfiles'] == 0:
                     rootfilestoprocess.append(fname)
 
+    assigned_inputs = list(rootfilestoprocess)
     if procflags['nrootfiles'] > 0:
         rootfilestoprocess = rootfilestoprocess[:procflags['nrootfiles']]
 
@@ -117,88 +123,117 @@ def Nanoaodprocessor_singledir(indir, outputroot, procflags, config):
     print(rootfilestoprocess)
 
     intreename = config['intreename']
-    outtreename = config['outtreename']
+    outtreename = 'pilot_' + config['outtreename'] if max_input_events is not None else config['outtreename']
     saveallbranches = procflags['saveallbranches']
 
-    t = ROOT.TChain(intreename)
-    for afile in rootfilestoprocess:
-        t.Add(afile)
+    ledger = None
+    if input_ledger is not None:
+        from tools.campaign_input_validation import validate_inputs, checked_chain, save, InputError
+        if rootfilestoprocess != assigned_inputs:
+            raise InputError('configured input truncation')
+        ledger = validate_inputs(rootfilestoprocess, intreename)
+        if ledger['status'] != 'PASS':
+            save(input_ledger, ledger)
+            raise InputError(ledger.get('issue', 'required input unverified'))
+        try:
+            t = checked_chain(ROOT, ledger)
+        except Exception as exc:
+            ledger.update(status='UNKNOWN', issue=str(exc));save(input_ledger, ledger);raise
+    else:
+        t = ROOT.TChain(intreename)
+        for afile in rootfilestoprocess:
+            t.Add(afile)
     nevents = t.GetEntries()
     print("-------------------------------------------------------------------")
     print("Total Number of Entries:", nevents)
     print("-------------------------------------------------------------------")
 
-    # aproc = ROOT.BaseAnalyser(t, outputroot)
-    analysertype = config.get('analysertype', 'BaseAnalyser')
     try:
-        AnalyserClass = getattr(ROOT, analysertype)
-    except AttributeError:
-        print(f"Error: '{analysertype}' is not a known ROOT class "
-              f"(check the class name and that its library was loaded via cppyy.load_reflection_info)")
+        # aproc = ROOT.BaseAnalyser(t, outputroot)
+        analysertype = config.get('analysertype', 'BaseAnalyser')
+        try:
+            AnalyserClass = getattr(ROOT, analysertype)
+        except AttributeError:
+            print(f"Error: '{analysertype}' is not a known ROOT class "
+                  f"(check the class name and that its library was loaded via cppyy.load_reflection_info)")
+            raise
+        print(f"Instantiating analyser: {analysertype}")
+        aproc = AnalyserClass(t, outputroot)
+        configure_limit(aproc, max_input_events)
+        if ledger is not None:
+            aproc.enableCompletionVerification()
+
+
+        try:
+            aproc.setParams(config['year'], config['runtype'], config['datatype'])
+        except Exception as e:
+            print(f"Error calling setParams(): {e}")
+            print(f"config['year']: {config['year']}")
+            print(f"config['runtype']: {config['runtype']}")
+            print(f"config['datatype']: {config['datatype']}")
+            raise
+
+        # Handle corrections with expanded configuration
+        skipcorrections = procflags.get('skipcorrections', False)
+        if not skipcorrections:
+            print("Applying corrections...")
+            aproc.setupCorrections(
+                config['goodjson'],
+                config['pileupfname'],
+                config['pileuptag'],
+                config['btvfname'],
+                config['btvtype'],
+                config['fname_btagEff'],
+                config['hname_Loose_btagEff_bcflav'],
+                config['hname_Loose_btagEff_lflav'],
+                config['hname_Medium_btagEff_bcflav'],
+                config['hname_Medium_btagEff_lflav'],
+                config['hname_Tight_btagEff_bcflav'],
+                config['hname_Tight_btagEff_lflav'],
+                config['muon_roch_fname'],
+                config['muon_fname'],
+                # config['muonHLTtype'],
+                config['muonRECOtype'],
+                config['muonIDtype'],
+                config['muonISOtype'],
+                config['electron_fname'],
+                config['electronHlt_fname'],
+                config['electronHlt_type'],
+                config['electron_reco_type1'],
+                config['electron_reco_type2'],
+                config['electron_id_type'],
+                config['jercfname'],
+                config['jerctag'],
+                config['jettagMC'],
+                config['jercunctag'],
+                config['jet_veto_f_name'],
+                config['jet_veto_tag'],
+                config['electron_SSF'],
+                config['metpt_fname'],
+                config['jetidfname'],
+                config['jetid_workingpoint'],
+                config['JER_tag'],
+                config['JER_tag_res']
+            )
+        else:
+            print("Skipping corrections step")
+
+        print("Starting setupanalysis")
+        sys.stdout.flush()
+        aproc.setupObjects()
+        aproc.setupAnalysis()
+        aproc.run(saveallbranches, outtreename)
+        if ledger is not None:
+            from tools.campaign_input_validation import complete
+            counts = [int(n) for n in aproc.getSnapshotProcessedEntries()]
+            complete(ledger, counts[0] if counts else None, counts, max_input_events)
+            save(input_ledger, ledger)
+        record_limit(ROOT, aproc, outputroot, nevents, max_input_events, tree_prefix=outtreename)
+    except Exception as exc:
+        if ledger is not None and not os.path.exists(input_ledger):
+            ledger.update(completion='UNKNOWN', issue=str(exc))
+            save(input_ledger, ledger)
         raise
-    print(f"Instantiating analyser: {analysertype}")
-    aproc = AnalyserClass(t, outputroot)
-
-
-    try:
-        aproc.setParams(config['year'], config['runtype'], config['datatype'])
-    except Exception as e:
-        print(f"Error calling setParams(): {e}")
-        print(f"config['year']: {config['year']}")
-        print(f"config['runtype']: {config['runtype']}")
-        print(f"config['datatype']: {config['datatype']}")
-        raise
-
-    # Handle corrections with expanded configuration
-    skipcorrections = procflags.get('skipcorrections', False)
-    if not skipcorrections:
-        print("Applying corrections...")
-        aproc.setupCorrections(
-            config['goodjson'],
-            config['pileupfname'],
-            config['pileuptag'],
-            config['btvfname'],
-            config['btvtype'],
-            config['fname_btagEff'],
-            config['hname_Loose_btagEff_bcflav'],
-            config['hname_Loose_btagEff_lflav'],
-            config['hname_Medium_btagEff_bcflav'],
-            config['hname_Medium_btagEff_lflav'],
-            config['hname_Tight_btagEff_bcflav'],
-            config['hname_Tight_btagEff_lflav'],
-            config['muon_roch_fname'],
-            config['muon_fname'],
-            # config['muonHLTtype'],
-            config['muonRECOtype'],
-            config['muonIDtype'],
-            config['muonISOtype'],
-            config['electron_fname'],
-            config['electronHlt_fname'],
-            config['electronHlt_type'],
-            config['electron_reco_type1'],
-            config['electron_reco_type2'],
-            config['electron_id_type'],
-            config['jercfname'],
-            config['jerctag'],
-            config['jettagMC'],
-            config['jercunctag'],
-            config['jet_veto_f_name'],
-            config['jet_veto_tag'],
-            config['electron_SSF'],
-            config['metpt_fname'],
-            config['jetidfname'],
-            config['jetid_workingpoint'],
-            config['JER_tag'],
-            config['JER_tag_res']
-        )
-    else:
-        print("Skipping corrections step")
-
-    print("Starting setupanalysis")
-    sys.stdout.flush()
-    aproc.setupObjects()
-    aproc.setupAnalysis()
-    aproc.run(saveallbranches, outtreename)
 
 if __name__ == '__main__':
     from importlib import import_module
@@ -208,6 +243,8 @@ if __name__ == '__main__':
     parser.add_argument("indir")
     parser.add_argument("outdir")
     parser.add_argument("jobconfmod")
+    parser.add_argument('--max-input-events', type=positive_events, default=None)
+    parser.add_argument('--input-ledger', default=None)
     args = parser.parse_args()
 
     # Load compiled C++ libraries
@@ -220,4 +257,4 @@ if __name__ == '__main__':
     procflags = getattr(mod, 'procflags')
     config = getattr(mod, 'config')
 
-    Nanoaodprocessor_singledir(args.indir, args.outdir, procflags, config)
+    Nanoaodprocessor_singledir(args.indir, args.outdir, procflags, config, args.max_input_events, args.input_ledger)

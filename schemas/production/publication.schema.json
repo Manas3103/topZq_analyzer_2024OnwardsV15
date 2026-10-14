@@ -1,0 +1,332 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "kind": {
+      "const": "production_publication"
+    },
+    "campaign_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+    },
+    "submission_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+    },
+    "workflow": {
+      "enum": [
+        "main",
+        "fakefactor"
+      ]
+    },
+    "dataset_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+    },
+    "chunk_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+    },
+    "attempt_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+    },
+    "execution_id": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{32}$"
+    },
+    "cluster_id": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "proc_id": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "status": {
+      "const": "published"
+    },
+    "acceptance": {
+      "const": "not_evaluated"
+    },
+    "destination": {
+      "type": "string",
+      "pattern": "^/store/user/msahoo/tzq/2024/campaigns/"
+    },
+    "strategy": {
+      "const": "manifest_last"
+    },
+    "artifacts": {
+      "type": "object",
+      "properties": {
+        "output.root": {
+          "type": "object",
+          "properties": {
+            "locator": {
+              "type": "string"
+            },
+            "size_bytes": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "adler32": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{8}$"
+            },
+            "remote_checksum": {
+              "type": "object",
+              "properties": {
+                "algorithm": {
+                  "enum": [
+                    "adler32",
+                    "sha256"
+                  ]
+                },
+                "value": {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]+$"
+                }
+              },
+              "required": [
+                "algorithm",
+                "value"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "locator",
+            "size_bytes",
+            "sha256",
+            "adler32",
+            "remote_checksum"
+          ],
+          "additionalProperties": false
+        },
+        "processing.log": {
+          "type": "object",
+          "properties": {
+            "locator": {
+              "type": "string"
+            },
+            "size_bytes": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "adler32": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{8}$"
+            },
+            "remote_checksum": {
+              "type": "object",
+              "properties": {
+                "algorithm": {
+                  "enum": [
+                    "adler32",
+                    "sha256"
+                  ]
+                },
+                "value": {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]+$"
+                }
+              },
+              "required": [
+                "algorithm",
+                "value"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "locator",
+            "size_bytes",
+            "sha256",
+            "adler32",
+            "remote_checksum"
+          ],
+          "additionalProperties": false
+        },
+        "execution.json": {
+          "type": "object",
+          "properties": {
+            "locator": {
+              "type": "string"
+            },
+            "size_bytes": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "adler32": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{8}$"
+            },
+            "remote_checksum": {
+              "type": "object",
+              "properties": {
+                "algorithm": {
+                  "enum": [
+                    "adler32",
+                    "sha256"
+                  ]
+                },
+                "value": {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]+$"
+                }
+              },
+              "required": [
+                "algorithm",
+                "value"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "locator",
+            "size_bytes",
+            "sha256",
+            "adler32",
+            "remote_checksum"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "output.root",
+        "processing.log",
+        "execution.json"
+      ],
+      "additionalProperties": false
+    },
+    "root_validation": {
+      "type": "object",
+      "required": [
+        "status",
+        "acceptance_changed",
+        "outputs"
+      ],
+      "properties": {
+        "status": {
+          "const": "PASS"
+        },
+        "acceptance_changed": {
+          "const": false
+        },
+        "outputs": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 1
+        }
+      }
+    },
+    "checksum_algorithm": {
+      "enum": [
+        "adler32",
+        "sha256"
+      ]
+    },
+    "observations": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "input_scope": {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "const": 1
+        },
+        "kind": {
+          "const": "processing_input_scope"
+        },
+        "total_input_entries": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "requested_max_input_events": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1
+        },
+        "analysis_input_entries": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "generator_weight_bookkeeping_scope": {
+          "const": "full_input_chain_when_mc"
+        },
+        "partial": {
+          "type": "boolean"
+        },
+        "full_production_eligible": {
+          "type": "boolean"
+        },
+        "tree_prefix": {
+          "enum": [
+            "outputTree",
+            "pilot_outputTree"
+          ]
+        }
+      },
+      "required": [
+        "schema_version",
+        "kind",
+        "total_input_entries",
+        "requested_max_input_events",
+        "analysis_input_entries",
+        "generator_weight_bookkeeping_scope",
+        "partial",
+        "full_production_eligible",
+        "tree_prefix"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "schema_version",
+    "kind",
+    "campaign_id",
+    "submission_id",
+    "workflow",
+    "dataset_id",
+    "chunk_id",
+    "attempt_id",
+    "execution_id",
+    "cluster_id",
+    "proc_id",
+    "created_at",
+    "status",
+    "acceptance",
+    "destination",
+    "strategy",
+    "artifacts",
+    "root_validation",
+    "checksum_algorithm",
+    "observations",
+    "input_scope"
+  ],
+  "additionalProperties": false
+}

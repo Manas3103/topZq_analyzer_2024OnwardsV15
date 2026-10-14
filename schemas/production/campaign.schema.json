@@ -1,0 +1,345 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "kind": {
+      "const": "production_campaign"
+    },
+    "campaign_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+    },
+    "year": {
+      "const": 2024
+    },
+    "source": {
+      "type": "object",
+      "properties": {
+        "commit": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "repository": {
+          "type": "string",
+          "minLength": 1
+        },
+        "dirty": {
+          "type": "boolean"
+        },
+        "source_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      },
+      "required": [
+        "commit",
+        "repository",
+        "dirty",
+        "source_sha256"
+      ],
+      "additionalProperties": false
+    },
+    "endpoint": {
+      "type": "string",
+      "minLength": 1
+    },
+    "processing_timeout": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 86400
+    },
+    "publication_policy": {
+      "type": "object",
+      "properties": {
+        "strategy": {
+          "const": "manifest_last"
+        },
+        "checksum_algorithm": {
+          "enum": [
+            "adler32",
+            "sha256"
+          ]
+        },
+        "no_clobber_confirmed": {
+          "type": "boolean"
+        },
+        "command_timeout": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 3600
+        },
+        "overall_timeout": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 14400
+        }
+      },
+      "required": [
+        "strategy",
+        "checksum_algorithm",
+        "no_clobber_confirmed",
+        "command_timeout",
+        "overall_timeout"
+      ],
+      "additionalProperties": false
+    },
+    "datasets": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "properties": {
+          "schema_version": {
+            "const": 1
+          },
+          "kind": {
+            "const": "production_dataset"
+          },
+          "dataset_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+          },
+          "sample_name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "workflow": {
+            "enum": [
+              "main",
+              "fakefactor"
+            ]
+          },
+          "year": {
+            "const": 2024
+          },
+          "datatype": {
+            "enum": [
+              "data",
+              "mc"
+            ]
+          },
+          "era": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "stream": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "das_dataset": {
+            "type": "string",
+            "pattern": "^/[^/]+/[^/]+/NANOAOD(SIM)?$"
+          },
+          "processing_schema_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+          },
+          "config": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_]+\\.py$"
+          },
+          "profile": {
+            "type": "string",
+            "minLength": 1
+          },
+          "chunks": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "properties": {
+                "schema_version": {
+                  "const": 1
+                },
+                "kind": {
+                  "const": "production_chunk"
+                },
+                "chunk_id": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+                },
+                "index": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "ordered_inputs": {
+                  "type": "array",
+                  "minItems": 1,
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                }
+              },
+              "required": [
+                "schema_version",
+                "kind",
+                "chunk_id",
+                "index",
+                "ordered_inputs"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "schema_version",
+          "kind",
+          "dataset_id",
+          "sample_name",
+          "workflow",
+          "year",
+          "datatype",
+          "era",
+          "stream",
+          "das_dataset",
+          "processing_schema_id",
+          "config",
+          "profile",
+          "chunks"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "processing_files": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": "string",
+        "pattern": "^[0-9a-f]{64}$"
+      }
+    },
+    "max_input_events": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 1,
+      "maximum": 9223372036854775807
+    },
+    "representative_subset": {
+      "type": "object",
+      "properties": {
+        "mode": {
+          "const": "sparse_subset"
+        },
+        "purpose": {
+          "enum": [
+            "representative_validation",
+            "test"
+          ]
+        },
+        "full_2024_complete": {
+          "type": "boolean",
+          "const": false
+        },
+        "approval_reference": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_inventory_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "approval_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "assignments": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "properties": {
+              "dataset_id": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+              },
+              "sample_name": {
+                "type": "string",
+                "minLength": 1
+              },
+              "das_dataset": {
+                "type": "string",
+                "minLength": 1
+              },
+              "workflow": {
+                "enum": [
+                  "main",
+                  "fakefactor"
+                ]
+              },
+              "chunk_id": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+              },
+              "index": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "filelist_sha256": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "dataset_id",
+              "sample_name",
+              "das_dataset",
+              "workflow",
+              "chunk_id",
+              "index",
+              "filelist_sha256"
+            ]
+          }
+        }
+      },
+      "required": [
+        "mode",
+        "purpose",
+        "full_2024_complete",
+        "approval_reference",
+        "source_inventory_sha256",
+        "approval_sha256",
+        "assignments"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "schema_version",
+    "kind",
+    "campaign_id",
+    "year",
+    "source",
+    "endpoint",
+    "processing_timeout",
+    "publication_policy",
+    "datasets",
+    "created_at"
+  ],
+  "additionalProperties": false
+}

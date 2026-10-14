@@ -1,0 +1,130 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "kind": {
+      "const": "production_dataset"
+    },
+    "dataset_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+    },
+    "sample_name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "workflow": {
+      "enum": [
+        "main",
+        "fakefactor"
+      ]
+    },
+    "year": {
+      "const": 2024
+    },
+    "datatype": {
+      "enum": [
+        "data",
+        "mc"
+      ]
+    },
+    "era": {
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "stream": {
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "das_dataset": {
+      "type": "string",
+      "pattern": "^/[^/]+/[^/]+/NANOAOD(SIM)?$"
+    },
+    "processing_schema_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+    },
+    "config": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_]+\\.py$"
+    },
+    "profile": {
+      "type": "string",
+      "minLength": 1
+    },
+    "chunks": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "properties": {
+          "schema_version": {
+            "const": 1
+          },
+          "kind": {
+            "const": "production_chunk"
+          },
+          "chunk_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+          },
+          "index": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "ordered_inputs": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "required": [
+          "schema_version",
+          "kind",
+          "chunk_id",
+          "index",
+          "ordered_inputs"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "schema_version",
+    "kind",
+    "dataset_id",
+    "sample_name",
+    "workflow",
+    "year",
+    "datatype",
+    "era",
+    "stream",
+    "das_dataset",
+    "processing_schema_id",
+    "config",
+    "profile",
+    "chunks"
+  ],
+  "additionalProperties": false
+}

@@ -1,0 +1,92 @@
+{
+  "schema_version": 1,
+  "kind": "production_downstream_preferences",
+  "state": "declared_not_execution_approval",
+  "grouping": {
+    "tZq": [
+      "top_zq"
+    ],
+    "ttZ": [
+      "ttz_4to50",
+      "ttz_50"
+    ],
+    "tt+jets": [
+      "ttbar_dilepton",
+      "ttbar_semilep"
+    ],
+    "WZ": [
+      "wz"
+    ],
+    "ZZ": [
+      "zz",
+      "ggh_zz_4l",
+      "vbfh_zz_4l",
+      "wmh_zz_4l",
+      "wph_zz_4l",
+      "GluGlu2zto4Tau",
+      "GluGlu2zto4Mu",
+      "GluGlu2zto4E",
+      "GluGlu2zto2Mu2Tau",
+      "GluGlu2zto2E2Tau",
+      "GluGlu2zto2E2Mu"
+    ],
+    "VVV": [
+      "www",
+      "wwz",
+      "wzz",
+      "zzz"
+    ],
+    "Xy": [
+      "wg_1jet",
+      "tgqb"
+    ],
+    "t(t)X": [
+      "ttwh",
+      "ttww",
+      "ttzz",
+      "tttt",
+      "tth_non2b",
+      "tbarWplus_2l2nu",
+      "tWminus_2l2nu",
+      "tbarb_lmin",
+      "tbbar_lplus"
+    ],
+    "DY": [
+      "DYto2Tau-2Jets_M2L10-50",
+      "DYto2Mu-2Jets_M2L-10to50",
+      "DYto2E-2Jets_M2L-10to50",
+      "DYto_2E2Jet",
+      "DYto_2Mu2Jet",
+      "DYto_2Tau2Jet"
+    ]
+  },
+  "unassigned_samples": [
+    "ttwz"
+  ],
+  "normalization": {
+    "limited_analysis_luminosity_fb_inverse": 12,
+    "tth_non2b_cross_section": 574.2,
+    "tth_non2b_sum_gen_weight": "30954616.589242984",
+    "cross_section_units": "not_reinterpreted",
+    "full_production_luminosity": null
+  },
+  "histogram_exclusions": [
+    "leadingLepton_pt",
+    "subleadingLepton_pt",
+    "trailingLepton_pt",
+    "top_mass"
+  ],
+  "authoritative_histogram_config": "normalized_hist/Python_rdf_norm/hist_config_with_labels.json",
+  "historical_data_processing": {
+    "streams": [
+      "EGamma0",
+      "EGamma1",
+      "Muon0",
+      "Muon1",
+      "MuonEG"
+    ],
+    "recipe": "combine per era, then deduplicate",
+    "validation": "deferred"
+  },
+  "retained_problem_sample": "DYto2Tau-2Jets_M2L10-50"
+}

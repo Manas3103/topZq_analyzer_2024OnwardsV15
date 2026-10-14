@@ -12,6 +12,8 @@
 #include <algorithm>
 #include <typeinfo>
 #include <random>
+#include <limits>
+#include <stdexcept>
 
 #include "TCanvas.h"
 #include "Math/GenVector/VectorUtil.h"
@@ -20,6 +22,7 @@
 #include "utility.h"
 #include <regex>
 #include "ROOT/RDFHelpers.hxx"
+#include <stdexcept>
 #include <TRandom3.h>
 correction::CorrectionSet* muon_scalsmear_corrector = nullptr;
 #include "MuonScaRe.cc"
@@ -36,6 +39,37 @@ NanoAODAnalyzerrdframe::NanoAODAnalyzerrdframe(TTree *atree, std::string outfile
 
 }
 
+void NanoAODAnalyzerrdframe::enableCompletionVerification()
+{
+    if (_verifyCompletion || !_originalvars.empty() || !_selections.empty())
+        throw std::logic_error("completion verification must be enabled before setup");
+    _verifyCompletion = true;
+}
+
+std::vector<ULong64_t> NanoAODAnalyzerrdframe::getSnapshotProcessedEntries() const
+{
+    if (!_verifyCompletion || !_completionRunFinished || _snapshotProcessedEntries.empty())
+        throw std::logic_error("snapshot completion not verified");
+    return _snapshotProcessedEntries;
+}
+
+void NanoAODAnalyzerrdframe::setMaxInputEvents(ULong64_t maximum)
+{
+    if (!maximum || _pilotMaxInputEvents || !_originalvars.empty() || !_selections.empty())
+        throw std::logic_error("pilot limit must be set once before setup");
+    if (ROOT::IsImplicitMTEnabled())
+        throw std::logic_error("pilot Range requires implicit MT disabled; unlimited mode is unchanged");
+    _pilotMaxInputEvents = maximum;
+    _rlm = _rlm.Range(0, maximum);
+    _pilotInputCount = _rlm.Count(); // Before corrections, certification or selections.
+}
+
+ULong64_t NanoAODAnalyzerrdframe::getPilotInputEntries()
+{
+    if (!_pilotMaxInputEvents) throw std::logic_error("pilot count requested in unlimited mode");
+    return _pilotInputCount.GetValue();
+}
+
 NanoAODAnalyzerrdframe::~NanoAODAnalyzerrdframe() {
 	// TODO Auto-generated destructor stub
 }
@@ -49,6 +83,7 @@ bool NanoAODAnalyzerrdframe::isDefined(string v)
 
 void NanoAODAnalyzerrdframe::setTree(TTree *t, std::string outfilename)
 {
+    if (_pilotMaxInputEvents) throw std::logic_error("limited analyser cannot be reused with setTree");
 	_rd = ROOT::RDataFrame(*t);
 	_rlm = RNode(_rd);
 	_outfilename = outfilename;
@@ -100,45 +135,50 @@ void NanoAODAnalyzerrdframe::setupAnalysis()
 
 bool NanoAODAnalyzerrdframe::readgoodjson(string goodjsonfname)
 {
-	auto isgoodjsonevent = [this](unsigned int runnumber, unsigned int lumisection)
-		{
-			auto key = std::to_string(runnumber).c_str();
-			bool goodeventflag = false;
+    _jsonOK = false;
+    if (goodjsonfname.empty())
+        throw std::runtime_error("Required data Golden JSON path is empty");
+    std::ifstream jsoninfile(goodjsonfname);
+    if (!jsoninfile.good())
+        throw std::runtime_error("Cannot read required data Golden JSON: " + goodjsonfname);
 
-
-			if (jsonroot.contains(key))
-			{
-				for (auto &v: jsonroot[key])
-				{
-					if (v[0]<=lumisection && lumisection <=v[1]) goodeventflag = true;
-				}
-			}
-			return goodeventflag;
-		};
-
-	if (goodjsonfname != "")
-	{
-		std::ifstream jsoninfile;
-		jsoninfile.open(goodjsonfname);
-
-		if (jsoninfile.good())
-		{
-			jsoninfile >> jsonroot;
-			_rlm = _rlm.Define("goodjsonevent", isgoodjsonevent, {"run", "luminosityBlock"}).Filter("goodjsonevent");
-			_jsonOK = true;
-			return true;
-		}
-		else
-		{
-			cout << "Problem reading json file " << goodjsonfname << endl;
-			return false;
-		}
-	}
-	else
-	{
-		cout << "no JSON file given" << endl;
-		return true;
-	}
+    // Validate before installing the filter; malformed certification must abort data setup.
+    json certification;
+    jsoninfile >> certification;
+    jsoninfile >> std::ws;
+    if (jsoninfile.peek() != std::char_traits<char>::eof())
+        throw std::runtime_error("Trailing content in required data Golden JSON");
+    if (!certification.is_object() || certification.empty())
+        throw std::runtime_error("Golden JSON must be a nonempty run/LS object");
+    const auto maximum = std::numeric_limits<unsigned int>::max();
+    for (auto it = certification.begin(); it != certification.end(); ++it) {
+        const std::string &key = it.key();
+        if (key.empty() || key.front() == '0' ||
+            key.find_first_not_of("0123456789") != std::string::npos ||
+            std::stoull(key) > maximum)
+            throw std::runtime_error("Invalid Golden JSON run key: " + key);
+        const auto &intervals = it.value();
+        if (!intervals.is_array() || intervals.empty())
+            throw std::runtime_error("Golden JSON run must contain LS intervals: " + key);
+        for (const auto &interval : intervals) {
+            if (!interval.is_array() || interval.size() != 2 ||
+                !interval[0].is_number_integer() || !interval[1].is_number_integer() ||
+                interval[0] < 1 || interval[1] > maximum || interval[0] > interval[1])
+                throw std::runtime_error("Invalid Golden JSON LS interval for run: " + key);
+        }
+    }
+    jsonroot = std::move(certification);
+    auto isgoodjsonevent = [this](unsigned int runnumber, unsigned int lumisection) {
+        const std::string key = std::to_string(runnumber);
+        if (jsonroot.contains(key)) {
+            for (const auto &interval : jsonroot[key])
+                if (interval[0] <= lumisection && lumisection <= interval[1]) return true;
+        }
+        return false;
+    };
+    _rlm = _rlm.Define("goodjsonevent", isgoodjsonevent, {"run", "luminosityBlock"}).Filter("goodjsonevent");
+    _jsonOK = true;
+    return true;
 }
 
 
@@ -2306,6 +2346,8 @@ void NanoAODAnalyzerrdframe::addCuts(string cut, string idx)
 
 void NanoAODAnalyzerrdframe::run(bool saveAll, string outtreename)
 {
+    _completionRunFinished = false;
+    _snapshotProcessedEntries.clear();
     vector<RNodeTree *> rntends;
     _rnt.getRNodeLeafs(rntends);
 
@@ -2354,6 +2396,14 @@ void NanoAODAnalyzerrdframe::run(bool saveAll, string outtreename)
         // WRITE TREE
         // --------------------------------------------------------
 
+        // Book on the same loop manager immediately before synchronous Snapshot.
+        ROOT::RDF::RResultPtr<ULong64_t> completionCount;
+        const auto runsBefore = _rd.GetNRuns();
+        if (_verifyCompletion) {
+            RNode inputNode(_rd);
+            if (_pilotMaxInputEvents) inputNode = inputNode.Range(0, _pilotMaxInputEvents);
+            completionCount = inputNode.Count();
+        }
         if (saveAll)
         {
             cout << "Writing all branches..." << endl;
@@ -2379,6 +2429,14 @@ void NanoAODAnalyzerrdframe::run(bool saveAll, string outtreename)
                 _varstostorepertree[nodename],
                 opts
             );
+        }
+
+        if (_verifyCompletion) {
+            if (!completionCount.IsReady() || _rd.GetNRuns() != runsBefore + 1)
+                throw std::logic_error("counter did not complete in the Snapshot event loop");
+            _snapshotProcessedEntries.push_back(completionCount.GetValue());
+            if (_rd.GetNRuns() != runsBefore + 1)
+                throw std::logic_error("completion counter triggered an extra event loop");
         }
 
         // --------------------------------------------------------
@@ -2441,6 +2499,7 @@ void NanoAODAnalyzerrdframe::run(bool saveAll, string outtreename)
 
     _outrootfile->Write(0, TObject::kOverwrite);
     _outrootfile->Close();
+    _completionRunFinished = true;
 
     std::cout << "-------------------------------------------------------------------"
               << std::endl;

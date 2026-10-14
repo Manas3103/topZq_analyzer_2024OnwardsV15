@@ -1,0 +1,432 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "oneOf": [
+    {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "const": 1
+        },
+        "kind": {
+          "const": "production_execution"
+        },
+        "campaign_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+        },
+        "submission_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+        },
+        "workflow": {
+          "enum": [
+            "main",
+            "fakefactor"
+          ]
+        },
+        "dataset_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+        },
+        "chunk_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+        },
+        "attempt_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+        },
+        "execution_id": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{32}$"
+        },
+        "cluster_id": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "proc_id": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "started_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "ended_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "source": {
+          "type": "object",
+          "properties": {
+            "commit": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{40}$"
+            },
+            "repository": {
+              "type": "string",
+              "minLength": 1
+            },
+            "dirty": {
+              "type": "boolean"
+            },
+            "source_sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            }
+          },
+          "required": [
+            "commit",
+            "repository",
+            "dirty",
+            "source_sha256"
+          ],
+          "additionalProperties": false
+        },
+        "manifest_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "filelist_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "config_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "profile_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "processing_schema_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+        },
+        "schema_fingerprint": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "runtime": {
+          "type": "object",
+          "properties": {
+            "cmssw": {
+              "const": "CMSSW_13_3_3"
+            },
+            "architecture": {
+              "const": "el9_amd64_gcc12"
+            },
+            "python": {
+              "type": "string"
+            },
+            "root": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "cmssw",
+            "architecture",
+            "python",
+            "root"
+          ],
+          "additionalProperties": false
+        },
+        "processing_exit": {
+          "const": 0
+        },
+        "status": {
+          "const": "validated"
+        },
+        "root_validation": {
+          "type": "object",
+          "required": [
+            "status",
+            "acceptance_changed",
+            "outputs"
+          ],
+          "properties": {
+            "status": {
+              "const": "PASS"
+            },
+            "acceptance_changed": {
+              "const": false
+            },
+            "outputs": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 1
+            }
+          }
+        },
+        "acceptance": {
+          "const": "not_evaluated"
+        },
+        "campaign_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "payload_hashes": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        },
+        "ordered_inputs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string"
+          }
+        },
+        "dataset_declaration": {
+          "type": "object",
+          "required": [
+            "das_dataset",
+            "year",
+            "datatype",
+            "era",
+            "stream",
+            "sample_name"
+          ]
+        },
+        "input_scope": {
+          "type": "object",
+          "properties": {
+            "schema_version": {
+              "const": 1
+            },
+            "kind": {
+              "const": "processing_input_scope"
+            },
+            "total_input_entries": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "requested_max_input_events": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "minimum": 1
+            },
+            "analysis_input_entries": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "generator_weight_bookkeeping_scope": {
+              "const": "full_input_chain_when_mc"
+            },
+            "partial": {
+              "type": "boolean"
+            },
+            "full_production_eligible": {
+              "type": "boolean"
+            },
+            "tree_prefix": {
+              "enum": [
+                "outputTree",
+                "pilot_outputTree"
+              ]
+            }
+          },
+          "required": [
+            "schema_version",
+            "kind",
+            "total_input_entries",
+            "requested_max_input_events",
+            "analysis_input_entries",
+            "generator_weight_bookkeeping_scope",
+            "partial",
+            "full_production_eligible",
+            "tree_prefix"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "schema_version",
+        "kind",
+        "campaign_id",
+        "submission_id",
+        "workflow",
+        "dataset_id",
+        "chunk_id",
+        "attempt_id",
+        "execution_id",
+        "cluster_id",
+        "proc_id",
+        "started_at",
+        "ended_at",
+        "source",
+        "manifest_sha256",
+        "filelist_sha256",
+        "config_sha256",
+        "profile_sha256",
+        "processing_schema_id",
+        "schema_fingerprint",
+        "runtime",
+        "processing_exit",
+        "status",
+        "root_validation",
+        "acceptance",
+        "campaign_sha256",
+        "payload_hashes",
+        "ordered_inputs",
+        "dataset_declaration",
+        "input_scope"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "const": 1
+        },
+        "kind": {
+          "const": "production_execution"
+        },
+        "campaign_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+        },
+        "submission_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+        },
+        "workflow": {
+          "enum": [
+            "main",
+            "fakefactor"
+          ]
+        },
+        "dataset_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+        },
+        "chunk_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+        },
+        "attempt_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+        },
+        "execution_id": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{32}$"
+        },
+        "cluster_id": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "proc_id": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "started_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "ended_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "status": {
+          "const": "failed"
+        },
+        "phase": {
+          "enum": [
+            "bundle",
+            "runtime",
+            "processing",
+            "validation",
+            "staging"
+          ]
+        },
+        "processing_exit": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "validation_status": {
+          "enum": [
+            "PASS",
+            "FAIL",
+            "UNKNOWN",
+            null
+          ]
+        },
+        "staging_exit": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "acceptance": {
+          "const": "not_evaluated"
+        },
+        "manifest_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "error": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string"
+            },
+            "detail": {
+              "type": "string"
+            },
+            "code": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "stdout": {
+              "type": "string"
+            },
+            "stderr": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "detail",
+            "code"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "schema_version",
+        "kind",
+        "campaign_id",
+        "submission_id",
+        "workflow",
+        "dataset_id",
+        "chunk_id",
+        "attempt_id",
+        "execution_id",
+        "cluster_id",
+        "proc_id",
+        "started_at",
+        "ended_at",
+        "status",
+        "phase",
+        "processing_exit",
+        "validation_status",
+        "staging_exit",
+        "acceptance",
+        "manifest_sha256",
+        "error"
+      ],
+      "additionalProperties": false
+    }
+  ]
+}
