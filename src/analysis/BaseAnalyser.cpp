@@ -158,7 +158,7 @@ void BaseAnalyser::selectElectrons()
     // =====================================================================
     _rlm = _rlm.Define("baselineElectrons", 
             "Electron_pt_corr> 20.0 && abs(Electron_eta) < 2.5 && "
-                "Electron_cutBased >=4 &&" 
+                "Electron_cutBased >=2 &&" 
                 "!(abs(Electron_eta) > 1.442 && abs(Electron_eta) < 1.566) && " 
                 "abs(Electron_dxy) < 0.05 && " 
                 "abs(Electron_dz) < 0.10 && Electron_lostHits <= 1 && " 
@@ -166,8 +166,6 @@ void BaseAnalyser::selectElectrons()
                 "((abs(Electron_eta) < 1.479 && Electron_sieie < 0.011) || " // Barrel cut 
                 "(abs(Electron_eta) >= 1.479 && abs(Electron_eta) < 2.5 && Electron_sieie < 0.030)) &&" // Endcap cut 
                 "Electron_sip3d < 8 && Electron_eInvMinusPInv > -0.04 "
-                // "Electron_miniPFRelIso_all < 0.40 &&"
-                // "&& Electron_promptMVA > 0.90"
                 ); 
 
 //     _rlm = _rlm.Define("baselineElectrons", 
@@ -194,21 +192,52 @@ void BaseAnalyser::selectElectrons()
     _rlm = _rlm.Define("Gen_baselineElectrons_genPartFlav", "Electron_genPartFlav[baselineElectrons]")
                .Define("Gen_baselineElectrons_genPartIdx", "Electron_genPartIdx[baselineElectrons]");
     }
+    // ============================================================================
+    // ELECTRON SELECTION: LOOSE, TIGHT, AND LOOSE-NOT-TIGHT (LNT)
+    // ============================================================================
+    //
+    // 1. baselineElectrons:
+    //    Loose electron selection using loose ID and baseline quality cuts.
+    //    Mask size = nElectron (original NanoAOD electron collection).
+    //
+    // 2. TightElectrons:
+    //    Electrons passing baseline selection + tight cut-based ID
+    //    + PF relative isolation (DeltaR = 0.3) < 0.15.
+    //    Mask size = nElectron.
+    //
+    // 3. Loose_not_Tight_Electrons:
+    //    Baseline electrons that fail the tight selection.
+    //    These are candidates for the nonprompt-lepton estimation.
+    //    Mask size = nElectron.
+    //
+    // 4. tight_baselineElectrons:
+    //    Tight flags restricted to the selected baseline electron collection.
+    //    Mask size = NbaselineElectrons.
+    //
+    // 5. lnt_baselineElectrons:
+    //    Loose-not-tight flags restricted to baseline electrons.
+    //    Mask size = NbaselineElectrons.
+    //
+    // IMPORTANT:
+    //    TightElectrons and Loose_not_Tight_Electrons are mutually exclusive.
+    //    Every tight electron must also pass baselineElectrons.
+    //    These masks will be used to define TTT and TTL trilepton regions.
+    // ============================================================================
 
-    if (_year == 2024)
-    {
-        // Define tight and fakable electrons based on MVA score
-        _rlm = _rlm.Define("TightElectrons", "baselineElectrons && Electron_promptMVA > 0.90")
-                    .Define("baselineElectrons_mvaTTH", "Electron_promptMVA[baselineElectrons]")
-                    .Define("tight_baselineElectrons", "Electron_promptMVA[baselineElectrons] > 0.90");
-    }else
-    {
-        // Define tight and fakable electrons based on MVA score
-        _rlm = _rlm.Define("TightElectrons", "baselineElectrons && Electron_mvaTTH > 0.90")
-                    .Define("baselineElectrons_mvaTTH", "Electron_mvaTTH[baselineElectrons]")
-                    .Define("tight_baselineElectrons", "Electron_mvaTTH[baselineElectrons] > 0.90");
+    _rlm = _rlm
+        .Define("TightElectrons",
+                "baselineElectrons && "
+                "(Electron_cutBased >= 4) && "
+                "(Electron_pfRelIso03_all < 0.15f)")
 
-    }
+        .Define("Loose_not_Tight_Electrons",
+                "baselineElectrons && !TightElectrons")
+
+        .Define("tight_baselineElectrons",
+                "TightElectrons[baselineElectrons]")
+
+        .Define("lnt_baselineElectrons",
+                "Loose_not_Tight_Electrons[baselineElectrons]");
 
     // Generate 4-vectors for baseline electrons
     _rlm = _rlm.Define("baselineElectron_4Vecs", ::generate_4vec, {"baselineElectrons_pt", "baselineElectrons_eta", "baselineElectrons_phi", "baselineElectrons_mass"});
@@ -243,10 +272,11 @@ void BaseAnalyser::selectMuons()
 		        "Muon_pt_corr> 20.0 && abs(Muon_eta) < 2.4 && " 
                 "abs(Muon_dxy) < 0.05 && " 
 		        "abs(Muon_dz) < 0.10 && Muon_sip3d < 8.0 && " 
-                "Muon_tightId &&"
+                "Muon_looseId &&"
                 "Muon_isPFcand" 
 		        "&& (Muon_isGlobal || Muon_isTracker)"
                 // "&& Muon_promptMVA > 0.64"
+                // "Muon_tightId &&"
                 // "Muon_mediumId &&"
                 // "Muon_miniPFRelIso_all < 0.4 &&"
                ); 
@@ -278,48 +308,54 @@ void BaseAnalyser::selectMuons()
         .Define("subleadingMuon_eta", "baselineMuons_eta.size() == 3 ? baselineMuons_eta[1] : -999.f")
         .Define("trailingMuon_eta",   "baselineMuons_eta.size() == 3 ? baselineMuons_eta[2] : -999.f");
     
-    if (!_isData) {
-    _rlm = _rlm
-        .Define("truth_baselineMuons_genPart", "Muon_genPartIdx[baselineMuons]")
-        .Define("maxDR_muon", "0.3f")
-        .Define("baselineMuons_fromTopW", Muon_FromTopW,
-               {"baselineMuons_pt", "baselineMuons_eta", "baselineMuons_phi",
-                "GenPart_pdgId", "GenPart_genPartIdxMother",
-                "GenPart_eta", "GenPart_phi", "maxDR_muon"})
-        .Define("truth_baselineMuons_origin",::GetLeptonOrigin, {"truth_baselineMuons_genPart","GenPart_pdgId","GenPart_statusFlags", "GenPart_genPartIdxMother"});
-    _rlm = _rlm.Define("Ntruth_baselineMuons_origin3","Sum(truth_baselineMuons_origin == 4)");
-    _rlm = _rlm.Define("GenPromptLeptonIdx", GenParticleHelper::GetAllPromptGenLeptonIndices, {"GenPart_pdgId", "GenPart_genPartIdxMother", "GenPart_statusFlags"});
-    _rlm = _rlm.Define("GenPromptLeptonPdgId", GenParticleHelper::GetPromptGenLeptonPdgId, {"GenPromptLeptonIdx","GenPart_pdgId"});
-    _rlm = _rlm.Define("Nunique_origin3",::CountUniqueOrigin3,{"truth_baselineMuons_genPart","truth_baselineMuons_origin"});
+    // if (!_isData) {
+    // _rlm = _rlm
+    //     .Define("truth_baselineMuons_genPart", "Muon_genPartIdx[baselineMuons]")
+    //     .Define("maxDR_muon", "0.3f")
+    //     .Define("baselineMuons_fromTopW", Muon_FromTopW,
+    //            {"baselineMuons_pt", "baselineMuons_eta", "baselineMuons_phi",
+    //             "GenPart_pdgId", "GenPart_genPartIdxMother",
+    //             "GenPart_eta", "GenPart_phi", "maxDR_muon"})
+    //     .Define("truth_baselineMuons_origin",::GetLeptonOrigin, {"truth_baselineMuons_genPart","GenPart_pdgId","GenPart_statusFlags", "GenPart_genPartIdxMother"});
+    // _rlm = _rlm.Define("Ntruth_baselineMuons_origin3","Sum(truth_baselineMuons_origin == 4)");
+    // _rlm = _rlm.Define("GenPromptLeptonIdx", GenParticleHelper::GetAllPromptGenLeptonIndices, {"GenPart_pdgId", "GenPart_genPartIdxMother", "GenPart_statusFlags"});
+    // _rlm = _rlm.Define("GenPromptLeptonPdgId", GenParticleHelper::GetPromptGenLeptonPdgId, {"GenPromptLeptonIdx","GenPart_pdgId"});
+    // _rlm = _rlm.Define("Nunique_origin3",::CountUniqueOrigin3,{"truth_baselineMuons_genPart","truth_baselineMuons_origin"});
 
-    // Per-GenPart-entry flag array
-    _rlm = _rlm.Define("GenPart_muFromTopW", GenPart_MuonFromTopW,
-                        {"GenPart_pdgId", "GenPart_genPartIdxMother"});
+    // // Per-GenPart-entry flag array
+    // _rlm = _rlm.Define("GenPart_muFromTopW", GenPart_MuonFromTopW,
+    //                     {"GenPart_pdgId", "GenPart_genPartIdxMother"});
 
-    // Event-level boolean flag
-    _rlm = _rlm.Define("hasGenMuFromTopW", Event_HasGenMuonFromTopW,
-                        {"GenPart_pdgId", "GenPart_genPartIdxMother"});
-    _rlm = _rlm.Define("Muon_originCheck", CompareLeptonOriginToGenPartFlag,
-                    {"truth_baselineMuons_genPart", "truth_baselineMuons_origin", "GenPart_muFromTopW"});
+    // // Event-level boolean flag
+    // _rlm = _rlm.Define("hasGenMuFromTopW", Event_HasGenMuonFromTopW,
+    //                     {"GenPart_pdgId", "GenPart_genPartIdxMother"});
+    // _rlm = _rlm.Define("Muon_originCheck", CompareLeptonOriginToGenPartFlag,
+    //                 {"truth_baselineMuons_genPart", "truth_baselineMuons_origin", "GenPart_muFromTopW"});
 
-    }
-    if (!_isData) {
-    _rlm = _rlm.Define("Gen_baselineMuons_genPartFlav", "Muon_genPartFlav[baselineMuons]")
-               .Define("Gen_baselineMuons_genPartIdx", "Muon_genPartIdx[baselineMuons]");
-    }
+    // }
+    // if (!_isData) {
+    // _rlm = _rlm.Define("Gen_baselineMuons_genPartFlav", "Muon_genPartFlav[baselineMuons]")
+    //            .Define("Gen_baselineMuons_genPartIdx", "Muon_genPartIdx[baselineMuons]");
+    // }
 
     //-------------------------------------------------------
     // Generate muon 4-vector from selected good muons
     //-------------------------------------------------------
     _rlm = _rlm.Define("baselineMuon_4Vecs", ::generate_4vec, {"baselineMuons_pt", "baselineMuons_eta", "baselineMuons_phi", "baselineMuons_mass"});
     _rlm = _rlm.Define("baselineMuon_TL4Vecs",::buildTLorentzVectors, {"baselineMuons_pt", "baselineMuons_eta", "baselineMuons_phi", "baselineMuons_mass"});
-    if (_year == 2024)
-    {
-    _rlm = _rlm.Define("tight_Muons", "Muon_promptMVA[baselineMuons] > 0.64");
-    }else
-    {
-    _rlm = _rlm.Define("tight_Muons", "Muon_mvaTTH[baselineMuons] > 0.64");
-    }
+    _rlm = _rlm
+        .Define("TightMuons",
+                "baselineMuons && Muon_tightId && "
+                "Muon_pfRelIso04_all < 0.15f")
+
+        .Define("Loose_not_Tight_Muons",
+                "baselineMuons && !TightMuons")
+
+        .Define("tight_baselineMuons",
+                "TightMuons[baselineMuons]")
+
+        .Define("lnt_baselineMuons",
+                "Loose_not_Tight_Muons[baselineMuons]");
 }
 
 //=================================Select Jets=================================================//
@@ -569,8 +605,8 @@ void BaseAnalyser::removeOverlaps()
                .Redefine("baselineElectrons_mass", "baselineElectrons_mass[ElectronMuonCleanMask]")
                .Redefine("baselineElectrons_charge", "baselineElectrons_charge[ElectronMuonCleanMask]")
                .Redefine("baselineElectrons_pdgId", "baselineElectrons_pdgId[ElectronMuonCleanMask]")
-               .Redefine("baselineElectrons_mvaTTH", "baselineElectrons_mvaTTH[ElectronMuonCleanMask]")
                .Redefine("tight_baselineElectrons", "tight_baselineElectrons[ElectronMuonCleanMask]")
+               .Redefine("lnt_baselineElectrons", "lnt_baselineElectrons[ElectronMuonCleanMask]")
                .Redefine("NbaselineElectrons", "int(baselineElectrons_pt.size())");
 
 
@@ -865,14 +901,15 @@ void BaseAnalyser::mergeLeptons() {
 		   .Define("Lepton_phi", "ROOT::VecOps::Concatenate(baselineMuons_phi, baselineElectrons_phi)")
 		   .Define("Lepton_mass", "ROOT::VecOps::Concatenate(baselineMuons_mass, baselineElectrons_mass)")
 		   .Define("Lepton_pdgId", "ROOT::VecOps::Concatenate(baselineMuons_pdgId, baselineElectrons_pdgId)")
-		   .Define("Lepton_isPrompt", "ROOT::VecOps::Concatenate(tight_Muons, tight_baselineElectrons)")
 		   .Define("NLepton","int(Lepton_pt.size())")
+           .Define("Lepton_isTight","ROOT::VecOps::Concatenate(tight_baselineMuons, tight_baselineElectrons)")
+           .Define("Lepton_isLNT","ROOT::VecOps::Concatenate(lnt_baselineMuons, lnt_baselineElectrons)")
 		   .Define("Lepton_charge", "ROOT::VecOps::Concatenate(baselineMuons_charge, baselineElectrons_charge)");
 
-    if (!_isData) {
-	_rlm = _rlm.Define("Gen_Lepton_genPartFlav", "ROOT::VecOps::Concatenate(Gen_baselineMuons_genPartFlav, Gen_baselineElectrons_genPartFlav)")
-		       .Define("Gen_Lepton_genPartIdx", "ROOT::VecOps::Concatenate(Gen_baselineMuons_genPartIdx, Gen_baselineElectrons_genPartIdx)");
-        }
+   // if (!_isData) {
+	// _rlm = _rlm.Define("Gen_Lepton_genPartFlav", "ROOT::VecOps::Concatenate(Gen_baselineMuons_genPartFlav, Gen_baselineElectrons_genPartFlav)")
+		       // .Define("Gen_Lepton_genPartIdx", "ROOT::VecOps::Concatenate(Gen_baselineMuons_genPartIdx, Gen_baselineElectrons_genPartIdx)");
+    //     }
 
 	_rlm = _rlm.Define(
 	    "Lepton_flavor",
@@ -881,8 +918,6 @@ void BaseAnalyser::mergeLeptons() {
 	    "ROOT::VecOps::RVec<int>(baselineElectrons_charge.size(), 0))"
 	);
 
-	// 1. All prompt leptons
-	_rlm = _rlm.Define("allTightLeptons", "ROOT::VecOps::All(Lepton_isPrompt == 1)");
 
 	// 3. Merge TLorentzVectors (muons + electrons)
 	_rlm = _rlm.Define("Lepton4Vecs", ::generate_4vec, {"Lepton_pt", "Lepton_eta", "Lepton_phi", "Lepton_mass"}) 
@@ -934,7 +969,6 @@ void BaseAnalyser::mergeLeptons() {
         .Define("goodLepton_pdgId",    takeI, {"Lepton_pdgId",     "goodLepton_idx"})
         .Define("goodLepton_charge",   takeI, {"Lepton_charge",     "goodLepton_idx"})
         .Define("goodLepton_flavor",   takeI, {"Lepton_flavor",     "goodLepton_idx"})
-        .Define("goodLepton_isPrompt", takeI, {"Lepton_isPrompt",  "goodLepton_idx"})
         .Define("NgoodLepton",         "int(goodLepton_pt.size())")
         .Define("goodLepton4Vecs",     ::generate_4vec, {"goodLepton_pt", "goodLepton_eta", "goodLepton_phi", "goodLepton_mass"})
         // .Define("goodLepton_TL4Vecs",::buildTLorentzVectors, {"goodLepton_pt", "goodLepton_eta", "goodLepton_phi", "goodLepton_mass"})
@@ -942,7 +976,6 @@ void BaseAnalyser::mergeLeptons() {
                 "Lepton_pdgId.size() >= 3 ? "
                 "(abs(Lepton_pdgId[0]) + abs(Lepton_pdgId[1]) + abs(Lepton_pdgId[2]) - 33)/2 "
                 ": -1")
-        .Define("allTightgoodLeptons",     "ROOT::VecOps::All(goodLepton_isPrompt == 1)")
         .Define("goodlepton_m3",
             [](const RVec4Vec& vecs) {
                 return vecs.size() == 3
@@ -950,18 +983,34 @@ void BaseAnalyser::mergeLeptons() {
                     : -1.0;
             }, {"Lepton4Vecs"});
 
+    _rlm = _rlm
+        .Define("goodLepton_isTight",
+                "ROOT::VecOps::Take(Lepton_isTight, goodLepton_idx)")
+
+        .Define("goodLepton_isLNT",
+                "ROOT::VecOps::Take(Lepton_isLNT, goodLepton_idx)");
+
+
+    _rlm = _rlm
+        .Define("nTightLeptons",
+                "ROOT::VecOps::Sum(goodLepton_isTight)")
+
+        .Define("nLNTLeptons",
+                "ROOT::VecOps::Sum(goodLepton_isLNT)");
+
+
 	_rlm = _rlm.Define("sum_goodLepton_flavor","ROOT::VecOps::Sum(goodLepton_flavor)");	
 
 
-    if (!_isData) {
-        _rlm = _rlm
-            .Define("Gen_goodLepton_genPartFlav", takeUC,
-                    {"Gen_Lepton_genPartFlav", "goodLepton_idx"})
-            .Define("Gen_goodLepton_genPartIdx", takeS,
-                    {"Gen_Lepton_genPartIdx", "goodLepton_idx"})
-            .Define("Gen_goodLepton_isRecoMatch",GenParticleHelper::MatchLeptonToPromptGen,{"Gen_goodLepton_genPartIdx","GenPromptLeptonIdx"})
-            .Define("Gen_goodLepton_Num_isRecoMatch",GenParticleHelper::CountPromptMatchedLeptons,{"Gen_goodLepton_isRecoMatch"});
-    }
+//     if (!_isData) {
+//         _rlm = _rlm
+//             .Define("Gen_goodLepton_genPartFlav", takeUC,
+//                     {"Gen_Lepton_genPartFlav", "goodLepton_idx"})
+//             .Define("Gen_goodLepton_genPartIdx", takeS,
+//                     {"Gen_Lepton_genPartIdx", "goodLepton_idx"})
+//             .Define("Gen_goodLepton_isRecoMatch",GenParticleHelper::MatchLeptonToPromptGen,{"Gen_goodLepton_genPartIdx","GenPromptLeptonIdx"})
+//             .Define("Gen_goodLepton_Num_isRecoMatch",GenParticleHelper::CountPromptMatchedLeptons,{"Gen_goodLepton_isRecoMatch"});
+//     }
 
     // 3. Boolean mask: pt threshold cuts on sorted leptons
     _rlm = _rlm.Define("goodLepton_ptCut",
@@ -1398,6 +1447,20 @@ void BaseAnalyser::defineSignalRegion()
         .Define("threeLRegion", "channel_code >= 0 && NgoodLepton == 3 && inzpeak && goodLepton_ptCut")
         .Define("BaseRegion", "threeLRegion && ncleanjetspass >= 2 && ncleanbjetspass >= 1");
 
+    _rlm = _rlm.Define("isTTT", "NgoodLepton == 3 && nTightLeptons == 3 && nLNTLeptons == 0");
+    _rlm = _rlm.Define("isTTL", "NgoodLepton == 3 && nTightLeptons == 2 && nLNTLeptons == 1");
+    _rlm = _rlm.Define("isTLL", "NgoodLepton == 3 && nTightLeptons == 1 && nLNTLeptons == 2");
+    _rlm = _rlm.Define("isLLL", "NgoodLepton == 3 && nTightLeptons == 0 && nLNTLeptons == 3");
+
+    _rlm = _rlm.Define("threeL_TTT", "threeLRegion && isTTT");
+    _rlm = _rlm.Define("threeL_TTL", "threeLRegion && isTTL");
+    _rlm = _rlm.Define("threeL_TLL", "threeLRegion && isTLL");
+    _rlm = _rlm.Define("threeL_LLL", "threeLRegion && isLLL");
+
+    _rlm = _rlm.Define("WZ_TTT", "threeL_TTT && ncleanbjetspass == 0 && goodMET_pt > 50");
+    _rlm = _rlm.Define("WZ_TTL", "threeL_TTL && ncleanbjetspass == 0 && goodMET_pt > 50");
+    _rlm = _rlm.Define("WZ_TLL", "threeL_TLL && ncleanbjetspass == 0 && goodMET_pt > 50");
+    _rlm = _rlm.Define("WZ_LLL", "threeL_LLL && ncleanbjetspass == 0 && goodMET_pt > 50");
     _rlm = _rlm.Define("WZ_Region", "threeLRegion && ncleanbjetspass == 0 && goodMET_pt > 50 ");
 
 
@@ -1448,6 +1511,18 @@ void BaseAnalyser::defineSignalRegion()
     _rlm = ::defineRegionObjectBranches(_rlm, "ZZ_Region",     "ZZ_Region");
     _rlm = ::defineRegionObjectBranches(_rlm, "ttZ_Region",    "ttZ_Region");
 
+    // New three-lepton regions
+    _rlm = ::defineRegionObjectBranches(_rlm, "threeL_TTT", "ThreeL_TTT");
+    _rlm = ::defineRegionObjectBranches(_rlm, "threeL_TTL", "ThreeL_TTL");
+    _rlm = ::defineRegionObjectBranches(_rlm, "threeL_TLL", "ThreeL_TLL");
+    _rlm = ::defineRegionObjectBranches(_rlm, "threeL_LLL", "ThreeL_LLL");
+
+    // New WZ regions
+    _rlm = ::defineRegionObjectBranches(_rlm, "WZ_TTT", "WZ_TTT");
+    _rlm = ::defineRegionObjectBranches(_rlm, "WZ_TTL", "WZ_TTL");
+    _rlm = ::defineRegionObjectBranches(_rlm, "WZ_TLL", "WZ_TLL");
+    _rlm = ::defineRegionObjectBranches(_rlm, "WZ_LLL", "WZ_LLL");
+
     _rlm = _rlm.Define("SignalRegion_tzq_zMass", "SignalRegion_tzq ? zboson_mass : -1.0")
                .Define("SignalRegion_ttz_zMass", "SignalRegion_ttz ? zboson_mass : -1.0");
 
@@ -1483,6 +1558,50 @@ void BaseAnalyser::defineSignalRegion()
             .Define("WZ_Region_m3l_topMass",    "WZ_Region_m3l    ? top_mass : -1.0")
             .Define("SignalRegion_tzq_topMass", "SignalRegion_tzq ? top_mass : -1.0")
             .Define("SignalRegion_ttz_topMass", "SignalRegion_ttz ? top_mass : -1.0");
+
+    // ============================================================================
+    // Z boson mass for TTT, TTL, TLL, LLL regions
+    // ============================================================================
+
+    _rlm = _rlm
+        .Define("ThreeL_TTT_zMass", "threeL_TTT ? zboson_mass : -1.0")
+        .Define("ThreeL_TTL_zMass", "threeL_TTL ? zboson_mass : -1.0")
+        .Define("ThreeL_TLL_zMass", "threeL_TLL ? zboson_mass : -1.0")
+        .Define("ThreeL_LLL_zMass", "threeL_LLL ? zboson_mass : -1.0")
+        .Define("WZ_TTT_zMass",     "WZ_TTT ? zboson_mass : -1.0")
+        .Define("WZ_TTL_zMass",     "WZ_TTL ? zboson_mass : -1.0")
+        .Define("WZ_TLL_zMass",     "WZ_TLL ? zboson_mass : -1.0")
+        .Define("WZ_LLL_zMass",     "WZ_LLL ? zboson_mass : -1.0");
+
+
+    // ============================================================================
+    // W boson transverse mass for TTT, TTL, TLL, LLL regions
+    // ============================================================================
+
+    _rlm = _rlm
+        .Define("ThreeL_TTT_WbosonMT", "threeL_TTT ? Wboson_transversMass : -1.0")
+        .Define("ThreeL_TTL_WbosonMT", "threeL_TTL ? Wboson_transversMass : -1.0")
+        .Define("ThreeL_TLL_WbosonMT", "threeL_TLL ? Wboson_transversMass : -1.0")
+        .Define("ThreeL_LLL_WbosonMT", "threeL_LLL ? Wboson_transversMass : -1.0")
+        .Define("WZ_TTT_WbosonMT",     "WZ_TTT ? Wboson_transversMass : -1.0")
+        .Define("WZ_TTL_WbosonMT",     "WZ_TTL ? Wboson_transversMass : -1.0")
+        .Define("WZ_TLL_WbosonMT",     "WZ_TLL ? Wboson_transversMass : -1.0")
+        .Define("WZ_LLL_WbosonMT",     "WZ_LLL ? Wboson_transversMass : -1.0");
+
+
+    // ============================================================================
+    // Reconstructed top-quark mass for TTT, TTL, TLL, LLL regions
+    // ============================================================================
+
+    _rlm = _rlm
+        .Define("ThreeL_TTT_topMass", "threeL_TTT ? top_mass : -1.0")
+        .Define("ThreeL_TTL_topMass", "threeL_TTL ? top_mass : -1.0")
+        .Define("ThreeL_TLL_topMass", "threeL_TLL ? top_mass : -1.0")
+        .Define("ThreeL_LLL_topMass", "threeL_LLL ? top_mass : -1.0")
+        .Define("WZ_TTT_topMass",     "WZ_TTT ? top_mass : -1.0")
+        .Define("WZ_TTL_topMass",     "WZ_TTL ? top_mass : -1.0")
+        .Define("WZ_TLL_topMass",     "WZ_TLL ? top_mass : -1.0")
+        .Define("WZ_LLL_topMass",     "WZ_LLL ? top_mass : -1.0");
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////
@@ -1688,6 +1807,30 @@ void BaseAnalyser::defineMoreVars()
 
     }
 
+    // Original-collection tight and LNT masks
+    addVartoStore("TightElectrons");
+    addVartoStore("TightMuons");
+    addVartoStore("Loose_not_Tight_.*");
+
+    // Baseline-aligned tight masks
+    addVartoStore("tight_baselineElectrons");
+    addVartoStore("tight_baselineMuons");
+
+    // Tight and LNT multiplicities
+    addVartoStore("nTightLeptons");
+    addVartoStore("nLNTLeptons");
+
+    // Event categories
+    addVartoStore("isTTT");
+    addVartoStore("isTTL");
+    addVartoStore("isTLL");
+    addVartoStore("isLLL");
+
+    // Region selection masks
+    addVartoStore("threeL_TTT");
+    addVartoStore("threeL_TTL");
+    addVartoStore("threeL_TLL");
+    addVartoStore("threeL_LLL");
 
     //jetmet corr
     addVartoStore("Jet_pt_corr.*");
@@ -1767,7 +1910,8 @@ void BaseAnalyser::defineMoreVars()
     addVartoStore("WZ_Region.*");
     addVartoStore("WZ_Region_m3l.*");
     addVartoStore("BaseRegion.*");
-
+    addVartoStore("ThreeL_.*");
+    addVartoStore("WZ_.*");
 
     addVartoStore("SignalRegion.*");
 
