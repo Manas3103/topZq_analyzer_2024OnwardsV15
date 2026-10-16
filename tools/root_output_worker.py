@@ -5,22 +5,33 @@ import resource
 import sys
 
 
-def inspect_root(ROOT, path, p):
+def inspect_root(ROOT, path, p, transport='local'):
+    if transport not in ('local', 'remote'): raise ValueError('invalid transport')
     r = dict(issues=[], structure={}, content=dict(mode=p['content']['mode'], requested_branches=p['content']['branches'], checked_branches=[], checked_entries=[], entry_range=None, complete_configured_read=False))
+    if transport == 'remote': r['transport'] = 'remote'
     def issue(code, status, detail): r['issues'].append(dict(code=code, status=status, detail=detail))
     f = None
     try:
         try:
             f = ROOT.TFile.Open(path, 'READ')
         except OSError as exc:
-            issue('root_open_failed', 'FAIL', str(exc)); return r
+            issue('root_open_failed', 'UNKNOWN' if transport == 'remote' else 'FAIL', str(exc)); return r
         if not f or f.IsZombie():
-            issue('root_open_failed', 'FAIL', 'null or zombie ROOT file'); return r
+            issue('root_open_failed', 'UNKNOWN' if transport == 'remote' else 'FAIL', 'null or zombie ROOT file'); return r
         r['structure']['opened'] = True
+        if transport == 'remote':
+            # Diagnostic only: GetSize need not equal remote stat on every plugin.
+            try:
+                size = int(f.GetSize())
+                r['structure']['root_file_size'] = size if size >= 0 else None
+            except Exception:
+                r['structure']['root_file_size'] = None
         r['structure']['tree'] = p['tree']
         r['structure']['recovered'] = bool(f.TestBit(ROOT.TFile.kRecovered))
         if r['structure']['recovered']: issue('recovered_file', 'FAIL', 'ROOT recovery flag set')
         tree = f.Get(p['tree'])
+        if transport == 'remote' and not tree and any(key.GetName() == p['tree'] for key in f.GetListOfKeys()):
+            raise RuntimeError('required tree key exists but object cannot be read; transport/integrity ambiguous')
         if not tree or not tree.InheritsFrom('TTree'):
             issue('missing_tree', 'FAIL', p['tree']); return r
         if tree.InheritsFrom('TChain'):
@@ -44,7 +55,10 @@ def inspect_root(ROOT, path, p):
             if name in branches and types[name] != expected: issue('branch_type_mismatch', 'FAIL', f'{name}: {types[name]} != {expected}')
         objects = {}; object_matches = {}
         for name, cls in p['required_objects'].items():
-            obj = f.Get(name); objects[name] = obj.ClassName() if obj else None
+            obj = f.Get(name)
+            if transport == 'remote' and not obj and any(key.GetName() == name for key in f.GetListOfKeys()):
+                raise RuntimeError('required object key exists but cannot be read; transport/integrity ambiguous')
+            objects[name] = obj.ClassName() if obj else None
             object_matches[name] = bool(obj and obj.InheritsFrom(cls))
             if not obj: issue('missing_object', 'FAIL', name)
             elif not obj.InheritsFrom(cls): issue('object_type_mismatch', 'FAIL', name)
@@ -85,10 +99,10 @@ def inspect_root(ROOT, path, p):
         done = 0
         r['content']['coverage'] = {name: dict(entries=[], entry_range=None) for name in requested}
         for index in indices:
-            if tree.LoadTree(index) < 0: issue('content_unreadable', 'FAIL', f'LoadTree {index}'); return r
+            if tree.LoadTree(index) < 0: issue('content_unreadable', 'UNKNOWN' if transport == 'remote' else 'FAIL', f'LoadTree {index}'); return r
             for name in requested:
                 if branches[name].GetEntry(index) <= 0:
-                    issue('content_unreadable', 'FAIL', f'{name} entry {index}'); return r
+                    issue('content_unreadable', 'UNKNOWN' if transport == 'remote' else 'FAIL', f'{name} entry {index}'); return r
                 coverage = r['content']['coverage'][name]
                 if p['content']['mode'] == 'sample': coverage['entries'].append(index)
                 else: coverage['entry_range'] = [0, index + 1]
@@ -122,7 +136,8 @@ def main():
     except Exception as exc:
         result = dict(issues=[dict(code='root_dependency_unavailable', status='UNKNOWN', detail=str(exc))], structure={}, content={})
     else:
-        result = inspect_root(ROOT, request['path'], request['profile'])
+        result = inspect_root(ROOT, request['path'], request['profile'], request.get('transport', 'local'))
+    if request.get('transport') == 'remote': result['transport'] = 'remote'
     protocol.write(json.dumps(result, allow_nan=False)); protocol.flush()
 
 

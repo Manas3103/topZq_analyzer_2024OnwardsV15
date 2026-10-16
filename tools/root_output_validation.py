@@ -116,11 +116,13 @@ def issue(result, code, status, detail):
     result['issues'].append(dict(code=code, status=status, detail=detail))
 
 
-def validate_worker_result(r, p):
+def validate_worker_result(r, p, transport='local'):
     """Validate staged evidence, not the truth of the worker's byte reads."""
     def require(condition):
         if not condition: raise ValueError('incomplete or contradictory worker evidence')
-    fields(r, 'worker', ('issues', 'structure', 'content'))
+    require(transport in ('local', 'remote'))
+    fields(r, 'worker', ('issues', 'structure', 'content') + (('transport',) if transport == 'remote' else ()))
+    if transport == 'remote': require(r['transport'] == 'remote')
     require(isinstance(r['issues'], list) and isinstance(r['structure'], dict) and isinstance(r['content'], dict))
     allowed = {
         'root_dependency_unavailable': 'UNKNOWN', 'inspection_exception': 'UNKNOWN',
@@ -129,13 +131,17 @@ def validate_worker_result(r, p):
         'invalid_entry_count': 'FAIL', 'zero_entries_forbidden': 'FAIL', 'missing_branch': 'FAIL',
         'branch_type_mismatch': 'FAIL', 'missing_object': 'FAIL', 'object_type_mismatch': 'FAIL',
         'missing_read_branch': 'FAIL', 'content_unreadable': 'FAIL'}
+    if transport == 'remote':
+        allowed.update(root_open_failed='UNKNOWN', content_unreadable='UNKNOWN')
     for i in r['issues']:
         fields(i, 'issue', ('code', 'status', 'detail'))
         require(isinstance(i['code'], str) and i['code'] in allowed and
                 i['status'] == allowed[i['code']] and isinstance(i['detail'], str))
     codes = {i['code'] for i in r['issues']}
     s, c = r['structure'], r['content']
-    require(not set(s) - {'opened', 'tree', 'recovered', 'entries', 'branch_types', 'objects', 'object_matches', 'dictionaries', 'dictionary_dependent_branches'})
+    require(not set(s) - ({'opened', 'tree', 'recovered', 'entries', 'branch_types', 'objects', 'object_matches', 'dictionaries', 'dictionary_dependent_branches'} | ({'root_file_size'} if transport == 'remote' else set())))
+    if 'root_file_size' in s:
+        require(s.get('opened') is True and (s['root_file_size'] is None or type(s['root_file_size']) is int and s['root_file_size'] >= 0))
     if 'opened' in s: require(s['opened'] is True)
     if 'tree' in s: require(s['tree'] == p['tree'])
     if 'recovered' in s: require(type(s['recovered']) is bool and s['recovered'] == ('recovered_file' in codes))

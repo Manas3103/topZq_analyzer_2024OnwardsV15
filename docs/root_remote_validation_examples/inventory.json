@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "kind": "remote_root_output_inventory",
+  "outputs": [
+    {
+      "campaign_id": "synthetic",
+      "workflow": "main",
+      "dataset_id": "synthetic-data",
+      "sample_name": "SyntheticData",
+      "datatype": "data",
+      "chunk_id": "c0",
+      "index": 0,
+      "attempt_id": "a0",
+      "locator": "root://cmseos.fnal.gov//store/user/synthetic/fixture.root",
+      "profile_id": "main-data-example",
+      "evidence": ["illustrative-caller-declaration"]
+    }
+  ]
+}
