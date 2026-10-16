@@ -1452,6 +1452,30 @@ void BaseAnalyser::defineSignalRegion()
     _rlm = _rlm.Define("isTLL", "NgoodLepton == 3 && nTightLeptons == 1 && nLNTLeptons == 2");
     _rlm = _rlm.Define("isLLL", "NgoodLepton == 3 && nTightLeptons == 0 && nLNTLeptons == 3");
 
+    // eee channel
+    _rlm = _rlm.Define("eee_TTT", "eee_Region && isTTT");
+    _rlm = _rlm.Define("eee_TTL", "eee_Region && isTTL");
+    _rlm = _rlm.Define("eee_TLL", "eee_Region && isTLL");
+    _rlm = _rlm.Define("eee_LLL", "eee_Region && isLLL");
+
+    // eeu channel
+    _rlm = _rlm.Define("eeu_TTT", "eeu_Region && isTTT");
+    _rlm = _rlm.Define("eeu_TTL", "eeu_Region && isTTL");
+    _rlm = _rlm.Define("eeu_TLL", "eeu_Region && isTLL");
+    _rlm = _rlm.Define("eeu_LLL", "eeu_Region && isLLL");
+
+    // uue channel
+    _rlm = _rlm.Define("uue_TTT", "uue_Region && isTTT");
+    _rlm = _rlm.Define("uue_TTL", "uue_Region && isTTL");
+    _rlm = _rlm.Define("uue_TLL", "uue_Region && isTLL");
+    _rlm = _rlm.Define("uue_LLL", "uue_Region && isLLL");
+
+    // uuu channel
+    _rlm = _rlm.Define("uuu_TTT", "uuu_Region && isTTT");
+    _rlm = _rlm.Define("uuu_TTL", "uuu_Region && isTTL");
+    _rlm = _rlm.Define("uuu_TLL", "uuu_Region && isTLL");
+    _rlm = _rlm.Define("uuu_LLL", "uuu_Region && isLLL");
+
     _rlm = _rlm.Define("threeL_TTT", "threeLRegion && isTTT");
     _rlm = _rlm.Define("threeL_TTL", "threeLRegion && isTTL");
     _rlm = _rlm.Define("threeL_TLL", "threeLRegion && isTLL");
@@ -1522,6 +1546,32 @@ void BaseAnalyser::defineSignalRegion()
     _rlm = ::defineRegionObjectBranches(_rlm, "WZ_TTL", "WZ_TTL");
     _rlm = ::defineRegionObjectBranches(_rlm, "WZ_TLL", "WZ_TLL");
     _rlm = ::defineRegionObjectBranches(_rlm, "WZ_LLL", "WZ_LLL");
+
+
+    // eee channel
+    _rlm = ::defineRegionObjectBranches(_rlm, "eee_TTT", "eee_TTT");
+    _rlm = ::defineRegionObjectBranches(_rlm, "eee_TTL", "eee_TTL");
+    _rlm = ::defineRegionObjectBranches(_rlm, "eee_TLL", "eee_TLL");
+    _rlm = ::defineRegionObjectBranches(_rlm, "eee_LLL", "eee_LLL");
+
+    // eeu channel
+    _rlm = ::defineRegionObjectBranches(_rlm, "eeu_TTT", "eeu_TTT");
+    _rlm = ::defineRegionObjectBranches(_rlm, "eeu_TTL", "eeu_TTL");
+    _rlm = ::defineRegionObjectBranches(_rlm, "eeu_TLL", "eeu_TLL");
+    _rlm = ::defineRegionObjectBranches(_rlm, "eeu_LLL", "eeu_LLL");
+
+    // uue channel
+    _rlm = ::defineRegionObjectBranches(_rlm, "uue_TTT", "uue_TTT");
+    _rlm = ::defineRegionObjectBranches(_rlm, "uue_TTL", "uue_TTL");
+    _rlm = ::defineRegionObjectBranches(_rlm, "uue_TLL", "uue_TLL");
+    _rlm = ::defineRegionObjectBranches(_rlm, "uue_LLL", "uue_LLL");
+
+    // uuu channel
+    _rlm = ::defineRegionObjectBranches(_rlm, "uuu_TTT", "uuu_TTT");
+    _rlm = ::defineRegionObjectBranches(_rlm, "uuu_TTL", "uuu_TTL");
+    _rlm = ::defineRegionObjectBranches(_rlm, "uuu_TLL", "uuu_TLL");
+    _rlm = ::defineRegionObjectBranches(_rlm, "uuu_LLL", "uuu_LLL");
+
 
     _rlm = _rlm.Define("SignalRegion_tzq_zMass", "SignalRegion_tzq ? zboson_mass : -1.0")
                .Define("SignalRegion_ttz_zMass", "SignalRegion_ttz ? zboson_mass : -1.0");
@@ -1603,7 +1653,48 @@ void BaseAnalyser::defineSignalRegion()
         .Define("WZ_TLL_topMass",     "WZ_TLL ? top_mass : -1.0")
         .Define("WZ_LLL_topMass",     "WZ_LLL ? top_mass : -1.0");
 
+    _rlm = _rlm
+        .Define("eee_TTT_zMass", "eee_TTT ? zboson_mass : -1.0")
+        .Define("eee_TTL_zMass", "eee_TTL ? zboson_mass : -1.0")
+        .Define("eee_TLL_zMass", "eee_TLL ? zboson_mass : -1.0")
+        .Define("eee_LLL_zMass", "eee_LLL ? zboson_mass : -1.0")
 
+        .Define("eeu_TTT_zMass", "eeu_TTT ? zboson_mass : -1.0")
+        .Define("eeu_TTL_zMass", "eeu_TTL ? zboson_mass : -1.0")
+        .Define("eeu_TLL_zMass", "eeu_TLL ? zboson_mass : -1.0")
+        .Define("eeu_LLL_zMass", "eeu_LLL ? zboson_mass : -1.0")
+
+        .Define("uue_TTT_zMass", "uue_TTT ? zboson_mass : -1.0")
+        .Define("uue_TTL_zMass", "uue_TTL ? zboson_mass : -1.0")
+        .Define("uue_TLL_zMass", "uue_TLL ? zboson_mass : -1.0")
+        .Define("uue_LLL_zMass", "uue_LLL ? zboson_mass : -1.0")
+
+        .Define("uuu_TTT_zMass", "uuu_TTT ? zboson_mass : -1.0")
+        .Define("uuu_TTL_zMass", "uuu_TTL ? zboson_mass : -1.0")
+        .Define("uuu_TLL_zMass", "uuu_TLL ? zboson_mass : -1.0")
+        .Define("uuu_LLL_zMass", "uuu_LLL ? zboson_mass : -1.0");
+
+
+    _rlm = _rlm
+        .Define("eee_TTT_WbosonMT", "eee_TTT ? Wboson_transversMass : -1.0")
+        .Define("eee_TTL_WbosonMT", "eee_TTL ? Wboson_transversMass : -1.0")
+        .Define("eee_TLL_WbosonMT", "eee_TLL ? Wboson_transversMass : -1.0")
+        .Define("eee_LLL_WbosonMT", "eee_LLL ? Wboson_transversMass : -1.0")
+
+        .Define("eeu_TTT_WbosonMT", "eeu_TTT ? Wboson_transversMass : -1.0")
+        .Define("eeu_TTL_WbosonMT", "eeu_TTL ? Wboson_transversMass : -1.0")
+        .Define("eeu_TLL_WbosonMT", "eeu_TLL ? Wboson_transversMass : -1.0")
+        .Define("eeu_LLL_WbosonMT", "eeu_LLL ? Wboson_transversMass : -1.0")
+
+        .Define("uue_TTT_WbosonMT", "uue_TTT ? Wboson_transversMass : -1.0")
+        .Define("uue_TTL_WbosonMT", "uue_TTL ? Wboson_transversMass : -1.0")
+        .Define("uue_TLL_WbosonMT", "uue_TLL ? Wboson_transversMass : -1.0")
+        .Define("uue_LLL_WbosonMT", "uue_LLL ? Wboson_transversMass : -1.0")
+
+        .Define("uuu_TTT_WbosonMT", "uuu_TTT ? Wboson_transversMass : -1.0")
+        .Define("uuu_TTL_WbosonMT", "uuu_TTL ? Wboson_transversMass : -1.0")
+        .Define("uuu_TLL_WbosonMT", "uuu_TLL ? Wboson_transversMass : -1.0")
+        .Define("uuu_LLL_WbosonMT", "uuu_LLL ? Wboson_transversMass : -1.0");
 /////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////BDT VARIABLE IN DIFFERENT REGION/////////////////////////////////////
@@ -1906,6 +1997,23 @@ void BaseAnalyser::defineMoreVars()
     addVartoStore("uue_ThreeLRegion.*");
     addVartoStore("eeu_ThreeLRegion.*");
     addVartoStore("eee_ThreeLRegion.*");
+      
+    // eee channel
+    addVartoStore("eee_T.*");
+    addVartoStore("eee_L.*");
+
+    // eeu channel
+    addVartoStore("eeu_T.*");
+    addVartoStore("eeu_L.*");
+
+    // uue channel
+    addVartoStore("uue_T.*");
+    addVartoStore("uue_L.*");
+
+    // uuu channel
+    addVartoStore("uuu_T.*");
+    addVartoStore("uuu_L.*");
+
 
     addVartoStore("WZ_Region.*");
     addVartoStore("WZ_Region_m3l.*");
