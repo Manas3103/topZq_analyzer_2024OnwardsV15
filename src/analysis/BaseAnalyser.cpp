@@ -10,13 +10,72 @@
 #include "BaseAnalyser.h"
 #include "utility.h"
 #include <stdexcept>
-#include "GenParticleHelper.h"
 #include <fstream>
 #include "correction.h"
 using correction::CorrectionSet;
 using RVecF   = ROOT::VecOps::RVec<float>;
 using RVecI   = ROOT::VecOps::RVec<int>;
 using RVec4Vec = ROOT::VecOps::RVec<ROOT::Math::PtEtaPhiMVector>;
+
+namespace {
+const std::vector<std::string> leptonTruthFields = {
+    "genPartIdx", "genPartFlav", "hasGenMatch", "matchedPdgId",
+    "matchedStatusFlags", "motherIdx", "motherPdgId"
+};
+
+// Preserve raw matching information without assigning a prompt/fake category.
+// Derived integer fields use -1 for invalid indices/flags and 0 for unknown PDG IDs.
+ROOT::RDF::RNode defineMatchedLeptonTruth(ROOT::RDF::RNode df,
+                                         const std::string& prefix)
+{
+    using GenIndices = ROOT::VecOps::RVec<short>;
+    using GenFlags = ROOT::VecOps::RVec<unsigned short>;
+    return df
+        .Define(prefix + "hasGenMatch",
+            [](const GenIndices& idx, const RVecI& pdg) {
+                RVecI out(idx.size(), 0);
+                for (size_t i = 0; i < idx.size(); ++i)
+                    out[i] = idx[i] >= 0 && static_cast<size_t>(idx[i]) < pdg.size();
+                return out;
+            }, {prefix + "genPartIdx", "GenPart_pdgId"})
+        .Define(prefix + "matchedPdgId",
+            [](const GenIndices& idx, const RVecI& pdg) {
+                RVecI out(idx.size(), 0);
+                for (size_t i = 0; i < idx.size(); ++i)
+                    if (idx[i] >= 0 && static_cast<size_t>(idx[i]) < pdg.size())
+                        out[i] = pdg[idx[i]];
+                return out;
+            }, {prefix + "genPartIdx", "GenPart_pdgId"})
+        .Define(prefix + "matchedStatusFlags",
+            [](const GenIndices& idx, const GenFlags& flags) {
+                RVecI out(idx.size(), -1);
+                for (size_t i = 0; i < idx.size(); ++i)
+                    if (idx[i] >= 0 && static_cast<size_t>(idx[i]) < flags.size())
+                        out[i] = flags[idx[i]];
+                return out;
+            }, {prefix + "genPartIdx", "GenPart_statusFlags"})
+        .Define(prefix + "motherIdx",
+            [](const GenIndices& idx, const GenIndices& mothers, const RVecI& pdg) {
+                RVecI out(idx.size(), -1);
+                for (size_t i = 0; i < idx.size(); ++i) {
+                    if (idx[i] < 0 || static_cast<size_t>(idx[i]) >= mothers.size()
+                        || static_cast<size_t>(idx[i]) >= pdg.size()) continue;
+                    const int mother = mothers[idx[i]];
+                    if (mother >= 0 && static_cast<size_t>(mother) < pdg.size())
+                        out[i] = mother;
+                }
+                return out;
+            }, {prefix + "genPartIdx", "GenPart_genPartIdxMother", "GenPart_pdgId"})
+        .Define(prefix + "motherPdgId",
+            [](const RVecI& idx, const RVecI& pdg) {
+                RVecI out(idx.size(), 0);
+                for (size_t i = 0; i < idx.size(); ++i)
+                    if (idx[i] >= 0 && static_cast<size_t>(idx[i]) < pdg.size())
+                        out[i] = pdg[idx[i]];
+                return out;
+            }, {prefix + "motherIdx", "GenPart_pdgId"});
+}
+} // namespace
 
 
 BaseAnalyser::BaseAnalyser(TTree *t, std::string outfilename)
@@ -185,12 +244,18 @@ void BaseAnalyser::selectElectrons()
                 .Define("baselineElectrons_mass", "Electron_mass[baselineElectrons]")
                 .Define("baselineElectrons_charge", "Electron_charge[baselineElectrons]")
                 .Define("baselineElectrons_idx", ::good_idx, {"baselineElectrons"})
+                .Define("baselineElectrons_pfRelIso", "Electron_pfRelIso04_all[baselineElectrons]")
+                .Define("baselineElectrons_dxy", "Electron_dxy[baselineElectrons]")
+                .Define("baselineElectrons_dz", "Electron_dz[baselineElectrons]")
+                .Define("baselineElectrons_sip3d", "Electron_sip3d[baselineElectrons]")
+                .Define("baselineElectrons_cutBased", "Electron_cutBased[baselineElectrons]")
                 .Define("baselineElectrons_pdgId", "Electron_pdgId[baselineElectrons]")
                 .Define("NbaselineElectrons", "int(baselineElectrons_pt.size())");
 
     if (!_isData) {
     _rlm = _rlm.Define("Gen_baselineElectrons_genPartFlav", "Electron_genPartFlav[baselineElectrons]")
                .Define("Gen_baselineElectrons_genPartIdx", "Electron_genPartIdx[baselineElectrons]");
+    _rlm = defineMatchedLeptonTruth(_rlm, "Gen_baselineElectrons_");
     }
     // ============================================================================
     // ELECTRON SELECTION: LOOSE, TIGHT, AND LOOSE-NOT-TIGHT (LNT)
@@ -202,7 +267,7 @@ void BaseAnalyser::selectElectrons()
     //
     // 2. TightElectrons:
     //    Electrons passing baseline selection + tight cut-based ID
-    //    + PF relative isolation (DeltaR = 0.3) < 0.15.
+    //    + PF relative isolation (DeltaR = 0.4) < 0.15.
     //    Mask size = nElectron.
     //
     // 3. Loose_not_Tight_Electrons:
@@ -228,7 +293,7 @@ void BaseAnalyser::selectElectrons()
         .Define("TightElectrons",
                 "baselineElectrons && "
                 "(Electron_cutBased >= 4) && "
-                "(Electron_pfRelIso03_all < 0.15f)")
+                "(Electron_pfRelIso04_all < 0.15f)")
 
         .Define("Loose_not_Tight_Electrons",
                 "baselineElectrons && !TightElectrons")
@@ -296,6 +361,13 @@ void BaseAnalyser::selectMuons()
 	       .Define("baselineMuons_mass", "Muon_mass[baselineMuons]")
 	       .Define("baselineMuons_charge", "Muon_charge[baselineMuons]")
            .Define("baselineMuons_idx", ::good_idx, {"baselineMuons"})
+           .Define("baselineMuons_pfRelIso", "Muon_pfRelIso04_all[baselineMuons]")
+           .Define("baselineMuons_dxy", "Muon_dxy[baselineMuons]")
+           .Define("baselineMuons_dz", "Muon_dz[baselineMuons]")
+           .Define("baselineMuons_sip3d", "Muon_sip3d[baselineMuons]")
+           .Define("baselineMuons_looseId", "Muon_looseId[baselineMuons]")
+           .Define("baselineMuons_mediumId", "Muon_mediumId[baselineMuons]")
+           .Define("baselineMuons_tightId", "Muon_tightId[baselineMuons]")
 	       .Define("baselineMuons_pdgId", "Muon_pdgId[baselineMuons]")
 	       .Define("NbaselineMuons", "int(baselineMuons_pt.size())");
          
@@ -308,35 +380,11 @@ void BaseAnalyser::selectMuons()
         .Define("subleadingMuon_eta", "baselineMuons_eta.size() == 3 ? baselineMuons_eta[1] : -999.f")
         .Define("trailingMuon_eta",   "baselineMuons_eta.size() == 3 ? baselineMuons_eta[2] : -999.f");
     
-    // if (!_isData) {
-    // _rlm = _rlm
-    //     .Define("truth_baselineMuons_genPart", "Muon_genPartIdx[baselineMuons]")
-    //     .Define("maxDR_muon", "0.3f")
-    //     .Define("baselineMuons_fromTopW", Muon_FromTopW,
-    //            {"baselineMuons_pt", "baselineMuons_eta", "baselineMuons_phi",
-    //             "GenPart_pdgId", "GenPart_genPartIdxMother",
-    //             "GenPart_eta", "GenPart_phi", "maxDR_muon"})
-    //     .Define("truth_baselineMuons_origin",::GetLeptonOrigin, {"truth_baselineMuons_genPart","GenPart_pdgId","GenPart_statusFlags", "GenPart_genPartIdxMother"});
-    // _rlm = _rlm.Define("Ntruth_baselineMuons_origin3","Sum(truth_baselineMuons_origin == 4)");
-    // _rlm = _rlm.Define("GenPromptLeptonIdx", GenParticleHelper::GetAllPromptGenLeptonIndices, {"GenPart_pdgId", "GenPart_genPartIdxMother", "GenPart_statusFlags"});
-    // _rlm = _rlm.Define("GenPromptLeptonPdgId", GenParticleHelper::GetPromptGenLeptonPdgId, {"GenPromptLeptonIdx","GenPart_pdgId"});
-    // _rlm = _rlm.Define("Nunique_origin3",::CountUniqueOrigin3,{"truth_baselineMuons_genPart","truth_baselineMuons_origin"});
-
-    // // Per-GenPart-entry flag array
-    // _rlm = _rlm.Define("GenPart_muFromTopW", GenPart_MuonFromTopW,
-    //                     {"GenPart_pdgId", "GenPart_genPartIdxMother"});
-
-    // // Event-level boolean flag
-    // _rlm = _rlm.Define("hasGenMuFromTopW", Event_HasGenMuonFromTopW,
-    //                     {"GenPart_pdgId", "GenPart_genPartIdxMother"});
-    // _rlm = _rlm.Define("Muon_originCheck", CompareLeptonOriginToGenPartFlag,
-    //                 {"truth_baselineMuons_genPart", "truth_baselineMuons_origin", "GenPart_muFromTopW"});
-
-    // }
-    // if (!_isData) {
-    // _rlm = _rlm.Define("Gen_baselineMuons_genPartFlav", "Muon_genPartFlav[baselineMuons]")
-    //            .Define("Gen_baselineMuons_genPartIdx", "Muon_genPartIdx[baselineMuons]");
-    // }
+    if (!_isData) {
+        _rlm = _rlm.Define("Gen_baselineMuons_genPartFlav", "Muon_genPartFlav[baselineMuons]")
+                   .Define("Gen_baselineMuons_genPartIdx", "Muon_genPartIdx[baselineMuons]");
+        _rlm = defineMatchedLeptonTruth(_rlm, "Gen_baselineMuons_");
+    }
 
     //-------------------------------------------------------
     // Generate muon 4-vector from selected good muons
@@ -609,10 +657,18 @@ void BaseAnalyser::removeOverlaps()
                .Redefine("lnt_baselineElectrons", "lnt_baselineElectrons[ElectronMuonCleanMask]")
                .Redefine("NbaselineElectrons", "int(baselineElectrons_pt.size())");
 
+    // Keep provenance and diagnostics aligned with the cleaned electron arrays.
+    // Leave the original four-vectors used by jet cleaning unchanged.
+    for (const std::string field : {"idx", "pfRelIso", "dxy", "dz", "sip3d", "cutBased"}) {
+        const std::string column = "baselineElectrons_" + field;
+        _rlm = _rlm.Redefine(column, column + "[ElectronMuonCleanMask]");
+    }
 
     if (!_isData) {
-    _rlm = _rlm.Redefine("Gen_baselineElectrons_genPartFlav", "Electron_genPartFlav[baselineElectrons]")
-               .Redefine("Gen_baselineElectrons_genPartIdx", "Electron_genPartIdx[baselineElectrons]");
+        for (const auto& field : leptonTruthFields) {
+            const std::string column = "Gen_baselineElectrons_" + field;
+            _rlm = _rlm.Redefine(column, column + "[ElectronMuonCleanMask]");
+        }
     }
     // =====================================================
     // 2 JET MUON OVERLAP CLEANING (dR > 0.4)
@@ -904,12 +960,21 @@ void BaseAnalyser::mergeLeptons() {
 		   .Define("NLepton","int(Lepton_pt.size())")
            .Define("Lepton_isTight","ROOT::VecOps::Concatenate(tight_baselineMuons, tight_baselineElectrons)")
            .Define("Lepton_isLNT","ROOT::VecOps::Concatenate(lnt_baselineMuons, lnt_baselineElectrons)")
-		   .Define("Lepton_charge", "ROOT::VecOps::Concatenate(baselineMuons_charge, baselineElectrons_charge)");
+		   .Define("Lepton_charge", "ROOT::VecOps::Concatenate(baselineMuons_charge, baselineElectrons_charge)")
+           .Define("Lepton_sourceIdx", "ROOT::VecOps::Concatenate(baselineMuons_idx, baselineElectrons_idx)");
 
-   // if (!_isData) {
-	// _rlm = _rlm.Define("Gen_Lepton_genPartFlav", "ROOT::VecOps::Concatenate(Gen_baselineMuons_genPartFlav, Gen_baselineElectrons_genPartFlav)")
-		       // .Define("Gen_Lepton_genPartIdx", "ROOT::VecOps::Concatenate(Gen_baselineMuons_genPartIdx, Gen_baselineElectrons_genPartIdx)");
-    //     }
+    // All merged arrays follow the existing muon-then-electron order.
+    for (const std::string field : {"pfRelIso", "dxy", "dz", "sip3d"}) {
+        _rlm = _rlm.Define("Lepton_" + field,
+            "ROOT::VecOps::Concatenate(baselineMuons_" + field + ", baselineElectrons_" + field + ")");
+    }
+    if (!_isData) {
+        for (const auto& field : leptonTruthFields) {
+            _rlm = _rlm.Define("Gen_Lepton_" + field,
+                "ROOT::VecOps::Concatenate(Gen_baselineMuons_" + field
+                + ", Gen_baselineElectrons_" + field + ")");
+        }
+    }
 
 	_rlm = _rlm.Define(
 	    "Lepton_flavor",
@@ -963,6 +1028,7 @@ void BaseAnalyser::mergeLeptons() {
     };
     _rlm = _rlm
         .Define("goodLepton_pt",       takeF, {"Lepton_pt",         "goodLepton_idx"})
+        .Define("goodLepton_sourceIdx", takeI, {"Lepton_sourceIdx", "goodLepton_idx"})
         .Define("goodLepton_eta",      takeF, {"Lepton_eta",        "goodLepton_idx"})
         .Define("goodLepton_phi",      takeF, {"Lepton_phi",        "goodLepton_idx"})
         .Define("goodLepton_mass",     takeF, {"Lepton_mass",       "goodLepton_idx"})
@@ -988,7 +1054,15 @@ void BaseAnalyser::mergeLeptons() {
                 "ROOT::VecOps::Take(Lepton_isTight, goodLepton_idx)")
 
         .Define("goodLepton_isLNT",
-                "ROOT::VecOps::Take(Lepton_isLNT, goodLepton_idx)");
+                "ROOT::VecOps::Take(Lepton_isLNT, goodLepton_idx)")
+        // These indices refer to the sorted goodLepton collection.
+        .Define("goodLepton_tightIdx", ::good_idx, {"goodLepton_isTight"})
+        .Define("goodLepton_lntIdx", ::good_idx, {"goodLepton_isLNT"});
+
+    for (const std::string field : {"pfRelIso", "dxy", "dz", "sip3d"}) {
+        _rlm = _rlm.Define("goodLepton_" + field, takeF,
+                           {"Lepton_" + field, "goodLepton_idx"});
+    }
 
 
     _rlm = _rlm
@@ -1002,22 +1076,63 @@ void BaseAnalyser::mergeLeptons() {
 	_rlm = _rlm.Define("sum_goodLepton_flavor","ROOT::VecOps::Sum(goodLepton_flavor)");	
 
 
-//     if (!_isData) {
-//         _rlm = _rlm
-//             .Define("Gen_goodLepton_genPartFlav", takeUC,
-//                     {"Gen_Lepton_genPartFlav", "goodLepton_idx"})
-//             .Define("Gen_goodLepton_genPartIdx", takeS,
-//                     {"Gen_Lepton_genPartIdx", "goodLepton_idx"})
-//             .Define("Gen_goodLepton_isRecoMatch",GenParticleHelper::MatchLeptonToPromptGen,{"Gen_goodLepton_genPartIdx","GenPromptLeptonIdx"})
-//             .Define("Gen_goodLepton_Num_isRecoMatch",GenParticleHelper::CountPromptMatchedLeptons,{"Gen_goodLepton_isRecoMatch"});
-//     }
+    if (!_isData) {
+        _rlm = _rlm
+            .Define("Gen_goodLepton_genPartFlav", takeUC,
+                    {"Gen_Lepton_genPartFlav", "goodLepton_idx"})
+            .Define("Gen_goodLepton_genPartIdx", takeS,
+                    {"Gen_Lepton_genPartIdx", "goodLepton_idx"});
+        for (const std::string field : {"hasGenMatch", "matchedPdgId", "matchedStatusFlags", "motherIdx", "motherPdgId"}) {
+            _rlm = _rlm.Define("Gen_goodLepton_" + field, takeI,
+                               {"Gen_Lepton_" + field, "goodLepton_idx"});
+        }
+    }
 
-    // 3. Boolean mask: pt threshold cuts on sorted leptons
+    // Classify the final selected order once; never apply goodLepton_idx twice.
+    if (!_isData) {
+        _rlm = _rlm.Define("leptonOriginInfo", LeptonTruth::ClassifyRecoLeptonOrigins,
+            {"goodLepton_pdgId", "Gen_goodLepton_genPartIdx",
+             "Gen_goodLepton_genPartFlav", "GenPart_pdgId",
+             "GenPart_genPartIdxMother", "GenPart_statusFlags",
+             "GenPart_status", "GenPart_mass"});
+        _rlm = _rlm.Define("Gen_goodLepton_truthClass",
+            [](const LeptonTruth::Columns& c) { return c.truthClass; },
+            {"leptonOriginInfo"});
+        _rlm = _rlm.Define("Gen_goodLepton_promptOrigin",
+            [](const LeptonTruth::Columns& c) { return c.promptOrigin; },
+            {"leptonOriginInfo"});
+        _rlm = _rlm.Define("Gen_goodLepton_originStatus",
+            [](const LeptonTruth::Columns& c) { return c.originStatus; },
+            {"leptonOriginInfo"});
+        _rlm = _rlm.Define("Gen_goodLepton_isPrompt",
+            [](const LeptonTruth::Columns& c) { return c.isPrompt; },
+            {"leptonOriginInfo"});
+        _rlm = _rlm.Define("Gen_goodLepton_isNonPrompt",
+            [](const LeptonTruth::Columns& c) { return c.isNonPrompt; },
+            {"leptonOriginInfo"});
+        _rlm = _rlm.Define("Gen_goodLepton_isFromPromptTau",
+            [](const LeptonTruth::Columns& c) { return c.isFromPromptTau; },
+            {"leptonOriginInfo"});
+        _rlm = _rlm.Define("Gen_goodLepton_isFromTopW",
+            [](const LeptonTruth::Columns& c) { return c.isFromTopW; },
+            {"leptonOriginInfo"});
+        _rlm = _rlm.Define("Gen_goodLepton_isFromZ",
+            [](const LeptonTruth::Columns& c) { return c.isFromZ; },
+            {"leptonOriginInfo"});
+        _rlm = _rlm.Define("Gen_goodLepton_isFromGammaStar",
+            [](const LeptonTruth::Columns& c) { return c.isFromGammaStar; },
+            {"leptonOriginInfo"});
+        _rlm = _rlm.Define("Gen_goodLepton_isPhotonAssociated",
+            [](const LeptonTruth::Columns& c) { return c.isPhotonAssociated; },
+            {"leptonOriginInfo"});
+    }
+
+    // goodLepton_pt is already sorted; apply thresholds without another permutation.
     _rlm = _rlm.Define("goodLepton_ptCut",
-        [](const RVecF& pt, const ROOT::VecOps::RVec<size_t>& idx) -> bool {
-            if (idx.size() < 3) return false;
-            return pt[idx[0]] > 25.f && pt[idx[1]] > 15.f && pt[idx[2]] > 15.f;
-        }, {"goodLepton_pt", "goodLepton_idx"});
+        [](const RVecF& pt) -> bool {
+            if (pt.size() < 3) return false;
+            return pt[0] > 25.f && pt[1] > 15.f && pt[2] > 15.f;
+        }, {"goodLepton_pt"});
 
 
 
@@ -1827,7 +1942,6 @@ void BaseAnalyser::defineMoreVars()
     addVartoStore("nMuon");
     addVartoStore("norm_factor");
     addVartoStore("GenPart_.*");
-    addVartoStore("GenPromptLepton_.*");
     
 
     // The Trigger list starts from here  
@@ -1887,13 +2001,13 @@ void BaseAnalyser::defineMoreVars()
     addVartoStore("baselineMuons_.*");
     addVartoStore("NbaselineMuons");
     if (!_isData){
-    addVartoStore("truth_baselineMuons_.*");
+    // Original NanoAOD associations, plus cleaned/merged/sorted truth arrays.
+    addVartoStore("Electron_genPartIdx");
+    addVartoStore("Electron_genPartFlav");
+    addVartoStore("Muon_genPartIdx");
+    addVartoStore("Muon_genPartFlav");
+    addVartoStore("Gen_Lepton_.*");
     addVartoStore("Gen_baseline.*");
-    addVartoStore("Ntruth_baselineMuons_origin3");
-    addVartoStore("Nunique_origin3");
-    addVartoStore("GenPart_muFromTopW");
-    addVartoStore("hasGenMuFromTopW");
-    addVartoStore("Muon_originCheck");
     addVartoStore("Gen_goodLepton_.*");
 
     }
@@ -2229,4 +2343,3 @@ void BaseAnalyser::setupAnalysis()
 	setupCuts_and_Hists();
 	setupTree();
 }
-

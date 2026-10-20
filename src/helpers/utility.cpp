@@ -1036,513 +1036,6 @@ ROOT::RDF::RNode defineRegionObjectBranches(ROOT::RDF::RNode df,
 
 
 
-// ints GetLeptonOrigin(
-//     const shorts& Lepton_genPartIdx,
-//     const ints& GenPart_pdgId,
-//     const shorts& GenPart_genPartIdxMother)
-// {
-//     ints origin(Lepton_genPartIdx.size(), 0);
-
-//     for (size_t i = 0; i < Lepton_genPartIdx.size(); ++i) {
-
-//         int idx = Lepton_genPartIdx[i];
-
-//         while (idx >= 0 && idx < static_cast<int>(GenPart_pdgId.size())) {
-
-//             int pdg = std::abs(GenPart_pdgId[idx]);
-
-//             if (pdg == 15) {
-//                 origin[i] = 1;   // tau
-//                 break;
-//             }
-
-//             if (pdg == 23) {
-//                 origin[i] = 2;   // Z
-//                 break;
-//             }
-
-//             if (pdg == 24) {
-//                 origin[i] = 3;   // W
-//                 break;
-//             }
-
-//             idx = GenPart_genPartIdxMother[idx];
-//         }
-//     }
-
-//     return origin;
-// }
-
-// #include <set>
-
-
-bool HasBit(int flags, int bit)
-{
-    return (flags & (1 << bit)) != 0;
-}
-
-constexpr int BIT_FROM_HARD_PROCESS = 8;
-constexpr int BIT_IS_LAST_COPY = 13;
-
-
-ints GetLeptonOrigin(
-    const shorts& Lepton_genPartIdx,
-    const ints& GenPart_pdgId,
-    const ushorts& GenPart_statusFlags,
-    const shorts& GenPart_genPartIdxMother)
-{
-    // Origin codes:
-    //
-    //   0 = No identified W/Z/tau origin
-    //
-    //   1 = Lepton from tau, where tau came from W
-    //   2 = Lepton from tau, where tau came from Z
-    //   3 = Lepton from tau, but tau did not come from W or Z
-    //
-    //   4 = Direct W -> lepton, where W came from top
-    //   5 = Direct Z -> lepton
-    //   6 = Direct W -> lepton, but W did NOT come from top
-
-    ints origin(Lepton_genPartIdx.size(), 0);
-
-    // Loop over all leptons and trace their generator-particle ancestry.
-    for (size_t i = 0; i < Lepton_genPartIdx.size(); ++i) {
-
-        int idx = Lepton_genPartIdx[i];
-
-        bool foundTau = false;
-        int tauIdx = -1;
-
-        // ------------------------------------------------------------
-        // Step 1:
-        // Walk upward from the lepton through the mother chain.
-        //
-        // We first look for a tau. If no tau is encountered, we look
-        // for a W or Z directly associated with the lepton ancestry.
-        // ------------------------------------------------------------
-        while (idx >= 0 &&
-               idx < static_cast<int>(GenPart_pdgId.size())) {
-
-            int pdg = std::abs(GenPart_pdgId[idx]);
-            unsigned short flags = GenPart_statusFlags[idx];
-
-            bool isLastCopy = HasBit(flags, BIT_IS_LAST_COPY);
-            bool isHardProc = HasBit(flags, BIT_FROM_HARD_PROCESS);
-
-            // --------------------------------------------------------
-            // A tau was found in the lepton ancestry.
-            //
-            // Save the tau index and handle its origin separately.
-            // --------------------------------------------------------
-            if (pdg == 15 && isLastCopy) {
-                foundTau = true;
-                tauIdx = idx;
-                break;
-            }
-
-            // --------------------------------------------------------
-            // A W was found in the lepton ancestry.
-            //
-            // We now need to determine whether this W came from
-            // a top quark:
-            //
-            //        top -> W -> lepton
-            //
-            // or whether the W came from some other source.
-            // --------------------------------------------------------
-            if (pdg == 24 && isLastCopy && isHardProc) {
-
-                int wMother = GenPart_genPartIdxMother[idx];
-                bool wFromTop = false;
-
-                // Follow the W mother chain and look for a top quark.
-                while (wMother >= 0 &&
-                       wMother < static_cast<int>(GenPart_pdgId.size())) {
-
-                    int motherPdg = std::abs(GenPart_pdgId[wMother]);
-
-                    unsigned short motherFlags =
-                        GenPart_statusFlags[wMother];
-
-                    bool motherIsLastCopy =
-                        HasBit(motherFlags, BIT_IS_LAST_COPY);
-
-                    // Top quark found in the W ancestry.
-                    if (motherPdg == 6 && motherIsLastCopy) {
-                        wFromTop = true;
-                        break;
-                    }
-
-                    // Continue following the W mother's ancestry.
-                    wMother =
-                        GenPart_genPartIdxMother[wMother];
-                }
-
-                // Distinguish W from top from W produced elsewhere.
-                if (wFromTop) {
-                    origin[i] = 4;   // top -> W -> lepton
-                }
-                else {
-                    origin[i] = 6;   // W -> lepton, not from top
-                }
-
-                break;
-            }
-
-            // --------------------------------------------------------
-            // A Z boson was found in the lepton ancestry.
-            // --------------------------------------------------------
-            if (pdg == 23 && isLastCopy && isHardProc) {
-                origin[i] = 5;       // Z -> lepton
-                break;
-            }
-
-            // Move to the next particle in the mother chain.
-            idx = GenPart_genPartIdxMother[idx];
-        }
-
-        // ------------------------------------------------------------
-        // Step 2:
-        // If the lepton came from a tau, determine the origin of
-        // that tau by following the tau's mother chain.
-        // ------------------------------------------------------------
-        if (foundTau) {
-
-            int mother = GenPart_genPartIdxMother[tauIdx];
-
-            bool foundTauOrigin = false;
-
-            // Follow the tau's ancestry looking for a hard-process
-            // W or Z boson.
-            while (mother >= 0 &&
-                   mother < static_cast<int>(GenPart_pdgId.size())) {
-
-                int pdg = std::abs(GenPart_pdgId[mother]);
-
-                unsigned short flags =
-                    GenPart_statusFlags[mother];
-
-                bool isLastCopy =
-                    HasBit(flags, BIT_IS_LAST_COPY);
-
-                bool isHardProc =
-                    HasBit(flags, BIT_FROM_HARD_PROCESS);
-
-                // ----------------------------------------------------
-                // Tau came from a hard-process W.
-                //
-                // This corresponds to:
-                //
-                //       W -> tau -> lepton
-                // ----------------------------------------------------
-                if (pdg == 24 && isLastCopy && isHardProc) {
-                    origin[i] = 1;
-                    foundTauOrigin = true;
-                    break;
-                }
-
-                // ----------------------------------------------------
-                // Tau came from a hard-process Z.
-                //
-                // This corresponds to:
-                //
-                //       Z -> tau -> lepton
-                // ----------------------------------------------------
-                if (pdg == 23 && isLastCopy && isHardProc) {
-                    origin[i] = 2;
-                    foundTauOrigin = true;
-                    break;
-                }
-
-                // Continue following the tau's mother chain.
-                mother = GenPart_genPartIdxMother[mother];
-            }
-
-            // --------------------------------------------------------
-            // Tau was found, but no hard-process W or Z was found
-            // in its ancestry.
-            // --------------------------------------------------------
-            if (!foundTauOrigin) {
-                origin[i] = 3;
-            }
-        }
-    }
-
-    return origin;
-}
-
-
-
-int CountUniqueOrigin3(
-    const shorts& genIdx,
-    const ints& origin)
-{
-    std::set<int> unique;
-
-    for (size_t i = 0; i < genIdx.size(); ++i) {
-
-        if (origin[i] != 3)
-            continue;
-
-        if (genIdx[i] < 0)
-            continue;
-
-        unique.insert(genIdx[i]);
-    }
-
-    return unique.size();
-}
-
-inline float DeltaPhi(float phi1, float phi2) {
-    float dphi = phi1 - phi2;
-    while (dphi >  M_PI) dphi -= 2 * M_PI;
-    while (dphi < -M_PI) dphi += 2 * M_PI;
-    return dphi;
-}
-
-inline float DeltaR(float eta1, float phi1, float eta2, float phi2) {
-    float deta = eta1 - eta2;
-    float dphi = DeltaPhi(phi1, phi2);
-    return std::sqrt(deta * deta + dphi * dphi);
-}
-
-struct RecoMuonMatch {
-    int   genIdx  = -1;    // matched gen muon index, -1 if none
-    float dR      = -1.f;
-    bool  fromW   = false; // mother chain (skipping W copies) starts with a W
-    bool  fromTop = false; // and above that W sits a top
-};
-
-// ------------------------------------------------------------
-// Walk up the mother chain starting from `startIdx`, skipping
-// over any run of W copies (|pdgId| == 24), and report:
-//   - whether a W was found at all in the chain
-//   - whether a top sits directly above that W run
-// ------------------------------------------------------------
-inline void WalkUpThroughW(
-    int startIdx,
-    const ROOT::VecOps::RVec<int>& pdg,
-    const ROOT::VecOps::RVec<short>& mother,
-    bool& sawW, bool& topAbove)
-{
-    sawW = false;
-    topAbove = false;
-
-    int cur = mother[startIdx];
-    while (cur >= 0) {
-        int apdg = std::abs(pdg[cur]);
-        if (apdg == 24) {
-            sawW = true;
-            cur = mother[cur];   // keep climbing through W copies
-            continue;
-        }
-        if (sawW) topAbove = (apdg == 6);
-        break;
-    }
-}
-
-// ------------------------------------------------------------
-// Single-muon version (kept for reuse / testing individual muons)
-// ------------------------------------------------------------
-RecoMuonMatch MatchRecoMuonToTopChain(
-    float recoPt, float recoEta, float recoPhi,
-    const ROOT::VecOps::RVec<int>& pdg,
-    const ROOT::VecOps::RVec<short>& mother,
-    const ROOT::VecOps::RVec<float>& genEta,
-    const ROOT::VecOps::RVec<float>& genPhi,
-    float maxDR = 0.3f)
-{
-    RecoMuonMatch out;
-
-    int bestIdx = -1;
-    float bestDR = maxDR;
-    for (int j = 0; j < (int)pdg.size(); ++j) {
-        if (std::abs(pdg[j]) != 13) continue;
-        float dr = DeltaR(recoEta, recoPhi, genEta[j], genPhi[j]);
-        if (dr < bestDR) { bestDR = dr; bestIdx = j; }
-    }
-    if (bestIdx < 0) return out;
-
-    out.genIdx = bestIdx;
-    out.dR = bestDR;
-
-    bool sawW = false, topAbove = false;
-    WalkUpThroughW(bestIdx, pdg, mother, sawW, topAbove);
-
-    out.fromW   = sawW;
-    out.fromTop = sawW && topAbove;
-
-    return out;
-}
-
-// ------------------------------------------------------------
-// VECTORIZED: loops over every reconstructed muon in the event
-// automatically. Pass the full Muon_* and GenPart_* branches;
-// get back one RVec<int> (0/1 flag) per muon, in the same order
-// as the input Muon collection.
-//
-// Also provides an "all fields" variant returning genIdx/dR/fromW
-// for anyone who wants more than just the final flag.
-// ------------------------------------------------------------
-ROOT::RVec<int> Muon_FromTopW(
-    const ROOT::VecOps::RVec<float>& muPt,
-    const ROOT::VecOps::RVec<float>& muEta,
-    const ROOT::VecOps::RVec<float>& muPhi,
-    const ROOT::VecOps::RVec<int>&   pdg,
-    const ROOT::VecOps::RVec<short>& mother,
-    const ROOT::VecOps::RVec<float>& genEta,
-    const ROOT::VecOps::RVec<float>& genPhi,
-    float maxDR = 0.3f)
-{
-    ROOT::RVec<int> out(muPt.size(), 0);
-    for (size_t i = 0; i < muPt.size(); ++i) {
-        auto m = MatchRecoMuonToTopChain(muPt[i], muEta[i], muPhi[i],
-                                          pdg, mother, genEta, genPhi, maxDR);
-        out[i] = m.fromTop ? 1 : 0;
-    }
-    return out;
-}
-
-// Optional: full diagnostic output per muon (genIdx, dR, fromW, fromTop)
-// packed into parallel RVecs, useful for debugging / cutflow studies.
-struct MuonMatchArrays {
-    ROOT::RVec<int>   genIdx;
-    ROOT::RVec<float> dR;
-    ROOT::RVec<int>   fromW;
-    ROOT::RVec<int>   fromTop;
-};
-
-MuonMatchArrays Muon_TopWMatchInfo(
-    const ROOT::VecOps::RVec<float>& muPt,
-    const ROOT::VecOps::RVec<float>& muEta,
-    const ROOT::VecOps::RVec<float>& muPhi,
-    const ROOT::VecOps::RVec<int>&   pdg,
-    const ROOT::VecOps::RVec<short>& mother,
-    const ROOT::VecOps::RVec<float>& genEta,
-    const ROOT::VecOps::RVec<float>& genPhi,
-    float maxDR = 0.3f)
-{
-    MuonMatchArrays out;
-    size_t n = muPt.size();
-    out.genIdx.resize(n, -1);
-    out.dR.resize(n, -1.f);
-    out.fromW.resize(n, 0);
-    out.fromTop.resize(n, 0);
-
-    for (size_t i = 0; i < n; ++i) {
-        auto m = MatchRecoMuonToTopChain(muPt[i], muEta[i], muPhi[i],
-                                          pdg, mother, genEta, genPhi, maxDR);
-        out.genIdx[i]  = m.genIdx;
-        out.dR[i]      = m.dR;
-        out.fromW[i]   = m.fromW ? 1 : 0;
-        out.fromTop[i] = m.fromTop ? 1 : 0;
-    }
-    return out;
-}
-
-// ------------------------------------------------------------
-// TRUTH-LEVEL ONLY: check whether a given GenPart muon's mother
-// chain is W and that W's ancestor (skipping W copies) is a top.
-// No reco objects / dR matching involved anywhere here.
-// ------------------------------------------------------------
-
-// Single-index check: given one GenPart index (already known to be
-// a muon, |pdgId|==13), classify its ancestry.
-// Returns true only if: muon -> (chain of W copies) -> top
-bool IsGenMuonFromTopW(
-    int muIdx,
-    const ROOT::VecOps::RVec<int>&   pdg,
-    const ROOT::VecOps::RVec<short>& mother)
-{
-    if (muIdx < 0 || muIdx >= (int)pdg.size()) return false;
-    if (std::abs(pdg[muIdx]) != 13) return false; // not a muon
-
-    bool sawW = false;
-    int cur = mother[muIdx];
-    while (cur >= 0) {
-        int apdg = std::abs(pdg[cur]);
-        if (apdg == 24) {
-            sawW = true;
-            cur = mother[cur];   // climb through W copies
-            continue;
-        }
-        // first non-W ancestor reached
-        return sawW && (apdg == 6);
-    }
-    return false; // reached top of record (mother == -1) without a top
-}
-
-// ------------------------------------------------------------
-// VECTORIZED: scan the full GenPart collection of an event and
-// return a 0/1 flag PER GenPart ENTRY (same length as GenPart_pdgId),
-// flagging every gen muon whose ancestry is W -> top.
-// Non-muon entries are always 0.
-// ------------------------------------------------------------
-ROOT::RVec<int> GenPart_MuonFromTopW(
-    const ROOT::VecOps::RVec<int>&   pdg,
-    const ROOT::VecOps::RVec<short>& mother)
-{
-    ROOT::RVec<int> out(pdg.size(), 0);
-    for (int i = 0; i < (int)pdg.size(); ++i) {
-        if (std::abs(pdg[i]) != 13) continue; // only tag muons
-        out[i] = IsGenMuonFromTopW(i, pdg, mother) ? 1 : 0;
-    }
-    return out;
-}
-
-// ------------------------------------------------------------
-// CONVENIENCE: does THIS EVENT contain at least one gen muon
-// coming from a top-quark W decay? Useful as an event-level flag
-// or for a Filter().
-// ------------------------------------------------------------
-bool Event_HasGenMuonFromTopW(
-    const ROOT::VecOps::RVec<int>&   pdg,
-    const ROOT::VecOps::RVec<short>& mother)
-{
-    for (int i = 0; i < (int)pdg.size(); ++i) {
-        if (std::abs(pdg[i]) != 13) continue;
-        if (IsGenMuonFromTopW(i, pdg, mother)) return true;
-    }
-    return false;
-}
-
-// ------------------------------------------------------------
-// Cross-check: does GetLeptonOrigin's code==4 (top->W->lepton)
-// agree with GenPart_muFromTopW at the lepton's matched GenPart index?
-//
-// Returns a per-lepton comparison code (same length as Lepton_genPartIdx):
-//    1  = both agree the lepton IS from top->W
-//    0  = both agree the lepton is NOT from top->W
-//   -1  = disagreement: origin==4 but GenPart flag says 0
-//   -2  = disagreement: origin!=4 but GenPart flag says 1
-//   -9  = lepton has no valid gen match (genPartIdx < 0), can't compare
-// ------------------------------------------------------------
-ints CompareLeptonOriginToGenPartFlag(
-    const shorts& Lepton_genPartIdx,
-    const ints&   origin,              // output of GetLeptonOrigin
-    const ints&   GenPart_muFromTopW)  // output of GenPart_MuonFromTopW
-{
-    ints cmp(Lepton_genPartIdx.size(), -9);
-
-    for (size_t i = 0; i < Lepton_genPartIdx.size(); ++i) {
-        int gi = Lepton_genPartIdx[i];
-        if (gi < 0 || gi >= (int)GenPart_muFromTopW.size()) {
-            cmp[i] = -9; // no valid gen match, skip
-            continue;
-        }
-
-        bool originSaysTopW  = (origin[i] == 4);
-        bool genPartSaysTopW = (GenPart_muFromTopW[gi] == 1);
-
-        if (originSaysTopW && genPartSaysTopW)        cmp[i] = 1;
-        else if (!originSaysTopW && !genPartSaysTopW)  cmp[i] = 0;
-        else if (originSaysTopW && !genPartSaysTopW)   cmp[i] = -1; // origin flagged, genpart didn't
-        else                                            cmp[i] = -2; // genpart flagged, origin didn't
-    }
-
-    return cmp;
-}
-
 
 // =====================================================================
 // utility_ff_additions.cpp
@@ -1686,3 +1179,235 @@ floats nearbyJetPtRatio(const floats& relIso)
 
     return out;
 }
+
+namespace LeptonTruth {
+namespace {
+Result Finish(Result r) {
+    r.isPrompt = r.truthClass == int(TruthClass::Prompt);
+    r.isNonPrompt = r.truthClass == int(TruthClass::NonPrompt);
+    return r;
+}
+}
+/**
+ * @brief Classify one NanoAOD-associated reconstructed electron or muon (MC only).
+ *
+ * Uses original genPartIdx/genPartFlav, never geometric matching. Walks the
+ * GenPart mother chain with bounds checks and a visited set; signed same-PDG
+ * electron, muon, tau and boson copies are collapsed for path interpretation.
+ * Traversal is bounded by the GenPart count. Original associations are unchanged.
+ *
+ * TruthClass integer values: 0 Unresolved, 1 Prompt, 2 NonPrompt,
+ * 3 PhotonAssociated, 4 PromptOtherOrUnresolvedOrigin. PromptOrigin values:
+ * 0 NotApplicable, 1 DirectW, 2 DirectZ, 3 DirectGammaStar, 4 PromptTauFromW,
+ * 5 PromptTauFromZ, 6 PromptTauFromGammaStar, 7 PromptOtherOrUnresolvedOrigin.
+ *
+ * Flav 1 requires lepton copies followed immediately by W/Z/gamma* copies;
+ * flav 15 requires lepton copies -> same-sign tau copies -> W/Z/gamma* copies.
+ * NanoAOD flav 15 supplies prompt-tau evidence; a tau ancestor alone does not.
+ * W decay charge must be consistent. W/Z require no top or on-shell mass.
+ * A gamma* requires PDG 22 and direct opposite-sign same-flavor daughters
+ * after photon-copy collapse. Preserve the established hard-photon route:
+ * a non-final copy with finite positive stored mass plus hard-process bit 7/8.
+ * Also accept a non-final isPrompt photon copy with isPrompt daughters of both
+ * charges, supported by NanoAOD flav 1 (or flav 15 for prompt-tau daughters).
+ * This second route recognizes secondary prompt QED pair splitting without
+ * requiring a reliable stored photon mass or a hard-process photon. Two direct
+ * massive lepton daughters establish pair production; their four-momenta are
+ * independent validation evidence, not an added selection or mass threshold.
+ * Incomplete pair/prompt evidence remains category 4. Flav 22 reconstructed
+ * electrons still return PhotonAssociated before either photon route.
+ * DirectGammaStar and isFromGammaStar describe the nearest accepted photon
+ * mediation, whether hard or secondary; neither identifies associated hard
+ * production or separates Z/gamma interference. The flag assignment is unchanged.
+ * A hadron, heavy quark, photon outside this gamma* path, or another intervening
+ * species blocks a direct prompt interpretation. Distant W/Z/top never overrides
+ * nonprompt evidence. TopW requires a top immediately above the W copy chain.
+ *
+ * Flav 4/5 is NonPrompt without separate heavy-flavor output categories. Flav 3
+ * remains Unresolved (light OR unknown); no extra nonprompt inference is made.
+ * Electron flav 22 is PhotonAssociated, never direct gamma* by this classifier.
+ * Flav 0 is Unresolved. Matched electron photons are allowed for flav 22/3/4/5;
+ * an electron-flav-1 photon match cannot establish a prompt lepton decay path.
+ * Charge flips at reconstruction are allowed: matching checks absolute flavor.
+ *
+ * Missing indices retain category 4 for flav 1/15, class 2 for flav 4/5 and class
+ * 3 for electron flav 22, with diagnostics. Invalid positive/negative indices,
+ * incompatible flavors, cycles, array mismatches or contradictory evidence give
+ * class 0. A normal -1 mother terminates ancestry; absent accepted mediator gives
+ * category 4 with IncompleteAncestry. Both isPrompt/isNonPrompt are zero for 0/3/4.
+ *
+ * originStatus bit positions (OR-combinable, zero means no issue):
+ * 0 NoGenIndex; 1 InvalidGenIndex; 2 ArrayLengthMismatch; 3 InvalidMotherIndex;
+ * 4 AncestryCycle; 5 IncompleteAncestry; 6 IncompatibleFlavor;
+ * 7 ContradictoryEvidence; 8 UnsupportedFlav; 9 NoAcceptedMediator;
+ * 10 UnestablishedGammaStar; 11 InterveningParticle; 12 TauEvidenceMismatch.
+ *
+ * Known limits: NanoAOD has one pruned mother pointer; lost parent/daughter or
+ * prompt/path information cannot be invented. Stored zero photon mass alone
+ * does not exclude virtual pair splitting. No ancestry-only override of
+ * NanoAOD flav is attempted. isFromZ is ancestry, not associated-production Z.
+ * No separate bottom/charm/light classification branches are produced.
+ */
+Result ClassifyRecoLeptonOrigin(int recoPdgId, int genPartIdx,
+    unsigned char genPartFlav, const ints& pdg, const shorts& mother,
+    const ushorts& flags, const ints& status, const floats& mass) {
+    Result r;
+    const int flavor = std::abs(recoPdgId);
+    const bool candidate = genPartFlav == 1 || genPartFlav == 15;
+    if (candidate) { r.truthClass=4; r.promptOrigin=7; }
+    else if (genPartFlav == 4 || genPartFlav == 5) r.truthClass=2;
+    else if (genPartFlav == 22 && flavor == 11) {
+        r.truthClass=3; r.isPhotonAssociated=1;
+    } else if (genPartFlav != 0 && genPartFlav != 3) r.originStatus |= UnsupportedFlav;
+    auto invalid = [&](unsigned int diagnostic) {
+        r.truthClass=0; r.promptOrigin=0;
+        r.isFromPromptTau=r.isFromTopW=r.isFromZ=r.isFromGammaStar=0;
+        r.originStatus |= diagnostic;
+        return Finish(r);
+    };
+    if (flavor != 11 && flavor != 13) return invalid(IncompatibleFlavor);
+    const size_t n=pdg.size();
+    if (mother.size()!=n || flags.size()!=n || status.size()!=n || mass.size()!=n)
+        return invalid(ArrayLengthMismatch);
+    if (genPartIdx == -1) {
+        r.originStatus |= NoGenIndex;
+        if (candidate) r.originStatus |= IncompleteAncestry | NoAcceptedMediator;
+        return Finish(r);
+    }
+    if (genPartIdx < -1 || size_t(genPartIdx)>=n) return invalid(InvalidGenIndex);
+    const int matched=std::abs(pdg[genPartIdx]);
+    const bool photonMatch=flavor==11 && matched==22;
+    if (photonMatch) r.isPhotonAssociated=1;
+    if (matched!=flavor && !(photonMatch && (genPartFlav==22 || genPartFlav==3 || genPartFlav==4 || genPartFlav==5)))
+        return invalid(IncompatibleFlavor | (candidate ? ContradictoryEvidence : 0u));
+    // Validate the complete reachable chain, including copies above the mediator.
+    std::vector<int> chain;
+    std::set<int> visited;
+    int cur=genPartIdx;
+    while (cur!=-1) {
+        if (cur<0 || size_t(cur)>=n) return invalid(InvalidMotherIndex);
+        if (!visited.insert(cur).second || chain.size()>=n) return invalid(AncestryCycle);
+        chain.push_back(cur);
+        cur=mother[cur];
+    }
+    if (!candidate) {
+        // Flav 0/3 never becomes prompt merely because a boson was encountered.
+        return Finish(r);
+    }
+    size_t k=0;
+    const int leptonId=pdg[chain[0]];
+    while (k<chain.size() && pdg[chain[k]]==leptonId) ++k;
+    bool tau=false;
+    int decayId=leptonId;
+    if (k<chain.size() && std::abs(pdg[chain[k]])==15) {
+        tau=true; decayId=pdg[chain[k]];
+        if ((decayId>0)!=(leptonId>0)) return invalid(ContradictoryEvidence);
+        while (k<chain.size() && pdg[chain[k]]==decayId) ++k;
+    }
+    if ((genPartFlav==15)!=tau) {
+        r.originStatus |= TauEvidenceMismatch;
+        if (tau) return invalid(ContradictoryEvidence);
+        // NanoAOD supplies prompt-tau evidence, but a pruned/lost tau link
+        // cannot establish one of the accepted paths: retain category 4.
+        r.originStatus |= IncompleteAncestry | NoAcceptedMediator;
+        return Finish(r);
+    }
+    if (k==chain.size()) {
+        r.originStatus |= IncompleteAncestry | NoAcceptedMediator;
+        return Finish(r);
+    }
+    const int bosonIdx=chain[k], bosonId=pdg[bosonIdx], boson=std::abs(bosonId);
+    if (boson!=24 && boson!=23 && boson!=22) {
+        r.originStatus |= InterveningParticle | NoAcceptedMediator;
+        // A known hadronic path contradicts flav 1/15. Quark/radiation or
+        // missing-boson records otherwise remain the separate category 4.
+        if (boson>100) return invalid(ContradictoryEvidence);
+        return Finish(r);
+    }
+    size_t above=k;
+    while (above<chain.size() && pdg[chain[above]]==bosonId) ++above;
+    if (boson==24 && (bosonId>0)==(decayId>0)) return invalid(ContradictoryEvidence);
+    if (boson==22) {
+        bool virtualPhoton=false, hard=false, plus=false, minus=false;
+        bool promptPhoton=false, promptPlus=false, promptMinus=false;
+        std::set<int> photonCopies;
+        for (size_t j=k; j<above; ++j) {
+            int b=chain[j]; photonCopies.insert(b);
+            virtualPhoton |= std::isfinite(mass[b]) && mass[b]>0 && status[b]!=1;
+            hard |= (flags[b] & ((1u<<7)|(1u<<8))) != 0;
+            promptPhoton |= status[b]!=1 && (flags[b] & 1u)!=0;
+        }
+        // Direct daughters of any copy must be the decaying lepton or tau
+        // flavor, with both charges. No hadron/photon barrier is skipped.
+        for (size_t j=0; j<n; ++j) if (photonCopies.count(mother[j])) {
+            plus |= pdg[j]==std::abs(decayId);
+            minus |= pdg[j]==-std::abs(decayId);
+            promptPlus |= pdg[j]==std::abs(decayId) && (flags[j] & 1u)!=0;
+            promptMinus |= pdg[j]==-std::abs(decayId) && (flags[j] & 1u)!=0;
+        }
+        const bool hardPair=virtualPhoton && hard;
+        const bool promptPair=promptPhoton && promptPlus && promptMinus;
+        if (!plus || !minus || !(hardPair || promptPair)) {
+            r.originStatus |= UnestablishedGammaStar | NoAcceptedMediator;
+            return Finish(r);
+        }
+    }
+    // Hadron ancestry above a claimed prompt mediator is contradictory.
+    // Incoming heavy partons are allowed above an established hard mediator.
+    for (size_t j=above; j<chain.size(); ++j) {
+        const int a=std::abs(pdg[chain[j]]);
+        if (a>100) return invalid(ContradictoryEvidence);
+    }
+    r.truthClass=1;
+    r.promptOrigin=(boson==24 ? 1 : boson==23 ? 2 : 3)+(tau ? 3 : 0);
+    r.isFromPromptTau=tau;
+    r.isFromZ=boson==23;
+    r.isFromGammaStar=boson==22;
+    r.isFromTopW=boson==24 && above<chain.size()
+        && std::abs(pdg[chain[above]])==6
+        && ((pdg[chain[above]]>0)==(bosonId>0));
+    return Finish(r);
+}
+
+/**
+ * @brief MC-only batch wrapper preserving the final goodLepton index order.
+ *
+ * Input recoPdgId, genPartIdx and genPartFlav must already use the same masks,
+ * electron-muon overlap removal, merging and pT sorting as goodLepton_pt,
+ * goodLepton_isTight and goodLepton_isLNT. Unequal input lengths throw; no sort,
+ * filtering, truncation or rematching is performed here. Exactly one result per
+ * selected lepton is returned, even for unmatched or unresolved objects.
+ *
+ * BaseAnalyser projects these fields to Gen_goodLepton_{truthClass,promptOrigin,
+ * originStatus,isPrompt,isNonPrompt,isFromPromptTau,isFromTopW,isFromZ,
+ * isFromGammaStar,isPhotonAssociated}. truthClass and promptOrigin use the exact
+ * enum integers documented on ClassifyRecoLeptonOrigin; originStatus uses its
+ * documented bits 0--12. Other outputs are 0/1 ints: confirmed class 1, confirmed
+ * class 2, accepted prompt tau path, prompt top-W path, prompt Z path, accepted
+ * prompt gamma* path, and photon association respectively. Class 4 has both
+ * isPrompt and isNonPrompt zero. Tau/Z/gamma/top flags require confirmed prompt.
+ * The transient Columns object is not saved; only RVec<int> field projections
+ * and RVec<unsigned int> originStatus are stored by Gen_goodLepton_.*.
+ * See the scalar heading for physics definitions, conservative handling of
+ * NanoAOD flav 0/3/22, status bits, copy handling and pruning limitations.
+ */
+Columns ClassifyRecoLeptonOrigins(const ints& recoPdgId,
+    const shorts& genPartIdx, const uchars& genPartFlav, const ints& pdg,
+    const shorts& mother, const ushorts& flags, const ints& status,
+    const floats& mass) {
+    if (recoPdgId.size()!=genPartIdx.size() || recoPdgId.size()!=genPartFlav.size())
+        throw std::invalid_argument("LeptonTruth: mismatched selected lepton vector lengths");
+    Columns c;
+    for (size_t i=0; i<recoPdgId.size(); ++i) {
+        const auto r=ClassifyRecoLeptonOrigin(recoPdgId[i],genPartIdx[i],genPartFlav[i],
+                                            pdg,mother,flags,status,mass);
+#define APPEND(field) c.field.push_back(r.field)
+        APPEND(truthClass); APPEND(promptOrigin); APPEND(originStatus);
+        APPEND(isPrompt); APPEND(isNonPrompt); APPEND(isFromPromptTau);
+        APPEND(isFromTopW); APPEND(isFromZ); APPEND(isFromGammaStar);
+        APPEND(isPhotonAssociated);
+#undef APPEND
+    }
+    return c;
+}
+} // namespace LeptonTruth

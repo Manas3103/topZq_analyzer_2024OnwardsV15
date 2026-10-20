@@ -156,38 +156,63 @@ buildTLorentzVectors(
 TLorentzVector TL4VecFromFourVec(const FourVector &v); 
 bool hasExactlyOneOSSFZPair(const FourVectorRVec& leptons,const ints& pdgId); 
 
-ints GetLeptonOrigin(
-    const shorts& Lepton_genPartIdx,
-    const ints& GenPart_pdgId,
-    const ushorts& GenPart_statusFlags,
-    const shorts& GenPart_genPartIdxMother
-);
-int CountUniqueOrigin3(
-    const shorts& genIdx,
-    const ints& origin);
-
-ROOT::RVec<int> Muon_FromTopW(
-    const ROOT::VecOps::RVec<float>& muPt,
-    const ROOT::VecOps::RVec<float>& muEta,
-    const ROOT::VecOps::RVec<float>& muPhi,
-    const ROOT::VecOps::RVec<int>&   pdg,
-    const ROOT::VecOps::RVec<short>& mother,
-    const ROOT::VecOps::RVec<float>& genEta,
-    const ROOT::VecOps::RVec<float>& genPhi,
-    float maxDR);
-
-ROOT::RVec<int> GenPart_MuonFromTopW(
-    const ROOT::VecOps::RVec<int>&   pdg,
-    const ROOT::VecOps::RVec<short>& mother);
-
-bool Event_HasGenMuonFromTopW(
-    const ROOT::VecOps::RVec<int>&   pdg,
-    const ROOT::VecOps::RVec<short>& mother);
-
-ints CompareLeptonOriginToGenPartFlag(
-    const shorts& Lepton_genPartIdx,
-    const ints&   origin,              
-    const ints&   GenPart_muFromTopW); 
+namespace LeptonTruth {
+enum class TruthClass : int {
+    Unresolved=0, Prompt=1, NonPrompt=2, PhotonAssociated=3,
+    PromptOtherOrUnresolvedOrigin=4
+};
+enum class PromptOrigin : int {
+    NotApplicable=0, DirectW=1, DirectZ=2, DirectGammaStar=3,
+    PromptTauFromW=4, PromptTauFromZ=5, PromptTauFromGammaStar=6,
+    PromptOtherOrUnresolvedOrigin=7
+};
+enum Status : unsigned int {
+    NoGenIndex=1u<<0, InvalidGenIndex=1u<<1, ArrayLengthMismatch=1u<<2,
+    InvalidMotherIndex=1u<<3, AncestryCycle=1u<<4, IncompleteAncestry=1u<<5,
+    IncompatibleFlavor=1u<<6, ContradictoryEvidence=1u<<7,
+    UnsupportedFlav=1u<<8, NoAcceptedMediator=1u<<9,
+    UnestablishedGammaStar=1u<<10, InterveningParticle=1u<<11,
+    TauEvidenceMismatch=1u<<12
+};
+struct Result {
+    int truthClass=0, promptOrigin=0;
+    unsigned int originStatus=0;
+    int isPrompt=0, isNonPrompt=0, isFromPromptTau=0, isFromTopW=0;
+    int isFromZ=0, isFromGammaStar=0, isPhotonAssociated=0;
+};
+struct Columns {
+    ints truthClass, promptOrigin;
+    ROOT::VecOps::RVec<unsigned int> originStatus;
+    ints isPrompt, isNonPrompt, isFromPromptTau, isFromTopW;
+    ints isFromZ, isFromGammaStar, isPhotonAssociated;
+};
+/**
+ * @brief Classify one NanoAOD-associated reconstructed electron or muon (MC only).
+ * Uses the original genPartIdx/genPartFlav and safe, copy-aware mother traversal;
+ * no geometric rematching is performed. Accepted prompt W/Z/photon paths include
+ * supported prompt tau daughters. Photon origin includes secondary prompt pair
+ * splitting and does not identify hard associated production. Nonprompt flavor
+ * 4/5 is not subdivided. Category 4 remains separate with both boolean flags zero.
+ * @return Result using the enum values and diagnostic bits declared above.
+ * See the implementation heading in utility.cpp for the complete physics rules,
+ * status-bit definitions, photon-associated behavior and ancestry limitations.
+ */
+Result ClassifyRecoLeptonOrigin(int recoPdgId, int genPartIdx,
+    unsigned char genPartFlav, const ints& pdg, const shorts& mother,
+    const ushorts& flags, const ints& status, const floats& mass);
+/**
+ * @brief Classify the already selected, cleaned and pT-sorted goodLepton collection.
+ * Input reconstructed flavors and raw NanoAOD associations must be index-aligned.
+ * Returns one result per lepton without sorting, masking or rematching; unequal
+ * selected-input lengths throw. The ten Columns fields become MC-only combined
+ * Gen_goodLepton_* branches, aligned with pt, sourceIdx and tight/LNT flags.
+ * See the scalar classifier and implementation headings for types and semantics.
+ */
+Columns ClassifyRecoLeptonOrigins(const ints& recoPdgId,
+    const shorts& genPartIdx, const uchars& genPartFlav, const ints& pdg,
+    const shorts& mother, const ushorts& flags, const ints& status,
+    const floats& mass);
+} // namespace LeptonTruth
 
 ZPairCounts countOSSFZPairs(const FourVectorRVec& leptons, const ints& pdgId);
 

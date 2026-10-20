@@ -32,11 +32,6 @@ namespace GenParticleHelper
                        const RVec<short>& mother,
                        const RVec<unsigned short>& statusFlags);
 
-    int FindLastCopy(int firstIdx,
-                     const RVec<int>& pdgId,
-                     const RVec<short>& mother,
-                     const RVec<unsigned short>& statusFlags);
-
     // Decay classification
     int ClassifyTopWDecay(const RVec<int>& pdg,
                           const RVec<short>& mother,
@@ -46,37 +41,6 @@ namespace GenParticleHelper
                        const RVec<short>& mother,
                        const RVec<unsigned short>& statusFlags);
 
-    // Prompt lepton helpers
-    void SaveLeptonCopyChain(int firstLeptonIdx,
-                             const RVec<int>& pdgId,
-                             const RVec<short>& mother,
-                             const RVec<unsigned short>& statusFlags,
-                             RVec<int>& output);
-
-    void ProcessZ(int zLast,
-                  const RVec<int>& pdgId,
-                  const RVec<short>& mother,
-                  const RVec<unsigned short>& statusFlags,
-                  RVec<int>& output);
-
-    void ProcessW(int wLast,
-                  const RVec<int>& pdgId,
-                  const RVec<short>& mother,
-                  const RVec<unsigned short>& statusFlags,
-                  RVec<int>& output);
-
-    // Main API
-    RVec<int> GetAllPromptGenLeptonIndices(const RVec<int>& pdgId,
-                                           const RVec<short>& mother,
-                                           const RVec<unsigned short>& statusFlags);
-
-    RVec<int> GetPromptGenLeptonPdgId(const RVec<int>& indices,
-                                      const RVec<int>& pdgId);
-
-    RVec<bool> MatchLeptonToPromptGen(const RVec<short>& leptonGenPartIdx,
-                                      const RVec<int>& promptGenLeptonIdx);
-
-    int CountPromptMatchedLeptons(const RVec<bool>& matches);
 }
 
 #endif
