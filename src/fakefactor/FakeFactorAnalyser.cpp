@@ -30,30 +30,8 @@ FakeFactorAnalyser::FakeFactorAnalyser(TTree *t, std::string outfilename): BaseA
 }
 
 // =====================================================================
-// Fakeable / tight electrons  (Table 5)
-//
-// Baseline and Fakeable share every shower-shape/impact-parameter cut;
-// the only differences are the pT threshold (7 vs 10 GeV) and, on top
-// of Fakeable, an additional requirement that's skipped entirely when
-// the TOP lepton MVA score is already >=0.4 (in which case the lepton
-// is tight anyway and trivially satisfies "fakeable"):
-//   TOP-MVA >= 0.4   OR   (EGamma MVA2 wpLoose AND DeepJetB(nearby jet) < 0.5
-//                          AND jetPtRatio > 0.5)
-// Tight = Baseline(pT>10) && TOP-MVA > 0.4.
-//
-// ASSUMPTIONS ON BRANCH NAMES (verify against your ntuple and fix if
-// different):
-//   - Electron_mvaTOP           : TOP lepton MVA score (float)
-//   - Electron_mvaFall17V2noIso_WPL : EGamma POG MVA2 loose WP (bool),
-//                                     standard central NanoAOD branch
-//   - Electron_jetIdx           : index into the Jet_* collection of the
-//                                  nearby jet used for jetRelIso (int,
-//                                  -1 if none) -- reused below for both
-//                                  the DeepJetB/jetPtRatio cuts here and
-//                                  the Eq. 28 cone-pT closest-jet branch,
-//                                  since NanoAOD's own jet-lepton
-//                                  matching is already the ~dR<0.4
-//                                  nearest jet that Eq. 28 wants.
+// Fakeable electrons match BaseAnalyser::baselineElectrons.
+// Tight electrons additionally require Electron_cutBased >= 4.
 // =====================================================================
 void FakeFactorAnalyser::selectFakeableElectrons()
 {
@@ -65,21 +43,18 @@ void FakeFactorAnalyser::selectFakeableElectrons()
 
     cout << "select fakeable electrons" << endl;
 
-    const std::string sieieCut =
-        "((abs(Electron_eta) < 1.479 && Electron_sieie < 0.011) || "
-        "(abs(Electron_eta) >= 1.479 && abs(Electron_eta) < 2.5 && Electron_sieie < 0.030))";
+    _rlm = _rlm.Define("FFbaselineElectrons",
+                "Electron_pt_corr > 20.0 && abs(Electron_eta) < 2.5 && "
+                "Electron_cutBased >= 2 && "
+                "!(abs(Electron_eta) > 1.442 && abs(Electron_eta) < 1.566) && "
+                "abs(Electron_dxy) < 0.05 && "
+                "abs(Electron_dz) < 0.10 && Electron_lostHits <= 1 && "
+                "Electron_hoe < 0.10 && Electron_convVeto && "
+                "((abs(Electron_eta) < 1.479 && Electron_sieie < 0.011) || "
+                "(abs(Electron_eta) >= 1.479 && abs(Electron_eta) < 2.5 && Electron_sieie < 0.030)) && "
+                "Electron_sip3d < 8 && Electron_eInvMinusPInv > -0.04");
 
-    const std::string sharedCuts =
-        "abs(Electron_eta) < 2.5 && "
-        "abs(Electron_dxy) < 0.05 && abs(Electron_dz) < 0.10 && "
-        "Electron_sip3d < 8 && "
-        // "Electron_miniPFRelIso_all < 0.4 && "
-        "Electron_lostHits <= 1 && " + sieieCut + " && "
-        "Electron_hoe < 0.10 && Electron_eInvMinusPInv > -0.04 && Electron_convVeto";
-
-    _rlm = _rlm.Define("FFbaselineElectrons", ("Electron_pt_corr > 7.0 && " + sharedCuts).c_str());
-
-    _rlm = _rlm.Define("FFfakeablePreMVA_Electrons", ("Electron_pt_corr > 10.0 && " + sharedCuts).c_str());
+    _rlm = _rlm.Define("FFfakeablePreMVA_Electrons", "FFbaselineElectrons");
 
     _rlm = _rlm.Define("Electron_nearbyJetPtRatio", ::nearbyJetPtRatio,{"Electron_jetRelIso"});
 
@@ -99,8 +74,7 @@ void FakeFactorAnalyser::selectFakeableElectrons()
         {"Electron_promptMVA", "Electron_mvaIso_WP90",
          "Electron_jetDF", "Electron_nearbyJetPtRatio"});
 
-    // _rlm = _rlm.Define("fakeableElectrons", "FFfakeablePreMVA_Electrons && FFfakeableExtraElectron");
-    _rlm = _rlm.Define("fakeableElectrons", "FFfakeablePreMVA_Electrons ");
+    _rlm = _rlm.Define("fakeableElectrons", "FFfakeablePreMVA_Electrons");
 
     _rlm = _rlm.Define("fakeableElectrons_pt",     "Electron_pt_corr[fakeableElectrons]")
                 .Define("fakeableElectrons_eta",    "Electron_eta[fakeableElectrons]")
@@ -111,9 +85,8 @@ void FakeFactorAnalyser::selectFakeableElectrons()
                 .Define("fakeableElectrons_jetIdx", "Electron_jetIdx[fakeableElectrons]")
                 .Define("NfakeableElectrons", "int(fakeableElectrons_pt.size())");
 
-    // Tight = fakeable-eligible baseline && TOP-MVA > 0.4 (subset mask,
-    // same length/order as the fakeable arrays above).
-    _rlm = _rlm.Define("fakeableElectrons_isTight", "Electron_promptMVA[fakeableElectrons] > 0.9f");
+    // Tight flags retain the length and order of the fakeable arrays.
+    _rlm = _rlm.Define("fakeableElectrons_isTight", "Electron_cutBased[fakeableElectrons] >= 4");
 
     _rlm = _rlm.Define("fakeableElectron_4Vecs", ::generate_4vec,
                 {"fakeableElectrons_pt", "fakeableElectrons_eta",
@@ -121,25 +94,8 @@ void FakeFactorAnalyser::selectFakeableElectrons()
 }
 
 // =====================================================================
-// Fakeable / tight muons  (Table 6)
-//
-// Baseline and Fakeable share pT/eta/dxy/dz/SIP3D/iso/MediumID; Fakeable
-// pT threshold is 10 GeV (same as baseline here -- Table 6 lists 10 GeV
-// for both baseline and fakeable, unlike electrons). On top of that,
-// the "†" cuts (skipped when TOP-MVA>=0.4):
-//   DeepJetB(nearby jet) < f(a,b; ptcone)   AND   jetPtRatio > 0.45
-// where f(a,b;x) is the sliding cut of Eq. (footnote 1 of Table 6):
-//   x = min( max(ptcone-25,0)/15 , 1 );  f = (1-x)*a + x*b
-// (a,b) = (0.02, 0.015) for 2016/2017, (0.025, 0.015) for 2018.
-// No official Run-3 (2024) coefficients are given in the note -- using
-// the 2018 pair as a placeholder below; flag if your group has settled
-// on different Run-3 values.
-// Tight = Baseline && TOP-MVA > 0.4.
-//
-// ASSUMPTIONS ON BRANCH NAMES (verify against your ntuple):
-//   - Muon_mvaTOP    : TOP lepton MVA score (float)
-//   - Muon_mediumId  : already used elsewhere in this codebase (MuonID(3))
-//   - Muon_jetIdx    : nearby-jet index, same role as Electron_jetIdx
+// Fakeable muons match BaseAnalyser::baselineMuons.
+// Tight muons additionally require Muon_tightId.
 // =====================================================================
 void FakeFactorAnalyser::selectFakeableMuons()
 {
@@ -151,18 +107,17 @@ void FakeFactorAnalyser::selectFakeableMuons()
 
     cout << "select fakeable muons" << endl;
 
-    const float sliding_a = 0.025f; // 2018 placeholder -- confirm Run-3 value
+    _rlm = _rlm.Define("FFbaselineMuons",
+                "Muon_pt_corr > 20.0 && abs(Muon_eta) < 2.4 && "
+                "abs(Muon_dxy) < 0.05 && "
+                "abs(Muon_dz) < 0.10 && Muon_sip3d < 8.0 && "
+                "Muon_looseId && Muon_isPFcand && "
+                "(Muon_isGlobal || Muon_isTracker)");
+
+    _rlm = _rlm.Define("FFfakeablePreMVA_Muons", "FFbaselineMuons");
+
+    const float sliding_a = 0.025f; // Retained diagnostic; not part of the fakeable cut.
     const float sliding_b = 0.015f;
-
-    const std::string sharedCuts =
-        "Muon_pt_corr > 10.0 && abs(Muon_eta) < 2.4 && "
-        "abs(Muon_dxy) < 0.05 && abs(Muon_dz) < 0.10"
-        "&& Muon_sip3d < 8.0 && "
-        // "Muon_miniPFRelIso_all < 0.4 &&"
-        " Muon_mediumId";
-
-    _rlm = _rlm.Define("FFbaselineMuons", sharedCuts.c_str());
-    _rlm = _rlm.Define("FFfakeablePreMVA_Muons", sharedCuts.c_str());
 
     _rlm = _rlm.Define("Muon_nearbyJetPtRatio", ::nearbyJetPtRatio, {"Muon_jetRelIso"});
 
@@ -188,7 +143,6 @@ void FakeFactorAnalyser::selectFakeableMuons()
         },
         {"Muon_promptMVA", "Muon_pt_corr", "Muon_jetDF", "Muon_nearbyJetPtRatio"});
 
-    // _rlm = _rlm.Define("fakeableMuons", "FFfakeablePreMVA_Muons && FFfakeableExtraMuon");
     _rlm = _rlm.Define("fakeableMuons", "FFfakeablePreMVA_Muons");
 
     _rlm = _rlm.Define("fakeableMuons_pt",     "Muon_pt_corr[fakeableMuons]")
@@ -200,7 +154,7 @@ void FakeFactorAnalyser::selectFakeableMuons()
                 .Define("fakeableMuons_jetIdx", "Muon_jetIdx[fakeableMuons]")
                 .Define("NfakeableMuons", "int(fakeableMuons_pt.size())");
 
-    _rlm = _rlm.Define("fakeableMuons_isTight", "Muon_promptMVA[fakeableMuons] > 0.64f");
+    _rlm = _rlm.Define("fakeableMuons_isTight", "Muon_tightId[fakeableMuons] != 0");
 
     _rlm = _rlm.Define("fakeableMuon_4Vecs", ::generate_4vec,
                 {"fakeableMuons_pt", "fakeableMuons_eta",

@@ -291,9 +291,9 @@ void BaseAnalyser::selectElectrons()
 
     _rlm = _rlm
         .Define("TightElectrons",
-                "baselineElectrons && "
-                "(Electron_cutBased >= 4) && "
-                "(Electron_pfRelIso04_all < 0.15f)")
+                "baselineElectrons "
+                "&& (Electron_cutBased >= 4) ")
+                // "&& (Electron_pfRelIso04_all < 0.15f)")
 
         .Define("Loose_not_Tight_Electrons",
                 "baselineElectrons && !TightElectrons")
@@ -393,8 +393,8 @@ void BaseAnalyser::selectMuons()
     _rlm = _rlm.Define("baselineMuon_TL4Vecs",::buildTLorentzVectors, {"baselineMuons_pt", "baselineMuons_eta", "baselineMuons_phi", "baselineMuons_mass"});
     _rlm = _rlm
         .Define("TightMuons",
-                "baselineMuons && Muon_tightId && "
-                "Muon_pfRelIso04_all < 0.15f")
+                "baselineMuons && Muon_tightId ")
+                // "&& Muon_pfRelIso04_all < 0.15f")
 
         .Define("Loose_not_Tight_Muons",
                 "baselineMuons && !TightMuons")
@@ -2178,6 +2178,7 @@ void BaseAnalyser::defineMoreVars()
     addVartoStore("goodJets_all_lflav_eta");
 */
     addVartoStore("genWeight");
+    addVartoStore("Gen_goodLepton_.*");
     addVartoStore("pugenWeight");
     addVartoStore("genEventSumw");      
     //case1 btag correction- fixed wp	

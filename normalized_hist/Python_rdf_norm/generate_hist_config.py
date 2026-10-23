@@ -2,18 +2,20 @@
 """
 generate_hist_config.py
 
-Single source of truth for hist_config_with_labels.json. Replaces the old
+Generator for histogram configs, including the tight/LNT regions. Replaces the old
 two-step workflow (hand-typed hist_config.json -> add_titles.py) with one
 script: edit the tables below, run this, get the final config that
 create_hist_rdf.py reads. Nothing downstream (create_hist_rdf.py,
 runjob_hist_py.sh) needs to change.
 
 Run:  python3 generate_hist_config.py [output_path]
-      (defaults to hist_config_with_labels.json in the current directory)
+      (defaults to hist_config_with_labels_new_regions.json in the current directory)
+      The existing hist_config_with_labels.json is protected from overwrite.
 """
 
 import json
 import sys
+from pathlib import Path
 
 # ---------------------------------------------------------------------
 # Regions: prefix used on every branch name (must match BaseAnalyser's
@@ -51,7 +53,29 @@ CHANNEL_REGIONS = [
     {"prefix": "eee_ThreeLRegion", "label": "Three-Lepton Region (eee)"},
 ]
 
-REGIONS = ACTIVE_REGIONS + (CHANNEL_REGIONS if ENABLE_CHANNEL_REGIONS else [])
+# These regions are independent of the older CHANNEL_REGIONS switch.
+# Inclusive object prefixes use ThreeL_, while their flags use threeL_.
+NEW_REGIONS = []
+for family, label in (
+    ("ThreeL", "Three-Lepton Region"),
+    ("WZ", "WZ Region"),
+    ("eee", "Three-Lepton Region (eee)"),
+    ("eeu", "Three-Lepton Region (ee#mu)"),
+    ("uue", "Three-Lepton Region (#mu#mue)"),
+    ("uuu", "Three-Lepton Region (#mu#mu#mu)"),
+):
+    for category in ("TTT", "TTL", "TLL", "LLL"):
+        NEW_REGIONS.append({
+            "prefix": f"{family}_{category}",
+            "flag": f"{'threeL' if family == 'ThreeL' else family}_{category}",
+            "label": f"{label} ({category})",
+            "extras": ("zMass", "WbosonMT", "topMass")
+                      if family in ("ThreeL", "WZ") else ("zMass", "WbosonMT"),
+        })
+
+REGIONS = (ACTIVE_REGIONS
+           + (CHANNEL_REGIONS if ENABLE_CHANNEL_REGIONS else [])
+           + NEW_REGIONS)
 
 # ---------------------------------------------------------------------
 # Common fields: the fixed set defineRegionObjectBranches() produces for
@@ -237,6 +261,27 @@ def build_config():
             "xlabel": extra["xlabel"],
         }
 
+    # Reuse the existing ThreeLRegion mass properties for the new regions.
+    # Flavour-specific regions currently have no topMass branch.
+    mass_templates = {
+        extra["suffix"]: extra for extra in EXTRA_BRANCHES
+        if extra["region"] == "ThreeLRegion"
+    }
+    for region in NEW_REGIONS:
+        for suffix in region["extras"]:
+            template = mass_templates[suffix]
+            config[f"{region['prefix']}_{suffix}"] = {
+                "bins": template["bins"],
+                "xmin": template["xmin"], "xmax": template["xmax"],
+                "title": f"{region['label']}: {template['title']}",
+                "xlabel": template["xlabel"],
+            }
+        config[region["flag"]] = {
+            "bins": 1, "xmin": 0.5, "xmax": 1.5,
+            "title": f"{region['label']}: Event Yield",
+            "xlabel": "Event Category",
+        }
+
     # ungated global branches, unprefixed
     for g in GLOBAL_BRANCHES:
         config[g["field"]] = {
@@ -255,7 +300,11 @@ def build_config():
 
 
 def main():
-    outfile = sys.argv[1] if len(sys.argv) > 1 else "hist_config_with_labels.json"
+    outfile = (Path(sys.argv[1]) if len(sys.argv) > 1
+               else Path("hist_config_with_labels_new_regions.json"))
+    old_config = Path(__file__).resolve().with_name("hist_config_with_labels.json")
+    if outfile.resolve() == old_config:
+        raise SystemExit("Refusing to overwrite the existing hist_config_with_labels.json")
     config = build_config()
     with open(outfile, "w") as f:
         json.dump(config, f, indent=2)

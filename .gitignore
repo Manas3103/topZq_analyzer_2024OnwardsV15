@@ -39,3 +39,4 @@ DataMC_txt/temp/*
 /build/obj/
 /build/dict/
 /src/rootdict.C
+/normalized_hist/Python_rdf_norm/unused_txt_file/
